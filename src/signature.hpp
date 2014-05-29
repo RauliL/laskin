@@ -31,7 +31,7 @@ namespace laskin
                 const std::vector<type>& return_types = std::vector<type>()
         );
 
-        explicit signature(const std::string& source);
+        signature(const std::string& source);
 
         /**
          * Copy constructor.
@@ -58,6 +58,24 @@ namespace laskin
         inline signature& operator=(const signature& that)
         {
             return assign(that);
+        }
+
+        bool equals(const signature& that) const;
+
+        /**
+         * Equality testing operator.
+         */
+        inline bool operator==(const signature& that) const
+        {
+            return equals(that);
+        }
+
+        /**
+         * Non-equality testing operator.
+         */
+        inline bool operator!=(const signature& that) const
+        {
+            return !equals(that);
         }
 
     private:

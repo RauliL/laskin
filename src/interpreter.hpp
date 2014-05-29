@@ -22,6 +22,14 @@ namespace laskin
                      std::deque<value>& stack)
             throw(script_error, syntax_error);
 
+        void register_function(const std::string& name,
+                               const class signature& signature,
+                               void (*callback)(interpreter&, std::deque<value>&));
+
+        void register_function(const std::string& name,
+                               const class signature& signature,
+                               const std::vector<token>& callback);
+
         interpreter& assign(const interpreter& that);
 
         /**

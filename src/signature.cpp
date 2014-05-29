@@ -134,4 +134,24 @@ namespace laskin
 
         return *this;
     }
+
+    bool signature::equals(const signature& that) const
+    {
+        if (m_parameter_types.size() != that.m_parameter_types.size())
+        {
+            return false;
+        }
+        for (std::vector<type>::size_type i = 0; i < m_parameter_types.size(); ++i)
+        {
+            const type a = m_parameter_types[i];
+            const type b = that.m_parameter_types[i];
+
+            if (a != type_any && b != type_any && a != b)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

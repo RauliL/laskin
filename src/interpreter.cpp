@@ -64,6 +64,7 @@ namespace laskin
                                 // TODO: invoke the function
                                 return;
                             }
+                            e = e->child;
                         }
 
                         throw script_error(
@@ -81,6 +82,42 @@ namespace laskin
                 }
             }
         }
+    }
+
+    void interpreter::register_function(const std::string& name,
+                                        const class signature& signature,
+                                        void (*callback)(interpreter&, std::deque<value>&))
+    {
+        hashmap<function>::entry* e = m_functions.find(name);
+
+        while (e)
+        {
+            if (signature == e->value.signature())
+            {
+                e->value = function(signature, callback);
+                return;
+            }
+            e = e->child;
+        }
+        m_functions.insert(name, function(signature, callback));
+    }
+
+    void interpreter::register_function(const std::string& name,
+                                        const class signature& signature,
+                                        const std::vector<token>& callback)
+    {
+        hashmap<function>::entry* e = m_functions.find(name);
+
+        while (e)
+        {
+            if (signature == e->value.signature())
+            {
+                e->value = function(signature, callback);
+                return;
+            }
+            e = e->child;
+        }
+        m_functions.insert(name, function(signature, callback));
     }
 
     interpreter& interpreter::assign(const interpreter& that)
