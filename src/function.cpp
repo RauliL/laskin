@@ -1,4 +1,4 @@
-#include "function.hpp"
+#include "interpreter.hpp"
 
 namespace laskin
 {
@@ -41,6 +41,21 @@ namespace laskin
         if (m_type == type_native)
         {
             delete m_callback.c;
+        }
+    }
+
+    void function::invoke(class interpreter& interpreter,
+                          std::deque<value>& stack) const
+        throw(script_error, syntax_error)
+    {
+        if (m_type == type_native)
+        {
+            if (m_callback.n)
+            {
+                m_callback.n(interpreter, stack);
+            }
+        } else {
+            interpreter.execute(*m_callback.c, stack);
         }
     }
 

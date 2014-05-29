@@ -61,7 +61,7 @@ namespace laskin
                         {
                             if (e->value.signature().test(stack))
                             {
-                                // TODO: invoke the function
+                                e->value.invoke(*this, stack);
                                 return;
                             }
                             e = e->child;

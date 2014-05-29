@@ -49,6 +49,10 @@ namespace laskin
             return m_signature;
         }
 
+        void invoke(class interpreter& interpreter,
+                    std::deque<value>& stack) const
+            throw(script_error, syntax_error);
+
         function& assign(const function& that);
 
         /**
