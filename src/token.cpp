@@ -178,6 +178,7 @@ SCAN_EXPONENT:
                         throw syntax_error("unterminated string literal");
                     }
                     tokens.push_back(token(type_string, buffer));
+                    ++current;
                     break;
 
                 // Parse single quoted strings.
@@ -197,6 +198,7 @@ SCAN_EXPONENT:
                         throw syntax_error("unterminated string literal");
                     }
                     tokens.push_back(token(type_string, buffer));
+                    ++current;
                     break;
 
                 case '-':
