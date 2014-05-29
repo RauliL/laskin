@@ -32,6 +32,36 @@ namespace laskin
         }
     }
 
+    value::value(bool b)
+        : m_type(type_bool)
+    {
+        m_data.i = b ? 1 : 0;
+    }
+
+    value::value(integer i)
+        : m_type(type_integer)
+    {
+        m_data.i = i;
+    }
+
+    value::value(real r)
+        : m_type(type_real)
+    {
+        m_data.r = r;
+    }
+
+    value::value(const std::string& s)
+        : m_type(type_string)
+    {
+        m_data.s = new std::string(s);
+    }
+
+    value::value(const std::vector<value>& v)
+        : m_type(type_vector)
+    {
+        m_data.v = new std::vector<value>(v);
+    }
+
     value::~value()
     {
         if (m_type == type_string)

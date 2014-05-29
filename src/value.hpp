@@ -34,6 +34,31 @@ namespace laskin
         value(const value& that);
 
         /**
+         * Constructs boolean value.
+         */
+        value(bool b);
+
+        /**
+         * Constructs integer value.
+         */
+        value(integer i);
+
+        /**
+         * Constructs real value.
+         */
+        value(real r);
+
+        /**
+         * Constructs string value.
+         */
+        value(const std::string& s);
+
+        /**
+         * Constructs vector value.
+         */
+        value(const std::vector<value>& v);
+
+        /**
          * Destructor. All data associated with the value will be destroyed.
          */
         virtual ~value();
