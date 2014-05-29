@@ -6,6 +6,8 @@
 
 namespace laskin
 {
+    class interpreter;
+    class token;
     class value;
 
     typedef signed long long int integer;
