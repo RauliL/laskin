@@ -26,6 +26,14 @@ namespace laskin
             {
                 // Skip comments.
                 case '#':
+                    while (current != end)
+                    {
+                        if (*current++ == '\n')
+                        {
+                            break;
+                        }
+                    }
+                    break;
 
                 // Skip whitespace.
                 case ' ':
