@@ -32,6 +32,7 @@ namespace laskin
                 case '\t':
                 case '\r':
                 case '\n':
+                    break;
 
                 // Parse numbers from zero.
                 case '0':
