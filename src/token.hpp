@@ -3,6 +3,7 @@
 
 #include "error.hpp"
 #include <iostream>
+#include <vector>
 
 namespace laskin
 {
@@ -37,6 +38,9 @@ namespace laskin
          * Copy constructor.
          */
         token(const token& that);
+
+        static std::vector<token> scan(std::istream& is)
+            throw(syntax_error);
 
         /**
          * Returns type of the token.
