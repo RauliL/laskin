@@ -1,7 +1,7 @@
 #ifndef LASKIN_FUNCTION_HPP_GUARD
 #define LASKIN_FUNCTION_HPP_GUARD
 
-#include "defines.hpp"
+#include "signature.hpp"
 #include "token.hpp"
 #include <deque>
 
@@ -18,6 +18,18 @@ namespace laskin
 
         function();
 
+        /**
+         * Constructs native function.
+         */
+        explicit function(const class signature& signature,
+                          void (*callback)(interpreter&, std::deque<value>&));
+
+        /**
+         * Constructs user defined function.
+         */
+        explicit function(const class signature& signature,
+                          const std::vector<token>& callback);
+
         function(const function& that);
 
         virtual ~function();
@@ -28,6 +40,14 @@ namespace laskin
         inline enum type type() const
         {
             return m_type;
+        }
+
+        /**
+         * Returns function signature.
+         */
+        inline const class signature& signature() const
+        {
+            return m_signature;
         }
 
         function& assign(const function& that);
@@ -41,7 +61,10 @@ namespace laskin
         }
 
     private:
+        /** Type of the function. */
         enum type m_type;
+        /** Function signature. */
+        class signature m_signature;
         union
         {
             void (*n)(interpreter&, std::deque<value>&);

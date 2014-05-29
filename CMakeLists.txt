@@ -8,6 +8,7 @@ ADD_EXECUTABLE(
     src/function.cpp
     src/interpreter.cpp
     src/main.cpp
+    src/signature.cpp
     src/token.cpp
     src/value.cpp
 )
