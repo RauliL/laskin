@@ -60,7 +60,7 @@ SCAN_NUMBER_FROM_ZERO:
                                 buffer.append(1, 'x');
                                 while (current != end && std::isxdigit(*current))
                                 {
-                                    buffer.append(1, c);
+                                    buffer.append(1, *current++);
                                 }
                                 break;
 
@@ -103,10 +103,7 @@ SCAN_NUMBER_FROM_ZERO:
 SCAN_NUMBER:
                     while (current != end && std::isdigit(*current))
                     {
-                        if ((c = *current++) != '_')
-                        {
-                            buffer.append(1, *current++);
-                        }
+                        buffer.append(1, *current++);
                     }
                     if (current != end && *current == '.')
                     {
