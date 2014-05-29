@@ -6,6 +6,8 @@
 
 namespace laskin
 {
+    class value;
+
     typedef signed long long int integer;
     typedef double real;
 }
