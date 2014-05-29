@@ -2,6 +2,8 @@
 #define LASKIN_SIGNATURE_HPP_GUARD
 
 #include "defines.hpp"
+#include <deque>
+#include <string>
 #include <vector>
 
 namespace laskin
@@ -29,6 +31,8 @@ namespace laskin
                 const std::vector<type>& return_types = std::vector<type>()
         );
 
+        explicit signature(const std::string& source);
+
         /**
          * Copy constructor.
          */
@@ -43,6 +47,8 @@ namespace laskin
         {
             return m_return_types;
         }
+
+        bool test(const std::deque<value>& stack) const;
 
         signature& assign(const signature& that);
 

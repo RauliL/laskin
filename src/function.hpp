@@ -3,7 +3,6 @@
 
 #include "signature.hpp"
 #include "token.hpp"
-#include <deque>
 
 namespace laskin
 {
