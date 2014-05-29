@@ -53,11 +53,31 @@ namespace laskin
 
                 case token::type_word:
                 {
-                    std::stringstream ss;
+                    hashmap<function>::entry* e = m_functions.find(token.data());
 
-                    ss << "undefined function `" << token.data() << "'";
+                    if (e)
+                    {
+                        while (e)
+                        {
+                            if (e->value.signature().test(stack))
+                            {
+                                // TODO: invoke the function
+                                return;
+                            }
+                        }
 
-                    throw script_error(ss.str());
+                        throw script_error(
+                                "signature of function `"
+                                + token.data()
+                                + "' does not match with given stack"
+                        );
+                    }
+
+                    throw script_error(
+                            "undefined function `"
+                            + token.data()
+                            + "'"
+                    );
                 }
             }
         }
