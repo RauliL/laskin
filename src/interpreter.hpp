@@ -1,8 +1,8 @@
 #ifndef LASKIN_INTERPRETER_HPP_GUARD
 #define LASKIN_INTERPRETER_HPP_GUARD
 
-#include "defines.hpp"
-#include "error.hpp"
+#include "function.hpp"
+#include "hashmap.hpp"
 #include <deque>
 #include <vector>
 
@@ -31,6 +31,10 @@ namespace laskin
         {
             return assign(that);
         }
+
+    private:
+        /** Container for functions. */
+        hashmap<function> m_functions;
     };
 }
 

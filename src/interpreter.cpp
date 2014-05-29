@@ -9,7 +9,8 @@ namespace laskin
 
     interpreter::interpreter() {}
 
-    interpreter::interpreter(const interpreter& that) {}
+    interpreter::interpreter(const interpreter& that)
+        : m_functions(that.m_functions) {}
 
     void interpreter::execute(const std::vector<token>& tokens,
                               std::deque<value>& stack)
@@ -64,6 +65,8 @@ namespace laskin
 
     interpreter& interpreter::assign(const interpreter& that)
     {
+        m_functions = that.m_functions;
+
         return *this;
     }
 }
