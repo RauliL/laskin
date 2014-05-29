@@ -5,6 +5,27 @@
 #include <sstream>
 #include <unistd.h>
 
+static void repl_clear(laskin::interpreter&, std::deque<laskin::value>&);
+static void repl_drop(laskin::interpreter&, std::deque<laskin::value>&);
+static void repl_peek(laskin::interpreter&, std::deque<laskin::value>&);
+static void repl_quit(laskin::interpreter&, std::deque<laskin::value>&);
+
+struct repl_command
+{
+    const char* name;
+    const char* name_shortcut;
+    void (*callback)(laskin::interpreter&, std::deque<laskin::value>&);
+};
+
+static const repl_command repl_command_list[] =
+{
+    {"clear", "c", repl_clear},
+    {"drop", "d", repl_drop},
+    {"peek", "p", repl_peek},
+    {"quit", "q", repl_quit},
+    {NULL, NULL, NULL}
+};
+
 int main(int argc, char** argv)
 {
     laskin::interpreter interpreter;
@@ -70,7 +91,23 @@ int main(int argc, char** argv)
             }
             else if (line[0] == '\\')
             {
-                // TODO: process repl command
+                bool found = false;
+
+                line = line.substr(1);
+                for (int i = 0; repl_command_list[i].name; ++i)
+                {
+                    if (!line.compare(repl_command_list[i].name)
+                        || !line.compare(repl_command_list[i].name_shortcut))
+                    {
+                        found = true;
+                        repl_command_list[i].callback(interpreter, stack);
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    std::cout << "unrecognized command" << std::endl;
+                }
             } else {
                 ss.str(line);
                 try
@@ -107,4 +144,38 @@ int main(int argc, char** argv)
     }
 
     return EXIT_SUCCESS;
+}
+
+static void repl_clear(laskin::interpreter& interpreter,
+                       std::deque<laskin::value>& stack)
+{
+    stack.clear();
+}
+
+static void repl_drop(laskin::interpreter& interpreter,
+                      std::deque<laskin::value>& stack)
+{
+    if (stack.empty())
+    {
+        std::cout << "stack is empty" << std::endl;
+    } else {
+        stack.pop_back();
+    }
+}
+
+static void repl_peek(laskin::interpreter& interpreter,
+                      std::deque<laskin::value>& stack)
+{
+    if (stack.empty())
+    {
+        std::cout << "stack is empty" << std::endl;
+    } else {
+        std::cout << stack[stack.size() - 1] << std::endl;
+    }
+}
+
+static void repl_quit(laskin::interpreter& interpreter,
+                      std::deque<laskin::value>& stack)
+{
+    std::exit(EXIT_SUCCESS);
 }

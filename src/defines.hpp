@@ -6,7 +6,9 @@
 
 namespace laskin
 {
+    class function;
     class interpreter;
+    class signature;
     class token;
     class value;
 
