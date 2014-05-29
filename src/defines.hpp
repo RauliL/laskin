@@ -40,4 +40,8 @@ namespace laskin
 #define LASKIN_IS_IN_INTEGER_RANGE(x) \
     ((x) <= LASKIN_INTEGER_MAX && (x) >= LASKIN_INTEGER_MIN)
 
+#define BUILT_IN_FUNCTION(Name) \
+    static void Name(class interpreter& interpreter, \
+                     std::deque<value>& stack)
+
 #endif /* !LASKIN_DEFINES_HPP_GUARD */
