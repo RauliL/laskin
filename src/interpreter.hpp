@@ -16,6 +16,11 @@ namespace laskin
         interpreter(const interpreter& that);
 
         /**
+         * Initializes basic API. Should be called only once.
+         */
+        void initialize();
+
+        /**
          * Executes sequence of tokens with given data stack.
          */
         void execute(const std::vector<token>& tokens,
@@ -24,6 +29,10 @@ namespace laskin
 
         void register_function(const std::string& name,
                                const class signature& signature,
+                               void (*callback)(interpreter&, std::deque<value>&));
+
+        void register_function(const std::string& name,
+                               const std::string& signature,
                                void (*callback)(interpreter&, std::deque<value>&));
 
         void register_function(const std::string& name,

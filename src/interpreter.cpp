@@ -7,10 +7,22 @@ namespace laskin
 {
     typedef std::vector<token>::const_iterator token_iterator;
 
+    namespace internal
+    {
+        void initialize_numbers(interpreter*);
+    }
+
     interpreter::interpreter() {}
 
     interpreter::interpreter(const interpreter& that)
         : m_functions(that.m_functions) {}
+
+    void interpreter::initialize()
+    {
+        using namespace internal;
+
+        initialize_numbers(this);
+    }
 
     void interpreter::execute(const std::vector<token>& tokens,
                               std::deque<value>& stack)
@@ -53,7 +65,7 @@ namespace laskin
 
                 case token::type_word:
                 {
-                    hashmap<function>::entry* e = m_functions.find(token.data());
+                    const hashmap<function>::entry* e = m_functions.find(token.data());
 
                     if (e)
                     {
@@ -100,6 +112,13 @@ namespace laskin
             e = e->child;
         }
         m_functions.insert(name, function(signature, callback));
+    }
+
+    void interpreter::register_function(const std::string& name,
+                                        const std::string& sig,
+                                        void (*callback)(interpreter&, std::deque<value>&))
+    {
+        register_function(name, signature(sig), callback);
     }
 
     void interpreter::register_function(const std::string& name,

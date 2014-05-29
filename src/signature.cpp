@@ -64,67 +64,67 @@ namespace laskin
 
     bool signature::test(const std::deque<value>& stack) const
     {
-        if (m_parameter_types.size() == stack.size())
+        if (stack.size() < m_parameter_types.size())
         {
-            auto a = m_parameter_types.begin();
-            auto b = stack.rbegin();
-
-            while (a != m_parameter_types.end())
-            {
-                auto v = *b++;
-
-                switch (*a++)
-                {
-                    case type_any:
-                        break;
-
-                    case type_bool:
-                        if (!v.is(value::type_bool))
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case type_number:
-                        if (!v.is(value::type_integer) && !v.is(value::type_real))
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case type_integer:
-                        if (!v.is(value::type_integer))
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case type_real:
-                        if (!v.is(value::type_real))
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case type_string:
-                        if (!v.is(value::type_string))
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case type_vector:
-                        if (!v.is(value::type_vector))
-                        {
-                            return false;
-                        }
-                }
-            }
-
-            return true;
+            return false;
         }
 
-        return false;
+        auto a = m_parameter_types.begin();
+        auto b = stack.rbegin();
+
+        while (a != m_parameter_types.end())
+        {
+            auto v = *b++;
+
+            switch (*a++)
+            {
+                case type_any:
+                    break;
+
+                case type_bool:
+                    if (!v.is(value::type_bool))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_number:
+                    if (!v.is(value::type_integer) && !v.is(value::type_real))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_integer:
+                    if (!v.is(value::type_integer))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_real:
+                    if (!v.is(value::type_real))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_string:
+                    if (!v.is(value::type_string))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_vector:
+                    if (!v.is(value::type_vector))
+                    {
+                        return false;
+                    }
+            }
+        }
+
+        return true;
     }
 
     signature& signature::assign(const signature& that)

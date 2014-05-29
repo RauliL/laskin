@@ -31,7 +31,7 @@ namespace laskin
                 const std::vector<type>& return_types = std::vector<type>()
         );
 
-        signature(const std::string& source);
+        explicit signature(const std::string& source);
 
         /**
          * Copy constructor.

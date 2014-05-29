@@ -38,7 +38,7 @@ namespace laskin
 
     function::~function()
     {
-        if (m_type == type_native)
+        if (m_type == type_custom)
         {
             delete m_callback.c;
         }
