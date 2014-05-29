@@ -124,33 +124,19 @@ SCAN_REAL:
 SCAN_EXPONENT:
                             buffer.append(1, 'e');
                             ++current;
-                            if (current == end)
-                            {
-                                throw syntax_error("missing exponent");
-                            }
-                            else if (*current == '+' || *current == '-')
+                            if (current != end && (*current == '+' || *current == '-'))
                             {
                                 buffer.append(1, *current++);
-                                if (current == end || !std::isdigit(*current))
-                                {
-                                    throw syntax_error("missing exponent");
-                                }
-                                do
-                                {
-                                    buffer.append(1, *current++);
-                                }
-                                while (current != end && std::isdigit(*current));
                             }
-                            else if (std::isdigit(*current))
+                            if (current == end || !std::isdigit(*current))
                             {
-                                do
-                                {
-                                    buffer.append(1, *current++);
-                                }
-                                while (current != end && std::isdigit(*current));
-                            } else {
                                 throw syntax_error("missing exponent");
                             }
+                            do
+                            {
+                                buffer.append(1, *current++);
+                            }
+                            while (current != end && std::isdigit(*current));
                         }
                         tokens.push_back(token(type_real, buffer));
                     } else {
