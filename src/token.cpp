@@ -107,9 +107,9 @@ SCAN_NUMBER:
                     }
                     if (current != end && *current == '.')
                     {
+                        ++current;
 SCAN_REAL:
                         buffer.append(1, '.');
-                        ++current;
                         if (current == end || !std::isdigit(*current))
                         {
                             throw syntax_error("missing digits after `.'");
