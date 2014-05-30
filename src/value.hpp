@@ -125,6 +125,24 @@ namespace laskin
             return assign(that);
         }
 
+        bool equals(const value& that) const;
+
+        /**
+         * Equality testing operator.
+         */
+        inline bool operator==(const value& that) const
+        {
+            return equals(that);
+        }
+
+        /**
+         * Non-equality testing operator.
+         */
+        inline bool operator!=(const value& that) const
+        {
+            return !equals(that);
+        }
+
     private:
         /** Type of the value. */
         enum type m_type;

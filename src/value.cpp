@@ -212,6 +212,75 @@ namespace laskin
         return *this;
     }
 
+    bool value::equals(const value& that) const
+    {
+        switch (m_type)
+        {
+            case type_bool:
+                return that.m_type == type_bool && m_data.i == that.m_data.i;
+
+            case type_integer:
+                if (that.m_type == type_integer)
+                {
+                    return m_data.i == that.m_data.i;
+                }
+                else if (that.m_type == type_real)
+                {
+                    return static_cast<double>(m_data.i) == that.m_data.r;
+                }
+                break;
+
+            case type_real:
+                if (that.m_type == type_real)
+                {
+                    return m_data.r == that.m_data.r;
+                }
+                else if (that.m_type == type_integer)
+                {
+                    return m_data.r == static_cast<double>(that.m_data.r);
+                }
+                break;
+
+            case type_string:
+                if (that.m_type == type_string)
+                {
+                    return !m_data.s.container->compare(*that.m_data.s.container);
+                }
+                break;
+
+            case type_list:
+                if (that.m_type == type_list)
+                {
+                    const std::vector<value>& a = *m_data.l.container;
+                    const std::vector<value>& b = *m_data.l.container;
+
+                    if (a.size() != b.size())
+                    {
+                        return false;
+                    }
+                    for (std::vector<value>::size_type i = 0; i < a.size(); ++i)
+                    {
+                        if (a[i] != b[i])
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+                break;
+
+            case type_function:
+                if (that.m_type == type_function)
+                {
+                    return m_data.f.function->signature()
+                        == that.m_data.f.function->signature();
+                }
+        }
+
+        return false;
+    }
+
     std::ostream& operator<<(std::ostream& os, const class value& value)
     {
         switch (value.type())
