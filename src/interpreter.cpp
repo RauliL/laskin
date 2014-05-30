@@ -12,6 +12,8 @@ namespace laskin
 
     namespace internal
     {
+        void initialize_bool(interpreter*);
+        void initialize_io(interpreter*);
         void initialize_list(interpreter*);
         void initialize_numbers(interpreter*);
         void initialize_stack(interpreter*);
@@ -27,6 +29,8 @@ namespace laskin
     {
         using namespace internal;
 
+        initialize_bool(this);
+        initialize_io(this);
         initialize_list(this);
         initialize_numbers(this);
         initialize_stack(this);
@@ -81,27 +85,32 @@ namespace laskin
 
                     if (e)
                     {
+                        bool found = false;
+
                         for (auto& f : e->value)
                         {
                             if (f.signature().test(stack))
                             {
+                                found = true;
                                 f.invoke(*this, stack);
-                                return;
+                                break;
                             }
                         }
-
+                        if (!found)
+                        {
+                            throw script_error(
+                                    "signature of function `"
+                                    + token.data()
+                                    + "' does not match with given stack"
+                            );
+                        }
+                    } else {
                         throw script_error(
-                                "signature of function `"
+                                "undefined function `"
                                 + token.data()
-                                + "' does not match with given stack"
+                                + "'"
                         );
                     }
-
-                    throw script_error(
-                            "undefined function `"
-                            + token.data()
-                            + "'"
-                    );
                 }
             }
         }
