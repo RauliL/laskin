@@ -90,6 +90,36 @@ namespace laskin
         }
     }
 
+    /**
+     * ==(any any : bool)
+     *
+     * Returns true if the two values are equal, false otherwise.
+     */
+    BUILT_IN_FUNCTION(func_eq)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        stack.pop_back();
+        stack.pop_back();
+        stack.push_back(a == b);
+    }
+
+    /**
+     * !=(any any : bool)
+     *
+     * Returns true if the two values are not equal, false otherwise.
+     */
+    BUILT_IN_FUNCTION(func_ne)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        stack.pop_back();
+        stack.pop_back();
+        stack.push_back(a != b);
+    }
+
     namespace internal
     {
         void initialize_numbers(interpreter* i)
@@ -98,6 +128,10 @@ namespace laskin
             i->register_function("-", "nn:n", func_sub);
             i->register_function("*", "nn:n", func_mul);
             i->register_function("/", "nn:n", func_div);
+
+            // Comparison operators.
+            i->register_function("==", "??:b", func_eq);
+            i->register_function("!=", "??:b", func_ne);
         }
     }
 }
