@@ -1,0 +1,9 @@
+#!/usr/bin/env laskin
+
+# Declare function "hello-world".
+:hello-world() {
+    "Hello, World!" println
+}
+
+# Invoke it.
+hello-world
