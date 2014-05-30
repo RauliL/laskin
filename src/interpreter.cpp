@@ -9,6 +9,8 @@ namespace laskin
 
     static value parse_value(token_iterator&, const token_iterator&);
     static value parse_vector_value(token_iterator&, const token_iterator&);
+    static signature parse_signature(token_iterator&, const token_iterator&);
+    static void parse_block(token_iterator&, const token_iterator&, std::vector<token>&);
 
     namespace internal
     {
@@ -54,7 +56,6 @@ namespace laskin
                 case token::type_rbrack:
                 case token::type_lbrace:
                 case token::type_rbrace:
-                case token::type_colon:
                 {
                     std::stringstream ss;
 
@@ -78,6 +79,35 @@ namespace laskin
                 case token::type_lbrack:
                     stack.push_back(parse_vector_value(current, end));
                     break;
+
+                case token::type_colon:
+                {
+                    std::string name;
+                    class signature signature;
+                    std::vector<class token> body;
+
+                    if (current != end && current->is(token::type_word))
+                    {
+                        name = current++->data();
+                    }
+                    if (current != end && current->is(token::type_lparen))
+                    {
+                        signature = parse_signature(++current, end);
+                    }
+                    if (current != end && current->is(token::type_lbrace))
+                    {
+                        parse_block(++current, end, body);
+                        if (name.empty())
+                        {
+                            stack.push_back(value(function(signature, body)));
+                        } else {
+                            register_function(name, signature, body);
+                        }
+                    } else {
+                        throw syntax_error("missing function body");
+                    }
+                    break;
+                }
 
                 case token::type_word:
                 {
@@ -226,5 +256,118 @@ namespace laskin
         ++current;
 
         return value(elements);
+    }
+
+    static signature parse_signature(token_iterator& current,
+                                     const token_iterator& end)
+    {
+        std::vector<signature::entry> parameter_types;
+        std::vector<signature::entry> return_types;
+        bool in_parameters = true;
+
+        while (current != end && !current->is(token::type_rparen))
+        {
+            if (current->is(token::type_colon))
+            {
+                ++current;
+                if (in_parameters)
+                {
+                    in_parameters = false;
+                } else {
+                    throw syntax_error("multiple `:' found in function signature");
+                }
+            }
+            else if (current->is(token::type_word))
+            {
+                const std::string& id = current++->data();
+                signature::entry entry;
+
+                if (!id.compare("any"))
+                {
+                    entry = signature::type_any;
+                }
+                else if (!id.compare("bool"))
+                {
+                    entry = signature::type_bool;
+                }
+                else if (!id.compare("number"))
+                {
+                    entry = signature::type_number;
+                }
+                else if (!id.compare("integer"))
+                {
+                    entry = signature::type_integer;
+                }
+                else if (!id.compare("real"))
+                {
+                    entry = signature::type_real;
+                }
+                else if (!id.compare("string"))
+                {
+                    entry = signature::type_string;
+                }
+                else if (!id.compare("list"))
+                {
+                    entry = signature::type_list;
+                }
+                else if (!id.compare("function"))
+                {
+                    entry = signature::type_function;
+                } else {
+                    throw syntax_error("unknown type: `" + id + "'");
+                }
+                if (in_parameters)
+                {
+                    parameter_types.push_back(entry);
+                } else {
+                    return_types.push_back(entry);
+                }
+            } else {
+                std::stringstream ss;
+
+                ss << "unexpected "
+                   << current->type()
+                   << "; missing type signature";
+
+                throw syntax_error(ss.str());
+            }
+        }
+        if (current == end)
+        {
+            throw syntax_error("unterminated function signature: missing `)'");
+        }
+        ++current;
+
+        return signature(parameter_types, return_types);
+    }
+
+    static void parse_block(token_iterator& current,
+                            const token_iterator& end,
+                            std::vector<token>& tokens)
+    {
+        unsigned int counter = 1;
+
+        while (current != end && counter > 0)
+        {
+            const class token& token = *current++;
+
+            switch (token.type())
+            {
+                case token::type_lbrace:
+                    ++counter;
+                    break;
+
+                case token::type_rbrace:
+                    --counter;
+                    break;
+
+                default:
+                    tokens.push_back(token);
+            }
+        }
+        if (counter > 0)
+        {
+            throw syntax_error("unterminated block: missing `}'");
+        }
     }
 }

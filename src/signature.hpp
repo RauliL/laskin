@@ -11,16 +11,16 @@ namespace laskin
     class signature
     {
     public:
-        enum type
+        enum entry
         {
             type_any,
-            type_all,
             type_bool,
             type_number,
             type_integer,
             type_real,
             type_string,
-            type_list
+            type_list,
+            type_function
         };
 
         /**
@@ -28,8 +28,8 @@ namespace laskin
          * types.
          */
         explicit signature(
-                const std::vector<type>& parameter_types = std::vector<type>(),
-                const std::vector<type>& return_types = std::vector<type>()
+                const std::vector<entry>& parameter_types = std::vector<entry>(),
+                const std::vector<entry>& return_types = std::vector<entry>()
         );
 
         explicit signature(const std::string& source);
@@ -39,12 +39,12 @@ namespace laskin
          */
         signature(const signature& that);
 
-        inline const std::vector<type>& parameter_types() const
+        inline const std::vector<entry>& parameter_types() const
         {
             return m_parameter_types;
         }
 
-        inline const std::vector<type>& return_types() const
+        inline const std::vector<entry>& return_types() const
         {
             return m_return_types;
         }
@@ -80,9 +80,12 @@ namespace laskin
         }
 
     private:
-        std::vector<type> m_parameter_types;
-        std::vector<type> m_return_types;
+        std::vector<entry> m_parameter_types;
+        std::vector<entry> m_return_types;
     };
+
+    std::ostream& operator<<(std::ostream&, const signature&);
+    std::ostream& operator<<(std::ostream&, signature::entry);
 }
 
 #endif /* !LASKIN_SIGNATURE_HPP_GUARD */

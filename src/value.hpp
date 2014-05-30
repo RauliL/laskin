@@ -18,7 +18,8 @@ namespace laskin
             type_integer,
             type_real,
             type_string,
-            type_list
+            type_list,
+            type_function
         };
 
         /**
@@ -57,6 +58,11 @@ namespace laskin
          * Constructs list value.
          */
         value(const std::vector<value>& l);
+
+        /**
+         * Constructs function value.
+         */
+        value(const function& f);
 
         /**
          * Destructor. All data associated with the value will be destroyed.
@@ -99,6 +105,11 @@ namespace laskin
             return *m_data.l.container;
         }
 
+        inline const function& as_function() const
+        {
+            return *m_data.f.function;
+        }
+
         /**
          * Assigns data from another value into this one.
          *
@@ -136,6 +147,12 @@ namespace laskin
                 std::vector<value>* container;
                 unsigned* counter;
             } l;
+            /** Function value. */
+            struct
+            {
+                class function* function;
+                unsigned* counter;
+            } f;
         } m_data;
     };
 

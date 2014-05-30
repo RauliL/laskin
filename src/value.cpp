@@ -1,3 +1,4 @@
+#include "function.hpp"
 #include "value.hpp"
 #include <cmath>
 
@@ -33,6 +34,12 @@ namespace laskin
                 m_data.l.container = that.m_data.l.container;
                 m_data.l.counter = that.m_data.l.counter;
                 ++(*m_data.l.counter);
+                break;
+
+            case type_function:
+                m_data.f.function = that.m_data.f.function;
+                m_data.f.counter = that.m_data.f.counter;
+                ++(*m_data.f.counter);
         }
     }
 
@@ -68,6 +75,13 @@ namespace laskin
         m_data.l.counter = new unsigned(1);
     }
 
+    value::value(const function& f)
+        : m_type(type_function)
+    {
+        m_data.f.function = new function(f);
+        m_data.f.counter = new unsigned(1);
+    }
+
     value::~value()
     {
         if (m_type == type_string)
@@ -84,6 +98,14 @@ namespace laskin
             {
                 delete m_data.l.counter;
                 delete m_data.l.container;
+            }
+        }
+        else if (m_type == type_function)
+        {
+            if (!--(*m_data.f.counter))
+            {
+                delete m_data.f.counter;
+                delete m_data.f.function;
             }
         }
     }
@@ -150,6 +172,14 @@ namespace laskin
                 delete m_data.l.container;
             }
         }
+        else if (m_type == type_function)
+        {
+            if (!--(*m_data.f.counter))
+            {
+                delete m_data.f.counter;
+                delete m_data.f.function;
+            }
+        }
         switch (m_type = that.m_type)
         {
             case type_bool:
@@ -171,6 +201,12 @@ namespace laskin
                 m_data.l.container = that.m_data.l.container;
                 m_data.l.counter = that.m_data.l.counter;
                 ++(*m_data.l.counter);
+                break;
+
+            case type_function:
+                m_data.f.function = that.m_data.f.function;
+                m_data.f.counter = that.m_data.f.counter;
+                ++(*m_data.f.counter);
         }
 
         return *this;
@@ -208,7 +244,12 @@ namespace laskin
                     }
                     os << vec[i];
                 }
+                break;
             }
+
+            case value::type_function:
+                os << "function" << value.as_function().signature();
+                break;
         }
         return os;
     }

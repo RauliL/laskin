@@ -29,19 +29,6 @@ namespace laskin
         stack.push_back(value(a.as_list().empty()));
     }
 
-    /**
-     * >list(all : list)
-     *
-     * Takes every value from the stack and returns them in a list.
-     */
-    BUILT_IN_FUNCTION(func_to_list)
-    {
-        std::vector<value> list(stack.begin(), stack.end());
-
-        stack.clear();
-        stack.push_back(value(list));
-    }
-
     namespace internal
     {
         void initialize_list(interpreter* i)
@@ -50,8 +37,6 @@ namespace laskin
 
             // Testing functions.
             i->register_function("empty?", "l:b", func_is_empty);
-
-            i->register_function(">list", "*:l", func_to_list);
         }
     }
 }
