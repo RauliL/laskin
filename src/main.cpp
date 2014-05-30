@@ -9,6 +9,7 @@ static void repl_clear(laskin::interpreter&, std::deque<laskin::value>&);
 static void repl_drop(laskin::interpreter&, std::deque<laskin::value>&);
 static void repl_peek(laskin::interpreter&, std::deque<laskin::value>&);
 static void repl_quit(laskin::interpreter&, std::deque<laskin::value>&);
+static void repl_stack(laskin::interpreter&, std::deque<laskin::value>&);
 
 struct repl_command
 {
@@ -23,6 +24,7 @@ static const repl_command repl_command_list[] =
     {"drop", "d", repl_drop},
     {"peek", "p", repl_peek},
     {"quit", "q", repl_quit},
+    {"stack", "s", repl_stack},
     {NULL, NULL, NULL}
 };
 
@@ -179,4 +181,22 @@ static void repl_quit(laskin::interpreter& interpreter,
                       std::deque<laskin::value>& stack)
 {
     std::exit(EXIT_SUCCESS);
+}
+
+static void repl_stack(laskin::interpreter& interpreter,
+                       std::deque<laskin::value>& stack)
+{
+    bool first = true;
+
+    for (auto& value : stack)
+    {
+        if (first)
+        {
+            first = false;
+        } else {
+            std::cout << ' ';
+        }
+        std::cout << value;
+    }
+    std::cout << std::endl;
 }
