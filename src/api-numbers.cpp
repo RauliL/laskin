@@ -120,6 +120,78 @@ namespace laskin
         stack.push_back(a != b);
     }
 
+    /**
+     * <(number number : bool)
+     *
+     * Less-than comparison between two numbers.
+     */
+    BUILT_IN_FUNCTION(func_lt)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            stack.push_back(a.as_real() < b.as_real());
+        } else {
+            stack.push_back(a.as_integer() < b.as_integer());
+        }
+    }
+
+    /**
+     * >(number number : bool)
+     *
+     * Greater-than comparison between two numbers.
+     */
+    BUILT_IN_FUNCTION(func_gt)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            stack.push_back(a.as_real() > b.as_real());
+        } else {
+            stack.push_back(a.as_integer() > b.as_integer());
+        }
+    }
+
+    /**
+     * <(number number : bool)
+     *
+     * Less-than-equals comparison between two numbers.
+     */
+    BUILT_IN_FUNCTION(func_lte)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            stack.push_back(a.as_real() <= b.as_real());
+        } else {
+            stack.push_back(a.as_integer() <= b.as_integer());
+        }
+    }
+
+    /**
+     * >=(number number : bool)
+     *
+     * Greater-than-equals comparison between two numbers.
+     */
+    BUILT_IN_FUNCTION(func_gte)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            stack.push_back(a.as_real() >= b.as_real());
+        } else {
+            stack.push_back(a.as_integer() >= b.as_integer());
+        }
+    }
+
     namespace internal
     {
         void initialize_numbers(interpreter* i)
@@ -132,6 +204,10 @@ namespace laskin
             // Comparison operators.
             i->register_function("==", "??:b", func_eq);
             i->register_function("!=", "??:b", func_ne);
+            i->register_function("<", "nn:b", func_lt);
+            i->register_function(">", "nn:b", func_gt);
+            i->register_function("<=", "nn:b", func_lte);
+            i->register_function(">=", "nn:b", func_gte);
         }
     }
 }
