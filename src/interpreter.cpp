@@ -12,6 +12,7 @@ namespace laskin
 
     namespace internal
     {
+        void initialize_list(interpreter*);
         void initialize_numbers(interpreter*);
         void initialize_stack(interpreter*);
         void initialize_string(interpreter*);
@@ -26,6 +27,7 @@ namespace laskin
     {
         using namespace internal;
 
+        initialize_list(this);
         initialize_numbers(this);
         initialize_stack(this);
         initialize_string(this);
