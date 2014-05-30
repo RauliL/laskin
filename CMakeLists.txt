@@ -7,6 +7,7 @@ ADD_EXECUTABLE(
     laskin
     src/api-numbers.cpp
     src/api-stack.cpp
+    src/api-string.cpp
     src/function.cpp
     src/interpreter.cpp
     src/main.cpp

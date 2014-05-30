@@ -14,6 +14,7 @@ namespace laskin
     {
         void initialize_numbers(interpreter*);
         void initialize_stack(interpreter*);
+        void initialize_string(interpreter*);
     }
 
     interpreter::interpreter() {}
@@ -27,6 +28,7 @@ namespace laskin
 
         initialize_numbers(this);
         initialize_stack(this);
+        initialize_string(this);
     }
 
     void interpreter::execute(const std::vector<token>& tokens,
