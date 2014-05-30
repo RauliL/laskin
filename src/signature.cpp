@@ -38,8 +38,8 @@ namespace laskin
                     type = type_string;
                     break;
 
-                case 'v':
-                    type = type_vector;
+                case 'l':
+                    type = type_list;
                     break;
 
                 case ':':
@@ -116,8 +116,8 @@ namespace laskin
                     }
                     break;
 
-                case type_vector:
-                    if (!v.is(value::type_vector))
+                case type_list:
+                    if (!v.is(value::type_list))
                     {
                         return false;
                     }

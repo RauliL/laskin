@@ -19,7 +19,7 @@ namespace laskin
             type_integer,
             type_real,
             type_string,
-            type_vector
+            type_list
         };
 
         /**

@@ -18,7 +18,7 @@ namespace laskin
             type_integer,
             type_real,
             type_string,
-            type_vector
+            type_list
         };
 
         /**
@@ -54,9 +54,9 @@ namespace laskin
         value(const std::string& s);
 
         /**
-         * Constructs vector value.
+         * Constructs list value.
          */
-        value(const std::vector<value>& v);
+        value(const std::vector<value>& l);
 
         /**
          * Destructor. All data associated with the value will be destroyed.
@@ -91,12 +91,12 @@ namespace laskin
 
         inline const std::string& as_string() const
         {
-            return *m_data.s;
+            return *m_data.s.container;
         }
 
-        inline const std::vector<value>& as_vector() const
+        inline const std::vector<value>& as_list() const
         {
-            return *m_data.v;
+            return *m_data.l.container;
         }
 
         /**
@@ -125,9 +125,17 @@ namespace laskin
             /** Floating point decimal value. */
             real r;
             /** String value. */
-            std::string* s;
-            /** Vector value. */
-            std::vector<value>* v;
+            struct
+            {
+                std::string* container;
+                unsigned* counter;
+            } s;
+            /** List value. */
+            struct
+            {
+                std::vector<value>* container;
+                unsigned* counter;
+            } l;
         } m_data;
     };
 

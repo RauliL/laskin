@@ -24,11 +24,15 @@ namespace laskin
                 break;
 
             case type_string:
-                m_data.s = new std::string(*that.m_data.s);
+                m_data.s.container = that.m_data.s.container;
+                m_data.s.counter = that.m_data.s.counter;
+                ++(*m_data.s.counter);
                 break;
 
-            case type_vector:
-                m_data.v = new std::vector<value>(*that.m_data.v);
+            case type_list:
+                m_data.l.container = that.m_data.l.container;
+                m_data.l.counter = that.m_data.l.counter;
+                ++(*m_data.l.counter);
         }
     }
 
@@ -53,24 +57,34 @@ namespace laskin
     value::value(const std::string& s)
         : m_type(type_string)
     {
-        m_data.s = new std::string(s);
+        m_data.s.container = new std::string(s);
+        m_data.s.counter = new unsigned(1);
     }
 
-    value::value(const std::vector<value>& v)
-        : m_type(type_vector)
+    value::value(const std::vector<value>& l)
+        : m_type(type_list)
     {
-        m_data.v = new std::vector<value>(v);
+        m_data.l.container = new std::vector<value>(l);
+        m_data.l.counter = new unsigned(1);
     }
 
     value::~value()
     {
         if (m_type == type_string)
         {
-            delete m_data.s;
+            if (!--(*m_data.s.counter))
+            {
+                delete m_data.s.counter;
+                delete m_data.s.container;
+            }
         }
-        else if (m_type == type_vector)
+        else if (m_type == type_list)
         {
-            delete m_data.v;
+            if (!--(*m_data.l.counter))
+            {
+                delete m_data.l.counter;
+                delete m_data.l.container;
+            }
         }
     }
 
@@ -122,11 +136,19 @@ namespace laskin
     {
         if (m_type == type_string)
         {
-            delete m_data.s;
+            if (!--(*m_data.s.counter))
+            {
+                delete m_data.s.counter;
+                delete m_data.s.container;
+            }
         }
-        else if (m_type == type_vector)
+        else if (m_type == type_list)
         {
-            delete m_data.v;
+            if (!--(*m_data.l.counter))
+            {
+                delete m_data.l.counter;
+                delete m_data.l.container;
+            }
         }
         switch (m_type = that.m_type)
         {
@@ -140,11 +162,15 @@ namespace laskin
                 break;
 
             case type_string:
-                m_data.s = new std::string(*that.m_data.s);
+                m_data.s.container = that.m_data.s.container;
+                m_data.s.counter = that.m_data.s.counter;
+                ++(*m_data.s.counter);
                 break;
 
-            case type_vector:
-                m_data.v = new std::vector<value>(*that.m_data.v);
+            case type_list:
+                m_data.l.container = that.m_data.l.container;
+                m_data.l.counter = that.m_data.l.counter;
+                ++(*m_data.l.counter);
         }
 
         return *this;
@@ -170,9 +196,9 @@ namespace laskin
                 os << value.as_string();
                 break;
 
-            case value::type_vector:
+            case value::type_list:
             {
-                const std::vector<class value>& vec = value.as_vector();
+                const std::vector<class value>& vec = value.as_list();
 
                 for (std::size_t i = 0; i < vec.size(); ++i)
                 {
