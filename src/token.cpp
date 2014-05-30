@@ -168,30 +168,12 @@ SCAN_EXPONENT:
                     }
                     break;
 
-                // Parse double quoted strings.
+                // Parse string literals.
                 case '"':
-                    buffer.clear();
-                    while (current != end && *current != '"')
-                    {
-                        if (*current == '\\')
-                        {
-                            // TODO: process escape sequence
-                        } else {
-                            buffer.append(1, *current++);
-                        }
-                    }
-                    if (current == end)
-                    {
-                        throw syntax_error("unterminated string literal");
-                    }
-                    tokens.push_back(token(type_string, buffer));
-                    ++current;
-                    break;
-
-                // Parse single quoted strings.
                 case '\'':
+                {
                     buffer.clear();
-                    while (current != end && *current != '\'')
+                    while (current != end && *current != c)
                     {
                         if (*current == '\\')
                         {
@@ -207,6 +189,7 @@ SCAN_EXPONENT:
                     tokens.push_back(token(type_string, buffer));
                     ++current;
                     break;
+                }
 
                 case '-':
                 case '+':
