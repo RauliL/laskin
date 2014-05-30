@@ -7,6 +7,9 @@ namespace laskin
 {
     typedef std::vector<token>::const_iterator token_iterator;
 
+    static value parse_value(token_iterator&, const token_iterator&);
+    static value parse_vector_value(token_iterator&, const token_iterator&);
+
     namespace internal
     {
         void initialize_numbers(interpreter*);
@@ -40,7 +43,6 @@ namespace laskin
             {
                 case token::type_lparen:
                 case token::type_rparen:
-                case token::type_lbrack:
                 case token::type_rbrack:
                 case token::type_lbrace:
                 case token::type_rbrace:
@@ -63,6 +65,10 @@ namespace laskin
 
                 case token::type_string:
                     stack.push_back(value(token.data()));
+                    break;
+
+                case token::type_lbrack:
+                    stack.push_back(parse_vector_value(current, end));
                     break;
 
                 case token::type_word:
@@ -146,5 +152,53 @@ namespace laskin
         m_functions = that.m_functions;
 
         return *this;
+    }
+
+    static value parse_value(token_iterator& current,
+                             const token_iterator& end)
+    {
+        const class token& token = *current++;
+
+        switch (token.type())
+        {
+            case token::type_integer:
+                return value(std::stoll(token.data()));
+
+            case token::type_real:
+                return value(std::stod(token.data()));
+
+            case token::type_string:
+                return value(token.data());
+
+            case token::type_lbrack:
+                return parse_vector_value(current, end);
+
+            default:
+            {
+                std::stringstream ss;
+
+                ss << "unexpected " << token.type() << "; missing value";
+
+                throw syntax_error(ss.str());
+            }
+        }
+    }
+
+    static value parse_vector_value(token_iterator& current,
+                                    const token_iterator& end)
+    {
+        std::vector<value> elements;
+
+        while (current != end && !current->is(token::type_rbrack))
+        {
+            elements.push_back(parse_value(current, end));
+        }
+        if (current == end)
+        {
+            throw syntax_error("unterminated vector literal");
+        }
+        ++current;
+
+        return value(elements);
     }
 }

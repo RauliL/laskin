@@ -42,6 +42,22 @@ namespace laskin
                 case '\n':
                     break;
 
+                // Various separators.
+                case '(': case ')':
+                case '[': case ']':
+                case '{': case '}':
+                case ':':
+                    tokens.push_back(token(
+                                c == '(' ? type_lparen :
+                                c == ')' ? type_rparen :
+                                c == '[' ? type_lbrack :
+                                c == ']' ? type_rbrack :
+                                c == '{' ? type_lbrace :
+                                c == '}' ? type_rbrace :
+                                type_colon
+                    ));
+                    break;
+
                 // Parse numbers from zero.
                 case '0':
                     buffer.assign(1, '0');
