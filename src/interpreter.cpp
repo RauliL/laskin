@@ -10,6 +10,7 @@ namespace laskin
     namespace internal
     {
         void initialize_numbers(interpreter*);
+        void initialize_stack(interpreter*);
     }
 
     interpreter::interpreter() {}
@@ -22,6 +23,7 @@ namespace laskin
         using namespace internal;
 
         initialize_numbers(this);
+        initialize_stack(this);
     }
 
     void interpreter::execute(const std::vector<token>& tokens,
