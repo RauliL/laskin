@@ -139,6 +139,21 @@ namespace laskin
         stack.push_back(value(s));
     }
 
+    /**
+     * +(string string : string)
+     *
+     * Concatenates two strings into one.
+     */
+    BUILT_IN_FUNCTION(func_add)
+    {
+        std::string a = stack[stack.size() - 2].as_string();
+        std::string b = stack[stack.size() - 1].as_string();
+
+        stack.pop_back();
+        stack.pop_back();
+        stack.push_back(value(a + b));
+    }
+
     namespace internal
     {
         void initialize_string(interpreter* i)
@@ -154,6 +169,8 @@ namespace laskin
             // Conversion functions.
             i->register_function(">lower", "s:s", func_to_lower);
             i->register_function(">upper", "s:s", func_to_upper);
+
+            i->register_function("+", "ss:s", func_add);
         }
     }
 }

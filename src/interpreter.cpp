@@ -75,18 +75,17 @@ namespace laskin
 
                 case token::type_word:
                 {
-                    const hashmap<function>::entry* e = m_functions.find(token.data());
+                    hashmap<std::vector<function> >::entry* e = m_functions.find(token.data());
 
                     if (e)
                     {
-                        while (e)
+                        for (auto& f : e->value)
                         {
-                            if (e->value.signature().test(stack))
+                            if (f.signature().test(stack))
                             {
-                                e->value.invoke(*this, stack);
+                                f.invoke(*this, stack);
                                 return;
                             }
-                            e = e->child;
                         }
 
                         throw script_error(
@@ -110,18 +109,25 @@ namespace laskin
                                         const class signature& signature,
                                         void (*callback)(interpreter&, std::deque<value>&))
     {
-        hashmap<function>::entry* e = m_functions.find(name);
+        hashmap<std::vector<function> >::entry* e = m_functions.find(name);
 
-        while (e)
+        if (e)
         {
-            if (signature == e->value.signature())
+            for (auto& f : e->value)
             {
-                e->value = function(signature, callback);
-                return;
+                if (signature == f.signature())
+                {
+                    f = function(signature, callback);
+                    return;
+                }
             }
-            e = e->child;
+            e->value.push_back(function(signature, callback));
+        } else {
+            std::vector<function> vector;
+
+            vector.push_back(function(signature, callback));
+            m_functions.insert(name, vector);
         }
-        m_functions.insert(name, function(signature, callback));
     }
 
     void interpreter::register_function(const std::string& name,
@@ -135,18 +141,25 @@ namespace laskin
                                         const class signature& signature,
                                         const std::vector<token>& callback)
     {
-        hashmap<function>::entry* e = m_functions.find(name);
+        hashmap<std::vector<function> >::entry* e = m_functions.find(name);
 
-        while (e)
+        if (e)
         {
-            if (signature == e->value.signature())
+            for (auto& f : e->value)
             {
-                e->value = function(signature, callback);
-                return;
+                if (signature == f.signature())
+                {
+                    f = function(signature, callback);
+                    return;
+                }
             }
-            e = e->child;
+            e->value.push_back(function(signature, callback));
+        } else {
+            std::vector<function> vector;
+
+            vector.push_back(function(signature, callback));
+            m_functions.insert(name, vector);
         }
-        m_functions.insert(name, function(signature, callback));
     }
 
     interpreter& interpreter::assign(const interpreter& that)

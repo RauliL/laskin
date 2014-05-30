@@ -61,7 +61,7 @@ namespace laskin
 
     function& function::assign(const function& that)
     {
-        if (m_type == type_native)
+        if (m_type == type_custom)
         {
             delete m_callback.c;
         }

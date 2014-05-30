@@ -51,7 +51,7 @@ namespace laskin
 
     private:
         /** Container for functions. */
-        hashmap<function> m_functions;
+        hashmap<std::vector<function> > m_functions;
     };
 }
 
