@@ -18,6 +18,7 @@ namespace laskin
         void initialize_io(interpreter*);
         void initialize_list(interpreter*);
         void initialize_numbers(interpreter*);
+        void initialize_program(interpreter*);
         void initialize_stack(interpreter*);
         void initialize_string(interpreter*);
     }
@@ -35,6 +36,7 @@ namespace laskin
         initialize_io(this);
         initialize_list(this);
         initialize_numbers(this);
+        initialize_program(this);
         initialize_stack(this);
         initialize_string(this);
     }
