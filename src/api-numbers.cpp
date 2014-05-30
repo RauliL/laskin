@@ -130,6 +130,8 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
+        stack.pop_back();
+        stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push_back(a.as_real() < b.as_real());
@@ -148,6 +150,8 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
+        stack.pop_back();
+        stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push_back(a.as_real() > b.as_real());
@@ -166,6 +170,8 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
+        stack.pop_back();
+        stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push_back(a.as_real() <= b.as_real());
@@ -184,11 +190,65 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
+        stack.pop_back();
+        stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push_back(a.as_real() >= b.as_real());
         } else {
             stack.push_back(a.as_integer() >= b.as_integer());
+        }
+    }
+
+    /**
+     * max(number number : number)
+     *
+     * Returns maximum of the two given values.
+     */
+    BUILT_IN_FUNCTION(func_max)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        stack.pop_back();
+        stack.pop_back();
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            const double x = a.as_real();
+            const double y = b.as_real();
+
+            stack.push_back(x > y ? x : y);
+        } else {
+            const integer x = a.as_integer();
+            const integer y = b.as_integer();
+
+            stack.push_back(x > y ? x : y);
+        }
+    }
+
+    /**
+     * min(number number : number)
+     *
+     * Returns minimum of the two given values.
+     */
+    BUILT_IN_FUNCTION(func_min)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+
+        stack.pop_back();
+        stack.pop_back();
+        if (a.is(value::type_real) || b.is(value::type_real))
+        {
+            const double x = a.as_real();
+            const double y = b.as_real();
+
+            stack.push_back(x < y ? x : y);
+        } else {
+            const integer x = a.as_integer();
+            const integer y = b.as_integer();
+
+            stack.push_back(x < y ? x : y);
         }
     }
 
@@ -208,6 +268,9 @@ namespace laskin
             i->register_function(">", "nn:b", func_gt);
             i->register_function("<=", "nn:b", func_lte);
             i->register_function(">=", "nn:b", func_gte);
+
+            i->register_function("max", "nn:n", func_max);
+            i->register_function("min", "nn:n", func_min);
         }
     }
 }
