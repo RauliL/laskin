@@ -46,6 +46,10 @@ namespace laskin
                     in_parameters = false;
                     break;
 
+                case '*':
+                    type = type_all;
+                    break;
+
                 default:
                     type = type_any;
             }
@@ -64,67 +68,73 @@ namespace laskin
 
     bool signature::test(const std::deque<value>& stack) const
     {
-        if (stack.size() < m_parameter_types.size())
+        if (!m_parameter_types.empty() && m_parameter_types[0] == type_all)
+        {
+            return true;
+        }
+        else if (stack.size() < m_parameter_types.size())
         {
             return false;
-        }
+        } else {
+            auto a = m_parameter_types.begin();
+            auto b = stack.rbegin();
 
-        auto a = m_parameter_types.begin();
-        auto b = stack.rbegin();
-
-        while (a != m_parameter_types.end())
-        {
-            auto v = *b++;
-
-            switch (*a++)
+            while (a != m_parameter_types.end())
             {
-                case type_any:
-                    break;
+                auto v = *b++;
 
-                case type_bool:
-                    if (!v.is(value::type_bool))
-                    {
-                        return false;
-                    }
-                    break;
+                switch (*a++)
+                {
+                    case type_any:
+                    case type_all:
+                        break;
 
-                case type_number:
-                    if (!v.is(value::type_integer) && !v.is(value::type_real))
-                    {
-                        return false;
-                    }
-                    break;
+                    case type_bool:
+                        if (!v.is(value::type_bool))
+                        {
+                            return false;
+                        }
+                        break;
 
-                case type_integer:
-                    if (!v.is(value::type_integer))
-                    {
-                        return false;
-                    }
-                    break;
+                    case type_number:
+                        if (!v.is(value::type_integer)
+                            && !v.is(value::type_real))
+                        {
+                            return false;
+                        }
+                        break;
 
-                case type_real:
-                    if (!v.is(value::type_real))
-                    {
-                        return false;
-                    }
-                    break;
+                    case type_integer:
+                        if (!v.is(value::type_integer))
+                        {
+                            return false;
+                        }
+                        break;
 
-                case type_string:
-                    if (!v.is(value::type_string))
-                    {
-                        return false;
-                    }
-                    break;
+                    case type_real:
+                        if (!v.is(value::type_real))
+                        {
+                            return false;
+                        }
+                        break;
 
-                case type_list:
-                    if (!v.is(value::type_list))
-                    {
-                        return false;
-                    }
+                    case type_string:
+                        if (!v.is(value::type_string))
+                        {
+                            return false;
+                        }
+                        break;
+
+                    case type_list:
+                        if (!v.is(value::type_list))
+                        {
+                            return false;
+                        }
+                }
             }
-        }
 
-        return true;
+            return true;
+        }
     }
 
     signature& signature::assign(const signature& that)

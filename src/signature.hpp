@@ -14,6 +14,7 @@ namespace laskin
         enum type
         {
             type_any,
+            type_all,
             type_bool,
             type_number,
             type_integer,
