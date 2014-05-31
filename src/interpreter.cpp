@@ -8,9 +8,10 @@ namespace laskin
     typedef std::vector<token>::const_iterator token_iterator;
 
     static value parse_value(token_iterator&, const token_iterator&);
-    static value parse_vector_value(token_iterator&, const token_iterator&);
-    static signature parse_signature(token_iterator&, const token_iterator&);
-    static void parse_block(token_iterator&, const token_iterator&, std::vector<token>&);
+    static std::vector<value> parse_list(token_iterator&, const token_iterator&);
+    static signature parse_function_signature(token_iterator&, const token_iterator&);
+    static std::vector<token> parse_block(token_iterator&, const token_iterator&);
+    static void parse_if(token_iterator&, const token_iterator&, interpreter&, std::deque<value>&);
 
     namespace internal
     {
@@ -49,9 +50,7 @@ namespace laskin
 
         for (token_iterator current = tokens.begin(); current < end;)
         {
-            const class token& token = *current++;
-
-            switch (token.type())
+            switch (current->type())
             {
                 case token::type_lparen:
                 case token::type_rparen:
@@ -61,87 +60,89 @@ namespace laskin
                 {
                     std::stringstream ss;
 
-                    ss << "unexpected " << token.type();
+                    ss << "unexpected " << current->type();
 
                     throw syntax_error(ss.str());
                 }
 
                 case token::type_integer:
-                    stack.push_back(value(std::stoll(token.data())));
+                    stack.push_back(std::stoll(current++->data()));
                     break;
 
                 case token::type_real:
-                    stack.push_back(value(std::stod(token.data())));
+                    stack.push_back(std::stod(current++->data()));
                     break;
 
                 case token::type_string:
-                    stack.push_back(value(token.data()));
+                    stack.push_back(current++->data());
                     break;
 
                 case token::type_lbrack:
-                    stack.push_back(parse_vector_value(current, end));
+                    stack.push_back(parse_list(++current, end));
                     break;
+
+                case token::type_word:
+                {
+                    const std::string& id = current++->data();
+
+                    if (!id.compare("if"))
+                    {
+                        parse_if(current, end, *this, stack);
+                    } else {
+                        auto entry = m_functions.find(id);
+
+                        if (entry)
+                        {
+                            bool found = false;
+
+                            for (auto& function : entry->value)
+                            {
+                                if (function.signature().test(stack))
+                                {
+                                    found = true;
+                                    function.invoke(*this, stack);
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                throw script_error(
+                                        "signature of function `"
+                                        + id
+                                        + "' does not match with given stack"
+                                );
+                            }
+                        } else {
+                            throw script_error(
+                                    "undefined function `"
+                                    + id
+                                    + "'"
+                            );
+                        }
+                    }
+                    break;
+                }
 
                 case token::type_colon:
                 {
                     std::string name;
                     class signature signature;
-                    std::vector<class token> body;
+                    std::vector<token> body;
 
-                    if (current != end && current->is(token::type_word))
+                    if (++current < end && current->is(token::type_word))
                     {
                         name = current++->data();
                     }
-                    if (current != end && current->is(token::type_lparen))
+                    if (current < end && current->is(token::type_lparen))
                     {
-                        signature = parse_signature(++current, end);
+                        signature = parse_function_signature(++current, end);
                     }
-                    if (current != end && current->is(token::type_lbrace))
+                    body = parse_block(current, end);
+                    if (name.empty())
                     {
-                        parse_block(++current, end, body);
-                        if (name.empty())
-                        {
-                            stack.push_back(value(function(signature, body)));
-                        } else {
-                            register_function(name, signature, body);
-                        }
+                        stack.push_back(function(signature, body));
                     } else {
-                        throw syntax_error("missing function body");
-                    }
-                    break;
-                }
-
-                case token::type_word:
-                {
-                    hashmap<std::vector<function> >::entry* e = m_functions.find(token.data());
-
-                    if (e)
-                    {
-                        bool found = false;
-
-                        for (auto& f : e->value)
-                        {
-                            if (f.signature().test(stack))
-                            {
-                                found = true;
-                                f.invoke(*this, stack);
-                                break;
-                            }
-                        }
-                        if (!found)
-                        {
-                            throw script_error(
-                                    "signature of function `"
-                                    + token.data()
-                                    + "' does not match with given stack"
-                            );
-                        }
-                    } else {
-                        throw script_error(
-                                "undefined function `"
-                                + token.data()
-                                + "'"
-                        );
+                        register_function(name, signature, body);
                     }
                 }
             }
@@ -220,16 +221,18 @@ namespace laskin
         switch (token.type())
         {
             case token::type_integer:
-                return value(std::stoll(token.data()));
+                return std::stoll(token.data());
 
             case token::type_real:
-                return value(std::stod(token.data()));
+                return std::stod(token.data());
 
             case token::type_string:
-                return value(token.data());
+                return token.data();
 
             case token::type_lbrack:
-                return parse_vector_value(current, end);
+                return parse_list(current, end);
+
+            case token::type_colon: // TODO: anonymous function
 
             default:
             {
@@ -242,32 +245,31 @@ namespace laskin
         }
     }
 
-    static value parse_vector_value(token_iterator& current,
-                                    const token_iterator& end)
+    static std::vector<value> parse_list(token_iterator& current,
+                                         const token_iterator& end)
     {
-        std::vector<value> elements;
+        std::vector<value> list;
 
-        while (current != end && !current->is(token::type_rbrack))
+        while (current < end && !current->is(token::type_rbrack))
         {
-            elements.push_back(parse_value(current, end));
+            list.push_back(parse_value(current, end));
         }
-        if (current == end)
+        if (current++ >= end)
         {
-            throw syntax_error("unterminated vector literal");
+            throw syntax_error("unterminated list: missing `]'");
         }
-        ++current;
 
-        return value(elements);
+        return list;
     }
 
-    static signature parse_signature(token_iterator& current,
-                                     const token_iterator& end)
+    static signature parse_function_signature(token_iterator& current,
+                                              const token_iterator& end)
     {
         std::vector<signature::entry> parameter_types;
         std::vector<signature::entry> return_types;
         bool in_parameters = true;
 
-        while (current != end && !current->is(token::type_rparen))
+        while (current < end && !current->is(token::type_rparen))
         {
             if (current->is(token::type_colon))
             {
@@ -334,42 +336,105 @@ namespace laskin
                 throw syntax_error(ss.str());
             }
         }
-        if (current == end)
+        if (current++ >= end)
         {
             throw syntax_error("unterminated function signature: missing `)'");
         }
-        ++current;
 
         return signature(parameter_types, return_types);
     }
 
-    static void parse_block(token_iterator& current,
-                            const token_iterator& end,
-                            std::vector<token>& tokens)
+    static std::vector<token> parse_block(token_iterator& current,
+                                          const token_iterator& end)
     {
+        std::vector<token> tokens;
         unsigned int counter = 1;
 
-        while (current != end && counter > 0)
+        if (current >= end || !current->is(token::type_lbrace))
+        {
+            throw syntax_error("missing block");
+        }
+        ++current;
+        while (current < end)
         {
             const class token& token = *current++;
 
-            switch (token.type())
+            if (token.is(token::type_lbrace))
             {
-                case token::type_lbrace:
-                    ++counter;
-                    break;
+                ++counter;
+            }
+            else if (token.is(token::type_rbrace) && --counter == 0)
+            {
+                break;
+            }
+            tokens.push_back(token);
+        }
+        if (counter > 0)
+        {
+            throw syntax_error("unterminated block: missing `}'");
+        }
 
-                case token::type_rbrace:
-                    --counter;
-                    break;
+        return tokens;
+    }
 
-                default:
-                    tokens.push_back(token);
+    static void skip_block(token_iterator& current,
+                           const token_iterator& end)
+    {
+        unsigned int counter = 1;
+
+        if (current >= end || !current->is(token::type_lbrace))
+        {
+            throw syntax_error("missing block");
+        }
+        for (++current; current < end && counter > 0; ++current)
+        {
+            if (current->is(token::type_lbrace))
+            {
+                ++counter;
+            }
+            else if (current->is(token::type_rbrace))
+            {
+                --counter;
             }
         }
         if (counter > 0)
         {
             throw syntax_error("unterminated block: missing `}'");
+        }
+    }
+
+    static void parse_if(token_iterator& current,
+                         const token_iterator& end,
+                         class interpreter& interpreter,
+                         std::deque<value>& stack)
+    {
+        token_iterator begin = current;
+        bool condition;
+
+        while (current < end && !current->is(token::type_lbrace))
+        {
+            ++current;
+        }
+        interpreter.execute(std::vector<token>(begin, current), stack);
+        if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
+        {
+            throw script_error("`if' statement is missing condition");
+        }
+        condition = stack[stack.size() - 1].as_bool();
+        stack.pop_back();
+        if (condition)
+        {
+            interpreter.execute(parse_block(current, end), stack);
+            if (current < end && current->is("else"))
+            {
+                skip_block(++current, end);
+            }
+        } else {
+            skip_block(current, end);
+            if (current < end && current->is("else"))
+            {
+                interpreter.execute(parse_block(++current, end), stack);
+            }
         }
     }
 }

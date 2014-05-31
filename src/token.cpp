@@ -234,6 +234,54 @@ SCAN_WORD:
         return *this;
     }
 
+    std::ostream& operator<<(std::ostream& os, const class token& token)
+    {
+        switch (token.type())
+        {
+            case token::type_lparen:
+                os << "`('";
+                break;
+
+            case token::type_rparen:
+                os << "`)'";
+                break;
+
+            case token::type_lbrack:
+                os << "`['";
+                break;
+
+            case token::type_rbrack:
+                os << "`]'";
+                break;
+
+            case token::type_lbrace:
+                os << "`{'";
+                break;
+
+            case token::type_rbrace:
+                os << "`}'";
+                break;
+
+            case token::type_colon:
+                os << "`:'";
+                break;
+
+            case token::type_integer:
+            case token::type_real:
+                os << token.data();
+                break;
+
+            case token::type_string:
+                os << "string literal";
+                break;
+
+            case token::type_word:
+                os << "`" << token.data() << "'";
+        }
+
+        return os;
+    }
+
     std::ostream& operator<<(std::ostream& os, enum token::type type)
     {
         switch (type)

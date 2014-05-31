@@ -59,6 +59,14 @@ namespace laskin
         }
 
         /**
+         * Tests whether token is a word of certain type.
+         */
+        inline bool is(const std::string& data) const
+        {
+            return m_type == type_word && !m_data.compare(data);
+        }
+
+        /**
          * Returns text data associated with the token.
          */
         inline const std::string& data() const
@@ -86,6 +94,7 @@ namespace laskin
         std::string m_data;
     };
 
+    std::ostream& operator<<(std::ostream&, const token&);
     std::ostream& operator<<(std::ostream&, enum token::type);
 }
 
