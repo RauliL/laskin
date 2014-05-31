@@ -240,7 +240,7 @@ namespace laskin
             case token::type_int:
                 try
                 {
-                    return string_to_int(current++->data());
+                    return string_to_int(token.data());
                 }
                 catch (std::length_error& e)
                 {
@@ -250,7 +250,7 @@ namespace laskin
             case token::type_real:
                 try
                 {
-                    return string_to_real(current++->data());
+                    return string_to_real(token.data());
                 }
                 catch (std::length_error& e)
                 {
