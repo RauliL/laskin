@@ -48,7 +48,7 @@ namespace laskin
 
                 case ':':
                     in_parameters = false;
-                    break;
+                    continue;
 
                 default:
                     entry = type_any;
@@ -73,10 +73,10 @@ namespace laskin
             return false;
         }
 
-        auto a = m_parameter_types.begin();
+        auto a = m_parameter_types.rbegin();
         auto b = stack.rbegin();
 
-        while (a != m_parameter_types.end())
+        while (a != m_parameter_types.rend())
         {
             auto value = *b++;
 
