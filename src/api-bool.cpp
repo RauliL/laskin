@@ -88,10 +88,10 @@ namespace laskin
             i->register_function("true", ":b", func_true);
             i->register_function("false", ":b", func_false);
 
-            i->register_function("&", "bb:b", func_and);
-            i->register_function("|", "bb:b", func_or);
-            i->register_function("^", "bb:b", func_xor);
-            i->register_function("!", "b:b", func_not);
+            i->register_function("and", "bb:b", func_and);
+            i->register_function("or", "bb:b", func_or);
+            i->register_function("xor", "bb:b", func_xor);
+            i->register_function("not", "b:b", func_not);
         }
     }
 }
