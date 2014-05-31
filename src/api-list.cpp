@@ -29,6 +29,21 @@ namespace laskin
         stack.push_back(value(a.as_list().empty()));
     }
 
+    /**
+     * +(list any : list)
+     *
+     * Inserts value to the end of the list and returns result.
+     */
+    BUILT_IN_FUNCTION(func_add)
+    {
+        std::vector<value> list = stack[stack.size() - 2].as_list();
+
+        list.push_back(stack[stack.size() - 1]);
+        stack.pop_back();
+        stack.pop_back();
+        stack.push_back(list);
+    }
+
     namespace internal
     {
         void initialize_list(interpreter* i)
@@ -37,6 +52,8 @@ namespace laskin
 
             // Testing functions.
             i->register_function("empty?", "l:b", func_is_empty);
+
+            i->register_function("+", "l?:l", func_add);
         }
     }
 }
