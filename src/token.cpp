@@ -198,10 +198,12 @@ SCAN_EXPONENT:
                     {
                         if (*current == '0')
                         {
+                            buffer.append(1, *current++);
                             goto SCAN_NUMBER_FROM_ZERO;
                         }
                         else if (std::isdigit(*current))
                         {
+                            buffer.append(1, *current++);
                             goto SCAN_NUMBER;
                         }
                     }
