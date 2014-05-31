@@ -1,0 +1,27 @@
+#!/usr/bin/env laskin
+
+# Print numbers from 1 to 10 with `while' loop.
+
+# Push initial value 1.
+1
+
+# Duplicate it because the condition testing eats one value from the stack.
+dup
+
+# Begin the `while' loop.
+while 10 <= {
+
+    # Duplicate the number again.
+    dup
+
+    # Print it.
+    println
+
+    # Increment it by one.
+    1 +
+
+    # Duplicate the result because condition is going to eat one value from the
+    # stack again.
+    dup
+
+}
