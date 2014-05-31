@@ -22,6 +22,7 @@ namespace laskin
         void initialize_program(interpreter*);
         void initialize_stack(interpreter*);
         void initialize_string(interpreter*);
+        void initialize_trigonometry(interpreter*);
     }
 
     interpreter::interpreter() {}
@@ -40,6 +41,7 @@ namespace laskin
         initialize_program(this);
         initialize_stack(this);
         initialize_string(this);
+        initialize_trigonometry(this);
     }
 
     void interpreter::execute(const std::vector<token>& tokens,
