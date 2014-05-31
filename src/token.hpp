@@ -19,7 +19,7 @@ namespace laskin
             type_lbrace,
             type_rbrace,
             type_colon,
-            type_integer,
+            type_int,
             type_real,
             type_string,
             type_word

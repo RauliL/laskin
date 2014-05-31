@@ -4,7 +4,7 @@
 namespace laskin
 {
     /**
-     * length(list : integer)
+     * length(list : int)
      *
      * Returns the number of elements stored in the list.
      */
@@ -54,7 +54,7 @@ namespace laskin
     }
 
     /**
-     * @(list integer : list)
+     * @(list int : list)
      *
      * Retrieves value from the list at given index. Negative indexes count
      * from backwards.
@@ -64,7 +64,7 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
         const std::vector<value>& list = a.as_list();
-        integer index = b.as_integer();
+        integer index = b.as_int();
 
         stack.pop_back();
         stack.pop_back();

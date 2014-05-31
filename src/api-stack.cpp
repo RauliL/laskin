@@ -14,7 +14,7 @@ namespace laskin
     }
 
     /**
-     * depth( : integer)
+     * depth( : int)
      *
      * Returns current depth of the stack.
      */

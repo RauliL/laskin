@@ -27,7 +27,7 @@ namespace laskin
                     break;
 
                 case 'i':
-                    entry = type_integer;
+                    entry = type_int;
                     break;
 
                 case 'r':
@@ -93,15 +93,15 @@ namespace laskin
                     break;
 
                 case type_number:
-                    if (!value.is(value::type_integer)
+                    if (!value.is(value::type_int)
                         && !value.is(value::type_real))
                     {
                         return false;
                     }
                     break;
 
-                case type_integer:
-                    if (!value.is(value::type_integer))
+                case type_int:
+                    if (!value.is(value::type_int))
                     {
                         return false;
                     }
@@ -218,8 +218,8 @@ namespace laskin
                 os << "number";
                 break;
 
-            case signature::type_integer:
-                os << "integer";
+            case signature::type_int:
+                os << "int";
                 break;
 
             case signature::type_real:

@@ -5,7 +5,7 @@
 namespace laskin
 {
     value::value()
-        : m_type(type_integer)
+        : m_type(type_int)
     {
         m_data.i = 0;
     }
@@ -16,7 +16,7 @@ namespace laskin
         switch (m_type)
         {
             case type_bool:
-            case type_integer:
+            case type_int:
                 m_data.i = that.m_data.i;
                 break;
 
@@ -50,7 +50,7 @@ namespace laskin
     }
 
     value::value(integer i)
-        : m_type(type_integer)
+        : m_type(type_int)
     {
         m_data.i = i;
     }
@@ -110,10 +110,10 @@ namespace laskin
         }
     }
 
-    integer value::as_integer() const
+    integer value::as_int() const
         throw(std::out_of_range)
     {
-        if (m_type == type_integer)
+        if (m_type == type_int)
         {
             return m_data.i;
         }
@@ -146,7 +146,7 @@ namespace laskin
         {
             return m_data.r;
         }
-        else if (m_type == type_integer)
+        else if (m_type == type_int)
         {
             return static_cast<real>(m_data.i);
         }
@@ -183,7 +183,7 @@ namespace laskin
         switch (m_type = that.m_type)
         {
             case type_bool:
-            case type_integer:
+            case type_int:
                 m_data.i = that.m_data.i;
                 break;
 
@@ -219,8 +219,8 @@ namespace laskin
             case type_bool:
                 return that.m_type == type_bool && m_data.i == that.m_data.i;
 
-            case type_integer:
-                if (that.m_type == type_integer)
+            case type_int:
+                if (that.m_type == type_int)
                 {
                     return m_data.i == that.m_data.i;
                 }
@@ -235,7 +235,7 @@ namespace laskin
                 {
                     return m_data.r == that.m_data.r;
                 }
-                else if (that.m_type == type_integer)
+                else if (that.m_type == type_int)
                 {
                     return m_data.r == static_cast<double>(that.m_data.r);
                 }
@@ -289,8 +289,8 @@ namespace laskin
                 os << (value.as_bool() ? "true" : "false");
                 break;
 
-            case value::type_integer:
-                os << value.as_integer();
+            case value::type_int:
+                os << value.as_int();
                 break;
 
             case value::type_real:
@@ -344,8 +344,8 @@ namespace laskin
                 os << "bool";
                 break;
 
-            case value::type_integer:
-                os << "integer";
+            case value::type_int:
+                os << "int";
                 break;
 
             case value::type_real:

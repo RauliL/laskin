@@ -5,7 +5,7 @@
 namespace laskin
 {
     /**
-     * length(string : integer)
+     * length(string : int)
      *
      * Returns length of the string.
      */

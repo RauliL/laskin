@@ -116,7 +116,7 @@ SCAN_NUMBER_FROM_ZERO:
                                 goto SCAN_REAL;
                         }
                     }
-                    tokens.push_back(token(type_integer, buffer));
+                    tokens.push_back(token(type_int, buffer));
                     break;
 
                 // Parse numbers.
@@ -164,7 +164,7 @@ SCAN_EXPONENT:
                         }
                         tokens.push_back(token(type_real, buffer));
                     } else {
-                        tokens.push_back(token(type_integer, buffer));
+                        tokens.push_back(token(type_int, buffer));
                     }
                     break;
 
@@ -268,7 +268,7 @@ SCAN_WORD:
                 os << "`:'";
                 break;
 
-            case token::type_integer:
+            case token::type_int:
             case token::type_real:
                 os << token.data();
                 break;
@@ -316,7 +316,7 @@ SCAN_WORD:
                 os << "`:'";
                 break;
 
-            case token::type_integer:
+            case token::type_int:
             case token::type_real:
                 os << "number literal";
                 break;

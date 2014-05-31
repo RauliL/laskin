@@ -19,7 +19,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() + b.as_real());
         } else {
-            stack.push_back(a.as_integer() + b.as_integer());
+            stack.push_back(a.as_int() + b.as_int());
         }
     }
 
@@ -39,7 +39,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() - b.as_real());
         } else {
-            stack.push_back(a.as_integer() - b.as_integer());
+            stack.push_back(a.as_int() - b.as_int());
         }
     }
 
@@ -59,7 +59,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() * b.as_real());
         } else {
-            stack.push_back(a.as_integer() * b.as_integer());
+            stack.push_back(a.as_int() * b.as_int());
         }
     }
 
@@ -79,8 +79,8 @@ namespace laskin
         {
             stack.push_back(a.as_real() / b.as_real());
         } else {
-            const integer x = a.as_integer();
-            const integer y = b.as_integer();
+            const integer x = a.as_int();
+            const integer y = b.as_int();
 
             if (y == 0)
             {
@@ -136,7 +136,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() < b.as_real());
         } else {
-            stack.push_back(a.as_integer() < b.as_integer());
+            stack.push_back(a.as_int() < b.as_int());
         }
     }
 
@@ -156,7 +156,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() > b.as_real());
         } else {
-            stack.push_back(a.as_integer() > b.as_integer());
+            stack.push_back(a.as_int() > b.as_int());
         }
     }
 
@@ -176,7 +176,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() <= b.as_real());
         } else {
-            stack.push_back(a.as_integer() <= b.as_integer());
+            stack.push_back(a.as_int() <= b.as_int());
         }
     }
 
@@ -196,7 +196,7 @@ namespace laskin
         {
             stack.push_back(a.as_real() >= b.as_real());
         } else {
-            stack.push_back(a.as_integer() >= b.as_integer());
+            stack.push_back(a.as_int() >= b.as_int());
         }
     }
 
@@ -219,8 +219,8 @@ namespace laskin
 
             stack.push_back(x > y ? x : y);
         } else {
-            const integer x = a.as_integer();
-            const integer y = b.as_integer();
+            const integer x = a.as_int();
+            const integer y = b.as_int();
 
             stack.push_back(x > y ? x : y);
         }
@@ -245,8 +245,8 @@ namespace laskin
 
             stack.push_back(x < y ? x : y);
         } else {
-            const integer x = a.as_integer();
-            const integer y = b.as_integer();
+            const integer x = a.as_int();
+            const integer y = b.as_int();
 
             stack.push_back(x < y ? x : y);
         }

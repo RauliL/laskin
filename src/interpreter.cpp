@@ -65,7 +65,7 @@ namespace laskin
                     throw syntax_error(ss.str());
                 }
 
-                case token::type_integer:
+                case token::type_int:
                     stack.push_back(std::stoll(current++->data()));
                     break;
 
@@ -220,7 +220,7 @@ namespace laskin
 
         switch (token.type())
         {
-            case token::type_integer:
+            case token::type_int:
                 return std::stoll(token.data());
 
             case token::type_real:
@@ -308,9 +308,9 @@ namespace laskin
                 {
                     entry = signature::type_number;
                 }
-                else if (!id.compare("integer"))
+                else if (!id.compare("int"))
                 {
-                    entry = signature::type_integer;
+                    entry = signature::type_int;
                 }
                 else if (!id.compare("real"))
                 {

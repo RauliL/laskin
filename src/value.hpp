@@ -15,7 +15,7 @@ namespace laskin
         enum type
         {
             type_bool,
-            type_integer,
+            type_int,
             type_real,
             type_string,
             type_list,
@@ -90,7 +90,7 @@ namespace laskin
             return m_data.i != 0;
         }
 
-        integer as_integer() const
+        integer as_int() const
             throw(std::out_of_range);
 
         real as_real() const;
