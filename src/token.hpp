@@ -22,7 +22,10 @@ namespace laskin
             type_int,
             type_real,
             type_string,
-            type_word
+            type_word,
+            type_keyword_if,
+            type_keyword_else,
+            type_keyword_while
         };
 
         /**
@@ -56,14 +59,6 @@ namespace laskin
         inline bool is(enum type type) const
         {
             return m_type == type;
-        }
-
-        /**
-         * Tests whether token is a word of certain type.
-         */
-        inline bool is(const std::string& data) const
-        {
-            return m_type == type_word && !m_data.compare(data);
         }
 
         /**

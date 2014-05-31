@@ -61,6 +61,7 @@ namespace laskin
                 case token::type_rbrack:
                 case token::type_lbrace:
                 case token::type_rbrace:
+                case token::type_keyword_else:
                 {
                     std::stringstream ss;
 
@@ -99,48 +100,46 @@ namespace laskin
                     stack.push_back(parse_list(++current, end));
                     break;
 
+                case token::type_keyword_if:
+                    parse_if(++current, end, *this, stack);
+                    break;
+
+                case token::type_keyword_while:
+                    parse_while(++current, end, *this, stack);
+                    break;
+
                 case token::type_word:
                 {
                     const std::string& id = current++->data();
+                    auto entry = m_functions.find(id);
 
-                    if (!id.compare("if"))
+                    if (entry)
                     {
-                        parse_if(current, end, *this, stack);
-                    }
-                    else if (!id.compare("while"))
-                    {
-                        parse_while(current, end, *this, stack);
-                    } else {
-                        auto entry = m_functions.find(id);
+                        bool found = false;
 
-                        if (entry)
+                        for (auto& function : entry->value)
                         {
-                            bool found = false;
-
-                            for (auto& function : entry->value)
+                            if (function.signature().test(stack))
                             {
-                                if (function.signature().test(stack))
-                                {
-                                    found = true;
-                                    function.invoke(*this, stack);
-                                    break;
-                                }
+                                found = true;
+                                function.invoke(*this, stack);
+                                break;
                             }
-                            if (!found)
-                            {
-                                throw script_error(
-                                        "signature of function `"
-                                        + id
-                                        + "' does not match with given stack"
-                                );
-                            }
-                        } else {
+                        }
+                        if (!found)
+                        {
                             throw script_error(
-                                    "undefined function `"
+                                    "signature of function `"
                                     + id
-                                    + "'"
+                                    + "' does not match with given stack"
                             );
                         }
+                    } else {
+                        throw script_error(
+                                "undefined function `"
+                                + id
+                                + "'"
+                        );
                     }
                     break;
                 }
@@ -471,13 +470,13 @@ namespace laskin
         if (condition)
         {
             interpreter.execute(parse_block(current, end), stack);
-            if (current < end && current->is("else"))
+            if (current < end && current->is(token::type_keyword_else))
             {
                 skip_block(++current, end);
             }
         } else {
             skip_block(current, end);
-            if (current < end && current->is("else"))
+            if (current < end && current->is(token::type_keyword_else))
             {
                 interpreter.execute(parse_block(++current, end), stack);
             }

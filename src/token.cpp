@@ -217,7 +217,20 @@ SCAN_WORD:
                         {
                             buffer.append(1, *current++);
                         }
-                        tokens.push_back(token(type_word, buffer));
+                        if (!buffer.compare("else"))
+                        {
+                            tokens.push_back(token(type_keyword_else));
+                        }
+                        else if (!buffer.compare("if"))
+                        {
+                            tokens.push_back(token(type_keyword_if));
+                        }
+                        else if (!buffer.compare("while"))
+                        {
+                            tokens.push_back(token(type_keyword_while));
+                        } else {
+                            tokens.push_back(token(type_word, buffer));
+                        }
                     } else {
                         throw syntax_error("unexpected input");
                     }
@@ -278,6 +291,18 @@ SCAN_WORD:
 
             case token::type_word:
                 os << "`" << token.data() << "'";
+                break;
+
+            case token::type_keyword_if:
+                os << "`if'";
+                break;
+
+            case token::type_keyword_else:
+                os << "`else'";
+                break;
+
+            case token::type_keyword_while:
+                os << "`while'";
         }
 
         return os;
@@ -326,6 +351,18 @@ SCAN_WORD:
 
             case token::type_word:
                 os << "word";
+                break;
+
+            case token::type_keyword_if:
+                os << "`if'";
+                break;
+
+            case token::type_keyword_else:
+                os << "`else'";
+                break;
+
+            case token::type_keyword_while:
+                os << "`while'";
         }
 
         return os;
