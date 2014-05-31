@@ -294,8 +294,21 @@ namespace laskin
                 break;
 
             case value::type_real:
-                os << value.as_real();
+            {
+                const double f = value.as_real();
+
+                if (std::isnan(f))
+                {
+                    os << "nan";
+                }
+                else if (std::isinf(f))
+                {
+                    os << (f < 0.0 ? "-inf" : "inf");
+                } else {
+                    os << f;
+                }
                 break;
+            }
 
             case value::type_string:
                 os << value.as_string();
