@@ -13,6 +13,7 @@ namespace laskin
     class value;
 
     typedef signed long long int integer;
+    typedef unsigned long long int uinteger;
     typedef double real;
 }
 

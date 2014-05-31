@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "numbers.hpp"
 #include "token.hpp"
 #include "value.hpp"
 #include <sstream>
@@ -68,11 +69,25 @@ namespace laskin
                 }
 
                 case token::type_int:
-                    stack.push_back(std::stoll(current++->data()));
+                    try
+                    {
+                        stack.push_back(string_to_int(current++->data()));
+                    }
+                    catch (std::length_error& e)
+                    {
+                        throw syntax_error(e.what());
+                    }
                     break;
 
                 case token::type_real:
-                    stack.push_back(std::stod(current++->data()));
+                    try
+                    {
+                        stack.push_back(string_to_real(current++->data()));
+                    }
+                    catch (std::length_error& e)
+                    {
+                        throw syntax_error(e.what());
+                    }
                     break;
 
                 case token::type_string:
@@ -223,10 +238,24 @@ namespace laskin
         switch (token.type())
         {
             case token::type_int:
-                return std::stoll(token.data());
+                try
+                {
+                    return string_to_int(current++->data());
+                }
+                catch (std::length_error& e)
+                {
+                    throw syntax_error(e.what());
+                }
 
             case token::type_real:
-                return std::stod(token.data());
+                try
+                {
+                    return string_to_real(current++->data());
+                }
+                catch (std::length_error& e)
+                {
+                    throw syntax_error(e.what());
+                }
 
             case token::type_string:
                 return token.data();

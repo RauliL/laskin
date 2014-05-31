@@ -214,8 +214,8 @@ namespace laskin
         stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            const double x = a.as_real();
-            const double y = b.as_real();
+            const real x = a.as_real();
+            const real y = b.as_real();
 
             stack.push_back(x > y ? x : y);
         } else {
@@ -240,8 +240,8 @@ namespace laskin
         stack.pop_back();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            const double x = a.as_real();
-            const double y = b.as_real();
+            const real x = a.as_real();
+            const real y = b.as_real();
 
             stack.push_back(x < y ? x : y);
         } else {

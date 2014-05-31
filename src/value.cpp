@@ -1,4 +1,5 @@
 #include "function.hpp"
+#include "numbers.hpp"
 #include "value.hpp"
 #include <cmath>
 
@@ -290,25 +291,12 @@ namespace laskin
                 break;
 
             case value::type_int:
-                os << value.as_int();
+                os << int_to_string(value.as_int());
                 break;
 
             case value::type_real:
-            {
-                const double f = value.as_real();
-
-                if (std::isnan(f))
-                {
-                    os << "nan";
-                }
-                else if (std::isinf(f))
-                {
-                    os << (f < 0.0 ? "-inf" : "inf");
-                } else {
-                    os << f;
-                }
+                os << real_to_string(value.as_real());
                 break;
-            }
 
             case value::type_string:
                 os << value.as_string();

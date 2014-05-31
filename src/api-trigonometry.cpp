@@ -11,7 +11,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_acos)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::acos(a);
     }
@@ -23,7 +23,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_asin)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::asin(a);
     }
@@ -35,7 +35,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_atan)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::atan(a);
     }
@@ -47,7 +47,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_cos)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::cos(a);
     }
@@ -59,7 +59,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_deg)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = a * 180 / M_PI;
     }
@@ -71,7 +71,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_rad)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = a * M_PI / 180;
     }
@@ -83,7 +83,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_sin)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::sin(a);
     }
@@ -95,7 +95,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_tan)
     {
-        const double a = stack[stack.size() - 1].as_real();
+        const real a = stack[stack.size() - 1].as_real();
 
         stack[stack.size() - 1] = std::tan(a);
     }
