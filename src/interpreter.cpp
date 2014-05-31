@@ -489,28 +489,28 @@ namespace laskin
                             class interpreter& interpreter,
                             std::deque<value>& stack)
     {
-        token_iterator condition_begin = current;
-        token_iterator condition_end;
+        token_iterator begin = current;
+        std::vector<token> condition;
         std::vector<token> block;
 
         while (current < end && !current->is(token::type_lbrace))
         {
             ++current;
         }
-        condition_end = current;
+        condition.assign(begin, current);
         block = parse_block(current, end);
         do
         {
-            bool condition;
+            bool result;
 
-            interpreter.execute(std::vector<token>(condition_begin, condition_end), stack);
+            interpreter.execute(condition, stack);
             if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
             {
                 throw script_error("`while' statement is missing condition");
             }
-            condition = stack[stack.size() - 1].as_bool();
+            result = stack[stack.size() - 1].as_bool();
             stack.pop_back();
-            if (!condition)
+            if (!result)
             {
                 return;
             }
