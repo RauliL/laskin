@@ -1,5 +1,6 @@
 #include "interpreter.hpp"
 #include "value.hpp"
+#include <cmath>
 
 namespace laskin
 {
@@ -252,6 +253,36 @@ namespace laskin
         }
     }
 
+    /**
+     * e( : real)
+     *
+     * Returns eulers number.
+     */
+    BUILT_IN_FUNCTION(func_e)
+    {
+        stack.push_back(M_E);
+    }
+
+    /**
+     * inf( : real)
+     *
+     * Returns infinity.
+     */
+    BUILT_IN_FUNCTION(func_inf)
+    {
+        stack.push_back(INFINITY);
+    }
+
+    /**
+     * pi( : real)
+     *
+     * Returns value of PI.
+     */
+    BUILT_IN_FUNCTION(func_pi)
+    {
+        stack.push_back(M_PI);
+    }
+
     namespace internal
     {
         void initialize_numbers(interpreter* i)
@@ -271,6 +302,11 @@ namespace laskin
 
             i->register_function("max", "nn:n", func_max);
             i->register_function("min", "nn:n", func_min);
+
+            // Constants.
+            i->register_function("e", "", func_e);
+            i->register_function("inf", "", func_inf);
+            i->register_function("pi", "", func_pi);
         }
     }
 }
