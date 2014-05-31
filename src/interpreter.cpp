@@ -13,6 +13,7 @@ namespace laskin
     static signature parse_function_signature(token_iterator&, const token_iterator&);
     static std::vector<token> parse_block(token_iterator&, const token_iterator&);
     static void parse_if(token_iterator&, const token_iterator&, interpreter&, std::deque<value>&);
+    static void parse_while(token_iterator&, const token_iterator&, interpreter&, std::deque<value>&);
 
     namespace internal
     {
@@ -105,6 +106,10 @@ namespace laskin
                     if (!id.compare("if"))
                     {
                         parse_if(current, end, *this, stack);
+                    }
+                    else if (!id.compare("while"))
+                    {
+                        parse_while(current, end, *this, stack);
                     } else {
                         auto entry = m_functions.find(id);
 
@@ -477,5 +482,40 @@ namespace laskin
                 interpreter.execute(parse_block(++current, end), stack);
             }
         }
+    }
+
+    static void parse_while(token_iterator& current,
+                            const token_iterator& end,
+                            class interpreter& interpreter,
+                            std::deque<value>& stack)
+    {
+        token_iterator condition_begin = current;
+        token_iterator condition_end;
+        std::vector<token> block;
+
+        while (current < end && !current->is(token::type_lbrace))
+        {
+            ++current;
+        }
+        condition_end = current;
+        block = parse_block(current, end);
+        do
+        {
+            bool condition;
+
+            interpreter.execute(std::vector<token>(condition_begin, condition_end), stack);
+            if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
+            {
+                throw script_error("`while' statement is missing condition");
+            }
+            condition = stack[stack.size() - 1].as_bool();
+            stack.pop_back();
+            if (!condition)
+            {
+                return;
+            }
+            interpreter.execute(block, stack);
+        }
+        while (true);
     }
 }
