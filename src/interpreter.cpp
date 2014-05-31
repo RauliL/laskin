@@ -339,9 +339,9 @@ namespace laskin
                 {
                     entry = signature::type_bool;
                 }
-                else if (!id.compare("number"))
+                else if (!id.compare("num"))
                 {
-                    entry = signature::type_number;
+                    entry = signature::type_num;
                 }
                 else if (!id.compare("int"))
                 {

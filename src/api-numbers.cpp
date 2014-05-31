@@ -5,7 +5,7 @@
 namespace laskin
 {
     /**
-     * +(number number : number)
+     * +(num num : num)
      *
      * Performs addition on given numbers.
      */
@@ -25,7 +25,7 @@ namespace laskin
     }
 
     /**
-     * -(number number : number)
+     * -(num num : num)
      *
      * Performs substraction on given numbers.
      */
@@ -45,7 +45,7 @@ namespace laskin
     }
 
     /**
-     * *(number number : number)
+     * *(num num : num)
      *
      * Performs multiplication on given numbers.
      */
@@ -65,7 +65,7 @@ namespace laskin
     }
 
     /**
-     * /(number number : number)
+     * /(num num : num)
      *
      * Performs division on the given numbers.
      */
@@ -122,7 +122,7 @@ namespace laskin
     }
 
     /**
-     * <(number number : bool)
+     * <(num num : bool)
      *
      * Less-than comparison between two numbers.
      */
@@ -142,7 +142,7 @@ namespace laskin
     }
 
     /**
-     * >(number number : bool)
+     * >(num num : bool)
      *
      * Greater-than comparison between two numbers.
      */
@@ -162,7 +162,7 @@ namespace laskin
     }
 
     /**
-     * <(number number : bool)
+     * <(num num : bool)
      *
      * Less-than-equals comparison between two numbers.
      */
@@ -182,7 +182,7 @@ namespace laskin
     }
 
     /**
-     * >=(number number : bool)
+     * >=(num num : bool)
      *
      * Greater-than-equals comparison between two numbers.
      */
@@ -202,7 +202,7 @@ namespace laskin
     }
 
     /**
-     * max(number number : number)
+     * max(num num : num)
      *
      * Returns maximum of the two given values.
      */
@@ -228,7 +228,7 @@ namespace laskin
     }
 
     /**
-     * min(number number : number)
+     * min(num num : num)
      *
      * Returns minimum of the two given values.
      */

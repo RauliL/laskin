@@ -54,7 +54,7 @@ namespace laskin
     }
 
     /**
-     * @(list int : list)
+     * @(list int : any)
      *
      * Retrieves value from the list at given index. Negative indexes count
      * from backwards.
@@ -77,6 +77,35 @@ namespace laskin
             throw script_error("list index out of bounds");
         }
         stack.push_back(list[index]);
+    }
+
+    /**
+     * @=(list int any : list)
+     *
+     * Sets value in the list at given index. Negative indexes count from
+     * backwards.
+     */
+    BUILT_IN_FUNCTION(func_at_set)
+    {
+        const value a = stack[stack.size() - 3];
+        const value b = stack[stack.size() - 2];
+        const value c = stack[stack.size() - 1];
+        std::vector<value> list = a.as_list();
+        integer index = b.as_int();
+
+        stack.pop_back();
+        stack.pop_back();
+        stack.pop_back();
+        if (index < 0)
+        {
+            index += list.size();
+        }
+        if (index < 0 || index >= static_cast<integer>(list.size()))
+        {
+            throw script_error("list index out of bounds");
+        }
+        list[index] = c;
+        stack.push_back(list);
     }
 
     /**
@@ -107,6 +136,7 @@ namespace laskin
             i->register_function("each", "lf", func_each);
 
             i->register_function("@", "li:?", func_at);
+            i->register_function("@=", "li?:l", func_at_set);
             i->register_function("+", "l?:l", func_add);
         }
     }

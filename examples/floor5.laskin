@@ -1,6 +1,6 @@
 #!/usr/bin/env laskin
 
-:floor5(number : number) {
+:floor5(num : num) {
     dup
     if 6 < {
         drop 5

@@ -15,7 +15,7 @@ namespace laskin
         {
             type_any,
             type_bool,
-            type_number,
+            type_num,
             type_int,
             type_real,
             type_string,
