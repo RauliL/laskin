@@ -175,6 +175,7 @@ namespace laskin
     };
 
     std::ostream& operator<<(std::ostream&, const value&);
+    std::ostream& operator<<(std::ostream&, enum value::type);
 }
 
 #endif /* !LASKIN_VALUE_HPP_GUARD */

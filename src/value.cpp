@@ -322,4 +322,35 @@ namespace laskin
         }
         return os;
     }
+
+    std::ostream& operator<<(std::ostream& os, enum value::type type)
+    {
+        switch (type)
+        {
+            case value::type_bool:
+                os << "bool";
+                break;
+
+            case value::type_integer:
+                os << "integer";
+                break;
+
+            case value::type_real:
+                os << "real";
+                break;
+
+            case value::type_string:
+                os << "string";
+                break;
+
+            case value::type_list:
+                os << "list";
+                break;
+
+            case value::type_function:
+                os << "function";
+        }
+
+        return os;
+    }
 }
