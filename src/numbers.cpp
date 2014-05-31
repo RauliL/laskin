@@ -235,6 +235,6 @@ namespace laskin
         }
         number *= std::pow(10.0, static_cast<double>(exponent));
         
-        return number * sign;
+        return sign ? number : -number;
     }
 }

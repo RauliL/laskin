@@ -203,7 +203,6 @@ SCAN_EXPONENT:
                         }
                         else if (std::isdigit(*current))
                         {
-                            buffer.append(1, *current++);
                             goto SCAN_NUMBER;
                         }
                     }
