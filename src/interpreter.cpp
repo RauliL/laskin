@@ -232,7 +232,17 @@ namespace laskin
             case token::type_lbrack:
                 return parse_list(current, end);
 
-            case token::type_colon: // TODO: anonymous function
+            case token::type_colon:
+            {
+                class signature signature;
+
+                if (current < end && current->is(token::type_lparen))
+                {
+                    signature = parse_function_signature(++current, end);
+                }
+
+                return function(signature, parse_block(current, end));
+            }
 
             default:
             {
