@@ -5,8 +5,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror")
 
 ADD_EXECUTABLE(
     laskin
+    src/api-bool.cpp
+    src/api-io.cpp
     src/api-list.cpp
     src/api-numbers.cpp
+    src/api-program.cpp
     src/api-stack.cpp
     src/api-string.cpp
     src/function.cpp
