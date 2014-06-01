@@ -54,6 +54,20 @@ namespace laskin
     }
 
     /**
+     * reverse(list : list)
+     *
+     * Returns reversed copy of the list.
+     */
+    BUILT_IN_FUNCTION(func_reverse)
+    {
+        const value a = stack[stack.size() - 1];
+        const std::vector<value>& list = a.as_list();
+
+        stack.pop();
+        stack.push(std::vector<value>(list.rbegin(), list.rend()));
+    }
+
+    /**
      * @(list int : any)
      *
      * Retrieves value from the list at given index. Negative indexes count
@@ -134,6 +148,9 @@ namespace laskin
 
             // Traversing functions.
             i->register_function("each", "lf", func_each);
+
+            // Manipulation functions.
+            i->register_function("reverse", "l:l", func_reverse);
 
             i->register_function("@", "li:?", func_at);
             i->register_function("@=", "li?:l", func_at_set);

@@ -112,11 +112,11 @@ namespace laskin
     }
 
     /**
-     * >lower(string : string)
+     * lower(string : string)
      *
      * Converts string into lower case.
      */
-    BUILT_IN_FUNCTION(func_to_lower)
+    BUILT_IN_FUNCTION(func_lower)
     {
         std::string s = stack[stack.size() - 1].as_string();
 
@@ -126,11 +126,11 @@ namespace laskin
     }
 
     /**
-     * >upper(string : string)
+     * upper(string : string)
      *
      * Converts string into lower case.
      */
-    BUILT_IN_FUNCTION(func_to_upper)
+    BUILT_IN_FUNCTION(func_upper)
     {
         std::string s = stack[stack.size() - 1].as_string();
 
@@ -140,18 +140,32 @@ namespace laskin
     }
 
     /**
+     * reverse(string : string)
+     *
+     * Returns reversed copy of the string.
+     */
+    BUILT_IN_FUNCTION(func_reverse)
+    {
+        const value a = stack[stack.size() - 1];
+        const std::string& s = a.as_string();
+
+        stack.pop();
+        stack.push(std::string(s.rbegin(), s.rend()));
+    }
+
+    /**
      * +(string string : string)
      *
      * Concatenates two strings into one.
      */
     BUILT_IN_FUNCTION(func_add)
     {
-        std::string a = stack[stack.size() - 2].as_string();
-        std::string b = stack[stack.size() - 1].as_string();
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
 
         stack.pop();
         stack.pop();
-        stack.push(value(a + b));
+        stack.push(a.as_string() + b.as_string());
     }
 
     namespace internal
@@ -167,8 +181,9 @@ namespace laskin
             i->register_function("upper?", "s:b", func_is_upper);
 
             // Conversion functions.
-            i->register_function(">lower", "s:s", func_to_lower);
-            i->register_function(">upper", "s:s", func_to_upper);
+            i->register_function("lower", "s:s", func_lower);
+            i->register_function("upper", "s:s", func_upper);
+            i->register_function("reverse", "s:s", func_reverse);
 
             i->register_function("+", "ss:s", func_add);
         }
