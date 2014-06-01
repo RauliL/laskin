@@ -3,6 +3,7 @@
 
 #include <climits>
 #include <cfloat>
+#include "stack.hpp"
 
 namespace laskin
 {
@@ -42,7 +43,7 @@ namespace laskin
     ((x) <= LASKIN_INTEGER_MAX && (x) >= LASKIN_INTEGER_MIN)
 
 #define BUILT_IN_FUNCTION(Name) \
-    static void Name(class interpreter& interpreter, \
-                     std::deque<value>& stack)
+    static void Name(class laskin::interpreter& interpreter, \
+                     class laskin::stack<value>& stack)
 
 #endif /* !LASKIN_DEFINES_HPP_GUARD */

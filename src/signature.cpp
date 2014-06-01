@@ -66,21 +66,18 @@ namespace laskin
         : m_parameter_types(that.m_parameter_types)
         , m_return_types(that.m_return_types) {}
 
-    bool signature::test(const std::deque<value>& stack) const
+    bool signature::test(const class stack<value>& stack) const
     {
         if (stack.size() < m_parameter_types.size())
         {
             return false;
         }
 
-        auto a = m_parameter_types.rbegin();
-        auto b = stack.rbegin();
-
-        while (a != m_parameter_types.rend())
+        for (std::size_t i = m_parameter_types.size(), j = stack.size(); i > 0; --i, --j)
         {
-            auto value = *b++;
+            const class value value = stack[j - 1];
 
-            switch (*a++)
+            switch (m_parameter_types[i - 1])
             {
                 case type_any:
                     break;
@@ -133,7 +130,6 @@ namespace laskin
                     {
                         return false;
                     }
-                
             }
         }
 

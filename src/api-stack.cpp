@@ -20,7 +20,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_depth)
     {
-        stack.push_back(static_cast<integer>(stack.size()));
+        stack.push(static_cast<integer>(stack.size()));
     }
 
     /**
@@ -30,7 +30,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_drop)
     {
-        stack.pop_back();
+        stack.pop();
     }
 
     /**
@@ -40,8 +40,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_drop2)
     {
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
     }
 
     /**
@@ -51,7 +51,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_dup)
     {
-        stack.push_back(stack[stack.size() - 1]);
+        stack.push(stack[stack.size() - 1]);
     }
 
     /**
@@ -64,12 +64,9 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(a);
-        stack.push_back(b);
-        stack.push_back(a);
-        stack.push_back(b);
+        stack.pop();
+        stack.pop();
+        stack << a << b << a << b;
     }
 
     /**
@@ -83,11 +80,9 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(b);
-        stack.push_back(a);
-        stack.push_back(b);
+        stack.pop();
+        stack.pop();
+        stack << b << a << b;
     }
 
     /**
@@ -101,12 +96,10 @@ namespace laskin
         const value b = stack[stack.size() - 2];
         const value c = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(c);
-        stack.push_back(b);
-        stack.push_back(a);
+        stack.pop();
+        stack.pop();
+        stack.pop();
+        stack << c << b << a;
     }
 
     /**
@@ -119,10 +112,9 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(b);
-        stack.push_back(a);
+        stack.pop();
+        stack.pop();
+        stack << b << a;
     }
 
     namespace internal

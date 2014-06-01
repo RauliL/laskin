@@ -21,7 +21,7 @@ namespace laskin
          * Constructs native function.
          */
         explicit function(const class signature& signature,
-                          void (*callback)(interpreter&, std::deque<value>&));
+                          void (*callback)(interpreter&, stack<value>&));
 
         /**
          * Constructs user defined function.
@@ -50,7 +50,7 @@ namespace laskin
         }
 
         void invoke(class interpreter& interpreter,
-                    std::deque<value>& stack) const
+                    class stack<value>& stack) const
             throw(script_error, syntax_error);
 
         function& assign(const function& that);
@@ -70,7 +70,7 @@ namespace laskin
         class signature m_signature;
         union
         {
-            void (*n)(interpreter&, std::deque<value>&);
+            void (*n)(interpreter&, stack<value>&);
             std::vector<token>* c;
         } m_callback;
     };

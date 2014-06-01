@@ -12,8 +12,8 @@ namespace laskin
     static std::vector<value> parse_list(token_iterator&, const token_iterator&);
     static signature parse_function_signature(token_iterator&, const token_iterator&);
     static std::vector<token> parse_block(token_iterator&, const token_iterator&);
-    static void parse_if(token_iterator&, const token_iterator&, interpreter&, std::deque<value>&);
-    static void parse_while(token_iterator&, const token_iterator&, interpreter&, std::deque<value>&);
+    static void parse_if(token_iterator&, const token_iterator&, interpreter&, stack<value>&);
+    static void parse_while(token_iterator&, const token_iterator&, interpreter&, stack<value>&);
 
     namespace internal
     {
@@ -47,7 +47,7 @@ namespace laskin
     }
 
     void interpreter::execute(const std::vector<token>& tokens,
-                              std::deque<value>& stack)
+                              class stack<value>& stack)
         throw(script_error, syntax_error)
     {
         const token_iterator end = tokens.end();
@@ -73,7 +73,7 @@ namespace laskin
                 case token::type_int:
                     try
                     {
-                        stack.push_back(string_to_int(current++->data()));
+                        stack.push(string_to_int(current++->data()));
                     }
                     catch (std::length_error& e)
                     {
@@ -84,7 +84,7 @@ namespace laskin
                 case token::type_real:
                     try
                     {
-                        stack.push_back(string_to_real(current++->data()));
+                        stack.push(string_to_real(current++->data()));
                     }
                     catch (std::length_error& e)
                     {
@@ -93,11 +93,11 @@ namespace laskin
                     break;
 
                 case token::type_string:
-                    stack.push_back(current++->data());
+                    stack.push(current++->data());
                     break;
 
                 case token::type_lbrack:
-                    stack.push_back(parse_list(++current, end));
+                    stack.push(parse_list(++current, end));
                     break;
 
                 case token::type_keyword_if:
@@ -161,7 +161,7 @@ namespace laskin
                     body = parse_block(current, end);
                     if (name.empty())
                     {
-                        stack.push_back(function(signature, body));
+                        stack.push(function(signature, body));
                     } else {
                         register_function(name, signature, body);
                     }
@@ -172,7 +172,7 @@ namespace laskin
 
     void interpreter::register_function(const std::string& name,
                                         const class signature& signature,
-                                        void (*callback)(interpreter&, std::deque<value>&))
+                                        void (*callback)(interpreter&, stack<value>&))
     {
         hashmap<std::vector<function> >::entry* e = m_functions.find(name);
 
@@ -197,7 +197,7 @@ namespace laskin
 
     void interpreter::register_function(const std::string& name,
                                         const std::string& sig,
-                                        void (*callback)(interpreter&, std::deque<value>&))
+                                        void (*callback)(interpreter&, stack<value>&))
     {
         register_function(name, signature(sig), callback);
     }
@@ -451,7 +451,7 @@ namespace laskin
     static void parse_if(token_iterator& current,
                          const token_iterator& end,
                          class interpreter& interpreter,
-                         std::deque<value>& stack)
+                         class stack<value>& stack)
     {
         token_iterator begin = current;
         bool condition;
@@ -466,7 +466,7 @@ namespace laskin
             throw script_error("`if' statement is missing condition");
         }
         condition = stack[stack.size() - 1].as_bool();
-        stack.pop_back();
+        stack.pop();
         if (condition)
         {
             interpreter.execute(parse_block(current, end), stack);
@@ -486,7 +486,7 @@ namespace laskin
     static void parse_while(token_iterator& current,
                             const token_iterator& end,
                             class interpreter& interpreter,
-                            std::deque<value>& stack)
+                            class stack<value>& stack)
     {
         token_iterator begin = current;
         std::vector<token> condition;
@@ -508,7 +508,7 @@ namespace laskin
                 throw script_error("`while' statement is missing condition");
             }
             result = stack[stack.size() - 1].as_bool();
-            stack.pop_back();
+            stack.pop();
             if (!result)
             {
                 return;

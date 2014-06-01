@@ -3,7 +3,6 @@
 
 #include "function.hpp"
 #include "hashmap.hpp"
-#include <deque>
 #include <vector>
 
 namespace laskin
@@ -24,16 +23,16 @@ namespace laskin
          * Executes sequence of tokens with given data stack.
          */
         void execute(const std::vector<token>& tokens,
-                     std::deque<value>& stack)
+                     class stack<value>& stack)
             throw(script_error, syntax_error);
 
         void register_function(const std::string& name,
                                const class signature& signature,
-                               void (*callback)(interpreter&, std::deque<value>&));
+                               void (*callback)(interpreter&, stack<value>&));
 
         void register_function(const std::string& name,
                                const std::string& signature,
-                               void (*callback)(interpreter&, std::deque<value>&));
+                               void (*callback)(interpreter&, stack<value>&));
 
         void register_function(const std::string& name,
                                const class signature& signature,

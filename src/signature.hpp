@@ -2,7 +2,6 @@
 #define LASKIN_SIGNATURE_HPP_GUARD
 
 #include "defines.hpp"
-#include <deque>
 #include <string>
 #include <vector>
 
@@ -49,7 +48,7 @@ namespace laskin
             return m_return_types;
         }
 
-        bool test(const std::deque<value>& stack) const;
+        bool test(const class stack<value>& stack) const;
 
         signature& assign(const signature& that);
 

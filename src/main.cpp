@@ -5,23 +5,19 @@
 #include <sstream>
 #include <unistd.h>
 
-static void repl_clear(laskin::interpreter&, std::deque<laskin::value>&);
-static void repl_drop(laskin::interpreter&, std::deque<laskin::value>&);
-static void repl_peek(laskin::interpreter&, std::deque<laskin::value>&);
-static void repl_quit(laskin::interpreter&, std::deque<laskin::value>&);
-static void repl_stack(laskin::interpreter&, std::deque<laskin::value>&);
+static void repl_peek(laskin::interpreter&, laskin::stack<laskin::value>&);
+static void repl_quit(laskin::interpreter&, laskin::stack<laskin::value>&);
+static void repl_stack(laskin::interpreter&, laskin::stack<laskin::value>&);
 
 struct repl_command
 {
     const char* name;
     const char* name_shortcut;
-    void (*callback)(laskin::interpreter&, std::deque<laskin::value>&);
+    void (*callback)(laskin::interpreter&, laskin::stack<laskin::value>&);
 };
 
 static const repl_command repl_command_list[] =
 {
-    {"clear", "c", repl_clear},
-    {"drop", "d", repl_drop},
     {"peek", "p", repl_peek},
     {"quit", "q", repl_quit},
     {"stack", "s", repl_stack},
@@ -31,7 +27,7 @@ static const repl_command repl_command_list[] =
 int main(int argc, char** argv)
 {
     laskin::interpreter interpreter;
-    std::deque<laskin::value> stack;
+    laskin::stack<laskin::value> stack;
 
     interpreter.initialize();
     if (argc > 1)
@@ -149,25 +145,8 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-static void repl_clear(laskin::interpreter& interpreter,
-                       std::deque<laskin::value>& stack)
-{
-    stack.clear();
-}
-
-static void repl_drop(laskin::interpreter& interpreter,
-                      std::deque<laskin::value>& stack)
-{
-    if (stack.empty())
-    {
-        std::cout << "stack is empty" << std::endl;
-    } else {
-        stack.pop_back();
-    }
-}
-
 static void repl_peek(laskin::interpreter& interpreter,
-                      std::deque<laskin::value>& stack)
+                      laskin::stack<laskin::value>& stack)
 {
     if (stack.empty())
     {
@@ -178,25 +157,21 @@ static void repl_peek(laskin::interpreter& interpreter,
 }
 
 static void repl_quit(laskin::interpreter& interpreter,
-                      std::deque<laskin::value>& stack)
+                      laskin::stack<laskin::value>& stack)
 {
     std::exit(EXIT_SUCCESS);
 }
 
 static void repl_stack(laskin::interpreter& interpreter,
-                       std::deque<laskin::value>& stack)
+                       laskin::stack<laskin::value>& stack)
 {
-    bool first = true;
-
-    for (auto& value : stack)
+    for (std::size_t i = stack.size(); i > 0; --i)
     {
-        if (first)
+        if (i != stack.size())
         {
-            first = false;
-        } else {
             std::cout << ' ';
         }
-        std::cout << value;
+        std::cout << stack[i - 1];
     }
     std::cout << std::endl;
 }

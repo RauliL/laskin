@@ -14,13 +14,13 @@ namespace laskin
         const value b = stack[stack.size() - 1];
         const value a = stack[stack.size() - 2];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() + b.as_real());
+            stack.push(a.as_real() + b.as_real());
         } else {
-            stack.push_back(a.as_int() + b.as_int());
+            stack.push(a.as_int() + b.as_int());
         }
     }
 
@@ -34,13 +34,13 @@ namespace laskin
         const value b = stack[stack.size() - 1];
         const value a = stack[stack.size() - 2];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() - b.as_real());
+            stack.push(a.as_real() - b.as_real());
         } else {
-            stack.push_back(a.as_int() - b.as_int());
+            stack.push(a.as_int() - b.as_int());
         }
     }
 
@@ -54,13 +54,13 @@ namespace laskin
         const value b = stack[stack.size() - 1];
         const value a = stack[stack.size() - 2];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() * b.as_real());
+            stack.push(a.as_real() * b.as_real());
         } else {
-            stack.push_back(a.as_int() * b.as_int());
+            stack.push(a.as_int() * b.as_int());
         }
     }
 
@@ -74,11 +74,11 @@ namespace laskin
         const value b = stack[stack.size() - 1];
         const value a = stack[stack.size() - 2];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() / b.as_real());
+            stack.push(a.as_real() / b.as_real());
         } else {
             const integer x = a.as_int();
             const integer y = b.as_int();
@@ -87,7 +87,7 @@ namespace laskin
             {
                 throw script_error("division by zero");
             }
-            stack.push_back(x / y);
+            stack.push(x / y);
         }
     }
 
@@ -101,9 +101,9 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(a == b);
+        stack.pop();
+        stack.pop();
+        stack.push(a == b);
     }
 
     /**
@@ -116,9 +116,9 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(a != b);
+        stack.pop();
+        stack.pop();
+        stack.push(a != b);
     }
 
     /**
@@ -131,13 +131,13 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() < b.as_real());
+            stack.push(a.as_real() < b.as_real());
         } else {
-            stack.push_back(a.as_int() < b.as_int());
+            stack.push(a.as_int() < b.as_int());
         }
     }
 
@@ -151,13 +151,13 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() > b.as_real());
+            stack.push(a.as_real() > b.as_real());
         } else {
-            stack.push_back(a.as_int() > b.as_int());
+            stack.push(a.as_int() > b.as_int());
         }
     }
 
@@ -171,13 +171,13 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() <= b.as_real());
+            stack.push(a.as_real() <= b.as_real());
         } else {
-            stack.push_back(a.as_int() <= b.as_int());
+            stack.push(a.as_int() <= b.as_int());
         }
     }
 
@@ -191,13 +191,13 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
-            stack.push_back(a.as_real() >= b.as_real());
+            stack.push(a.as_real() >= b.as_real());
         } else {
-            stack.push_back(a.as_int() >= b.as_int());
+            stack.push(a.as_int() >= b.as_int());
         }
     }
 
@@ -211,19 +211,19 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             const real x = a.as_real();
             const real y = b.as_real();
 
-            stack.push_back(x > y ? x : y);
+            stack.push(x > y ? x : y);
         } else {
             const integer x = a.as_int();
             const integer y = b.as_int();
 
-            stack.push_back(x > y ? x : y);
+            stack.push(x > y ? x : y);
         }
     }
 
@@ -237,19 +237,19 @@ namespace laskin
         const value a = stack[stack.size() - 2];
         const value b = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             const real x = a.as_real();
             const real y = b.as_real();
 
-            stack.push_back(x < y ? x : y);
+            stack.push(x < y ? x : y);
         } else {
             const integer x = a.as_int();
             const integer y = b.as_int();
 
-            stack.push_back(x < y ? x : y);
+            stack.push(x < y ? x : y);
         }
     }
 
@@ -260,7 +260,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_e)
     {
-        stack.push_back(M_E);
+        stack.push(M_E);
     }
 
     /**
@@ -270,7 +270,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_inf)
     {
-        stack.push_back(INFINITY);
+        stack.push(INFINITY);
     }
 
     /**
@@ -280,7 +280,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_pi)
     {
-        stack.push_back(M_PI);
+        stack.push(M_PI);
     }
 
     namespace internal

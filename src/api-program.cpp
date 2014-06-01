@@ -15,7 +15,7 @@ namespace laskin
         const class value value = stack[stack.size() - 1];
         const class function& function = value.as_function();
 
-        stack.pop_back();
+        stack.pop();
         if (!function.signature().test(stack))
         {
             throw script_error("function signature mismatch");
@@ -43,13 +43,13 @@ namespace laskin
         const std::string filename = stack[stack.size() - 1].as_string();
         std::ifstream in(filename, std::ios_base::in);
 
-        stack.pop_back();
+        stack.pop();
         if (in.good())
         {
             try
             {
                 std::vector<token> tokens = token::scan(in);
-                std::deque<value> new_stack;
+                laskin::stack<value> new_stack;
 
                 interpreter.execute(tokens, new_stack);
             }

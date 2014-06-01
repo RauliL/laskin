@@ -13,8 +13,8 @@ namespace laskin
     {
         const std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
-        stack.push_back(value(static_cast<integer>(s.length())));
+        stack.pop();
+        stack.push(value(static_cast<integer>(s.length())));
     }
 
     /**
@@ -26,8 +26,8 @@ namespace laskin
     {
         const std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
-        stack.push_back(value(s.empty()));
+        stack.pop();
+        stack.push(value(s.empty()));
     }
 
     /**
@@ -40,21 +40,21 @@ namespace laskin
     {
         const std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
+        stack.pop();
         if (s.empty())
         {
-            stack.push_back(value(true));
+            stack.push(value(true));
             return;
         }
         for (auto c : s)
         {
             if (!std::isspace(c))
             {
-                stack.push_back(value(false));
+                stack.push(value(false));
                 return;
             }
         }
-        stack.push_back(value(true));
+        stack.push(value(true));
     }
 
     /**
@@ -67,21 +67,21 @@ namespace laskin
     {
         const std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
+        stack.pop();
         if (s.empty())
         {
-            stack.push_back(value(false));
+            stack.push(value(false));
             return;
         }
         for (auto c : s)
         {
             if (!std::islower(c))
             {
-                stack.push_back(value(false));
+                stack.push(value(false));
                 return;
             }
         }
-        stack.push_back(value(true));
+        stack.push(value(true));
     }
 
     /**
@@ -94,21 +94,21 @@ namespace laskin
     {
         const std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
+        stack.pop();
         if (s.empty())
         {
-            stack.push_back(value(false));
+            stack.push(value(false));
             return;
         }
         for (auto c : s)
         {
             if (!std::isupper(c))
             {
-                stack.push_back(value(false));
+                stack.push(value(false));
                 return;
             }
         }
-        stack.push_back(value(true));
+        stack.push(value(true));
     }
 
     /**
@@ -120,9 +120,9 @@ namespace laskin
     {
         std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
+        stack.pop();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-        stack.push_back(value(s));
+        stack.push(value(s));
     }
 
     /**
@@ -134,9 +134,9 @@ namespace laskin
     {
         std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
+        stack.pop();
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-        stack.push_back(value(s));
+        stack.push(value(s));
     }
 
     /**
@@ -149,9 +149,9 @@ namespace laskin
         std::string a = stack[stack.size() - 2].as_string();
         std::string b = stack[stack.size() - 1].as_string();
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(value(a + b));
+        stack.pop();
+        stack.pop();
+        stack.push(value(a + b));
     }
 
     namespace internal

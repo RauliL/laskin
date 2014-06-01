@@ -21,7 +21,7 @@ namespace laskin
     BUILT_IN_FUNCTION(func_print)
     {
         std::cout << stack[stack.size() - 1];
-        stack.pop_back();
+        stack.pop();
     }
 
     /**
@@ -32,7 +32,7 @@ namespace laskin
     BUILT_IN_FUNCTION(func_println)
     {
         std::cout << stack[stack.size() - 1] << std::endl;
-        stack.pop_back();
+        stack.pop();
     }
 
     /**
@@ -44,7 +44,7 @@ namespace laskin
     BUILT_IN_FUNCTION(func_dot)
     {
         std::cout << ' ' << stack[stack.size() - 1];
-        stack.pop_back();
+        stack.pop();
     }
 
     namespace internal

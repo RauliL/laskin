@@ -9,7 +9,7 @@ namespace laskin
     }
 
     function::function(const class signature& signature,
-                       void (*callback)(interpreter&, std::deque<value>&))
+                       void (*callback)(interpreter&, stack<value>&))
         : m_type(type_native)
         , m_signature(signature)
     {
@@ -45,7 +45,7 @@ namespace laskin
     }
 
     void function::invoke(class interpreter& interpreter,
-                          std::deque<value>& stack) const
+                          class stack<value>& stack) const
         throw(script_error, syntax_error)
     {
         if (m_type == type_native)

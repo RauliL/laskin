@@ -12,8 +12,8 @@ namespace laskin
     {
         const value a = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.push_back(value(static_cast<integer>(a.as_list().size())));
+        stack.pop();
+        stack.push(value(static_cast<integer>(a.as_list().size())));
     }
 
     /**
@@ -25,8 +25,8 @@ namespace laskin
     {
         const value a = stack[stack.size() - 1];
 
-        stack.pop_back();
-        stack.push_back(value(a.as_list().empty()));
+        stack.pop();
+        stack.push(value(a.as_list().empty()));
     }
 
     /**
@@ -40,11 +40,11 @@ namespace laskin
         const value b = stack[stack.size() - 1];
         const class function& function = b.as_function();
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         for (auto& value : a.as_list())
         {
-            stack.push_back(value);
+            stack.push(value);
             if (!function.signature().test(stack))
             {
                 throw script_error("function signature mismatch");
@@ -66,8 +66,8 @@ namespace laskin
         const std::vector<value>& list = a.as_list();
         integer index = b.as_int();
 
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
         if (index < 0)
         {
             index += list.size();
@@ -76,7 +76,7 @@ namespace laskin
         {
             throw script_error("list index out of bounds");
         }
-        stack.push_back(list[index]);
+        stack.push(list[index]);
     }
 
     /**
@@ -93,9 +93,9 @@ namespace laskin
         std::vector<value> list = a.as_list();
         integer index = b.as_int();
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.pop_back();
+        stack.pop();
+        stack.pop();
+        stack.pop();
         if (index < 0)
         {
             index += list.size();
@@ -105,7 +105,7 @@ namespace laskin
             throw script_error("list index out of bounds");
         }
         list[index] = c;
-        stack.push_back(list);
+        stack.push(list);
     }
 
     /**
@@ -118,9 +118,9 @@ namespace laskin
         std::vector<value> list = stack[stack.size() - 2].as_list();
 
         list.push_back(stack[stack.size() - 1]);
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(list);
+        stack.pop();
+        stack.pop();
+        stack.push(list);
     }
 
     namespace internal

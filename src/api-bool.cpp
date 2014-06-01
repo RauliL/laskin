@@ -10,7 +10,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_true)
     {
-        stack.push_back(value(true));
+        stack.push(true);
     }
 
     /**
@@ -20,52 +20,44 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_false)
     {
-        stack.push_back(value(false));
+        stack.push(false);
     }
 
     /**
-     * &(bool bool : bool)
+     * and(bool bool : bool)
      *
      * Logical AND. Returns true if both boolean values are true.
      */
     BUILT_IN_FUNCTION(func_and)
     {
-        const bool a = stack[stack.size() - 2].as_bool();
-        const bool b = stack[stack.size() - 1].as_bool();
+        value a, b;
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(value(a && b));
+        stack >> b >> a << value(a.as_bool() && b.as_bool());
     }
 
     /**
-     * &(bool bool : bool)
+     * or(bool bool : bool)
      *
      * Logical OR. Returns true if either boolean value is true.
      */
     BUILT_IN_FUNCTION(func_or)
     {
-        const bool a = stack[stack.size() - 2].as_bool();
-        const bool b = stack[stack.size() - 1].as_bool();
+        value a, b;
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(value(a || b));
+        stack >> b >> a << value(a.as_bool() || b.as_bool());
     }
 
     /**
-     * ^(bool bool : bool)
+     * xor(bool bool : bool)
      *
      * Exclusive OR.
      */
     BUILT_IN_FUNCTION(func_xor)
     {
-        const bool a = stack[stack.size() - 2].as_bool();
-        const bool b = stack[stack.size() - 1].as_bool();
+        value a, b;
 
-        stack.pop_back();
-        stack.pop_back();
-        stack.push_back(a != b && (a || b));
+        stack >> a >> b
+              << value(a.as_bool() != b.as_bool() && (a.as_bool() || b.as_bool()));
     }
 
     /**
@@ -75,10 +67,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_not)
     {
-        const bool a = stack[stack.size() - 1].as_bool();
+        value a;
 
-        stack.pop_back();
-        stack.push_back(value(!a));
+        stack >> a << value(!a.as_bool());
     }
 
     namespace internal
