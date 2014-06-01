@@ -5,7 +5,7 @@
 
 # Push anonymous function into the stack.
 :(string) {
-    >upper println
+    upper println
 }
 
 # Invoke function "each" on the list and function, which iterates over each
