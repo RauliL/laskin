@@ -12,8 +12,8 @@ namespace laskin
     static std::vector<value> parse_list(token_iterator&, const token_iterator&);
     static signature parse_function_signature(token_iterator&, const token_iterator&);
     static std::vector<token> parse_block(token_iterator&, const token_iterator&);
-    static void parse_if(token_iterator&, const token_iterator&, interpreter&, stack<value>&);
-    static void parse_while(token_iterator&, const token_iterator&, interpreter&, stack<value>&);
+    static void parse_if(token_iterator&, const token_iterator&, interpreter&, stack<value>&, hashmap<value>&);
+    static void parse_while(token_iterator&, const token_iterator&, interpreter&, stack<value>&, hashmap<value>&);
 
     namespace internal
     {
@@ -47,7 +47,8 @@ namespace laskin
     }
 
     void interpreter::execute(const std::vector<token>& tokens,
-                              class stack<value>& stack)
+                              class stack<value>& stack,
+                              hashmap<value>& local_variables)
         throw(script_error, syntax_error)
     {
         const token_iterator end = tokens.end();
@@ -101,28 +102,33 @@ namespace laskin
                     break;
 
                 case token::type_keyword_if:
-                    parse_if(++current, end, *this, stack);
+                    parse_if(++current, end, *this, stack, local_variables);
                     break;
 
                 case token::type_keyword_while:
-                    parse_while(++current, end, *this, stack);
+                    parse_while(++current, end, *this, stack, local_variables);
                     break;
 
                 case token::type_word:
                 {
                     const std::string& id = current++->data();
-                    auto entry = m_functions.find(id);
+                    hashmap<value>::entry* e1 = local_variables.find(id);
+                    hashmap<std::vector<function> >::entry* e2;
 
-                    if (entry)
+                    if (e1)
+                    {
+                        stack << e1->value;
+                    }
+                    else if ((e2 = m_functions.find(id)))
                     {
                         bool found = false;
 
-                        for (auto& function : entry->value)
+                        for (auto& function : e2->value)
                         {
                             if (function.signature().test(stack))
                             {
                                 found = true;
-                                function.invoke(*this, stack);
+                                function.invoke(*this, stack, local_variables);
                                 break;
                             }
                         }
@@ -172,7 +178,7 @@ namespace laskin
 
     void interpreter::register_function(const std::string& name,
                                         const class signature& signature,
-                                        void (*callback)(interpreter&, stack<value>&))
+                                        function::callback callback)
     {
         hashmap<std::vector<function> >::entry* e = m_functions.find(name);
 
@@ -197,7 +203,7 @@ namespace laskin
 
     void interpreter::register_function(const std::string& name,
                                         const std::string& sig,
-                                        void (*callback)(interpreter&, stack<value>&))
+                                        function::callback callback)
     {
         register_function(name, signature(sig), callback);
     }
@@ -451,7 +457,8 @@ namespace laskin
     static void parse_if(token_iterator& current,
                          const token_iterator& end,
                          class interpreter& interpreter,
-                         class stack<value>& stack)
+                         class stack<value>& stack,
+                         hashmap<value>& local_variables)
     {
         token_iterator begin = current;
         bool condition;
@@ -460,7 +467,7 @@ namespace laskin
         {
             ++current;
         }
-        interpreter.execute(std::vector<token>(begin, current), stack);
+        interpreter.execute(std::vector<token>(begin, current), stack, local_variables);
         if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
         {
             throw script_error("`if' statement is missing condition");
@@ -469,7 +476,7 @@ namespace laskin
         stack.pop();
         if (condition)
         {
-            interpreter.execute(parse_block(current, end), stack);
+            interpreter.execute(parse_block(current, end), stack, local_variables);
             if (current < end && current->is(token::type_keyword_else))
             {
                 skip_block(++current, end);
@@ -478,7 +485,7 @@ namespace laskin
             skip_block(current, end);
             if (current < end && current->is(token::type_keyword_else))
             {
-                interpreter.execute(parse_block(++current, end), stack);
+                interpreter.execute(parse_block(++current, end), stack, local_variables);
             }
         }
     }
@@ -486,7 +493,8 @@ namespace laskin
     static void parse_while(token_iterator& current,
                             const token_iterator& end,
                             class interpreter& interpreter,
-                            class stack<value>& stack)
+                            class stack<value>& stack,
+                            hashmap<value>& local_variables)
     {
         token_iterator begin = current;
         std::vector<token> condition;
@@ -502,7 +510,7 @@ namespace laskin
         {
             bool result;
 
-            interpreter.execute(condition, stack);
+            interpreter.execute(condition, stack, local_variables);
             if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
             {
                 throw script_error("`while' statement is missing condition");
@@ -513,7 +521,7 @@ namespace laskin
             {
                 return;
             }
-            interpreter.execute(block, stack);
+            interpreter.execute(block, stack, local_variables);
         }
         while (true);
     }

@@ -2,7 +2,6 @@
 #define LASKIN_INTERPRETER_HPP_GUARD
 
 #include "function.hpp"
-#include "hashmap.hpp"
 #include <vector>
 
 namespace laskin
@@ -23,16 +22,17 @@ namespace laskin
          * Executes sequence of tokens with given data stack.
          */
         void execute(const std::vector<token>& tokens,
-                     class stack<value>& stack)
+                     class stack<value>& stack,
+                     hashmap<value>& local_variables)
             throw(script_error, syntax_error);
 
         void register_function(const std::string& name,
                                const class signature& signature,
-                               void (*callback)(interpreter&, stack<value>&));
+                               function::callback callback);
 
         void register_function(const std::string& name,
                                const std::string& signature,
-                               void (*callback)(interpreter&, stack<value>&));
+                               function::callback callback);
 
         void register_function(const std::string& name,
                                const class signature& signature,

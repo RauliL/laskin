@@ -1,6 +1,7 @@
 #ifndef LASKIN_HASHMAP_HPP_GUARD
 #define LASKIN_HASHMAP_HPP_GUARD
 
+#include <cstdlib>
 #include <new>
 #include <string>
 

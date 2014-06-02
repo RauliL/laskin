@@ -9,19 +9,19 @@ namespace laskin
     }
 
     function::function(const class signature& signature,
-                       void (*callback)(interpreter&, stack<value>&))
+                       callback n)
         : m_type(type_native)
         , m_signature(signature)
     {
-        m_callback.n = callback;
+        m_callback.n = n;
     }
 
     function::function(const class signature& signature,
-                       const std::vector<token>& callback)
+                       const std::vector<token>& c)
         : m_type(type_custom)
         , m_signature(signature)
     {
-        m_callback.c = new std::vector<token>(callback);
+        m_callback.c = new std::vector<token>(c);
     }
 
     function::function(const function& that)
@@ -45,17 +45,18 @@ namespace laskin
     }
 
     void function::invoke(class interpreter& interpreter,
-                          class stack<value>& stack) const
+                          class stack<value>& stack,
+                          hashmap<value>& local_variables) const
         throw(script_error, syntax_error)
     {
         if (m_type == type_native)
         {
             if (m_callback.n)
             {
-                m_callback.n(interpreter, stack);
+                m_callback.n(interpreter, stack, local_variables);
             }
         } else {
-            interpreter.execute(*m_callback.c, stack);
+            interpreter.execute(*m_callback.c, stack, local_variables);
         }
     }
 
