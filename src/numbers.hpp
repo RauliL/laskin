@@ -15,11 +15,11 @@ namespace laskin
     real string_to_real(const std::string&)
         throw(std::length_error);
     
-    class rational
+    class ratio
     {
     public:
-        rational(integer numerator, integer denominator);
-        rational(const rational& that);
+        ratio(integer numerator = 0, integer denominator = 1);
+        ratio(const ratio& that);
 
         inline integer numerator() const
         {
@@ -31,13 +31,13 @@ namespace laskin
             return m_denominator;
         }
 
-        rational& assign(const rational& that);
-        rational& assign(integer numerator, integer denominator);
+        ratio& assign(const ratio& that);
+        ratio& assign(integer numerator, integer denominator);
 
         /**
          * Assignment operator.
          */
-        inline rational& operator=(const rational& that)
+        inline ratio& operator=(const ratio& that)
         {
             return assign(that);
         }

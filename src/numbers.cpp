@@ -238,15 +238,15 @@ namespace laskin
         return sign ? number : -number;
     }
 
-    rational::rational(integer numerator, integer denominator)
+    ratio::ratio(integer numerator, integer denominator)
         : m_numerator(numerator)
         , m_denominator(denominator) {}
 
-    rational::rational(const rational& that)
+    ratio::ratio(const ratio& that)
         : m_numerator(that.m_numerator)
         , m_denominator(that.m_denominator) {}
 
-    rational& rational::assign(const rational& that)
+    ratio& ratio::assign(const ratio& that)
     {
         m_numerator = that.m_numerator;
         m_denominator = that.m_denominator;
@@ -254,7 +254,7 @@ namespace laskin
         return *this;
     }
 
-    rational& rational::assign(integer numerator, integer denominator)
+    ratio& ratio::assign(integer numerator, integer denominator)
     {
         m_numerator = numerator;
         m_denominator = denominator;
