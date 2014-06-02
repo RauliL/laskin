@@ -61,7 +61,7 @@ namespace laskin
     }
 
     /**
-     * !(bool : bool)
+     * not(bool : bool)
      *
      * Negates given boolean value.
      */

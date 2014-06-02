@@ -11,11 +11,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_add)
     {
-        const value b = stack[stack.size() - 1];
-        const value a = stack[stack.size() - 2];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() + b.as_real());
@@ -31,11 +29,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_sub)
     {
-        const value b = stack[stack.size() - 1];
-        const value a = stack[stack.size() - 2];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() - b.as_real());
@@ -51,11 +47,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_mul)
     {
-        const value b = stack[stack.size() - 1];
-        const value a = stack[stack.size() - 2];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() * b.as_real());
@@ -71,11 +65,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_div)
     {
-        const value b = stack[stack.size() - 1];
-        const value a = stack[stack.size() - 2];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() / b.as_real());
@@ -98,12 +90,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_eq)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
-        stack.push(a == b);
+        stack >> b >> a << value(a == b);
     }
 
     /**
@@ -113,12 +102,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_ne)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
-        stack.push(a != b);
+        stack >> b >> a << value(a != b);
     }
 
     /**
@@ -128,11 +114,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_lt)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() < b.as_real());
@@ -148,11 +132,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_gt)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() > b.as_real());
@@ -168,11 +150,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_lte)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() <= b.as_real());
@@ -188,11 +168,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_gte)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() >= b.as_real());
@@ -208,11 +186,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_max)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             const real x = a.as_real();
@@ -234,11 +210,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_min)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
+        stack >> b >> a;
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             const real x = a.as_real();

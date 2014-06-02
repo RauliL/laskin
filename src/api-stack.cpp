@@ -61,12 +61,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_dup2)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
-        stack << a << b << a << b;
+        stack >> b >> a << a << b << a << b;
     }
 
     /**
@@ -77,12 +74,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_over)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
-        stack << b << a << b;
+        stack >> b >> a << b << a << b;
     }
 
     /**
@@ -92,14 +86,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_rot)
     {
-        const value a = stack[stack.size() - 3];
-        const value b = stack[stack.size() - 2];
-        const value c = stack[stack.size() - 1];
+        value a, b, c;
 
-        stack.pop();
-        stack.pop();
-        stack.pop();
-        stack << c << b << a;
+        stack >> c >> b >> a << c << b << a;
     }
 
     /**
@@ -109,12 +98,9 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_swap)
     {
-        const value a = stack[stack.size() - 2];
-        const value b = stack[stack.size() - 1];
+        value a, b;
 
-        stack.pop();
-        stack.pop();
-        stack << b << a;
+        stack >> b >> a << b << a;
     }
 
     namespace internal
