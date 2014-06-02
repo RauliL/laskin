@@ -5,7 +5,7 @@ namespace laskin
     function::function()
         : m_type(type_native)
     {
-        m_callback.c = NULL;
+        m_callback.c = 0;
     }
 
     function::function(const class signature& signature,

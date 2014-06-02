@@ -21,7 +21,7 @@ static const repl_command repl_command_list[] =
     {"peek", "p", repl_peek},
     {"quit", "q", repl_quit},
     {"stack", "s", repl_stack},
-    {NULL, NULL, NULL}
+    {0, 0, 0}
 };
 
 int main(int argc, char** argv)
