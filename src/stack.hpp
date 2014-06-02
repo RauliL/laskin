@@ -75,6 +75,26 @@ namespace laskin
             return m_size;
         }
 
+        inline reference front()
+        {
+            return m_data[0];
+        }
+
+        inline const_reference front() const
+        {
+            return m_data[0];
+        }
+
+        inline reference back()
+        {
+            return m_data[m_size - 1];
+        }
+
+        inline const_reference back() const
+        {
+            return m_data[m_size - 1];
+        }
+
         inline reference at(size_type index)
         {
             return m_data[index];
