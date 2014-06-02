@@ -3,6 +3,7 @@
 
 #include "defines.hpp"
 #include <stdexcept>
+#include <string>
 
 namespace laskin
 {
