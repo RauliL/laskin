@@ -21,7 +21,7 @@ namespace laskin
         {
             throw script_error("function signature mismatch");
         }
-        function.invoke(interpreter, stack, new_local_variables);
+        function.invoke(interpreter, stack, new_local_variables, in, out);
     }
 
     /**
@@ -42,10 +42,10 @@ namespace laskin
     BUILT_IN_FUNCTION(func_include)
     {
         const std::string filename = stack[stack.size() - 1].as_string();
-        std::ifstream in(filename, std::ios_base::in);
+        std::ifstream input(filename, std::ios_base::in);
 
         stack.pop();
-        if (in.good())
+        if (input.good())
         {
             try
             {
@@ -53,14 +53,20 @@ namespace laskin
                 laskin::stack<value> new_stack;
                 hashmap<value> new_local_variables;
 
-                interpreter.execute(tokens, new_stack, new_local_variables);
+                interpreter.execute(
+                        tokens,
+                        new_stack,
+                        new_local_variables,
+                        in,
+                        out
+                );
             }
             catch (error& e)
             {
-                in.close();
+                input.close();
                 throw;
             }
-            in.close();
+            input.close();
         } else {
             throw script_error("unable to include file `" + filename + "'");
         }

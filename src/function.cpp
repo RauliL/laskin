@@ -46,17 +46,19 @@ namespace laskin
 
     void function::invoke(class interpreter& interpreter,
                           class stack<value>& stack,
-                          hashmap<value>& local_variables) const
+                          hashmap<value>& local_variables,
+                          std::istream& in,
+                          std::ostream& out) const
         throw(script_error, syntax_error)
     {
         if (m_type == type_native)
         {
             if (m_callback.n)
             {
-                m_callback.n(interpreter, stack, local_variables);
+                m_callback.n(interpreter, stack, local_variables, in, out);
             }
         } else {
-            interpreter.execute(*m_callback.c, stack, local_variables);
+            interpreter.execute(*m_callback.c, stack, local_variables, in, out);
         }
     }
 

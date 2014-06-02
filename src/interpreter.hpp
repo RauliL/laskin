@@ -23,7 +23,9 @@ namespace laskin
          */
         void execute(const std::vector<token>& tokens,
                      class stack<value>& stack,
-                     hashmap<value>& local_variables)
+                     hashmap<value>& local_variables,
+                     std::istream& in,
+                     std::ostream& out)
             throw(script_error, syntax_error);
 
         void register_function(const std::string& name,

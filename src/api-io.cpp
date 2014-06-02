@@ -10,7 +10,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_cr)
     {
-        std::cout << std::endl;
+        out << std::endl;
     }
 
     /**
@@ -21,7 +21,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_emit)
     {
-        std::cout << static_cast<char>(stack.back().as_int());
+        out << static_cast<char>(stack.back().as_int());
         stack.pop();
     }
 
@@ -32,7 +32,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_print)
     {
-        std::cout << stack.back();
+        out << stack.back();
         stack.pop();
     }
 
@@ -43,7 +43,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_println)
     {
-        std::cout << stack.back() << std::endl;
+        out << stack.back() << std::endl;
         stack.pop();
     }
 
@@ -55,7 +55,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_dot)
     {
-        std::cout << ' ' << stack.back();
+        out << ' ' << stack.back();
         stack.pop();
     }
 

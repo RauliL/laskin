@@ -51,7 +51,7 @@ namespace laskin
             {
                 throw script_error("function signature mismatch");
             }
-            function.invoke(interpreter, stack, local_variables);
+            function.invoke(interpreter, stack, local_variables, in, out);
         }
     }
 

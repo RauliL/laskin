@@ -53,7 +53,13 @@ int main(int argc, char** argv)
                         {
                             local_variables.clear();
                         }
-                        interpreter.execute(tokens, stack, local_variables);
+                        interpreter.execute(
+                                tokens,
+                                stack,
+                                local_variables,
+                                std::cin,
+                                std::cout
+                        );
                     }
                 }
                 catch (laskin::error& e)
@@ -120,7 +126,13 @@ int main(int argc, char** argv)
 
                     if (!tokens.empty())
                     {
-                        interpreter.execute(tokens, stack, local_variables);
+                        interpreter.execute(
+                                tokens,
+                                stack,
+                                local_variables,
+                                std::cin,
+                                std::cout
+                        );
                     }
                 }
                 catch (laskin::error& e)
@@ -137,7 +149,13 @@ int main(int argc, char** argv)
 
             if (!tokens.empty())
             {
-                interpreter.execute(tokens, stack, local_variables);
+                interpreter.execute(
+                        tokens,
+                        stack,
+                        local_variables,
+                        std::cin,
+                        std::cout
+                );
             }
         }
         catch (laskin::error& e)

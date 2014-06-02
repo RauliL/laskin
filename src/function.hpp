@@ -10,7 +10,11 @@ namespace laskin
     class function
     {
     public:
-        typedef void (*callback)(interpreter&, stack<value>&, hashmap<value>&);
+        typedef void (*callback)(interpreter&,
+                                 stack<value>&,
+                                 hashmap<value>&,
+                                 std::istream&,
+                                 std::ostream&);
 
         enum type
         {
@@ -54,7 +58,9 @@ namespace laskin
 
         void invoke(class interpreter& interpreter,
                     class stack<value>& stack,
-                    hashmap<value>& local_variables) const
+                    hashmap<value>& local_variables,
+                    std::istream& in,
+                    std::ostream& out) const
             throw(script_error, syntax_error);
 
         function& assign(const function& that);

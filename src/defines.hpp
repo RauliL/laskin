@@ -45,6 +45,8 @@ namespace laskin
 #define BUILT_IN_FUNCTION(Name) \
     static void Name(class laskin::interpreter& interpreter, \
                      class laskin::stack<value>& stack, \
-                     hashmap<value>& local_variables)
+                     hashmap<value>& local_variables, \
+                     std::istream& in, \
+                     std::ostream& out)
 
 #endif /* !LASKIN_DEFINES_HPP_GUARD */
