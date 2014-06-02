@@ -14,13 +14,14 @@ namespace laskin
     {
         const class value value = stack[stack.size() - 1];
         const class function& function = value.as_function();
+        hashmap<class value> new_local_variables(local_variables);
 
         stack.pop();
         if (!function.signature().test(stack))
         {
             throw script_error("function signature mismatch");
         }
-        function.invoke(interpreter, stack);
+        function.invoke(interpreter, stack, new_local_variables);
     }
 
     /**
@@ -50,8 +51,9 @@ namespace laskin
             {
                 std::vector<token> tokens = token::scan(in);
                 laskin::stack<value> new_stack;
+                hashmap<value> new_local_variables;
 
-                interpreter.execute(tokens, new_stack);
+                interpreter.execute(tokens, new_stack, new_local_variables);
             }
             catch (error& e)
             {
@@ -64,6 +66,39 @@ namespace laskin
         }
     }
 
+    /**
+     * get(string : any)
+     *
+     * Retrieves given local variable or throws an error if no such variable
+     * exists.
+     */
+    BUILT_IN_FUNCTION(func_get)
+    {
+        const value a = stack[stack.size() - 1];
+        hashmap<value>::entry* e = local_variables.find(a.as_string());
+
+        stack.pop();
+        if (e)
+        {
+            stack.push(e->value);
+        } else {
+            throw script_error("undefined local variable: `" + a.as_string() + "'");
+        }
+    }
+
+    /**
+     * set(string any)
+     *
+     * Sets a local variable.
+     */
+    BUILT_IN_FUNCTION(func_set)
+    {
+        value a, b;
+
+        stack >> b >> a;
+        local_variables.insert(a.as_string(), b);
+    }
+
     namespace internal
     {
         void initialize_program(interpreter* i)
@@ -71,6 +106,8 @@ namespace laskin
             i->register_function("call", "f", func_call);
             i->register_function("exit", "", func_exit);
             i->register_function("include", "s", func_include);
+            i->register_function("get", "s:?", func_get);
+            i->register_function("set", "s?", func_set);
         }
     }
 }

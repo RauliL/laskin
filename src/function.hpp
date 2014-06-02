@@ -1,6 +1,7 @@
 #ifndef LASKIN_FUNCTION_HPP_GUARD
 #define LASKIN_FUNCTION_HPP_GUARD
 
+#include "hashmap.hpp"
 #include "signature.hpp"
 #include "token.hpp"
 
@@ -9,6 +10,8 @@ namespace laskin
     class function
     {
     public:
+        typedef void (*callback)(interpreter&, stack<value>&, hashmap<value>&);
+
         enum type
         {
             type_native,
@@ -21,13 +24,13 @@ namespace laskin
          * Constructs native function.
          */
         explicit function(const class signature& signature,
-                          void (*callback)(interpreter&, stack<value>&));
+                          callback n);
 
         /**
          * Constructs user defined function.
          */
         explicit function(const class signature& signature,
-                          const std::vector<token>& callback);
+                          const std::vector<token>& c);
 
         function(const function& that);
 
@@ -50,7 +53,8 @@ namespace laskin
         }
 
         void invoke(class interpreter& interpreter,
-                    class stack<value>& stack) const
+                    class stack<value>& stack,
+                    hashmap<value>& local_variables) const
             throw(script_error, syntax_error);
 
         function& assign(const function& that);
@@ -70,7 +74,7 @@ namespace laskin
         class signature m_signature;
         union
         {
-            void (*n)(interpreter&, stack<value>&);
+            callback n;
             std::vector<token>* c;
         } m_callback;
     };

@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 {
     laskin::interpreter interpreter;
     laskin::stack<laskin::value> stack;
+    laskin::hashmap<laskin::value> local_variables;
 
     interpreter.initialize();
     if (argc > 1)
@@ -48,7 +49,11 @@ int main(int argc, char** argv)
                         {
                             stack.clear();
                         }
-                        interpreter.execute(tokens, stack);
+                        if (!local_variables.empty())
+                        {
+                            local_variables.clear();
+                        }
+                        interpreter.execute(tokens, stack, local_variables);
                     }
                 }
                 catch (laskin::error& e)
@@ -115,7 +120,7 @@ int main(int argc, char** argv)
 
                     if (!tokens.empty())
                     {
-                        interpreter.execute(tokens, stack);
+                        interpreter.execute(tokens, stack, local_variables);
                     }
                 }
                 catch (laskin::error& e)
@@ -132,7 +137,7 @@ int main(int argc, char** argv)
 
             if (!tokens.empty())
             {
-                interpreter.execute(tokens, stack);
+                interpreter.execute(tokens, stack, local_variables);
             }
         }
         catch (laskin::error& e)
