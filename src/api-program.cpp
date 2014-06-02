@@ -87,7 +87,7 @@ namespace laskin
     }
 
     /**
-     * set(string any)
+     * set(any string)
      *
      * Sets a local variable.
      */
@@ -96,7 +96,7 @@ namespace laskin
         value a, b;
 
         stack >> b >> a;
-        local_variables.insert(a.as_string(), b);
+        local_variables.insert(b.as_string(), a);
     }
 
     namespace internal
@@ -107,7 +107,7 @@ namespace laskin
             i->register_function("exit", "", func_exit);
             i->register_function("include", "s", func_include);
             i->register_function("get", "s:?", func_get);
-            i->register_function("set", "s?", func_set);
+            i->register_function("set", "?s", func_set);
         }
     }
 }
