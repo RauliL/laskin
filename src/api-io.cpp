@@ -14,13 +14,25 @@ namespace laskin
     }
 
     /**
+     * emit(int)
+     *
+     * Outputs given integer as ASCII character into the standard output
+     * stream.
+     */
+    BUILT_IN_FUNCTION(func_emit)
+    {
+        std::cout << static_cast<char>(stack.back().as_int());
+        stack.pop();
+    }
+
+    /**
      * print(any)
      *
      * Outputs given object into the standard output stream.
      */
     BUILT_IN_FUNCTION(func_print)
     {
-        std::cout << stack[stack.size() - 1];
+        std::cout << stack.back();
         stack.pop();
     }
 
@@ -31,7 +43,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_println)
     {
-        std::cout << stack[stack.size() - 1] << std::endl;
+        std::cout << stack.back() << std::endl;
         stack.pop();
     }
 
@@ -43,7 +55,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_dot)
     {
-        std::cout << ' ' << stack[stack.size() - 1];
+        std::cout << ' ' << stack.back();
         stack.pop();
     }
 
@@ -52,6 +64,7 @@ namespace laskin
         void initialize_io(interpreter* i)
         {
             i->register_function("cr", "", func_cr);
+            i->register_function("emit", "i", func_emit);
             i->register_function("print", "?", func_print);
             i->register_function("println", "?", func_println);
             i->register_function(".", "?", func_dot);
