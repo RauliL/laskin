@@ -168,6 +168,61 @@ namespace laskin
         stack.push(a.as_string() + b.as_string());
     }
 
+    /**
+     * @(string int : int)
+     *
+     * Retrieves character from the string at given index. Negative indexes
+     * count from backwards.
+     */
+    BUILT_IN_FUNCTION(func_at)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+        const std::string& string = a.as_string();
+        integer index = b.as_int();
+
+        stack.pop();
+        stack.pop();
+        if (index < 0)
+        {
+            index += string.length();
+        }
+        if (index < 0 || index >= static_cast<integer>(string.length()))
+        {
+            throw script_error("string index out of bounds");
+        }
+        stack.push(static_cast<integer>(string[index]));
+    }
+
+    /**
+     * @=(string int int : string)
+     *
+     * Sets character in the string at given index. Negative indexes count from
+     * backwards.
+     */
+    BUILT_IN_FUNCTION(func_at_set)
+    {
+        const value a = stack[stack.size() - 3];
+        const value b = stack[stack.size() - 2];
+        const value c = stack[stack.size() - 1];
+        std::string string = a.as_string();
+        integer index = b.as_int();
+
+        stack.pop();
+        stack.pop();
+        stack.pop();
+        if (index < 0)
+        {
+            index += string.length();
+        }
+        if (index < 0 || index >= static_cast<integer>(string.length()))
+        {
+            throw script_error("string index out of bounds");
+        }
+        string[index] = static_cast<char>(c.as_int());
+        stack.push(string);
+    }
+
     namespace internal
     {
         void initialize_string(interpreter* i)
@@ -186,6 +241,8 @@ namespace laskin
             i->register_function("reverse", "s:s", func_reverse);
 
             i->register_function("+", "ss:s", func_add);
+            i->register_function("@", "si:i", func_at);
+            i->register_function("@=", "sii:s", func_at_set);
         }
     }
 }
