@@ -25,6 +25,10 @@ namespace laskin
                 m_data.r = that.m_data.r;
                 break;
 
+            case type_ratio:
+                m_data.rat = new ratio(*that.m_data.rat);
+                break;
+
             case type_string:
                 m_data.s.container = that.m_data.s.container;
                 m_data.s.counter = that.m_data.s.counter;
@@ -60,6 +64,12 @@ namespace laskin
         : m_type(type_real)
     {
         m_data.r = r;
+    }
+
+    value::value(const class ratio& ratio)
+        : m_type(type_ratio)
+    {
+        m_data.rat = new class ratio(ratio);
     }
 
     value::value(const std::string& s)
@@ -109,6 +119,10 @@ namespace laskin
                 delete m_data.f.function;
             }
         }
+        else if (m_type == type_ratio)
+        {
+            delete m_data.rat;
+        }
     }
 
     integer value::as_int() const
@@ -137,6 +151,18 @@ namespace laskin
 
             return static_cast<integer>(r);
         }
+        else if (m_type == type_ratio)
+        {
+            const integer numerator = m_data.rat->numerator();
+            const integer denominator = m_data.rat->denominator();
+
+            if (numerator < 0)
+            {
+                return -(-numerator / denominator);
+            } else {
+                return numerator / denominator;
+            }
+        }
 
         return 0;
     }
@@ -150,6 +176,11 @@ namespace laskin
         else if (m_type == type_int)
         {
             return static_cast<real>(m_data.i);
+        }
+        else if (m_type == type_ratio)
+        {
+            return static_cast<real>(m_data.rat->numerator())
+                / static_cast<real>(m_data.rat->denominator());
         }
 
         return 0.0;
@@ -181,6 +212,10 @@ namespace laskin
                 delete m_data.f.function;
             }
         }
+        else if (m_type == type_ratio)
+        {
+            delete m_data.rat;
+        }
         switch (m_type = that.m_type)
         {
             case type_bool:
@@ -190,6 +225,10 @@ namespace laskin
 
             case type_real:
                 m_data.r = that.m_data.r;
+                break;
+
+            case type_ratio:
+                m_data.rat = new ratio(*that.m_data.rat);
                 break;
 
             case type_string:
@@ -227,7 +266,7 @@ namespace laskin
                 }
                 else if (that.m_type == type_real)
                 {
-                    return static_cast<double>(m_data.i) == that.m_data.r;
+                    return static_cast<real>(m_data.i) == that.m_data.r;
                 }
                 break;
 
@@ -238,7 +277,24 @@ namespace laskin
                 }
                 else if (that.m_type == type_int)
                 {
-                    return m_data.r == static_cast<double>(that.m_data.r);
+                    return m_data.r == static_cast<real>(that.m_data.r);
+                }
+                break;
+
+            case type_ratio:
+                if (that.m_type == type_ratio)
+                {
+                    return m_data.rat->equals(*that.m_data.rat);
+                }
+                else if (that.m_type == type_int)
+                {
+                    return m_data.rat->numerator() == that.m_data.i
+                        && m_data.rat->denominator() == 1;
+                }
+                else if (that.m_type == type_real)
+                {
+                    return static_cast<real>(m_data.rat->numerator()) == that.m_data.r
+                        && m_data.rat->denominator() == 1;
                 }
                 break;
 
@@ -298,6 +354,10 @@ namespace laskin
                 os << real_to_string(value.as_real());
                 break;
 
+            case value::type_ratio:
+                os << value.as_ratio();
+                break;
+
             case value::type_string:
                 os << value.as_string();
                 break;
@@ -338,6 +398,10 @@ namespace laskin
 
             case value::type_real:
                 os << "real";
+                break;
+
+            case value::type_ratio:
+                os << "ratio";
                 break;
 
             case value::type_string:

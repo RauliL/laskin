@@ -79,7 +79,12 @@ namespace laskin
             {
                 throw script_error("division by zero");
             }
-            stack.push(x / y);
+            else if (y > x)
+            {
+                stack.push(ratio(x, y));
+            } else {
+                stack.push(x / y);
+            }
         }
     }
 

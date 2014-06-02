@@ -17,6 +17,7 @@ namespace laskin
             type_num,
             type_int,
             type_real,
+            type_ratio,
             type_string,
             type_list,
             type_function

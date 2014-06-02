@@ -387,6 +387,10 @@ namespace laskin
                 {
                     entry = signature::type_real;
                 }
+                else if (!id.compare("ratio"))
+                {
+                    entry = signature::type_ratio;
+                }
                 else if (!id.compare("string"))
                 {
                     entry = signature::type_string;

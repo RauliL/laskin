@@ -34,6 +34,10 @@ namespace laskin
                     entry = type_real;
                     break;
 
+                case 'R':
+                    entry = type_ratio;
+                    break;
+
                 case 's':
                     entry = type_string;
                     break;
@@ -91,7 +95,8 @@ namespace laskin
 
                 case type_num:
                     if (!value.is(value::type_int)
-                        && !value.is(value::type_real))
+                        && !value.is(value::type_real)
+                        && !value.is(value::type_ratio))
                     {
                         return false;
                     }
@@ -106,6 +111,13 @@ namespace laskin
 
                 case type_real:
                     if (!value.is(value::type_real))
+                    {
+                        return false;
+                    }
+                    break;
+
+                case type_ratio:
+                    if (!value.is(value::type_ratio))
                     {
                         return false;
                     }
@@ -220,6 +232,10 @@ namespace laskin
 
             case signature::type_real:
                 os << "real";
+                break;
+
+            case signature::type_ratio:
+                os << "ratio";
                 break;
 
             case signature::type_string:

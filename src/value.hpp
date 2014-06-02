@@ -1,8 +1,7 @@
 #ifndef LASKIN_VALUE_HPP_GUARD
 #define LASKIN_VALUE_HPP_GUARD
 
-#include "defines.hpp"
-#include <iostream>
+#include "numbers.hpp"
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -17,6 +16,7 @@ namespace laskin
             type_bool,
             type_int,
             type_real,
+            type_ratio,
             type_string,
             type_list,
             type_function
@@ -48,6 +48,11 @@ namespace laskin
          * Constructs real value.
          */
         value(real r);
+
+        /**
+         * Constructs ratio value.
+         */
+        value(const class ratio& ratio);
 
         /**
          * Constructs string value.
@@ -94,6 +99,11 @@ namespace laskin
             throw(std::out_of_range);
 
         real as_real() const;
+
+        inline const ratio& as_ratio() const
+        {
+            return *m_data.rat;
+        }
 
         inline const std::string& as_string() const
         {
@@ -153,6 +163,8 @@ namespace laskin
             integer i;
             /** Floating point decimal value. */
             real r;
+            /** Ratio value. */
+            ratio* rat;
             /** String value. */
             struct
             {

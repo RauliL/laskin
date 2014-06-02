@@ -9,6 +9,7 @@ namespace laskin
 {
     class function;
     class interpreter;
+    class ratio;
     class signature;
     class token;
     class value;
