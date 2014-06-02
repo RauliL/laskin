@@ -48,14 +48,14 @@ namespace laskin
         hashmap(size_type bucket_size = 8)
             : m_bucket_size(bucket_size)
             , m_bucket(new entry*[m_bucket_size])
-            , m_front(NULL)
-            , m_back(NULL) {}
+            , m_front(0)
+            , m_back(0) {}
 
         hashmap(const hashmap<T>& that)
             : m_bucket_size(that.m_bucket_size)
             , m_bucket(new entry*[m_bucket_size])
-            , m_front(NULL)
-            , m_back(NULL)
+            , m_front(0)
+            , m_back(0)
         {
             for (const entry* e1 = that.m_front; e1; e1 = e1->next)
             {
@@ -65,7 +65,7 @@ namespace laskin
                 new (static_cast<void*>(&e2->key)) key_type(e1->key);
                 new (static_cast<void*>(&e2->value)) mapped_value(e1->value);
                 e2->hash = e1->hash;
-                e2->next = NULL;
+                e2->next = 0;
                 if ((e2->prev = m_back))
                 {
                     m_back->next = e2;
@@ -123,9 +123,9 @@ namespace laskin
             }
             for (size_type i = 0; i < m_bucket_size; ++i)
             {
-                m_bucket[i] = NULL;
+                m_bucket[i] = 0;
             }
-            m_front = m_back = NULL;
+            m_front = m_back = 0;
         }
 
         entry* find(const key_type& key)
@@ -140,7 +140,7 @@ namespace laskin
                 }
             }
 
-            return NULL;
+            return 0;
         }
 
         const entry* find(const key_type& key) const
@@ -155,7 +155,7 @@ namespace laskin
                 }
             }
 
-            return NULL;
+            return 0;
         }
 
         void insert(const key_type& key, const mapped_value& value)
@@ -177,7 +177,7 @@ namespace laskin
             new (static_cast<void*>(&e->key)) key_type(key);
             new (static_cast<void*>(&e->value)) mapped_value(value);
             e->hash = hash;
-            e->next = NULL;
+            e->next = 0;
             if ((e->prev = m_back))
             {
                 m_back->next = e;
@@ -187,6 +187,73 @@ namespace laskin
             m_back = e;
             e->child = m_bucket[index];
             m_bucket[index] = e;
+        }
+
+        void remove(const key_type& key)
+        {
+            const size_type hash = hash_string(key);
+            const size_type index = static_cast<size_type>(hash % m_bucket_size);
+            entry* e = m_bucket[index];
+
+            if (!e)
+            {
+                return;
+            }
+            if (e->hash == hash)
+            {
+                m_bucket[index] = e->child;
+                if (e->next && e->prev)
+                {
+                    e->next->prev = e->prev;
+                    e->prev->next = e->next;
+                }
+                else if (e->next)
+                {
+                    e->next->prev = 0;
+                    m_front = e->next;
+                }
+                else if (e->prev)
+                {
+                    e->prev->next = 0;
+                    m_back = e->prev;
+                } else {
+                    m_front = m_back = 0;
+                }
+                e->key.~key_type();
+                e->value.~mapped_value();
+                std::free(e);
+                return;
+            }
+            for (; e->child; e = e->child)
+            {
+                if (e->child->hash == hash)
+                {
+                    entry* tmp = e->child;
+
+                    e->child = e->child->child;
+                    if (tmp->next && tmp->prev)
+                    {
+                        tmp->next->prev = tmp->prev;
+                        tmp->prev->next = tmp->next;
+                    }
+                    else if (tmp->next)
+                    {
+                        tmp->next->prev = 0;
+                        m_front = tmp->next;
+                    }
+                    else if (tmp->prev)
+                    {
+                        tmp->prev->next = 0;
+                        m_back = tmp->prev;
+                    } else {
+                        m_front = m_back = 0;
+                    }
+                    e->key.~key_type();
+                    e->value.~mapped_value();
+                    std::free(e);
+                    return;
+                }
+            }
         }
 
         hashmap& assign(const hashmap<T>& that)
@@ -200,7 +267,7 @@ namespace laskin
                 new (static_cast<void*>(&e2->key)) key_type(e1->key);
                 new (static_cast<void*>(&e2->value)) mapped_value(e1->value);
                 e2->hash = e1->hash;
-                e2->next = NULL;
+                e2->next = 0;
                 if ((e2->prev = m_back))
                 {
                     m_back->next = e2;
