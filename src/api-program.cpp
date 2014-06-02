@@ -99,6 +99,17 @@ namespace laskin
         local_variables.insert(b.as_string(), a);
     }
 
+    /**
+     * delete(string)
+     *
+     * Removes a local variable.
+     */
+    BUILT_IN_FUNCTION(func_delete)
+    {
+        local_variables.remove(stack.back().as_string());
+        stack.pop();
+    }
+
     namespace internal
     {
         void initialize_program(interpreter* i)
@@ -108,6 +119,7 @@ namespace laskin
             i->register_function("include", "s", func_include);
             i->register_function("get", "s:?", func_get);
             i->register_function("set", "?s", func_set);
+            i->register_function("delete", "s", func_delete);
         }
     }
 }
