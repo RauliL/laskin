@@ -2,6 +2,10 @@
 
 namespace laskin
 {
+    ratio::ratio()
+        : m_numerator(0)
+        , m_denominator(1) {}
+
     ratio::ratio(integer numerator, integer denominator)
         throw(std::domain_error)
         : m_numerator(numerator)
@@ -20,6 +24,30 @@ namespace laskin
     ratio ratio::negate() const
     {
         return ratio(-m_numerator, m_denominator);
+    }
+
+    ratio ratio::add(const ratio& that) const
+    {
+        return ratio(
+                m_numerator * that.m_denominator + m_denominator * that.m_numerator,
+                m_denominator * that.m_denominator
+        );
+    }
+
+    ratio ratio::substract(const ratio& that) const
+    {
+        return ratio(
+                m_numerator * that.m_denominator - m_denominator * that.m_numerator,
+                m_denominator * that.m_denominator
+        );
+    }
+
+    ratio ratio::multiply(const ratio& that) const
+    {
+        return ratio(
+                m_numerator * that.m_numerator,
+                m_denominator * that.m_denominator
+        );
     }
 
     bool ratio::equals(const ratio& that) const

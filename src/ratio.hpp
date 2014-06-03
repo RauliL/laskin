@@ -13,13 +13,18 @@ namespace laskin
     {
     public:
         /**
+         * Constructs rational number which represents zero.
+         */
+        ratio();
+
+        /**
          * Constructs new rational number.
          *
          * \param numerator         Numerator part
          * \param denominator       Denominator part
          * \throw std::domain_error If denominator is zero
          */
-        ratio(integer numerator = 0, integer denominator = 1)
+        explicit ratio(integer numerator, integer denominator = 1)
             throw(std::domain_error);
 
         /**
@@ -50,6 +55,27 @@ namespace laskin
         inline ratio operator-() const
         {
             return negate();
+        }
+
+        ratio add(const ratio& that) const;
+
+        inline ratio operator+(const ratio& that) const
+        {
+            return add(that);
+        }
+
+        ratio substract(const ratio& that) const;
+
+        inline ratio operator-(const ratio& that) const
+        {
+            return substract(that);
+        }
+
+        ratio multiply(const ratio& that) const;
+
+        inline ratio operator*(const ratio& that) const
+        {
+            return multiply(that);
         }
 
         /**
