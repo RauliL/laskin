@@ -1,8 +1,7 @@
 #ifndef LASKIN_VALUE_HPP_GUARD
 #define LASKIN_VALUE_HPP_GUARD
 
-#include "numbers.hpp"
-#include <stdexcept>
+#include "ratio.hpp"
 #include <string>
 #include <vector>
 

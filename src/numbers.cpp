@@ -236,43 +236,4 @@ namespace laskin
         
         return sign ? number : -number;
     }
-
-    ratio::ratio(integer numerator, integer denominator)
-        : m_numerator(numerator)
-        , m_denominator(denominator) {} // TODO: test for not zero
-
-    ratio::ratio(const ratio& that)
-        : m_numerator(that.m_numerator)
-        , m_denominator(that.m_denominator) {}
-
-    bool ratio::equals(const ratio& that) const
-    {
-        return m_numerator == that.m_numerator
-            && m_denominator == that.m_denominator;
-    }
-
-    ratio& ratio::assign(const ratio& that)
-    {
-        m_numerator = that.m_numerator;
-        m_denominator = that.m_denominator;
-
-        return *this;
-    }
-
-    ratio& ratio::assign(integer numerator, integer denominator)
-    {
-        m_numerator = numerator;
-        m_denominator = denominator;
-
-        return *this;
-    }
-
-    std::ostream& operator<<(std::ostream& os, const class ratio& ratio)
-    {
-        os << int_to_string(ratio.numerator())
-           << '/'
-           << int_to_string(ratio.denominator());
-
-        return os;
-    }
 }
