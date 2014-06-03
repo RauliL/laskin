@@ -17,6 +17,15 @@ namespace laskin
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() + b.as_real());
+        }
+        else if (a.is(value::type_ratio))
+        {
+            if (b.is(value::type_ratio))
+            {
+                stack.push(a.as_ratio() + b.as_ratio());
+            } else {
+                stack.push(a.as_ratio() + b.as_int());
+            }
         } else {
             stack.push(a.as_int() + b.as_int());
         }
@@ -35,6 +44,15 @@ namespace laskin
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() - b.as_real());
+        }
+        else if (a.is(value::type_ratio))
+        {
+            if (b.is(value::type_ratio))
+            {
+                stack.push(a.as_ratio() - b.as_ratio());
+            } else {
+                stack.push(a.as_ratio() - b.as_int());
+            }
         } else {
             stack.push(a.as_int() - b.as_int());
         }
@@ -53,6 +71,15 @@ namespace laskin
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() * b.as_real());
+        }
+        else if (a.is(value::type_ratio))
+        {
+            if (b.is(value::type_ratio))
+            {
+                stack.push(a.as_ratio() * b.as_ratio());
+            } else {
+                stack.push(a.as_ratio() * b.as_int());
+            }
         } else {
             stack.push(a.as_int() * b.as_int());
         }
@@ -71,6 +98,15 @@ namespace laskin
         if (a.is(value::type_real) || b.is(value::type_real))
         {
             stack.push(a.as_real() / b.as_real());
+        }
+        else if (a.is(value::type_ratio))
+        {
+            if (b.is(value::type_ratio))
+            {
+                stack.push(a.as_ratio() / b.as_ratio());
+            } else {
+                stack.push(a.as_ratio() / b.as_int());
+            }
         } else {
             const integer x = a.as_int();
             const integer y = b.as_int();

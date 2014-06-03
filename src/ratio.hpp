@@ -58,29 +58,53 @@ namespace laskin
         }
 
         ratio add(const ratio& that) const;
+        ratio add(integer that) const;
 
         inline ratio operator+(const ratio& that) const
         {
             return add(that);
         }
 
+        inline ratio operator+(integer that) const
+        {
+            return add(that);
+        }
+
         ratio substract(const ratio& that) const;
+        ratio substract(integer that) const;
 
         inline ratio operator-(const ratio& that) const
         {
             return substract(that);
         }
 
+        inline ratio operator-(integer that) const
+        {
+            return substract(that);
+        }
+
         ratio multiply(const ratio& that) const;
+        ratio multiply(integer that) const;
 
         inline ratio operator*(const ratio& that) const
         {
             return multiply(that);
         }
 
+        inline ratio operator*(integer that) const
+        {
+            return multiply(that);
+        }
+
         ratio divide(const ratio& that) const;
+        ratio divide(integer that) const;
 
         inline ratio operator/(const ratio& that) const
+        {
+            return divide(that);
+        }
+
+        inline ratio operator/(integer that) const
         {
             return divide(that);
         }
