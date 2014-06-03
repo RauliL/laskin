@@ -3,6 +3,7 @@
 namespace laskin
 {
     static inline bool isword(char);
+    static inline token::type str_to_word(const std::string&);
 
     token::token(enum type type, const std::string& data)
         : m_type(type)
@@ -253,24 +254,7 @@ SCAN_WORD:
                         {
                             buffer.append(1, *current++);
                         }
-                        if (!buffer.compare("else"))
-                        {
-                            tokens.push_back(token(type_keyword_else));
-                        }
-                        else if (!buffer.compare("if"))
-                        {
-                            tokens.push_back(token(type_keyword_if));
-                        }
-                        else if (!buffer.compare("to"))
-                        {
-                            tokens.push_back(token(type_keyword_to));
-                        }
-                        else if (!buffer.compare("while"))
-                        {
-                            tokens.push_back(token(type_keyword_while));
-                        } else {
-                            tokens.push_back(token(type_word, buffer));
-                        }
+                        tokens.push_back(str_to_word(buffer));
                     } else {
                         throw syntax_error("unexpected input");
                     }
@@ -443,5 +427,41 @@ SCAN_WORD:
             || c == '`'
             || c == '|'
             || c == '~';
+    }
+
+    static inline str_to_word(const std::string& s)
+    {
+        switch (s[0])
+        {
+            case 'e':
+                if (!s.compare("else"))
+                {
+                    return token::type_keyword_else;
+                }
+                break;
+
+            case 'i':
+                if (!s.compare("if"))
+                {
+                    return token::type_keyword_if;
+                }
+                break;
+
+            case 't':
+                if (!s.compare("to"))
+                {
+                    return token::type_keyword_to;
+                }
+                break;
+
+            case 'w':
+                if (!s.compare("while"))
+                {
+                    return token::type_keyword_while;
+                }
+                break;
+        }
+
+        return token::type_word;
     }
 }
