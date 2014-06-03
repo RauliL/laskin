@@ -25,7 +25,8 @@ namespace laskin
             type_word,
             type_keyword_if,
             type_keyword_else,
-            type_keyword_while
+            type_keyword_while,
+            type_keyword_to
         };
 
         /**

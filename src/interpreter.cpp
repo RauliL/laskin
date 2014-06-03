@@ -139,6 +139,19 @@ namespace laskin
                     );
                     break;
 
+                case token::type_keyword_to:
+                    if (++current >= end || !current->is(token::type_word))
+                    {
+                        throw syntax_error("missing variable name after `to'");
+                    }
+                    else if (stack.size() < 1)
+                    {
+                        throw script_error("missing variable value");
+                    }
+                    local_variables.insert(current++->data(), stack.back());
+                    stack.pop();
+                    break;
+
                 case token::type_word:
                 {
                     const std::string& id = current++->data();

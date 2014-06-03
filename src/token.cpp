@@ -261,6 +261,10 @@ SCAN_WORD:
                         {
                             tokens.push_back(token(type_keyword_if));
                         }
+                        else if (!buffer.compare("to"))
+                        {
+                            tokens.push_back(token(type_keyword_to));
+                        }
                         else if (!buffer.compare("while"))
                         {
                             tokens.push_back(token(type_keyword_while));
@@ -339,6 +343,10 @@ SCAN_WORD:
 
             case token::type_keyword_while:
                 os << "`while'";
+                break;
+
+            case token::type_keyword_to:
+                os << "`to'";
         }
 
         return os;
@@ -399,6 +407,10 @@ SCAN_WORD:
 
             case token::type_keyword_while:
                 os << "`while'";
+                break;
+
+            case token::type_keyword_to:
+                os << "`to'";
         }
 
         return os;
