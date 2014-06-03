@@ -172,12 +172,48 @@ SCAN_EXPONENT:
                 case '"':
                 case '\'':
                 {
+                    char separator = c;
+
                     buffer.clear();
-                    while (current != end && *current != c)
+                    while (current != end && *current != separator)
                     {
                         if (*current == '\\')
                         {
-                            // TODO: process escape sequence
+                            if (++current == end)
+                            {
+                                throw syntax_error("end of input after escape sequence");
+                            }
+                            switch (c = *current++)
+                            {
+                                case 'a':
+                                    buffer.append(1, 007);
+                                    break;
+
+                                case 'e':
+                                    buffer.append(1, 033);
+                                    break;
+
+                                case 'n':
+                                    buffer.append(1, '\n');
+                                    break;
+
+                                case 'r':
+                                    buffer.append(1, '\r');
+                                    break;
+
+                                case 't':
+                                    buffer.append(1, '\t');
+                                    break;
+
+                                case '"':
+                                case '\'':
+                                case '\\':
+                                    buffer.append(1, c);
+                                    break;
+
+                                default:
+                                    throw syntax_error("illegal escape sequence");
+                            }
                         } else {
                             buffer.append(1, *current++);
                         }
