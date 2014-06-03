@@ -61,7 +61,7 @@ namespace laskin
                     hashmap<value>& locals,
                     std::istream& in,
                     std::ostream& out) const
-            throw(script_error, syntax_error);
+            throw(error);
 
         function& assign(const function& that);
         function& assign(const class signature& signature,

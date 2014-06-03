@@ -25,7 +25,7 @@ namespace laskin
                      hashmap<value>& locals,
                      std::istream& in,
                      std::ostream& out)
-            throw(script_error, syntax_error);
+            throw(error);
 
         void register_function(const std::string& name,
                                const class signature& signature,

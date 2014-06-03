@@ -213,7 +213,7 @@ namespace laskin
         }
         if (index < 0 || index >= static_cast<integer>(string.length()))
         {
-            throw script_error("string index out of bounds");
+            throw error(error::type_range, "string index out of bounds");
         }
         stack.push(static_cast<integer>(string[index]));
     }
@@ -241,7 +241,7 @@ namespace laskin
         }
         if (index < 0 || index >= static_cast<integer>(string.length()))
         {
-            throw script_error("string index out of bounds");
+            throw error(error::type_range, "string index out of bounds");
         }
         string[index] = static_cast<char>(c.as_int());
         stack.push(string);

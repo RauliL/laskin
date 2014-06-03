@@ -16,7 +16,7 @@ namespace laskin
         , m_data(that.m_data) {}
 
     script token::scan(std::istream& is)
-        throw(syntax_error)
+        throw(error)
     {
         std::vector<token> tokens;
         std::string buffer;
@@ -75,7 +75,8 @@ SCAN_NUMBER_FROM_ZERO:
                                 {
                                     if ((c = *current++) != '0' && c != '1')
                                     {
-                                        throw syntax_error(
+                                        throw error(
+                                                error::type_syntax,
                                                 "invalid binary digit"
                                         );
                                     }
@@ -101,7 +102,8 @@ SCAN_NUMBER_FROM_ZERO:
                                 {
                                     if ((c = *current++) > '7')
                                     {
-                                        throw syntax_error(
+                                        throw error(
+                                                error::type_syntax,
                                                 "invalid octal digit"
                                         );
                                     }
@@ -110,7 +112,10 @@ SCAN_NUMBER_FROM_ZERO:
                                 break;
 
                             case '8': case '9':
-                                throw syntax_error("invalid octal digit");
+                                throw error(
+                                        error::type_syntax,
+                                        "invalid octal digit"
+                                );
 
                             case 'e': case 'E':
                                 goto SCAN_EXPONENT;
@@ -139,7 +144,10 @@ SCAN_REAL:
                         buffer.append(1, '.');
                         if (current == end || !std::isdigit(*current))
                         {
-                            throw syntax_error("missing digits after `.'");
+                            throw error(
+                                    error::type_syntax,
+                                    "missing digits after `.'"
+                            );
                         }
                         do
                         {
@@ -157,7 +165,10 @@ SCAN_EXPONENT:
                             }
                             if (current == end || !std::isdigit(*current))
                             {
-                                throw syntax_error("missing exponent");
+                                throw error(
+                                        error::type_syntax,
+                                        "missing exponent"
+                                );
                             }
                             do
                             {
@@ -178,7 +189,10 @@ SCAN_EXPONENT:
                         buffer.append(1, *current++);
                         if (current == end || !std::isdigit(*current))
                         {
-                            throw syntax_error("rational number is missing denominator");
+                            throw error(
+                                    error::type_syntax,
+                                    "rational number is missing denominator"
+                            );
                         }
                         do
                         {
@@ -204,7 +218,10 @@ SCAN_EXPONENT:
                         {
                             if (++current == end)
                             {
-                                throw syntax_error("end of input after escape sequence");
+                                throw error(
+                                        error::type_syntax,
+                                        "end of input after escape sequence"
+                                );
                             }
                             switch (c = *current++)
                             {
@@ -235,7 +252,10 @@ SCAN_EXPONENT:
                                     break;
 
                                 default:
-                                    throw syntax_error("illegal escape sequence");
+                                    throw error(
+                                            error::type_syntax,
+                                            "illegal escape sequence"
+                                    );
                             }
                         } else {
                             buffer.append(1, *current++);
@@ -243,7 +263,10 @@ SCAN_EXPONENT:
                     }
                     if (current == end)
                     {
-                        throw syntax_error("unterminated string literal");
+                        throw error(
+                                error::type_syntax,
+                                "unterminated string literal"
+                        );
                     }
                     tokens.push_back(token(type_string, buffer));
                     ++current;
@@ -278,7 +301,7 @@ SCAN_WORD:
                         }
                         tokens.push_back(str_to_word(buffer));
                     } else {
-                        throw syntax_error("unexpected input");
+                        throw error(error::type_syntax, "unexpected input");
                     }
             }
         }

@@ -113,7 +113,7 @@ namespace laskin
 
             if (y == 0)
             {
-                throw script_error("division by zero");
+                throw error(error::type_range, "division by zero");
             }
             else if (y > x)
             {

@@ -50,7 +50,7 @@ namespace laskin
                           hashmap<value>& locals,
                           std::istream& in,
                           std::ostream& out) const
-        throw(script_error, syntax_error)
+        throw(error)
     {
         if (m_type == type_native)
         {

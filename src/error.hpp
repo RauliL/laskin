@@ -9,30 +9,63 @@ namespace laskin
     class error : public std::exception
     {
     public:
-        explicit error(const std::string& message)
-            : m_message(message) {}
+        enum type
+        {
+            /** Script wants to exit. */
+            type_exit,
+            /** Syntax error. */
+            type_syntax,
+            /** A reference error. */
+            type_reference,
+            /** A type error. */
+            type_type,
+            /** A range error. */
+            type_range,
+            /** Unknown error. */
+            type_unknown
+        };
 
-        const char* what() const throw()
+        explicit error(enum type type = type_unknown,
+                       const std::string& message = std::string());
+
+        inline enum type type() const
+        {
+            return m_type;
+        }
+
+        inline bool is(enum type type) const
+        {
+            return m_type == type;
+        }
+
+        inline const std::string& message() const
+        {
+            return m_message;
+        }
+
+        inline const char* what() const
+            throw()
         {
             return m_message.c_str();
         }
 
+        error(const error& that);
+
+        error& assign(const error& that);
+
+        /**
+         * Assignment operator.
+         */
+        inline error& operator=(const error& that)
+        {
+            return assign(that);
+        }
+
     private:
+        /** Type of the error. */
+        enum type m_type;
+        /** Optional error message given. */
         std::string m_message;
-    };
-
-    class syntax_error : public error
-    {
-    public:
-        explicit syntax_error(const std::string& message)
-            : error(message) {}
-    };
-
-    class script_error : public error
-    {
-    public:
-        explicit script_error(const std::string& message)
-            : error(message) {}
     };
 }
 

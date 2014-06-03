@@ -42,7 +42,7 @@ namespace laskin
                      hashmap<value>& locals,
                      std::istream& in,
                      std::ostream& out) const
-            throw(script_error, syntax_error);
+            throw(error);
 
         script& assign(const script& that);
         script& assign(const_iterator& first, const_iterator& last);

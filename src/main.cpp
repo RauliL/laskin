@@ -59,9 +59,14 @@ int main(int argc, char** argv)
                 }
                 catch (laskin::error& e)
                 {
-                    std::cerr << "error: " << e.what() << std::endl;
                     is.close();
-                    std::exit(EXIT_FAILURE);
+                    if (e.is(laskin::error::type_exit))
+                    {
+                        std::exit(EXIT_SUCCESS);
+                    } else {
+                        std::cerr << "error: " << e.message() << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
                 }
                 is.close();
             } else {
@@ -127,7 +132,12 @@ int main(int argc, char** argv)
                 }
                 catch (laskin::error& e)
                 {
-                    std::cout << "error: " << e.what() << std::endl;
+                    if (e.is(laskin::error::type_exit))
+                    {
+                        std::exit(EXIT_SUCCESS);
+                    } else {
+                        std::cout << "error: " << e.message() << std::endl;
+                    }
                 }
             }
         }
@@ -145,8 +155,11 @@ int main(int argc, char** argv)
         }
         catch (laskin::error& e)
         {
-            std::cerr << "error: " << e.what() << std::endl;
-            std::exit(EXIT_FAILURE);
+            if (!e.is(laskin::error::type_exit))
+            {
+                std::cerr << "error: " << e.message() << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
         }
     }
 

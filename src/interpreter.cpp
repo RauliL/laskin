@@ -6,29 +6,6 @@
 
 namespace laskin
 {
-#if 0
-    typedef std::vector<token>::const_iterator token_iterator;
-
-    static value parse_value(token_iterator&, const token_iterator&);
-    static std::vector<value> parse_list(token_iterator&, const token_iterator&);
-    static signature parse_function_signature(token_iterator&, const token_iterator&);
-    static std::vector<token> parse_block(token_iterator&, const token_iterator&);
-    static void parse_if(token_iterator&,
-                         const token_iterator&,
-                         interpreter&,
-                         stack<value>&,
-                         hashmap<value>&,
-                         std::istream&,
-                         std::ostream&);
-    static void parse_while(token_iterator&,
-                            const token_iterator&,
-                            interpreter&,
-                            stack<value>&,
-                            hashmap<value>&,
-                            std::istream&,
-                            std::ostream&);
-#endif
-
     namespace internal
     {
         void initialize_bool(interpreter*);
@@ -65,7 +42,7 @@ namespace laskin
                               hashmap<value>& locals,
                               std::istream& in,
                               std::ostream& out)
-        throw(script_error, syntax_error)
+        throw(error)
     {
         const function_map::entry* e = m_functions.find(word);
 
@@ -80,14 +57,16 @@ namespace laskin
                 }
             }
 
-            throw script_error(
+            throw error(
+                    error::type_type,
                     "signature of function `"
                     + word
                     + "' does not match with current stack"
             );
         }
 
-        throw script_error(
+        throw error(
+                error::type_reference,
                 "undefined word: `"
                 + word
                 + "'"

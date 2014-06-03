@@ -13,6 +13,7 @@ ADD_EXECUTABLE(
     src/api-stack.cpp
     src/api-string.cpp
     src/api-trigonometry.cpp
+    src/error.cpp
     src/function.cpp
     src/interpreter.cpp
     src/main.cpp

@@ -46,7 +46,7 @@ namespace laskin
         token(const token& that);
 
         static script scan(std::istream& is)
-            throw(syntax_error);
+            throw(error);
 
         /**
          * Returns type of the token.

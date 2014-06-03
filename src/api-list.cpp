@@ -49,7 +49,7 @@ namespace laskin
             stack.push(value);
             if (!function.signature().test(stack))
             {
-                throw script_error("function signature mismatch");
+                throw error(error::type_type, "function signature mismatch");
             }
             function.invoke(interpreter, stack, locals, in, out);
         }
@@ -90,7 +90,7 @@ namespace laskin
         }
         if (index < 0 || index >= static_cast<integer>(list.size()))
         {
-            throw script_error("list index out of bounds");
+            throw error(error::type_range, "list index out of bounds");
         }
         stack.push(list[index]);
     }
@@ -118,7 +118,7 @@ namespace laskin
         }
         if (index < 0 || index >= static_cast<integer>(list.size()))
         {
-            throw script_error("list index out of bounds");
+            throw error(error::type_range, "list index out of bounds");
         }
         list[index] = c;
         stack.push(list);

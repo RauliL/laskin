@@ -49,7 +49,7 @@ namespace laskin
                          hashmap<value>& locals,
                          std::istream& in,
                          std::ostream& out) const
-        throw(script_error, syntax_error)
+        throw(error)
     {
         const const_iterator end = m_tokens.end();
 
@@ -68,7 +68,7 @@ namespace laskin
 
                     ss << "unexpected " << current->type();
 
-                    throw syntax_error(ss.str());
+                    throw error(error::type_syntax, ss.str());
                 }
 
                 case token::type_int:
@@ -112,11 +112,17 @@ namespace laskin
                 case token::type_kw_to:
                     if (++current >= end || !current->is(token::type_word))
                     {
-                        throw syntax_error("missing variable name after `to'");
+                        throw error(
+                                error::type_syntax,
+                                "missing variable name after `to'"
+                        );
                     }
                     else if (data.size() < 1)
                     {
-                        throw script_error("missing variable value");
+                        throw error(
+                                error::type_syntax,
+                                "missing variable value"
+                        );
                     }
                     locals.insert(current++->data(), data.back());
                     data.pop();
@@ -190,7 +196,7 @@ namespace laskin
                 }
                 catch (std::length_error& e)
                 {
-                    throw syntax_error(e.what());
+                    throw error(error::type_syntax, e.what());
                 }
 
             case token::type_real:
@@ -200,7 +206,7 @@ namespace laskin
                 }
                 catch (std::length_error& e)
                 {
-                    throw syntax_error(e.what());
+                    throw error(error::type_syntax, e.what());
                 }
 
             case token::type_ratio:
@@ -211,7 +217,10 @@ namespace laskin
 
                     if (pos == std::string::npos)
                     {
-                        throw syntax_error("rational number is missing denominator");
+                        throw error(
+                                error::type_syntax,
+                                "rational number is missing denominator"
+                        );
                     }
                     
                     
@@ -222,7 +231,7 @@ namespace laskin
                 }
                 catch (std::length_error& e)
                 {
-                    throw syntax_error(e.what());
+                    throw error(error::type_syntax, e.what());
                 }
 
             case token::type_string:
@@ -251,7 +260,7 @@ namespace laskin
                    << token.type()
                    << "; missing value literal";
 
-                throw syntax_error(ss.str());
+                throw error(error::type_syntax, ss.str());
             }
         }
     }
@@ -267,7 +276,10 @@ namespace laskin
         }
         if (current++ >= end)
         {
-            throw syntax_error("unterminated list literal: missing `]'");
+            throw error(
+                    error::type_syntax,
+                    "unterminated list literal: missing `]'"
+            );
         }
 
         return list;
@@ -289,7 +301,10 @@ namespace laskin
                 {
                     in_parameters = false;
                 } else {
-                    throw syntax_error("multiple `:' found in function signature");
+                    throw error(
+                            error::type_syntax,
+                            "multiple `:' found in function signature"
+                    );
                 }
             }
             else if (current->is(token::type_word))
@@ -333,7 +348,12 @@ namespace laskin
                 {
                     entry = signature::type_function;
                 } else {
-                    throw syntax_error("unknown type: `" + id + "'");
+                    throw error(
+                            error::type_syntax,
+                            "unknown type: `"
+                            + id
+                            + "'"
+                    );
                 }
                 if (in_parameters)
                 {
@@ -348,12 +368,15 @@ namespace laskin
                    << current->type()
                    << "; missing type signature";
 
-                throw syntax_error(ss.str());
+                throw error(error::type_syntax, ss.str());
             }
         }
         if (current++ >= end)
         {
-            throw syntax_error("unterminated function signature: missing `)'");
+            throw error(
+                    error::type_syntax,
+                    "unterminated function signature: missing `)'"
+            );
         }
 
         return signature(parameter_types, return_types);
@@ -367,7 +390,7 @@ namespace laskin
 
         if (current >= end || !current->is(token::type_lbrace))
         {
-            throw syntax_error("missing block");
+            throw error(error::type_syntax, "missing block");
         }
         ++current;
         while (current < end)
@@ -386,7 +409,7 @@ namespace laskin
         }
         if (counter > 0)
         {
-            throw syntax_error("unterminated block: missing `}'");
+            throw error(error::type_syntax, "unterminated block: missing `}'");
         }
 
         return script(tokens);
@@ -399,7 +422,7 @@ namespace laskin
 
         if (current >= end || !current->is(token::type_lbrace))
         {
-            throw syntax_error("missing block");
+            throw error(error::type_syntax, "missing block");
         }
         for (++current; current < end && counter > 0; ++current)
         {
@@ -414,7 +437,7 @@ namespace laskin
         }
         if (counter > 0)
         {
-            throw syntax_error("unterminated block: missing `}'");
+            throw error(error::type_syntax, "unterminated block: missing `}'");
         }
     }
 
@@ -436,7 +459,10 @@ namespace laskin
         script(begin, current).execute(interpreter, data, locals, in, out);
         if (data.empty() || !data.back().is(value::type_bool))
         {
-            throw script_error("`if' statement is missing condition");
+            throw error(
+                    error::type_syntax,
+                    "`if' statement is missing condition"
+            );
         }
         condition = data.back().as_bool();
         data.pop();
@@ -496,7 +522,10 @@ namespace laskin
                 );
                 if (data.empty() || !data.back().is(value::type_bool))
                 {
-                    throw script_error("`case' statement is missing condition");
+                    throw error(
+                            error::type_syntax,
+                            "`case' statement is missing condition"
+                    );
                 }
                 result = data.back().as_bool();
                 data.pop();
@@ -530,7 +559,7 @@ namespace laskin
             }
         }
 
-        throw syntax_error("no conditions in `case' statement");
+        throw error(error::type_syntax, "no conditions in `case' statement");
     }
 
     static void parse_while(class interpreter& interpreter,
@@ -546,7 +575,10 @@ namespace laskin
 
         if (current >= end)
         {
-            throw syntax_error("`while' statement is missing condition");
+            throw error(
+                    error::type_syntax,
+                    "`while' statement is missing condition"
+            );
         }
         else if (!current->is(token::type_lbrace))
         {
@@ -568,7 +600,10 @@ namespace laskin
                 condition.execute(interpreter, data, locals, in, out);
                 if (data.empty() || !data.back().is(value::type_bool))
                 {
-                    throw script_error("`while' statement is missing condition");
+                    throw error(
+                            error::type_syntax,
+                            "`while' statement is missing condition"
+                    );
                 }
                 result = data.back().as_bool();
                 data.pop();

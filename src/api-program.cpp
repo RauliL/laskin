@@ -20,7 +20,7 @@ namespace laskin
         stack.pop();
         if (!function.signature().test(stack))
         {
-            throw script_error("function signature mismatch");
+            throw error(error::type_type, "function signature mismatch");
         }
         function.invoke(interpreter, stack, new_local_variables, in, out);
     }
@@ -32,7 +32,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_exit)
     {
-        std::exit(EXIT_SUCCESS);
+        throw error(error::type_exit, "script exit");
     }
 
     /**
@@ -68,7 +68,10 @@ namespace laskin
             }
             input.close();
         } else {
-            throw script_error("unable to include file `" + filename + "'");
+            throw error(
+                    error::type_unknown,
+                    "unable to include file `" + filename + "'"
+            );
         }
     }
 
