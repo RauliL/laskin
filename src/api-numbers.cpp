@@ -221,6 +221,28 @@ namespace laskin
     }
 
     /**
+     * negate(num : num)
+     *
+     * Returns value of the number, negated.
+     */
+    BUILT_IN_FUNCTION(func_negate)
+    {
+        value a;
+
+        stack >> a;
+        if (a.is(value::type_real))
+        {
+            stack.push(-a.as_real());
+        }
+        else if (a.is(value::type_ratio))
+        {
+            stack.push(-a.as_ratio());
+        } else {
+            stack.push(-a.as_int());
+        }
+    }
+
+    /**
      * max(num num : num)
      *
      * Returns maximum of the two given values.
@@ -314,6 +336,8 @@ namespace laskin
             i->register_function(">", "nn:b", func_gt);
             i->register_function("<=", "nn:b", func_lte);
             i->register_function(">=", "nn:b", func_gte);
+
+            i->register_function("negate", "n:n", func_negate);
 
             i->register_function("max", "nn:n", func_max);
             i->register_function("min", "nn:n", func_min);
