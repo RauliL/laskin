@@ -3,7 +3,7 @@
 namespace laskin
 {
     static inline bool isword(char);
-    static inline token::type str_to_word(const std::string&);
+    static inline token str_to_word(const std::string&);
 
     token::token(enum type type, const std::string& data)
         : m_type(type)
@@ -429,39 +429,39 @@ SCAN_WORD:
             || c == '~';
     }
 
-    static inline str_to_word(const std::string& s)
+    static inline token str_to_word(const std::string& s)
     {
         switch (s[0])
         {
             case 'e':
                 if (!s.compare("else"))
                 {
-                    return token::type_keyword_else;
+                    return token(token::type_keyword_else);
                 }
                 break;
 
             case 'i':
                 if (!s.compare("if"))
                 {
-                    return token::type_keyword_if;
+                    return token(token::type_keyword_if);
                 }
                 break;
 
             case 't':
                 if (!s.compare("to"))
                 {
-                    return token::type_keyword_to;
+                    return token(token::type_keyword_to);
                 }
                 break;
 
             case 'w':
                 if (!s.compare("while"))
                 {
-                    return token::type_keyword_while;
+                    return token(token::type_keyword_while);
                 }
                 break;
         }
 
-        return token::type_word;
+        return token(token::type_word, s);
     }
 }
