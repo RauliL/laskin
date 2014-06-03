@@ -107,6 +107,27 @@ namespace laskin
                     }
                     break;
 
+                case token::type_ratio:
+                    try
+                    {
+                        const std::string& source = current++->data();
+                        const std::string::size_type pos = source.find('/');
+
+                        if (pos == std::string::npos)
+                        {
+                            throw syntax_error("rational number is missing denominator");
+                        }
+                        stack.push(ratio(
+                                    string_to_int(source.substr(0, pos)),
+                                    string_to_int(source.substr(pos + 1))
+                        ));
+                    }
+                    catch (std::length_error& e)
+                    {
+                        throw syntax_error(e.what());
+                    }
+                    break;
+
                 case token::type_string:
                     stack.push(current++->data());
                     break;

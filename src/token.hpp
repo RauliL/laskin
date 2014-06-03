@@ -21,6 +21,7 @@ namespace laskin
             type_colon,
             type_int,
             type_real,
+            type_ratio,
             type_string,
             type_word,
             type_keyword_if,

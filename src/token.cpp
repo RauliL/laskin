@@ -169,6 +169,21 @@ SCAN_EXPONENT:
                     {
                         ++current;
                         goto SCAN_EXPONENT;
+                    }
+                    // Rational numbers.
+                    else if (current != end && *current == '/')
+                    {
+                        buffer.append(1, *current++);
+                        if (current == end || !std::isdigit(*current))
+                        {
+                            throw syntax_error("rational number is missing denominator");
+                        }
+                        do
+                        {
+                            buffer.append(1, *current++);
+                        }
+                        while (current != end && std::isdigit(*current));
+                        tokens.push_back(token(type_ratio, buffer));
                     } else {
                         tokens.push_back(token(type_int, buffer));
                     }
@@ -311,6 +326,7 @@ SCAN_WORD:
 
             case token::type_int:
             case token::type_real:
+            case token::type_ratio:
                 os << token.data();
                 break;
 
@@ -375,6 +391,7 @@ SCAN_WORD:
 
             case token::type_int:
             case token::type_real:
+            case token::type_ratio:
                 os << "number literal";
                 break;
 

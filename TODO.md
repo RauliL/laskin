@@ -1,2 +1,0 @@
-- Rational number operators.
-- Rational number literals.
