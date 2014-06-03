@@ -1,11 +1,12 @@
 #include "interpreter.hpp"
+#include "script.hpp"
 
 namespace laskin
 {
     function::function()
         : m_type(type_native)
     {
-        m_callback.c = 0;
+        m_callback.n = 0;
     }
 
     function::function(const class signature& signature,
@@ -17,11 +18,11 @@ namespace laskin
     }
 
     function::function(const class signature& signature,
-                       const std::vector<token>& c)
-        : m_type(type_custom)
+                       const class script& script)
+        : m_type(type_script)
         , m_signature(signature)
     {
-        m_callback.c = new std::vector<token>(c);
+        m_callback.s = new class script(script);
     }
 
     function::function(const function& that)
@@ -32,21 +33,21 @@ namespace laskin
         {
             m_callback.n = that.m_callback.n;
         } else {
-            m_callback.c = new std::vector<token>(*that.m_callback.c);
+            m_callback.s = new script(*that.m_callback.s);
         }
     }
 
     function::~function()
     {
-        if (m_type == type_custom)
+        if (m_type == type_script)
         {
-            delete m_callback.c;
+            delete m_callback.s;
         }
     }
 
     void function::invoke(class interpreter& interpreter,
-                          class stack<value>& stack,
-                          hashmap<value>& local_variables,
+                          stack<value>& data,
+                          hashmap<value>& locals,
                           std::istream& in,
                           std::ostream& out) const
         throw(script_error, syntax_error)
@@ -55,25 +56,53 @@ namespace laskin
         {
             if (m_callback.n)
             {
-                m_callback.n(interpreter, stack, local_variables, in, out);
+                m_callback.n(interpreter, data, locals, in, out);
             }
         } else {
-            interpreter.execute(*m_callback.c, stack, local_variables, in, out);
+            m_callback.s->execute(interpreter, data, locals, in, out);
         }
     }
 
     function& function::assign(const function& that)
     {
-        if (m_type == type_custom)
+        if (m_type == type_script)
         {
-            delete m_callback.c;
+            delete m_callback.s;
         }
         m_signature = that.m_signature;
         if ((m_type = that.m_type) == type_native)
         {
             m_callback.n = that.m_callback.n;
         } else {
-            m_callback.c = new std::vector<token>(*that.m_callback.c);
+            m_callback.s = new script(*that.m_callback.s);
+        }
+
+        return *this;
+    }
+
+    function& function::assign(const class signature& signature, callback n)
+    {
+        if (m_type == type_script)
+        {
+            delete m_callback.s;
+        }
+        m_signature = signature;
+        m_type = type_native;
+        m_callback.n = n;
+
+        return *this;
+    }
+
+    function& function::assign(const class signature& signature,
+                               const class script& script)
+    {
+        m_signature = signature;
+        if (m_type == type_script)
+        {
+            m_callback.s->assign(script);
+        } else {
+            m_callback.s = new class script(script);
+            m_type = type_script;
         }
 
         return *this;

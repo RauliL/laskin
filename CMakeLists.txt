@@ -18,6 +18,7 @@ ADD_EXECUTABLE(
     src/main.cpp
     src/numbers.cpp
     src/ratio.cpp
+    src/script.cpp
     src/signature.cpp
     src/token.cpp
     src/value.cpp

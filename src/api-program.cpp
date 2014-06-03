@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "script.hpp"
 #include "value.hpp"
 #include <fstream>
 
@@ -49,14 +50,13 @@ namespace laskin
         {
             try
             {
-                std::vector<token> tokens = token::scan(in);
-                laskin::stack<value> new_stack;
-                hashmap<value> new_local_variables;
+                laskin::stack<value> new_data;
+                hashmap<value> new_locals;
 
-                interpreter.execute(
-                        tokens,
-                        new_stack,
-                        new_local_variables,
+                token::scan(in).execute(
+                        interpreter,
+                        new_data,
+                        new_locals,
                         in,
                         out
                 );

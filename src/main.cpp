@@ -1,4 +1,5 @@
 #include "interpreter.hpp"
+#include "script.hpp"
 #include "value.hpp"
 #include <fstream>
 #include <sstream>
@@ -26,8 +27,8 @@ static const repl_command repl_command_list[] =
 int main(int argc, char** argv)
 {
     laskin::interpreter interpreter;
-    laskin::stack<laskin::value> stack;
-    laskin::hashmap<laskin::value> local_variables;
+    laskin::stack<laskin::value> data;
+    laskin::hashmap<laskin::value> locals;
 
     interpreter.initialize();
     if (argc > 1)
@@ -40,26 +41,21 @@ int main(int argc, char** argv)
             {
                 try
                 {
-                    std::vector<laskin::token> tokens = laskin::token::scan(is);
-
-                    if (!tokens.empty())
+                    if (!data.empty())
                     {
-                        if (!stack.empty())
-                        {
-                            stack.clear();
-                        }
-                        if (!local_variables.empty())
-                        {
-                            local_variables.clear();
-                        }
-                        interpreter.execute(
-                                tokens,
-                                stack,
-                                local_variables,
-                                std::cin,
-                                std::cout
-                        );
+                        data.clear();
                     }
+                    if (!locals.empty())
+                    {
+                        locals.clear();
+                    }
+                    laskin::token::scan(is).execute(
+                            interpreter,
+                            data,
+                            locals,
+                            std::cin,
+                            std::cout
+                    );
                 }
                 catch (laskin::error& e)
                 {
@@ -88,7 +84,7 @@ int main(int argc, char** argv)
             std::cout << "laskin:"
                       << line_counter++
                       << ":"
-                      << stack.size()
+                      << data.size()
                       << "> ";
             if (!std::getline(std::cin, line))
             {
@@ -109,7 +105,7 @@ int main(int argc, char** argv)
                         || !line.compare(repl_command_list[i].name_shortcut))
                     {
                         found = true;
-                        repl_command_list[i].callback(interpreter, stack);
+                        repl_command_list[i].callback(interpreter, data);
                         break;
                     }
                 }
@@ -121,18 +117,13 @@ int main(int argc, char** argv)
                 ss.str(line);
                 try
                 {
-                    std::vector<laskin::token> tokens = laskin::token::scan(ss);
-
-                    if (!tokens.empty())
-                    {
-                        interpreter.execute(
-                                tokens,
-                                stack,
-                                local_variables,
-                                std::cin,
-                                std::cout
-                        );
-                    }
+                    laskin::token::scan(ss).execute(
+                            interpreter,
+                            data,
+                            locals,
+                            std::cin,
+                            std::cout
+                    );
                 }
                 catch (laskin::error& e)
                 {
@@ -144,18 +135,13 @@ int main(int argc, char** argv)
     } else {
         try
         {
-            std::vector<laskin::token> tokens = laskin::token::scan(std::cin);
-
-            if (!tokens.empty())
-            {
-                interpreter.execute(
-                        tokens,
-                        stack,
-                        local_variables,
-                        std::cin,
-                        std::cout
-                );
-            }
+            laskin::token::scan(std::cin).execute(
+                    interpreter,
+                    data,
+                    locals,
+                    std::cin,
+                    std::cout
+            );
         }
         catch (laskin::error& e)
         {

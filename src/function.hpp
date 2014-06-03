@@ -19,7 +19,7 @@ namespace laskin
         enum type
         {
             type_native,
-            type_custom
+            type_script
         };
 
         function();
@@ -34,7 +34,7 @@ namespace laskin
          * Constructs user defined function.
          */
         explicit function(const class signature& signature,
-                          const std::vector<token>& c);
+                          const class script& script);
 
         function(const function& that);
 
@@ -57,13 +57,17 @@ namespace laskin
         }
 
         void invoke(class interpreter& interpreter,
-                    class stack<value>& stack,
-                    hashmap<value>& local_variables,
+                    stack<value>& data,
+                    hashmap<value>& locals,
                     std::istream& in,
                     std::ostream& out) const
             throw(script_error, syntax_error);
 
         function& assign(const function& that);
+        function& assign(const class signature& signature,
+                         callback n);
+        function& assign(const class signature& signature,
+                         const class script& script);
 
         /**
          * Assignment operator.
@@ -81,7 +85,7 @@ namespace laskin
         union
         {
             callback n;
-            std::vector<token>* c;
+            script* s;
         } m_callback;
     };
 }

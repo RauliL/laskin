@@ -1,7 +1,9 @@
-#include "token.hpp"
+#include "script.hpp"
 
 namespace laskin
 {
+    typedef std::istreambuf_iterator<char> stream_iterator;
+
     static inline bool isword(char);
     static inline token str_to_word(const std::string&);
 
@@ -13,13 +15,13 @@ namespace laskin
         : m_type(that.m_type)
         , m_data(that.m_data) {}
 
-    std::vector<token> token::scan(std::istream& is)
+    script token::scan(std::istream& is)
         throw(syntax_error)
     {
         std::vector<token> tokens;
         std::string buffer;
 
-        for (std::istreambuf_iterator<char> current(is), end; current != end;)
+        for (stream_iterator current(is), end; current != end;)
         {
             char c = *current++;
 
@@ -281,7 +283,7 @@ SCAN_WORD:
             }
         }
 
-        return tokens;
+        return script(tokens);
     }
 
     token& token::assign(const token& that)
@@ -338,19 +340,19 @@ SCAN_WORD:
                 os << "`" << token.data() << "'";
                 break;
 
-            case token::type_keyword_if:
+            case token::type_kw_if:
                 os << "`if'";
                 break;
 
-            case token::type_keyword_else:
+            case token::type_kw_else:
                 os << "`else'";
                 break;
 
-            case token::type_keyword_while:
+            case token::type_kw_while:
                 os << "`while'";
                 break;
 
-            case token::type_keyword_to:
+            case token::type_kw_to:
                 os << "`to'";
         }
 
@@ -403,19 +405,19 @@ SCAN_WORD:
                 os << "word";
                 break;
 
-            case token::type_keyword_if:
+            case token::type_kw_if:
                 os << "`if'";
                 break;
 
-            case token::type_keyword_else:
+            case token::type_kw_else:
                 os << "`else'";
                 break;
 
-            case token::type_keyword_while:
+            case token::type_kw_while:
                 os << "`while'";
                 break;
 
-            case token::type_keyword_to:
+            case token::type_kw_to:
                 os << "`to'";
         }
 
@@ -458,28 +460,28 @@ SCAN_WORD:
             case 'e':
                 if (!s.compare("else"))
                 {
-                    return token(token::type_keyword_else);
+                    return token(token::type_kw_else);
                 }
                 break;
 
             case 'i':
                 if (!s.compare("if"))
                 {
-                    return token(token::type_keyword_if);
+                    return token(token::type_kw_if);
                 }
                 break;
 
             case 't':
                 if (!s.compare("to"))
                 {
-                    return token(token::type_keyword_to);
+                    return token(token::type_kw_to);
                 }
                 break;
 
             case 'w':
                 if (!s.compare("while"))
                 {
-                    return token(token::type_keyword_while);
+                    return token(token::type_kw_while);
                 }
                 break;
         }

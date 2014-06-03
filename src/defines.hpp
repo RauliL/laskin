@@ -10,6 +10,7 @@ namespace laskin
     class function;
     class interpreter;
     class ratio;
+    class script;
     class signature;
     class token;
     class value;

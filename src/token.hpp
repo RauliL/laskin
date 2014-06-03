@@ -1,9 +1,9 @@
 #ifndef LASKIN_TOKEN_HPP_GUARD
 #define LASKIN_TOKEN_HPP_GUARD
 
+#include "defines.hpp"
 #include "error.hpp"
 #include <iostream>
-#include <vector>
 
 namespace laskin
 {
@@ -24,10 +24,10 @@ namespace laskin
             type_ratio,
             type_string,
             type_word,
-            type_keyword_if,
-            type_keyword_else,
-            type_keyword_while,
-            type_keyword_to
+            type_kw_if,
+            type_kw_else,
+            type_kw_while,
+            type_kw_to
         };
 
         /**
@@ -44,7 +44,7 @@ namespace laskin
          */
         token(const token& that);
 
-        static std::vector<token> scan(std::istream& is)
+        static script scan(std::istream& is)
             throw(syntax_error);
 
         /**

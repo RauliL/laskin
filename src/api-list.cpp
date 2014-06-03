@@ -44,14 +44,14 @@ namespace laskin
         stack.pop();
         for (auto& value : a.as_list())
         {
-            hashmap<class value> local_variables;
+            hashmap<class value> locals(local_variables);
 
             stack.push(value);
             if (!function.signature().test(stack))
             {
                 throw script_error("function signature mismatch");
             }
-            function.invoke(interpreter, stack, local_variables, in, out);
+            function.invoke(interpreter, stack, locals, in, out);
         }
     }
 

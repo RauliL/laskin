@@ -20,12 +20,9 @@ namespace laskin
          */
         void initialize();
 
-        /**
-         * Executes sequence of tokens with given data stack.
-         */
-        void execute(const std::vector<token>& tokens,
-                     class stack<value>& stack,
-                     hashmap<value>& local_variables,
+        void execute(const std::string& word,
+                     stack<value>& data,
+                     hashmap<value>& locals,
                      std::istream& in,
                      std::ostream& out)
             throw(script_error, syntax_error);
@@ -40,7 +37,7 @@ namespace laskin
 
         void register_function(const std::string& name,
                                const class signature& signature,
-                               const std::vector<token>& callback);
+                               const class script& script);
 
         interpreter& assign(const interpreter& that);
 
