@@ -146,9 +146,9 @@ SCAN_REAL:
                         while (current != end && std::isdigit(*current));
                         if (current != end && (*current == 'e' || *current == 'E'))
                         {
+                            ++current;
 SCAN_EXPONENT:
                             buffer.append(1, 'e');
-                            ++current;
                             if (current != end && (*current == '+' || *current == '-'))
                             {
                                 buffer.append(1, *current++);
