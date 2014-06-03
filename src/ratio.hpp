@@ -78,6 +78,13 @@ namespace laskin
             return multiply(that);
         }
 
+        ratio divide(const ratio& that) const;
+
+        inline ratio operator/(const ratio& that) const
+        {
+            return divide(that);
+        }
+
         /**
          * Tests whether two rational numbers are equal.
          *

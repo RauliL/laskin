@@ -50,6 +50,14 @@ namespace laskin
         );
     }
 
+    ratio ratio::divide(const ratio& that) const
+    {
+        return ratio(
+                m_numerator * that.m_denominator,
+                m_denominator * that.m_numerator
+        );
+    }
+
     bool ratio::equals(const ratio& that) const
     {
         return m_numerator == that.m_numerator
