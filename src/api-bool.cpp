@@ -67,9 +67,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_not)
     {
-        value a;
-
-        stack >> a << value(!a.as_bool());
+        stack.back() = !stack.back().as_bool();
     }
 
     namespace internal

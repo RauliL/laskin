@@ -11,9 +11,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_acos)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::acos(a);
+        stack.back() = std::acos(stack.back().as_real());
     }
 
     /**
@@ -23,9 +21,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_asin)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::asin(a);
+        stack.back() = std::asin(stack.back().as_real());
     }
 
     /**
@@ -35,9 +31,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_atan)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::atan(a);
+        stack.back() = std::atan(stack.back().as_real());
     }
 
     /**
@@ -47,9 +41,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_cos)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::cos(a);
+        stack.back() = std::cos(stack.back().as_real());
     }
 
     /**
@@ -59,9 +51,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_deg)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = a * 180 / M_PI;
+        stack.back() = stack.back().as_real() * 180 / M_PI;
     }
 
     /**
@@ -71,9 +61,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_rad)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = a * M_PI / 180;
+        stack.back() = stack.back().as_real() * M_PI / 180;
     }
 
     /**
@@ -83,9 +71,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_sin)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::sin(a);
+        stack.back() = std::sin(stack.back().as_real());
     }
 
     /**
@@ -95,9 +81,7 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_tan)
     {
-        const real a = stack[stack.size() - 1].as_real();
-
-        stack[stack.size() - 1] = std::tan(a);
+        stack.back() = std::tan(stack.back().as_real());
     }
 
     namespace internal
