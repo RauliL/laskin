@@ -560,37 +560,48 @@ namespace laskin
     static void parse_while(token_iterator& current,
                             const token_iterator& end,
                             class interpreter& interpreter,
-                            class stack<value>& stack,
-                            hashmap<value>& local_variables,
+                            stack<value>& data,
+                            hashmap<value>& locals,
                             std::istream& in,
                             std::ostream& out)
     {
-        token_iterator begin = current;
         std::vector<token> condition;
         std::vector<token> block;
 
-        while (current < end && !current->is(token::type_lbrace))
+        if (current >= end)
         {
-            ++current;
+            throw syntax_error("`while' statement is missing condition");
         }
-        condition.assign(begin, current);
+        else if (!current->is(token::type_lbrace))
+        {
+            token_iterator begin = current;
+
+            while (current < end && !current->is(token::type_lbrace))
+            {
+                ++current;
+            }
+            condition.assign(begin, current);
+        }
         block = parse_block(current, end);
         do
         {
-            bool result;
+            if (!condition.empty())
+            {
+                bool result;
 
-            interpreter.execute(condition, stack, local_variables, in, out);
-            if (stack.empty() || !stack[stack.size() - 1].is(value::type_bool))
-            {
-                throw script_error("`while' statement is missing condition");
+                interpreter.execute(condition, data, locals, in, out);
+                if (data.empty() || !data.back().is(value::type_bool))
+                {
+                    throw script_error("`while' statement is missing condition");
+                }
+                result = data.back().as_bool();
+                data.pop();
+                if (!result)
+                {
+                    return;
+                }
             }
-            result = stack[stack.size() - 1].as_bool();
-            stack.pop();
-            if (!result)
-            {
-                return;
-            }
-            interpreter.execute(block, stack, local_variables, in, out);
+            interpreter.execute(block, data, locals, in, out);
         }
         while (true);
     }
