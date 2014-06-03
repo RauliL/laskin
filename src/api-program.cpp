@@ -73,39 +73,6 @@ namespace laskin
     }
 
     /**
-     * get(string : any)
-     *
-     * Retrieves given local variable or throws an error if no such variable
-     * exists.
-     */
-    BUILT_IN_FUNCTION(func_get)
-    {
-        const value a = stack[stack.size() - 1];
-        hashmap<value>::entry* e = local_variables.find(a.as_string());
-
-        stack.pop();
-        if (e)
-        {
-            stack.push(e->value);
-        } else {
-            throw script_error("undefined local variable: `" + a.as_string() + "'");
-        }
-    }
-
-    /**
-     * set(any string)
-     *
-     * Sets a local variable.
-     */
-    BUILT_IN_FUNCTION(func_set)
-    {
-        value a, b;
-
-        stack >> b >> a;
-        local_variables.insert(b.as_string(), a);
-    }
-
-    /**
      * delete(string)
      *
      * Removes a local variable.
@@ -123,8 +90,6 @@ namespace laskin
             i->register_function("execute", "f", func_execute);
             i->register_function("exit", "", func_exit);
             i->register_function("include", "s", func_include);
-            i->register_function("get", "s:?", func_get);
-            i->register_function("set", "?s", func_set);
             i->register_function("delete", "s", func_delete);
         }
     }
