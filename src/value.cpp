@@ -7,12 +7,14 @@ namespace laskin
 {
     value::value()
         : m_type(type_int)
+        , m_counter(0)
     {
         m_data.i = 0;
     }
 
     value::value(const value& that)
         : m_type(that.m_type)
+        , m_counter(that.m_counter)
     {
         switch (m_type)
         {
@@ -26,102 +28,100 @@ namespace laskin
                 break;
 
             case type_ratio:
-                m_data.rat = new ratio(*that.m_data.rat);
+                m_data.ratio = that.m_data.ratio;
                 break;
 
             case type_string:
-                m_data.s.container = that.m_data.s.container;
-                m_data.s.counter = that.m_data.s.counter;
-                ++(*m_data.s.counter);
+                m_data.string = that.m_data.string;
                 break;
 
             case type_list:
-                m_data.l.container = that.m_data.l.container;
-                m_data.l.counter = that.m_data.l.counter;
-                ++(*m_data.l.counter);
+                m_data.list = that.m_data.list;
                 break;
 
             case type_function:
-                m_data.f.function = that.m_data.f.function;
-                m_data.f.counter = that.m_data.f.counter;
-                ++(*m_data.f.counter);
+                m_data.function = that.m_data.function;
+        }
+        if (m_counter)
+        {
+            ++(*m_counter);
         }
     }
 
     value::value(bool b)
         : m_type(type_bool)
+        , m_counter(0)
     {
         m_data.i = b ? 1 : 0;
     }
 
     value::value(integer i)
         : m_type(type_int)
+        , m_counter(0)
     {
         m_data.i = i;
     }
 
     value::value(real r)
         : m_type(type_real)
+        , m_counter(0)
     {
         m_data.r = r;
     }
 
     value::value(const class ratio& ratio)
         : m_type(type_ratio)
+        , m_counter(new unsigned(1))
     {
-        m_data.rat = new class ratio(ratio);
+        m_data.ratio = new class ratio(ratio);
     }
 
     value::value(const std::string& s)
         : m_type(type_string)
+        , m_counter(new unsigned(1))
     {
-        m_data.s.container = new std::string(s);
-        m_data.s.counter = new unsigned(1);
+        m_data.string = new std::string(s);
     }
 
     value::value(const std::vector<value>& l)
         : m_type(type_list)
+        , m_counter(new unsigned(1))
     {
-        m_data.l.container = new std::vector<value>(l);
-        m_data.l.counter = new unsigned(1);
+        m_data.list = new std::vector<value>(l);
     }
 
-    value::value(const function& f)
+    value::value(const class function& f)
         : m_type(type_function)
+        , m_counter(new unsigned(1))
     {
-        m_data.f.function = new function(f);
-        m_data.f.counter = new unsigned(1);
+        m_data.function = new function(f);
     }
 
     value::~value()
     {
-        if (m_type == type_string)
+        if (m_counter && --(*m_counter) == 0)
         {
-            if (!--(*m_data.s.counter))
+            delete m_counter;
+            switch (m_type)
             {
-                delete m_data.s.counter;
-                delete m_data.s.container;
+                case type_ratio:
+                    delete m_data.ratio;
+                    break;
+
+                case type_string:
+                    delete m_data.string;
+                    break;
+
+                case type_list:
+                    delete m_data.list;
+                    break;
+
+                case type_function:
+                    delete m_data.function;
+
+                default:
+                    break;
             }
-        }
-        else if (m_type == type_list)
-        {
-            if (!--(*m_data.l.counter))
-            {
-                delete m_data.l.counter;
-                delete m_data.l.container;
-            }
-        }
-        else if (m_type == type_function)
-        {
-            if (!--(*m_data.f.counter))
-            {
-                delete m_data.f.counter;
-                delete m_data.f.function;
-            }
-        }
-        else if (m_type == type_ratio)
-        {
-            delete m_data.rat;
         }
     }
 
@@ -153,8 +153,8 @@ namespace laskin
         }
         else if (m_type == type_ratio)
         {
-            const integer numerator = m_data.rat->numerator();
-            const integer denominator = m_data.rat->denominator();
+            const integer numerator = m_data.ratio->numerator();
+            const integer denominator = m_data.ratio->denominator();
 
             if (numerator < 0)
             {
@@ -179,8 +179,8 @@ namespace laskin
         }
         else if (m_type == type_ratio)
         {
-            return static_cast<real>(m_data.rat->numerator())
-                / static_cast<real>(m_data.rat->denominator());
+            return static_cast<real>(m_data.ratio->numerator())
+                / static_cast<real>(m_data.ratio->denominator());
         }
 
         return 0.0;
@@ -188,33 +188,33 @@ namespace laskin
 
     value& value::assign(const value& that)
     {
-        if (m_type == type_string)
+        if (m_counter && --(*m_counter) == 0)
         {
-            if (!--(*m_data.s.counter))
+            delete m_counter;
+            switch (m_type)
             {
-                delete m_data.s.counter;
-                delete m_data.s.container;
+                case type_ratio:
+                    delete m_data.ratio;
+                    break;
+
+                case type_string:
+                    delete m_data.string;
+                    break;
+
+                case type_list:
+                    delete m_data.list;
+                    break;
+
+                case type_function:
+                    delete m_data.function;
+
+                default:
+                    break;
             }
         }
-        else if (m_type == type_list)
+        if ((m_counter = that.m_counter))
         {
-            if (!--(*m_data.l.counter))
-            {
-                delete m_data.l.counter;
-                delete m_data.l.container;
-            }
-        }
-        else if (m_type == type_function)
-        {
-            if (!--(*m_data.f.counter))
-            {
-                delete m_data.f.counter;
-                delete m_data.f.function;
-            }
-        }
-        else if (m_type == type_ratio)
-        {
-            delete m_data.rat;
+            ++(*m_counter);
         }
         switch (m_type = that.m_type)
         {
@@ -228,25 +228,19 @@ namespace laskin
                 break;
 
             case type_ratio:
-                m_data.rat = new ratio(*that.m_data.rat);
+                m_data.ratio = that.m_data.ratio;
                 break;
 
             case type_string:
-                m_data.s.container = that.m_data.s.container;
-                m_data.s.counter = that.m_data.s.counter;
-                ++(*m_data.s.counter);
+                m_data.string = that.m_data.string;
                 break;
 
             case type_list:
-                m_data.l.container = that.m_data.l.container;
-                m_data.l.counter = that.m_data.l.counter;
-                ++(*m_data.l.counter);
+                m_data.list = that.m_data.list;
                 break;
 
             case type_function:
-                m_data.f.function = that.m_data.f.function;
-                m_data.f.counter = that.m_data.f.counter;
-                ++(*m_data.f.counter);
+                m_data.function = that.m_data.function;
         }
 
         return *this;
@@ -284,32 +278,32 @@ namespace laskin
             case type_ratio:
                 if (that.m_type == type_ratio)
                 {
-                    return m_data.rat->equals(*that.m_data.rat);
+                    return m_data.ratio->equals(*that.m_data.ratio);
                 }
                 else if (that.m_type == type_int)
                 {
-                    return m_data.rat->numerator() == that.m_data.i
-                        && m_data.rat->denominator() == 1;
+                    return m_data.ratio->numerator() == that.m_data.i
+                        && m_data.ratio->denominator() == 1;
                 }
                 else if (that.m_type == type_real)
                 {
-                    return static_cast<real>(m_data.rat->numerator()) == that.m_data.r
-                        && m_data.rat->denominator() == 1;
+                    return static_cast<real>(m_data.ratio->numerator()) == that.m_data.r
+                        && m_data.ratio->denominator() == 1;
                 }
                 break;
 
             case type_string:
                 if (that.m_type == type_string)
                 {
-                    return !m_data.s.container->compare(*that.m_data.s.container);
+                    return !m_data.string->compare(*that.m_data.string);
                 }
                 break;
 
             case type_list:
                 if (that.m_type == type_list)
                 {
-                    const std::vector<value>& a = *m_data.l.container;
-                    const std::vector<value>& b = *m_data.l.container;
+                    const std::vector<value>& a = *m_data.list;
+                    const std::vector<value>& b = *m_data.list;
 
                     if (a.size() != b.size())
                     {
@@ -330,8 +324,8 @@ namespace laskin
             case type_function:
                 if (that.m_type == type_function)
                 {
-                    return m_data.f.function->signature()
-                        == that.m_data.f.function->signature();
+                    return m_data.function->signature()
+                        == that.m_data.function->signature();
                 }
         }
 
@@ -371,7 +365,7 @@ namespace laskin
                 else if (that.m_type == type_ratio)
                 {
                     const integer a = m_data.i;
-                    const integer b = that.m_data.rat->numerator() / that.m_data.rat->denominator();
+                    const integer b = that.m_data.ratio->numerator() / that.m_data.ratio->denominator();
 
                     if (a > b)
                     {
@@ -413,8 +407,8 @@ namespace laskin
                 else if (that.m_type == type_ratio)
                 {
                     const real a = m_data.r;
-                    const real b = static_cast<real>(that.m_data.rat->numerator()) /
-                                   static_cast<real>(that.m_data.rat->denominator());
+                    const real b = static_cast<real>(that.m_data.ratio->numerator()) /
+                                   static_cast<real>(that.m_data.ratio->denominator());
 
                     if (a > b)
                     {
@@ -430,11 +424,11 @@ namespace laskin
             case value::type_ratio:
                 if (that.m_type == type_ratio)
                 {
-                    return m_data.rat->compare(*that.m_data.rat);
+                    return m_data.ratio->compare(*that.m_data.ratio);
                 }
                 else if (that.m_type == type_int)
                 {
-                    const integer a = m_data.rat->numerator() / m_data.rat->denominator();
+                    const integer a = m_data.ratio->numerator() / m_data.ratio->denominator();
                     const integer b = that.m_data.i;
 
                     if (a > b)
@@ -448,8 +442,8 @@ namespace laskin
                 }
                 else if (that.m_type == type_real)
                 {
-                    const real a = static_cast<real>(m_data.rat->numerator()) /
-                                   static_cast<real>(m_data.rat->denominator());
+                    const real a = static_cast<real>(m_data.ratio->numerator()) /
+                                   static_cast<real>(m_data.ratio->denominator());
                     const real b = that.m_data.r;
 
                     if (a > b)
@@ -466,7 +460,7 @@ namespace laskin
             case value::type_string:
                 if (that.m_type == type_string)
                 {
-                    return m_data.s.container->compare(*that.m_data.s.container);
+                    return m_data.string->compare(*that.m_data.string);
                 }
                 break;
 
@@ -505,15 +499,15 @@ namespace laskin
 
             case value::type_list:
             {
-                const std::vector<class value>& vec = value.as_list();
+                const std::vector<class value>& list = value.as_list();
 
-                for (std::size_t i = 0; i < vec.size(); ++i)
+                for (std::size_t i = 0; i < list.size(); ++i)
                 {
                     if (i > 0)
                     {
                         os << ", ";
                     }
-                    os << vec[i];
+                    os << list[i];
                 }
                 break;
             }

@@ -101,22 +101,22 @@ namespace laskin
 
         inline const ratio& as_ratio() const
         {
-            return *m_data.rat;
+            return *m_data.ratio;
         }
 
         inline const std::string& as_string() const
         {
-            return *m_data.s.container;
+            return *m_data.string;
         }
 
         inline const std::vector<value>& as_list() const
         {
-            return *m_data.l.container;
+            return *m_data.list;
         }
 
         inline const function& as_function() const
         {
-            return *m_data.f.function;
+            return *m_data.function;
         }
 
         /**
@@ -185,26 +185,15 @@ namespace laskin
             /** Floating point decimal value. */
             real r;
             /** Ratio value. */
-            ratio* rat;
+            class ratio* ratio;
             /** String value. */
-            struct
-            {
-                std::string* container;
-                unsigned* counter;
-            } s;
+            std::string* string;
             /** List value. */
-            struct
-            {
-                std::vector<value>* container;
-                unsigned* counter;
-            } l;
+            std::vector<value>* list;
             /** Function value. */
-            struct
-            {
-                class function* function;
-                unsigned* counter;
-            } f;
+            class function* function;
         } m_data;
+        unsigned* m_counter;
     };
 
     std::ostream& operator<<(std::ostream&, const value&);

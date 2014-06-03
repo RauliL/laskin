@@ -1,6 +1,7 @@
 #include "interpreter.hpp"
 #include "value.hpp"
 #include <algorithm>
+#include <sstream>
 
 namespace laskin
 {
@@ -11,7 +12,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_length)
     {
-        const std::string s = stack[stack.size() - 1].as_string();
+        const value a = stack.back();
+        const std::string& s = a.as_string();
 
         stack.pop();
         stack.push(value(static_cast<integer>(s.length())));
@@ -24,7 +26,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_is_empty)
     {
-        const std::string s = stack[stack.size() - 1].as_string();
+        const value a = stack.back();
+        const std::string& s = a.as_string();
 
         stack.pop();
         stack.push(value(s.empty()));
@@ -38,7 +41,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_is_blank)
     {
-        const std::string s = stack[stack.size() - 1].as_string();
+        const value a = stack.back();
+        const std::string& s = a.as_string();
 
         stack.pop();
         if (s.empty())
@@ -65,7 +69,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_is_lower)
     {
-        const std::string s = stack[stack.size() - 1].as_string();
+        const value a = stack.back();
+        const std::string& s = a.as_string();
 
         stack.pop();
         if (s.empty())
@@ -92,7 +97,8 @@ namespace laskin
      */
     BUILT_IN_FUNCTION(func_is_upper)
     {
-        const std::string s = stack[stack.size() - 1].as_string();
+        const value a = stack.back();
+        const std::string& s = a.as_string();
 
         stack.pop();
         if (s.empty())
@@ -109,6 +115,24 @@ namespace laskin
             }
         }
         stack.push(value(true));
+    }
+
+    /**
+     * >string(any : string)
+     *
+     * Converts given value into string.
+     */
+    BUILT_IN_FUNCTION(func_to_string)
+    {
+        if (!stack.back().is(value::type_string))
+        {
+            const value a = stack.back();
+            std::stringstream ss;
+
+            stack.pop();
+            ss << a;
+            stack.push(ss.str());
+        }
     }
 
     /**
@@ -236,6 +260,7 @@ namespace laskin
             i->register_function("upper?", "s:b", func_is_upper);
 
             // Conversion functions.
+            i->register_function(">string", "?:s", func_to_string);
             i->register_function("lower", "s:s", func_lower);
             i->register_function("upper", "s:s", func_upper);
             i->register_function("reverse", "s:s", func_reverse);
