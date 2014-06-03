@@ -139,6 +139,42 @@ namespace laskin
         stack.push(list);
     }
 
+    /**
+     * >list(any... : list)
+     *
+     * Takes every value from the stack and returns them in a list.
+     */
+    BUILT_IN_FUNCTION(func_to_list)
+    {
+        std::vector<value> list;
+
+        list.reserve(stack.size());
+        for (std::size_t i = 0; i < stack.size(); ++i)
+        {
+            list.push_back(stack[i]);
+        }
+        stack.clear();
+        stack.push(list);
+    }
+
+    /**
+     * <list(list)
+     *
+     * Inserts every value from the list into the stack.
+     */
+    BUILT_IN_FUNCTION(func_from_list)
+    {
+        const value a = stack.back();
+        const std::vector<value>& list = a.as_list();
+
+        stack.pop();
+        stack.reserve(list.size());
+        for (auto& value : list)
+        {
+            stack.push(value);
+        }
+    }
+
     namespace internal
     {
         void initialize_list(interpreter* i)
@@ -157,6 +193,10 @@ namespace laskin
             i->register_function("@", "li:?", func_at);
             i->register_function("@=", "li?:l", func_at_set);
             i->register_function("+", "l?:l", func_add);
+
+            // Conversion functions.
+            i->register_function(">list", ":l", func_to_list);
+            i->register_function("<list", "l", func_from_list);
         }
     }
 }
