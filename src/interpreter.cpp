@@ -86,54 +86,11 @@ namespace laskin
                 }
 
                 case token::type_int:
-                    try
-                    {
-                        stack.push(string_to_int(current++->data()));
-                    }
-                    catch (std::length_error& e)
-                    {
-                        throw syntax_error(e.what());
-                    }
-                    break;
-
                 case token::type_real:
-                    try
-                    {
-                        stack.push(string_to_real(current++->data()));
-                    }
-                    catch (std::length_error& e)
-                    {
-                        throw syntax_error(e.what());
-                    }
-                    break;
-
                 case token::type_ratio:
-                    try
-                    {
-                        const std::string& source = current++->data();
-                        const std::string::size_type pos = source.find('/');
-
-                        if (pos == std::string::npos)
-                        {
-                            throw syntax_error("rational number is missing denominator");
-                        }
-                        stack.push(ratio(
-                                    string_to_int(source.substr(0, pos)),
-                                    string_to_int(source.substr(pos + 1))
-                        ));
-                    }
-                    catch (std::length_error& e)
-                    {
-                        throw syntax_error(e.what());
-                    }
-                    break;
-
                 case token::type_string:
-                    stack.push(current++->data());
-                    break;
-
                 case token::type_lbrack:
-                    stack.push(parse_list(++current, end));
+                    stack.push(parse_value(current, end));
                     break;
 
                 case token::type_keyword_if:
@@ -177,7 +134,7 @@ namespace laskin
                 {
                     const std::string& id = current++->data();
                     hashmap<value>::entry* e1 = local_variables.find(id);
-                    hashmap<std::vector<function> >::entry* e2;
+                    function_map::entry* e2;
 
                     if (e1)
                     {
@@ -244,7 +201,7 @@ namespace laskin
                                         const class signature& signature,
                                         function::callback callback)
     {
-        hashmap<std::vector<function> >::entry* e = m_functions.find(name);
+        function_map::entry* e = m_functions.find(name);
 
         if (e)
         {
@@ -276,7 +233,7 @@ namespace laskin
                                         const class signature& signature,
                                         const std::vector<token>& callback)
     {
-        hashmap<std::vector<function> >::entry* e = m_functions.find(name);
+        function_map::entry* e = m_functions.find(name);
 
         if (e)
         {
@@ -325,6 +282,28 @@ namespace laskin
                 try
                 {
                     return string_to_real(token.data());
+                }
+                catch (std::length_error& e)
+                {
+                    throw syntax_error(e.what());
+                }
+
+            case token::type_ratio:
+                try
+                {
+                    const std::string& source = token.data();
+                    const std::string::size_type pos = source.find('/');
+
+                    if (pos == std::string::npos)
+                    {
+                        throw syntax_error("rational number is missing denominator");
+                    }
+                    
+                    
+                    return ratio(
+                            string_to_int(source.substr(0, pos)),
+                            string_to_int(source.substr(pos + 1))
+                    );
                 }
                 catch (std::length_error& e)
                 {

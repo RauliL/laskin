@@ -9,6 +9,8 @@ namespace laskin
     class interpreter
     {
     public:
+        typedef hashmap<std::vector<function> > function_map;
+
         interpreter();
 
         interpreter(const interpreter& that);
@@ -52,7 +54,7 @@ namespace laskin
 
     private:
         /** Container for functions. */
-        hashmap<std::vector<function> > m_functions;
+        function_map m_functions;
     };
 }
 
