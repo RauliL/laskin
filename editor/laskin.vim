@@ -10,7 +10,7 @@ endif
 
 " Keywords
 syn keyword laskinConditional if else case
-syn keyword laskinRepeat while
+syn keyword laskinRepeat while for
 
 " Constants
 syn keyword laskinConstant true false e pi inf
