@@ -164,6 +164,11 @@ SCAN_EXPONENT:
                             while (current != end && std::isdigit(*current));
                         }
                         tokens.push_back(token(type_real, buffer));
+                    }
+                    else if (current != end && (*current == 'e' || *current == 'E'))
+                    {
+                        ++current;
+                        goto SCAN_REAL;
                     } else {
                         tokens.push_back(token(type_int, buffer));
                     }
