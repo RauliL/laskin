@@ -50,7 +50,13 @@ namespace laskin
             : m_bucket_size(bucket_size)
             , m_bucket(new entry*[m_bucket_size])
             , m_front(0)
-            , m_back(0) {}
+            , m_back(0)
+        {
+            for (size_type i = 0; i < m_bucket_size; ++i)
+            {
+                m_bucket[i] = 0;
+            }
+        }
 
         hashmap(const hashmap<T>& that)
             : m_bucket_size(that.m_bucket_size)
@@ -58,6 +64,10 @@ namespace laskin
             , m_front(0)
             , m_back(0)
         {
+            for (size_type i = 0; i < m_bucket_size; ++i)
+            {
+                m_bucket[i] = 0;
+            }
             for (const entry* e1 = that.m_front; e1; e1 = e1->next)
             {
                 entry* e2 = static_cast<entry*>(std::malloc(sizeof(entry)));
