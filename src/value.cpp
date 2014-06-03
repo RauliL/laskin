@@ -99,9 +99,15 @@ namespace laskin
 
     value::~value()
     {
+        reset();
+    }
+
+    void value::reset()
+    {
         if (m_counter && --(*m_counter) == 0)
         {
             delete m_counter;
+            m_counter = 0;
             switch (m_type)
             {
                 case type_ratio:
@@ -188,30 +194,7 @@ namespace laskin
 
     value& value::assign(const value& that)
     {
-        if (m_counter && --(*m_counter) == 0)
-        {
-            delete m_counter;
-            switch (m_type)
-            {
-                case type_ratio:
-                    delete m_data.ratio;
-                    break;
-
-                case type_string:
-                    delete m_data.string;
-                    break;
-
-                case type_list:
-                    delete m_data.list;
-                    break;
-
-                case type_function:
-                    delete m_data.function;
-
-                default:
-                    break;
-            }
-        }
+        reset();
         if ((m_counter = that.m_counter))
         {
             ++(*m_counter);
@@ -242,6 +225,73 @@ namespace laskin
             case type_function:
                 m_data.function = that.m_data.function;
         }
+
+        return *this;
+    }
+
+    value& value::assign(bool b)
+    {
+        reset();
+        m_type = type_bool;
+        m_data.i = b ? 1 : 0;
+
+        return *this;
+    }
+
+    value& value::assign(integer i)
+    {
+        reset();
+        m_type = type_bool;
+        m_data.i = i;
+
+        return *this;
+    }
+
+    value& value::assign(real r)
+    {
+        reset();
+        m_type = type_real;
+        m_data.r = r;
+
+        return *this;
+    }
+
+    value& value::assign(const class ratio& r)
+    {
+        reset();
+        m_type = type_ratio;
+        m_data.ratio = new class ratio(r);
+        m_counter = new unsigned(1);
+
+        return *this;
+    }
+
+    value& value::assign(const std::string& s)
+    {
+        reset();
+        m_type = type_string;
+        m_data.string = new std::string(s);
+        m_counter = new unsigned(1);
+
+        return *this;
+    }
+
+    value& value::assign(const std::vector<value>& l)
+    {
+        reset();
+        m_type = type_list;
+        m_data.list = new std::vector<value>(l);
+        m_counter = new unsigned(1);
+
+        return *this;
+    }
+
+    value& value::assign(const class function& f)
+    {
+        reset();
+        m_type = type_function;
+        m_data.function = new function(f);
+        m_counter = new unsigned(1);
 
         return *this;
     }

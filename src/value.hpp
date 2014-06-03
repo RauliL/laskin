@@ -126,12 +126,82 @@ namespace laskin
          */
         value& assign(const value& that);
 
+        value& assign(bool b);
+
+        value& assign(integer i);
+
+        value& assign(real r);
+
+        value& assign(const class ratio& r);
+
+        value& assign(const std::string& s);
+
+        value& assign(const std::vector<value>& l);
+
+        value& assign(const class function& f);
+
         /**
          * Assignment operator.
          */
         inline value& operator=(const value& that)
         {
             return assign(that);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(bool b)
+        {
+            return assign(b);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(integer i)
+        {
+            return assign(i);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(real r)
+        {
+            return assign(r);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(const class ratio& r)
+        {
+            return assign(r);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(const std::string& s)
+        {
+            return assign(s);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(const std::vector<value>& l)
+        {
+            return assign(l);
+        }
+
+        /**
+         * Assignment operator.
+         */
+        inline value& operator=(const class function& f)
+        {
+            return assign(f);
         }
 
         bool equals(const value& that) const;
@@ -173,6 +243,9 @@ namespace laskin
         {
             return compare(that) >= 0;
         }
+
+    protected:
+        void reset();
 
     private:
         /** Type of the value. */
