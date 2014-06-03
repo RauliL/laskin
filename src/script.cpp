@@ -20,6 +20,13 @@ namespace laskin
                          std::ostream&,
                          script::const_iterator&,
                          const script::const_iterator&);
+    static void parse_case(interpreter&,
+                           stack<value>&,
+                           hashmap<value>&,
+                           std::istream&,
+                           std::ostream&,
+                           script::const_iterator&,
+                           const script::const_iterator&);
     static void parse_while(interpreter&,
                             stack<value>&,
                             hashmap<value>&,
@@ -80,6 +87,16 @@ namespace laskin
                              out,
                              ++current,
                              end);
+                    break;
+
+                case token::type_kw_case:
+                    parse_case(interpreter,
+                               data,
+                               locals,
+                               in,
+                               out,
+                               ++current,
+                               end);
                     break;
                     
                 case token::type_kw_while:
@@ -449,6 +466,71 @@ namespace laskin
                 );
             }
         }
+    }
+
+    static void parse_case(class interpreter& interpreter,
+                           stack<value>& data,
+                           hashmap<value>& locals,
+                           std::istream& in,
+                           std::ostream& out,
+                           script::const_iterator& current,
+                           const script::const_iterator& end)
+    {
+        script block = parse_block(current, end);
+        script::const_iterator condition_begin = block.begin();
+        script::const_iterator block_current = condition_begin;
+        script::const_iterator block_end = block.end();
+
+        while (block_current < block_end)
+        {
+            if (block_current->is(token::type_lbrace))
+            {
+                bool result;
+
+                script(condition_begin, block_current).execute(
+                        interpreter,
+                        data,
+                        locals,
+                        in,
+                        out
+                );
+                if (data.empty() || !data.back().is(value::type_bool))
+                {
+                    throw script_error("`case' statement is missing condition");
+                }
+                result = data.back().as_bool();
+                data.pop();
+                if (result)
+                {
+                    parse_block(block_current, block_end).execute(
+                            interpreter,
+                            data,
+                            locals,
+                            in,
+                            out
+                    );
+                    return;
+                } else {
+                    skip_block(block_current, block_end);
+                    condition_begin = block_current;
+                }
+            }
+            else if (block_current->is(token::type_kw_else))
+            {
+                parse_block(++block_current, block_end).execute(
+                        interpreter,
+                        data,
+                        locals,
+                        in,
+                        out
+                );
+                return;
+            } else {
+                ++block_current;
+            }
+        }
+
+        throw syntax_error("no conditions in `case' statement");
     }
 
     static void parse_while(class interpreter& interpreter,

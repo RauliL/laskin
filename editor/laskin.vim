@@ -9,7 +9,7 @@ elseif exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword laskinConditional if else
+syn keyword laskinConditional if else case
 syn keyword laskinRepeat while
 
 " Constants

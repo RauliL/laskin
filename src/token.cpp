@@ -348,6 +348,10 @@ SCAN_WORD:
                 os << "`else'";
                 break;
 
+            case token::type_kw_case:
+                os << "`case'";
+                break;
+
             case token::type_kw_while:
                 os << "`while'";
                 break;
@@ -413,6 +417,10 @@ SCAN_WORD:
                 os << "`else'";
                 break;
 
+            case token::type_kw_case:
+                os << "`case'";
+                break;
+
             case token::type_kw_while:
                 os << "`while'";
                 break;
@@ -457,6 +465,13 @@ SCAN_WORD:
     {
         switch (s[0])
         {
+            case 'c':
+                if (!s.compare("case"))
+                {
+                    return token(token::type_kw_case);
+                }
+                break;
+
             case 'e':
                 if (!s.compare("else"))
                 {

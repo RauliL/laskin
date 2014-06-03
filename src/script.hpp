@@ -27,6 +27,16 @@ namespace laskin
             return m_tokens.empty();
         }
 
+        inline const_iterator begin() const
+        {
+            return m_tokens.begin();
+        }
+
+        inline const_iterator end() const
+        {
+            return m_tokens.end();
+        }
+
         void execute(class interpreter& interpreter,
                      stack<value>& data,
                      hashmap<value>& locals,
