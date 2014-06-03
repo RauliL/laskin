@@ -132,6 +132,28 @@ namespace laskin
             return !equals(that);
         }
 
+        int compare(const ratio& that) const;
+
+        inline bool operator<(const ratio& that) const
+        {
+            return compare(that) < 0;
+        }
+
+        inline bool operator>(const ratio& that) const
+        {
+            return compare(that) > 0;
+        }
+
+        inline bool operator<=(const ratio& that) const
+        {
+            return compare(that) <= 0;
+        }
+
+        inline bool operator>=(const ratio& that) const
+        {
+            return compare(that) >= 0;
+        }
+
         ratio& assign(const ratio& that);
 
         /**

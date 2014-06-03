@@ -338,6 +338,147 @@ namespace laskin
         return false;
     }
 
+    int value::compare(const value& that) const
+    {
+        switch (m_type)
+        {
+            case value::type_int:
+                if (that.m_type == type_int)
+                {
+                    if (m_data.i > that.m_data.i)
+                    {
+                        return 1;
+                    }
+                    else if (m_data.i < that.m_data.i)
+                    {
+                        return -1;
+                    }
+                }
+                else if (that.m_type == type_real)
+                {
+                    const real a = static_cast<real>(m_data.i);
+                    const real b = that.m_data.r;
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                else if (that.m_type == type_ratio)
+                {
+                    const integer a = m_data.i;
+                    const integer b = that.m_data.rat->numerator() / that.m_data.rat->denominator();
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                break;
+
+            case value::type_real:
+                if (that.m_type == type_real)
+                {
+                    if (m_data.r > that.m_data.r)
+                    {
+                        return 1;
+                    }
+                    else if (m_data.r < that.m_data.r)
+                    {
+                        return -1;
+                    }
+                }
+                else if (that.m_type == type_int)
+                {
+                    const real a = m_data.r;
+                    const real b = static_cast<real>(that.m_data.r);
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                else if (that.m_type == type_ratio)
+                {
+                    const real a = m_data.r;
+                    const real b = static_cast<real>(that.m_data.rat->numerator()) /
+                                   static_cast<real>(that.m_data.rat->denominator());
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                break;
+
+            case value::type_ratio:
+                if (that.m_type == type_ratio)
+                {
+                    return m_data.rat->compare(*that.m_data.rat);
+                }
+                else if (that.m_type == type_int)
+                {
+                    const integer a = m_data.rat->numerator() / m_data.rat->denominator();
+                    const integer b = that.m_data.i;
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                else if (that.m_type == type_real)
+                {
+                    const real a = static_cast<real>(m_data.rat->numerator()) /
+                                   static_cast<real>(m_data.rat->denominator());
+                    const real b = that.m_data.r;
+
+                    if (a > b)
+                    {
+                        return 1;
+                    }
+                    else if (a < b)
+                    {
+                        return -1;
+                    }
+                }
+                break;
+
+            case value::type_string:
+                if (that.m_type == type_string)
+                {
+                    return m_data.s.container->compare(*that.m_data.s.container);
+                }
+                break;
+
+            case value::type_bool:
+            case value::type_list:
+            case value::type_function:
+                break;
+        }
+
+        return 0;
+    }
+
     std::ostream& operator<<(std::ostream& os, const class value& value)
     {
         switch (value.type())

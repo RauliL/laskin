@@ -152,6 +152,28 @@ namespace laskin
             return !equals(that);
         }
 
+        int compare(const value& that) const;
+
+        inline bool operator<(const value& that) const
+        {
+            return compare(that) < 0;
+        }
+
+        inline bool operator>(const value& that) const
+        {
+            return compare(that) > 0;
+        }
+
+        inline bool operator<=(const value& that) const
+        {
+            return compare(that) <= 0;
+        }
+
+        inline bool operator>=(const value& that) const
+        {
+            return compare(that) >= 0;
+        }
+
     private:
         /** Type of the value. */
         enum type m_type;

@@ -99,6 +99,14 @@ namespace laskin
             && m_denominator == that.m_denominator;
     }
 
+    int ratio::compare(const ratio& that) const
+    {
+        const integer a = m_numerator * that.m_numerator;
+        const integer b = m_denominator * that.m_denominator;
+
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
     ratio& ratio::assign(const ratio& that)
     {
         m_numerator = that.m_numerator;

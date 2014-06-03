@@ -157,13 +157,7 @@ namespace laskin
     {
         value a, b;
 
-        stack >> b >> a;
-        if (a.is(value::type_real) || b.is(value::type_real))
-        {
-            stack.push(a.as_real() < b.as_real());
-        } else {
-            stack.push(a.as_int() < b.as_int());
-        }
+        stack >> b >> a << value(a < b);
     }
 
     /**
@@ -175,13 +169,7 @@ namespace laskin
     {
         value a, b;
 
-        stack >> b >> a;
-        if (a.is(value::type_real) || b.is(value::type_real))
-        {
-            stack.push(a.as_real() > b.as_real());
-        } else {
-            stack.push(a.as_int() > b.as_int());
-        }
+        stack >> b >> a << value(a > b);
     }
 
     /**
@@ -193,13 +181,7 @@ namespace laskin
     {
         value a, b;
 
-        stack >> b >> a;
-        if (a.is(value::type_real) || b.is(value::type_real))
-        {
-            stack.push(a.as_real() <= b.as_real());
-        } else {
-            stack.push(a.as_int() <= b.as_int());
-        }
+        stack >> b >> a << value(a <= b);
     }
 
     /**
@@ -211,13 +193,7 @@ namespace laskin
     {
         value a, b;
 
-        stack >> b >> a;
-        if (a.is(value::type_real) || b.is(value::type_real))
-        {
-            stack.push(a.as_real() >= b.as_real());
-        } else {
-            stack.push(a.as_int() >= b.as_int());
-        }
+        stack >> b >> a << value(a >= b);
     }
 
     /**
