@@ -172,7 +172,7 @@ SCAN_EXPONENT:
                 case '"':
                 case '\'':
                 {
-                    char separator = c;
+                    const char separator = c;
 
                     buffer.clear();
                     while (current != end && *current != separator)
