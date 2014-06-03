@@ -168,7 +168,7 @@ SCAN_EXPONENT:
                     else if (current != end && (*current == 'e' || *current == 'E'))
                     {
                         ++current;
-                        goto SCAN_REAL;
+                        goto SCAN_EXPONENT;
                     } else {
                         tokens.push_back(token(type_int, buffer));
                     }
