@@ -126,12 +126,10 @@ namespace laskin
     {
         if (!stack.back().is(value::type_string))
         {
-            const value a = stack.back();
             std::stringstream ss;
 
-            stack.pop();
-            ss << a;
-            stack.push(ss.str());
+            ss << stack.back();
+            stack.back() = ss.str();
         }
     }
 
@@ -144,9 +142,8 @@ namespace laskin
     {
         std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop();
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-        stack.push(value(s));
+        stack.back() = s;
     }
 
     /**
@@ -158,9 +155,8 @@ namespace laskin
     {
         std::string s = stack[stack.size() - 1].as_string();
 
-        stack.pop();
         std::transform(s.begin(), s.end(), s.begin(), ::toupper);
-        stack.push(value(s));
+        stack.back() = s;
     }
 
     /**

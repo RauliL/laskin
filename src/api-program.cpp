@@ -2,9 +2,24 @@
 #include "script.hpp"
 #include "value.hpp"
 #include <fstream>
+#include <sstream>
 
 namespace laskin
 {
+    /**
+     * evaluate(string)
+     *
+     * Compiles given string into tokens and executes them.
+     */
+    BUILT_IN_FUNCTION(func_evaluate)
+    {
+        std::stringstream input;
+
+        input.str(stack.back().as_string());
+        stack.pop();
+        token::scan(input).execute(interpreter, stack, local_variables, in, out);
+    }
+
     /**
      * execute(function)
      *
@@ -90,6 +105,7 @@ namespace laskin
     {
         void initialize_program(interpreter* i)
         {
+            i->register_function("evaluate", "s", func_evaluate);
             i->register_function("execute", "f", func_execute);
             i->register_function("exit", "", func_exit);
             i->register_function("include", "s", func_include);
