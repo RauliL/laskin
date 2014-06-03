@@ -39,6 +39,13 @@ namespace laskin
                             std::ostream&,
                             script::const_iterator&,
                             const script::const_iterator&);
+    static void parse_for(interpreter&,
+                          stack<value>&,
+                          hashmap<value>&,
+                          std::istream&,
+                          std::ostream&,
+                          script::const_iterator&,
+                          const script::const_iterator&);
 
     script::script(const std::vector<token>& tokens)
         : m_tokens(tokens) {}
@@ -407,6 +414,16 @@ SCAN_WORD:
                                 ++current,
                                 end);
                     break;
+                    
+                case token::type_kw_for:
+                    parse_for(interpreter,
+                              data,
+                              locals,
+                              in,
+                              out,
+                              ++current,
+                              end);
+                    break;
 
                 case token::type_kw_to:
                     if (++current >= end || !current->is(token::type_word))
@@ -525,6 +542,13 @@ SCAN_WORD:
                 if (!s.compare("else"))
                 {
                     return token(token::type_kw_else);
+                }
+                break;
+
+            case 'f':
+                if (!s.compare("for"))
+                {
+                    return token(token::type_kw_for);
                 }
                 break;
 
@@ -986,5 +1010,50 @@ SCAN_WORD:
             body.execute(interpreter, data, locals, in, out);
         }
         while (true);
+    }
+
+    static void parse_for(class interpreter& interpreter,
+                          stack<value>& data,
+                          hashmap<value>& locals,
+                          std::istream& in,
+                          std::ostream& out,
+                          script::const_iterator& current,
+                          const script::const_iterator& end)
+    {
+        integer index;
+        integer limit;
+
+        if (data.size() < 2
+            || !data[data.size() - 1].is(value::type_int)
+            || !data[data.size() - 2].is(value::type_int))
+        {
+            throw error(
+                    error::type_syntax,
+                    "`for' loop is missing two integer numbers"
+            );
+        }
+        index = data[data.size() - 1].as_int();
+        limit = data[data.size() - 2].as_int();
+        data.pop();
+        data.pop();
+        if (current < end && current->is(token::type_word))
+        {
+            const std::string& var = current++->data();
+            script block = parse_block(current, end);
+            hashmap<value> new_locals(locals);
+
+            while (index++ < limit)
+            {
+                new_locals.insert(var, index);
+                block.execute(interpreter, data, new_locals, in, out);
+            }
+        } else {
+            script block = parse_block(current, end);
+
+            while (index++ < limit)
+            {
+                block.execute(interpreter, data, locals, in, out);
+            }
+        }
     }
 }

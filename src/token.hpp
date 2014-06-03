@@ -24,6 +24,7 @@ namespace laskin
             type_word,
             type_kw_if,
             type_kw_else,
+            type_kw_for,
             type_kw_case,
             type_kw_while,
             type_kw_to

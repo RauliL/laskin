@@ -25,3 +25,8 @@ while 10 <= {
     dup
 
 }
+
+# You can also use `for' loop for this purpose, which is much simpler.
+10 0 for current {
+    current println
+}

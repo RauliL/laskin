@@ -72,6 +72,10 @@ namespace laskin
                 os << "`else'";
                 break;
 
+            case token::type_kw_for:
+                os << "`for'";
+                break;
+
             case token::type_kw_case:
                 os << "`case'";
                 break;
@@ -139,6 +143,10 @@ namespace laskin
 
             case token::type_kw_else:
                 os << "`else'";
+                break;
+
+            case token::type_kw_for:
+                os << "`for'";
                 break;
 
             case token::type_kw_case:
