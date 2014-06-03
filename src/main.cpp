@@ -49,7 +49,7 @@ int main(int argc, char** argv)
                     {
                         locals.clear();
                     }
-                    laskin::token::scan(is).execute(
+                    laskin::script::scan(is).execute(
                             interpreter,
                             data,
                             locals,
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
                 ss.str(line);
                 try
                 {
-                    laskin::token::scan(ss).execute(
+                    laskin::script::scan(ss).execute(
                             interpreter,
                             data,
                             locals,
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     } else {
         try
         {
-            laskin::token::scan(std::cin).execute(
+            laskin::script::scan(std::cin).execute(
                     interpreter,
                     data,
                     locals,

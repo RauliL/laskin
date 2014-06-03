@@ -5,6 +5,11 @@
 
 namespace laskin
 {
+    typedef std::istreambuf_iterator<char> stream_iterator;
+
+    static inline bool isword(char);
+    static inline token str_to_word(const std::string&);
+
     static value parse_literal(script::const_iterator&,
                                const script::const_iterator&);
     static value parse_list_literal(script::const_iterator&,
@@ -43,6 +48,300 @@ namespace laskin
 
     script::script(const script& that)
         : m_tokens(that.m_tokens) {}
+
+    script script::scan(std::istream& is)
+        throw(error)
+    {
+        std::vector<token> tokens;
+        std::string buffer;
+
+        for (stream_iterator current(is), end; current != end;)
+        {
+            char c = *current++;
+
+            switch (c)
+            {
+                // Skip comments.
+                case '#':
+                    while (current != end)
+                    {
+                        if (*current++ == '\n')
+                        {
+                            break;
+                        }
+                    }
+                    break;
+
+                // Skip whitespace.
+                case ' ':
+                case '\t':
+                case '\r':
+                case '\n':
+                    break;
+
+                // Various separators.
+                case '(': case ')':
+                case '[': case ']':
+                case '{': case '}':
+                case ':':
+                    tokens.push_back(token(
+                                c == '(' ? token::type_lparen :
+                                c == ')' ? token::type_rparen :
+                                c == '[' ? token::type_lbrack :
+                                c == ']' ? token::type_rbrack :
+                                c == '{' ? token::type_lbrace :
+                                c == '}' ? token::type_rbrace :
+                                token::type_colon
+                    ));
+                    break;
+
+                // Parse numbers from zero.
+                case '0':
+                    buffer.assign(1, '0');
+                    if (current != end)
+                    {
+SCAN_NUMBER_FROM_ZERO:
+                        switch (c = *current++)
+                        {
+                            case 'b': case 'B':
+                                buffer.append(1, c);
+                                while (current != end && std::isdigit(*current))
+                                {
+                                    if ((c = *current++) != '0' && c != '1')
+                                    {
+                                        throw error(
+                                                error::type_syntax,
+                                                "invalid binary digit"
+                                        );
+                                    }
+                                    buffer.append(1, c);
+                                }
+                                break;
+
+                            case 'x': case 'X':
+                                buffer.append(1, 'x');
+                                while (current != end && std::isxdigit(*current))
+                                {
+                                    buffer.append(1, *current++);
+                                }
+                                break;
+
+                            case 'o': case 'O':
+                            case '0': case '1':
+                            case '2': case '3':
+                            case '4': case '5':
+                            case '6': case '7':
+                                buffer.append(1, c);
+                                while (current != end && std::isdigit(*current))
+                                {
+                                    if ((c = *current++) > '7')
+                                    {
+                                        throw error(
+                                                error::type_syntax,
+                                                "invalid octal digit"
+                                        );
+                                    }
+                                    buffer.append(1, c);
+                                }
+                                break;
+
+                            case '8': case '9':
+                                throw error(
+                                        error::type_syntax,
+                                        "invalid octal digit"
+                                );
+
+                            case 'e': case 'E':
+                                goto SCAN_EXPONENT;
+
+                            case '.':
+                                goto SCAN_REAL;
+                        }
+                    }
+                    tokens.push_back(token(token::type_int, buffer));
+                    break;
+
+                // Parse numbers.
+                case '1': case '2': case '3':
+                case '4': case '5': case '6':
+                case '7': case '8': case '9':
+                    buffer.assign(1, c);
+SCAN_NUMBER:
+                    while (current != end && std::isdigit(*current))
+                    {
+                        buffer.append(1, *current++);
+                    }
+                    if (current != end && *current == '.')
+                    {
+                        ++current;
+SCAN_REAL:
+                        buffer.append(1, '.');
+                        if (current == end || !std::isdigit(*current))
+                        {
+                            throw error(
+                                    error::type_syntax,
+                                    "missing digits after `.'"
+                            );
+                        }
+                        do
+                        {
+                            buffer.append(1, *current++);
+                        }
+                        while (current != end && std::isdigit(*current));
+                        if (current != end && (*current == 'e' || *current == 'E'))
+                        {
+                            ++current;
+SCAN_EXPONENT:
+                            buffer.append(1, 'e');
+                            if (current != end && (*current == '+' || *current == '-'))
+                            {
+                                buffer.append(1, *current++);
+                            }
+                            if (current == end || !std::isdigit(*current))
+                            {
+                                throw error(
+                                        error::type_syntax,
+                                        "missing exponent"
+                                );
+                            }
+                            do
+                            {
+                                buffer.append(1, *current++);
+                            }
+                            while (current != end && std::isdigit(*current));
+                        }
+                        tokens.push_back(token(token::type_real, buffer));
+                    }
+                    else if (current != end && (*current == 'e' || *current == 'E'))
+                    {
+                        ++current;
+                        goto SCAN_EXPONENT;
+                    }
+                    // Rational numbers.
+                    else if (current != end && *current == '/')
+                    {
+                        buffer.append(1, *current++);
+                        if (current == end || !std::isdigit(*current))
+                        {
+                            throw error(
+                                    error::type_syntax,
+                                    "rational number is missing denominator"
+                            );
+                        }
+                        do
+                        {
+                            buffer.append(1, *current++);
+                        }
+                        while (current != end && std::isdigit(*current));
+                        tokens.push_back(token(token::type_ratio, buffer));
+                    } else {
+                        tokens.push_back(token(token::type_int, buffer));
+                    }
+                    break;
+
+                // Parse string literals.
+                case '"':
+                case '\'':
+                {
+                    const char separator = c;
+
+                    buffer.clear();
+                    while (current != end && *current != separator)
+                    {
+                        if (*current == '\\')
+                        {
+                            if (++current == end)
+                            {
+                                throw error(
+                                        error::type_syntax,
+                                        "end of input after escape sequence"
+                                );
+                            }
+                            switch (c = *current++)
+                            {
+                                case 'a':
+                                    buffer.append(1, 007);
+                                    break;
+
+                                case 'e':
+                                    buffer.append(1, 033);
+                                    break;
+
+                                case 'n':
+                                    buffer.append(1, '\n');
+                                    break;
+
+                                case 'r':
+                                    buffer.append(1, '\r');
+                                    break;
+
+                                case 't':
+                                    buffer.append(1, '\t');
+                                    break;
+
+                                case '"':
+                                case '\'':
+                                case '\\':
+                                    buffer.append(1, c);
+                                    break;
+
+                                default:
+                                    throw error(
+                                            error::type_syntax,
+                                            "illegal escape sequence"
+                                    );
+                            }
+                        } else {
+                            buffer.append(1, *current++);
+                        }
+                    }
+                    if (current == end)
+                    {
+                        throw error(
+                                error::type_syntax,
+                                "unterminated string literal"
+                        );
+                    }
+                    tokens.push_back(token(token::type_string, buffer));
+                    ++current;
+                    break;
+                }
+
+                case '-':
+                case '+':
+                    buffer.assign(1, c);
+                    if (current != end)
+                    {
+                        if (*current == '0')
+                        {
+                            buffer.append(1, *current++);
+                            goto SCAN_NUMBER_FROM_ZERO;
+                        }
+                        else if (std::isdigit(*current))
+                        {
+                            goto SCAN_NUMBER;
+                        }
+                    }
+                    goto SCAN_WORD;
+
+                default:
+                    if (isword(c))
+                    {
+                        buffer.assign(1, c);
+SCAN_WORD:
+                        while (current != end && isword(*current))
+                        {
+                            buffer.append(1, *current++);
+                        }
+                        tokens.push_back(str_to_word(buffer));
+                    } else {
+                        throw error(error::type_syntax, "unexpected input");
+                    }
+            }
+        }
+
+        return script(tokens);
+    }
 
     void script::execute(class interpreter& interpreter,
                          stack<value>& data,
@@ -180,6 +479,78 @@ namespace laskin
         m_tokens.assign(first, last);
 
         return *this;
+    }
+
+    static inline bool isword(char c)
+    {
+        return (c >= '0' && c <= '9')
+            || (c >= 'a' && c <= 'z')
+            || (c >= 'A' && c <= 'Z')
+            || c == '!'
+            || c == '$'
+            || c == '%'
+            || c == '&'
+            || c == '\''
+            || c == '*'
+            || c == '+'
+            || c == ','
+            || c == '-'
+            || c == '.'
+            || c == '/'
+            || c == ';'
+            || c == '<'
+            || c == '>'
+            || c == '='
+            || c == '?'
+            || c == '@'
+            || c == '^'
+            || c == '_'
+            || c == '`'
+            || c == '|'
+            || c == '~';
+    }
+
+    static inline token str_to_word(const std::string& s)
+    {
+        switch (s[0])
+        {
+            case 'c':
+                if (!s.compare("case"))
+                {
+                    return token(token::type_kw_case);
+                }
+                break;
+
+            case 'e':
+                if (!s.compare("else"))
+                {
+                    return token(token::type_kw_else);
+                }
+                break;
+
+            case 'i':
+                if (!s.compare("if"))
+                {
+                    return token(token::type_kw_if);
+                }
+                break;
+
+            case 't':
+                if (!s.compare("to"))
+                {
+                    return token(token::type_kw_to);
+                }
+                break;
+
+            case 'w':
+                if (!s.compare("while"))
+                {
+                    return token(token::type_kw_while);
+                }
+                break;
+        }
+
+        return token(token::type_word, s);
     }
 
     static value parse_literal(script::const_iterator& current,

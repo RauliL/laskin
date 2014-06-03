@@ -1,6 +1,7 @@
 #ifndef LASKIN_SCRIPT_HPP_GUARD
 #define LASKIN_SCRIPT_HPP_GUARD
 
+#include "error.hpp"
 #include "hashmap.hpp"
 #include "token.hpp"
 #include <vector>
@@ -18,6 +19,9 @@ namespace laskin
         script(const_iterator& first, const_iterator& last);
 
         script(const script& that);
+
+        static script scan(std::istream& is)
+            throw(error);
 
         /**
          * Returns true if the script has no tokens.

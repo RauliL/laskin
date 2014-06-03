@@ -1,8 +1,6 @@
 #ifndef LASKIN_TOKEN_HPP_GUARD
 #define LASKIN_TOKEN_HPP_GUARD
 
-#include "defines.hpp"
-#include "error.hpp"
 #include <iostream>
 
 namespace laskin
@@ -44,9 +42,6 @@ namespace laskin
          * Copy constructor.
          */
         token(const token& that);
-
-        static script scan(std::istream& is)
-            throw(error);
 
         /**
          * Returns type of the token.

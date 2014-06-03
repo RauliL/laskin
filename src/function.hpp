@@ -1,6 +1,7 @@
 #ifndef LASKIN_FUNCTION_HPP_GUARD
 #define LASKIN_FUNCTION_HPP_GUARD
 
+#include "error.hpp"
 #include "hashmap.hpp"
 #include "signature.hpp"
 #include "token.hpp"

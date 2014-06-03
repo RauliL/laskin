@@ -17,7 +17,13 @@ namespace laskin
 
         input.str(stack.back().as_string());
         stack.pop();
-        token::scan(input).execute(interpreter, stack, local_variables, in, out);
+        script::scan(input).execute(
+                interpreter,
+                stack,
+                local_variables,
+                in,
+                out
+        );
     }
 
     /**
@@ -68,7 +74,7 @@ namespace laskin
                 laskin::stack<value> new_data;
                 hashmap<value> new_locals;
 
-                token::scan(input).execute(
+                script::scan(input).execute(
                         interpreter,
                         new_data,
                         new_locals,
