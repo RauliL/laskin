@@ -53,7 +53,7 @@ namespace laskin
                 laskin::stack<value> new_data;
                 hashmap<value> new_locals;
 
-                token::scan(in).execute(
+                token::scan(input).execute(
                         interpreter,
                         new_data,
                         new_locals,
