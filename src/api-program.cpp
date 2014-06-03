@@ -5,12 +5,12 @@
 namespace laskin
 {
     /**
-     * call(function)
+     * execute(function)
      *
      * Calls function from the top of the stack with rest of the stack as
      * arguments.
      */
-    BUILT_IN_FUNCTION(func_call)
+    BUILT_IN_FUNCTION(func_execute)
     {
         const class value value = stack[stack.size() - 1];
         const class function& function = value.as_function();
@@ -120,7 +120,7 @@ namespace laskin
     {
         void initialize_program(interpreter* i)
         {
-            i->register_function("call", "f", func_call);
+            i->register_function("execute", "f", func_execute);
             i->register_function("exit", "", func_exit);
             i->register_function("include", "s", func_include);
             i->register_function("get", "s:?", func_get);

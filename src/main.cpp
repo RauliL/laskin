@@ -1,5 +1,4 @@
 #include "interpreter.hpp"
-#include "token.hpp"
 #include "value.hpp"
 #include <fstream>
 #include <sstream>
