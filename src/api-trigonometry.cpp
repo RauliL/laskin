@@ -5,7 +5,7 @@
 namespace laskin
 {
     /**
-     * acos(num : real)
+     * acos(num -- real)
      *
      * Computes the principal value of the arc cosine of given number.
      */
@@ -15,7 +15,7 @@ namespace laskin
     }
 
     /**
-     * asin(num : real)
+     * asin(num -- real)
      *
      * Computes the principal value of the arc sine of given number.
      */
@@ -25,7 +25,7 @@ namespace laskin
     }
 
     /**
-     * atan(num : real)
+     * atan(num -- real)
      *
      * Computes the principal value of the arc tangent of given number.
      */
@@ -35,7 +35,7 @@ namespace laskin
     }
 
     /**
-     * cos(num : real)
+     * cos(num -- real)
      *
      * Computes the cosine of given number.
      */
@@ -45,7 +45,7 @@ namespace laskin
     }
 
     /**
-     * deg(num : real)
+     * deg(num -- real)
      *
      * Converts radians into degrees.
      */
@@ -55,7 +55,7 @@ namespace laskin
     }
 
     /**
-     * rad(num : real)
+     * rad(num -- real)
      *
      * Converts degrees into radians.
      */
@@ -65,7 +65,7 @@ namespace laskin
     }
 
     /**
-     * sin(num : real)
+     * sin(num -- real)
      *
      * Computes the sine of given number.
      */
@@ -75,7 +75,7 @@ namespace laskin
     }
 
     /**
-     * tan(num : real)
+     * tan(num -- real)
      *
      * Computes the tangent of given number.
      */

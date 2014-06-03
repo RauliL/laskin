@@ -4,7 +4,7 @@
 namespace laskin
 {
     /**
-     * clear
+     * clear()
      *
      * Clears entire stack.
      */
@@ -14,7 +14,7 @@ namespace laskin
     }
 
     /**
-     * depth( : int)
+     * depth(-- int)
      *
      * Returns current depth of the stack.
      */
@@ -45,7 +45,7 @@ namespace laskin
     }
 
     /**
-     * dup(any : any any)
+     * dup(any -- any any)
      *
      * Duplicates top-most value on the stack.
      */
@@ -55,7 +55,7 @@ namespace laskin
     }
 
     /**
-     * dup2(any any : any any any any)
+     * dup2(any any -- any any any any)
      *
      * Duplicates two top-most values on the stack.
      */
@@ -67,7 +67,7 @@ namespace laskin
     }
 
     /**
-     * over(any any : any any any)
+     * over(any any -- any any any)
      *
      * Copies second top-most value from the stack into top-most value of the
      * stack.
@@ -80,7 +80,7 @@ namespace laskin
     }
 
     /**
-     * rot(any any any : any any any)
+     * rot(any any any -- any any any)
      *
      * Rotates three top-most values on the stack.
      */
@@ -92,7 +92,7 @@ namespace laskin
     }
 
     /**
-     * swap(any any : any any)
+     * swap(any any -- any any)
      *
      * Swaps positions of two top-most values on the stack.
      */

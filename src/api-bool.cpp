@@ -24,7 +24,7 @@ namespace laskin
     }
 
     /**
-     * and(bool bool : bool)
+     * and(bool bool -- bool)
      *
      * Logical AND. Returns true if both boolean values are true.
      */
@@ -36,7 +36,7 @@ namespace laskin
     }
 
     /**
-     * or(bool bool : bool)
+     * or(bool bool -- bool)
      *
      * Logical OR. Returns true if either boolean value is true.
      */
@@ -48,7 +48,7 @@ namespace laskin
     }
 
     /**
-     * xor(bool bool : bool)
+     * xor(bool bool -- bool)
      *
      * Exclusive OR.
      */
@@ -61,7 +61,7 @@ namespace laskin
     }
 
     /**
-     * not(bool : bool)
+     * not(bool -- bool)
      *
      * Negates given boolean value.
      */

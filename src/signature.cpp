@@ -199,7 +199,7 @@ namespace laskin
             {
                 os << ' ';
             }
-            os << ':';
+            os << "--";
         }
         for (const signature::entry& entry : return_types)
         {

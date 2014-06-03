@@ -5,7 +5,7 @@
 namespace laskin
 {
     /**
-     * +(num num : num)
+     * +(num num -- num)
      *
      * Performs addition on given numbers.
      */
@@ -32,7 +32,7 @@ namespace laskin
     }
 
     /**
-     * -(num num : num)
+     * -(num num -- num)
      *
      * Performs substraction on given numbers.
      */
@@ -59,7 +59,7 @@ namespace laskin
     }
 
     /**
-     * *(num num : num)
+     * *(num num -- num)
      *
      * Performs multiplication on given numbers.
      */
@@ -86,7 +86,7 @@ namespace laskin
     }
 
     /**
-     * /(num num : num)
+     * /(num num -- num)
      *
      * Performs division on the given numbers.
      */
@@ -125,7 +125,7 @@ namespace laskin
     }
 
     /**
-     * ==(any any : bool)
+     * ==(any any -- bool)
      *
      * Returns true if the two values are equal, false otherwise.
      */
@@ -137,7 +137,7 @@ namespace laskin
     }
 
     /**
-     * !=(any any : bool)
+     * !=(any any -- bool)
      *
      * Returns true if the two values are not equal, false otherwise.
      */
@@ -149,7 +149,7 @@ namespace laskin
     }
 
     /**
-     * <(num num : bool)
+     * <(num num -- bool)
      *
      * Less-than comparison between two numbers.
      */
@@ -161,7 +161,7 @@ namespace laskin
     }
 
     /**
-     * >(num num : bool)
+     * >(num num -- bool)
      *
      * Greater-than comparison between two numbers.
      */
@@ -173,7 +173,7 @@ namespace laskin
     }
 
     /**
-     * <(num num : bool)
+     * <(num num -- bool)
      *
      * Less-than-equals comparison between two numbers.
      */
@@ -185,7 +185,7 @@ namespace laskin
     }
 
     /**
-     * >=(num num : bool)
+     * >=(num num -- bool)
      *
      * Greater-than-equals comparison between two numbers.
      */
@@ -197,7 +197,7 @@ namespace laskin
     }
 
     /**
-     * negate(num : num)
+     * negate(num -- num)
      *
      * Returns value of the number, negated.
      */
@@ -219,7 +219,7 @@ namespace laskin
     }
 
     /**
-     * max(num num : num)
+     * max(num num -- num)
      *
      * Returns maximum of the two given values.
      */
@@ -243,7 +243,7 @@ namespace laskin
     }
 
     /**
-     * min(num num : num)
+     * min(num num -- num)
      *
      * Returns minimum of the two given values.
      */
@@ -267,7 +267,7 @@ namespace laskin
     }
 
     /**
-     * e( : real)
+     * e(-- real)
      *
      * Returns eulers number.
      */
@@ -277,7 +277,7 @@ namespace laskin
     }
 
     /**
-     * inf( : real)
+     * inf(-- real)
      *
      * Returns infinity.
      */
@@ -287,7 +287,7 @@ namespace laskin
     }
 
     /**
-     * pi( : real)
+     * pi(-- real)
      *
      * Returns value of PI.
      */

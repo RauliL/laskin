@@ -6,7 +6,7 @@
 namespace laskin
 {
     /**
-     * length(string : int)
+     * length(string -- int)
      *
      * Returns length of the string.
      */
@@ -20,7 +20,7 @@ namespace laskin
     }
 
     /**
-     * empty?(string : bool)
+     * empty?(string -- bool)
      *
      * Returns true if the string is empty.
      */
@@ -34,7 +34,7 @@ namespace laskin
     }
 
     /**
-     * blank?(string : bool)
+     * blank?(string -- bool)
      *
      * Returns true if the string is empty or contains only white space
      * characters.
@@ -62,7 +62,7 @@ namespace laskin
     }
 
     /**
-     * lower?(string : bool)
+     * lower?(string -- bool)
      *
      * Returns true if the string is all lower case characters. Empty strings
      * return false.
@@ -90,7 +90,7 @@ namespace laskin
     }
 
     /**
-     * upper?(string : bool)
+     * upper?(string -- bool)
      *
      * Returns true if the string is all upper case characters. Empty strings
      * return false.
@@ -118,7 +118,7 @@ namespace laskin
     }
 
     /**
-     * >string(any : string)
+     * >string(any -- string)
      *
      * Converts given value into string.
      */
@@ -134,7 +134,7 @@ namespace laskin
     }
 
     /**
-     * lower(string : string)
+     * lower(string -- string)
      *
      * Converts string into lower case.
      */
@@ -147,7 +147,7 @@ namespace laskin
     }
 
     /**
-     * upper(string : string)
+     * upper(string -- string)
      *
      * Converts string into lower case.
      */
@@ -160,7 +160,7 @@ namespace laskin
     }
 
     /**
-     * reverse(string : string)
+     * reverse(string -- string)
      *
      * Returns reversed copy of the string.
      */
@@ -174,7 +174,7 @@ namespace laskin
     }
 
     /**
-     * +(string string : string)
+     * +(string string -- string)
      *
      * Concatenates two strings into one.
      */
@@ -189,7 +189,7 @@ namespace laskin
     }
 
     /**
-     * @(string int : int)
+     * @(string int -- int)
      *
      * Retrieves character from the string at given index. Negative indexes
      * count from backwards.
@@ -215,7 +215,7 @@ namespace laskin
     }
 
     /**
-     * @=(string int int : string)
+     * @=(string int int -- string)
      *
      * Sets character in the string at given index. Negative indexes count from
      * backwards.

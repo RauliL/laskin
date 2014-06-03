@@ -4,7 +4,7 @@
 namespace laskin
 {
     /**
-     * length(list : int)
+     * length(list -- int)
      *
      * Returns the number of elements stored in the list.
      */
@@ -17,7 +17,7 @@ namespace laskin
     }
 
     /**
-     * empty?(list : bool)
+     * empty?(list -- bool)
      *
      * Returns true if list is empty.
      */
@@ -56,7 +56,7 @@ namespace laskin
     }
 
     /**
-     * reverse(list : list)
+     * reverse(list -- list)
      *
      * Returns reversed copy of the list.
      */
@@ -70,7 +70,7 @@ namespace laskin
     }
 
     /**
-     * @(list int : any)
+     * @(list int -- any)
      *
      * Retrieves value from the list at given index. Negative indexes count
      * from backwards.
@@ -96,7 +96,7 @@ namespace laskin
     }
 
     /**
-     * @=(list int any : list)
+     * @=(list int any -- list)
      *
      * Sets value in the list at given index. Negative indexes count from
      * backwards.
@@ -125,7 +125,7 @@ namespace laskin
     }
 
     /**
-     * +(list any : list)
+     * +(list any -- list)
      *
      * Inserts value to the end of the list and returns result.
      */
@@ -140,7 +140,7 @@ namespace laskin
     }
 
     /**
-     * >list(any... : list)
+     * >list(any... -- list)
      *
      * Takes every value from the stack and returns them in a list.
      */

@@ -294,72 +294,72 @@ namespace laskin
 
         while (current < end && !current->is(token::type_rparen))
         {
-            if (current->is(token::type_colon))
+            if (current->is(token::type_word))
             {
-                ++current;
-                if (in_parameters)
+                const std::string& id = current++->data();
+
+                if (id.compare("--"))
+                {
+                    signature::entry entry;
+
+                    if (!id.compare("any"))
+                    {
+                        entry = signature::type_any;
+                    }
+                    else if (!id.compare("bool"))
+                    {
+                        entry = signature::type_bool;
+                    }
+                    else if (!id.compare("num"))
+                    {
+                        entry = signature::type_num;
+                    }
+                    else if (!id.compare("int"))
+                    {
+                        entry = signature::type_int;
+                    }
+                    else if (!id.compare("real"))
+                    {
+                        entry = signature::type_real;
+                    }
+                    else if (!id.compare("ratio"))
+                    {
+                        entry = signature::type_ratio;
+                    }
+                    else if (!id.compare("string"))
+                    {
+                        entry = signature::type_string;
+                    }
+                    else if (!id.compare("list"))
+                    {
+                        entry = signature::type_list;
+                    }
+                    else if (!id.compare("function"))
+                    {
+                        entry = signature::type_function;
+                    } else {
+                        throw error(
+                                error::type_syntax,
+                                "unknown type: `"
+                                + id
+                                + "'"
+                        );
+                    }
+                    if (in_parameters)
+                    {
+                        parameter_types.push_back(entry);
+                    } else {
+                        return_types.push_back(entry);
+                    }
+                }
+                else if (in_parameters)
                 {
                     in_parameters = false;
                 } else {
                     throw error(
                             error::type_syntax,
-                            "multiple `:' found in function signature"
+                            "multiple `--' found in function signature"
                     );
-                }
-            }
-            else if (current->is(token::type_word))
-            {
-                const std::string& id = current++->data();
-                signature::entry entry;
-
-                if (!id.compare("any"))
-                {
-                    entry = signature::type_any;
-                }
-                else if (!id.compare("bool"))
-                {
-                    entry = signature::type_bool;
-                }
-                else if (!id.compare("num"))
-                {
-                    entry = signature::type_num;
-                }
-                else if (!id.compare("int"))
-                {
-                    entry = signature::type_int;
-                }
-                else if (!id.compare("real"))
-                {
-                    entry = signature::type_real;
-                }
-                else if (!id.compare("ratio"))
-                {
-                    entry = signature::type_ratio;
-                }
-                else if (!id.compare("string"))
-                {
-                    entry = signature::type_string;
-                }
-                else if (!id.compare("list"))
-                {
-                    entry = signature::type_list;
-                }
-                else if (!id.compare("function"))
-                {
-                    entry = signature::type_function;
-                } else {
-                    throw error(
-                            error::type_syntax,
-                            "unknown type: `"
-                            + id
-                            + "'"
-                    );
-                }
-                if (in_parameters)
-                {
-                    parameter_types.push_back(entry);
-                } else {
-                    return_types.push_back(entry);
                 }
             } else {
                 std::stringstream ss;
