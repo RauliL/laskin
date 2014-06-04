@@ -10,6 +10,11 @@ namespace laskin
         : m_type(that.m_type)
         , m_data(that.m_data) {}
 
+    bool token::equals(const token& that) const
+    {
+        return m_type == that.m_type && m_data == that.m_data;
+    }
+
     token& token::assign(const token& that)
     {
         m_type = that.m_type;

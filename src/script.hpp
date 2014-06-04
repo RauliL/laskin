@@ -48,6 +48,24 @@ namespace laskin
                      std::ostream& out) const
             throw(error);
 
+        bool equals(const script& that) const;
+
+        /**
+         * Equality testing operator.
+         */
+        inline bool operator==(const script& that) const
+        {
+            return equals(that);
+        }
+
+        /**
+         * Non-equality testing operator.
+         */
+        inline bool operator!=(const script& that) const
+        {
+            return !equals(that);
+        }
+
         script& assign(const script& that);
         script& assign(const_iterator& first, const_iterator& last);
 

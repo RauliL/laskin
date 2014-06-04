@@ -484,6 +484,23 @@ SCAN_WORD:
         }
     }
 
+    bool script::equals(const script& that) const
+    {
+        if (m_tokens.size() != that.m_tokens.size())
+        {
+            return false;
+        }
+        for (std::vector<token>::size_type i = 0; i < m_tokens.size(); ++i)
+        {
+            if (m_tokens[i] != that.m_tokens[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     script& script::assign(const script& that)
     {
         m_tokens = that.m_tokens;

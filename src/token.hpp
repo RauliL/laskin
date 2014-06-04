@@ -68,6 +68,24 @@ namespace laskin
             return m_data;
         }
 
+        bool equals(const token& that) const;
+
+        /**
+         * Equality testing operator.
+         */
+        inline bool operator==(const token& that) const
+        {
+            return equals(that);
+        }
+
+        /**
+         * Non-equality testing operator.
+         */
+        inline bool operator!=(const token& that) const
+        {
+            return !equals(that);
+        }
+
         /**
          * Copies contents from another token into this one.
          */
