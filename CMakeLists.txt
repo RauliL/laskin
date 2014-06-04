@@ -9,7 +9,7 @@ ADD_EXECUTABLE(
     src/api-io.cpp
     src/api-list.cpp
     src/api-numbers.cpp
-    src/api-program.cpp
+    src/api-script.cpp
     src/api-stack.cpp
     src/api-string.cpp
     src/api-trigonometry.cpp

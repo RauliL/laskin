@@ -109,7 +109,7 @@ namespace laskin
 
     namespace internal
     {
-        void initialize_program(interpreter* i)
+        void initialize_script(interpreter* i)
         {
             i->register_function("evaluate", "s", func_evaluate);
             i->register_function("execute", "f", func_execute);
