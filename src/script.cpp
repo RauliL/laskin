@@ -14,8 +14,8 @@ namespace laskin
                                const script::const_iterator&);
     static value parse_list_literal(script::const_iterator&,
                                     const script::const_iterator&);
-    static signature parse_function_signature(script::const_iterator&,
-                                              const script::const_iterator&);
+    static signature parse_signature(script::const_iterator&,
+                                     const script::const_iterator&);
     static script parse_block(script::const_iterator&,
                               const script::const_iterator&);
     static void parse_if(interpreter&,
@@ -456,7 +456,7 @@ SCAN_WORD:
                     }
                     if (current < end && current->is(token::type_lparen))
                     {
-                        signature = parse_function_signature(++current, end);
+                        signature = parse_signature(++current, end);
                     }
                     body = parse_block(current, end);
                     if (name.empty())
@@ -641,7 +641,7 @@ SCAN_WORD:
 
                 if (current < end && current->is(token::type_lparen))
                 {
-                    signature = parse_function_signature(++current, end);
+                    signature = parse_signature(++current, end);
                 }
 
                 return function(signature, parse_block(current, end));
@@ -680,8 +680,59 @@ SCAN_WORD:
         return list;
     }
 
-    static signature parse_function_signature(script::const_iterator& current,
-                                              const script::const_iterator& end)
+    static signature::entry parse_signature_entry(const std::string& id)
+    {
+        enum signature::entry::type type;
+
+        if (!id.compare("any"))
+        {
+            type = signature::entry::type_any;
+        }
+        else if (!id.compare("bool"))
+        {
+            type = signature::entry::type_bool;
+        }
+        else if (!id.compare("num"))
+        {
+            type = signature::entry::type_num;
+        }
+        else if (!id.compare("int"))
+        {
+            type = signature::entry::type_int;
+        }
+        else if (!id.compare("real"))
+        {
+            type = signature::entry::type_real;
+        }
+        else if (!id.compare("ratio"))
+        {
+            type = signature::entry::type_ratio;
+        }
+        else if (!id.compare("string"))
+        {
+            type = signature::entry::type_string;
+        }
+        else if (!id.compare("list"))
+        {
+            type = signature::entry::type_list;
+        }
+        else if (!id.compare("function"))
+        {
+            type = signature::entry::type_function;
+        } else {
+            throw error(
+                    error::type_syntax,
+                    "unknown type: `"
+                    + id
+                    + "'"
+            );
+        }
+
+        return signature::entry(type);
+    }
+
+    static signature parse_signature(script::const_iterator& current,
+                                     const script::const_iterator& end)
     {
         std::vector<signature::entry> parameter_types;
         std::vector<signature::entry> return_types;
@@ -695,51 +746,8 @@ SCAN_WORD:
 
                 if (id.compare("--"))
                 {
-                    signature::entry entry;
+                    signature::entry entry = parse_signature_entry(id);
 
-                    if (!id.compare("any"))
-                    {
-                        entry = signature::type_any;
-                    }
-                    else if (!id.compare("bool"))
-                    {
-                        entry = signature::type_bool;
-                    }
-                    else if (!id.compare("num"))
-                    {
-                        entry = signature::type_num;
-                    }
-                    else if (!id.compare("int"))
-                    {
-                        entry = signature::type_int;
-                    }
-                    else if (!id.compare("real"))
-                    {
-                        entry = signature::type_real;
-                    }
-                    else if (!id.compare("ratio"))
-                    {
-                        entry = signature::type_ratio;
-                    }
-                    else if (!id.compare("string"))
-                    {
-                        entry = signature::type_string;
-                    }
-                    else if (!id.compare("list"))
-                    {
-                        entry = signature::type_list;
-                    }
-                    else if (!id.compare("function"))
-                    {
-                        entry = signature::type_function;
-                    } else {
-                        throw error(
-                                error::type_syntax,
-                                "unknown type: `"
-                                + id
-                                + "'"
-                        );
-                    }
                     if (in_parameters)
                     {
                         parameter_types.push_back(entry);

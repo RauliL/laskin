@@ -12,42 +12,42 @@ namespace laskin
     {
         bool in_parameters = true;
 
-        for (auto c : source)
+        for (auto& c : source)
         {
-            enum entry entry;
+            enum entry::type type;
 
             switch (c)
             {
                 case 'b':
-                    entry = type_bool;
+                    type = entry::type_bool;
                     break;
 
                 case 'n':
-                    entry = type_num;
+                    type = entry::type_num;
                     break;
 
                 case 'i':
-                    entry = type_int;
+                    type = entry::type_int;
                     break;
 
                 case 'r':
-                    entry = type_real;
+                    type = entry::type_real;
                     break;
 
                 case 'R':
-                    entry = type_ratio;
+                    type = entry::type_ratio;
                     break;
 
                 case 's':
-                    entry = type_string;
+                    type = entry::type_string;
                     break;
 
                 case 'l':
-                    entry = type_list;
+                    type = entry::type_list;
                     break;
 
                 case 'f':
-                    entry = type_function;
+                    type = entry::type_function;
                     break;
 
                 case ':':
@@ -55,13 +55,13 @@ namespace laskin
                     continue;
 
                 default:
-                    entry = type_any;
+                    type = entry::type_any;
             }
             if (in_parameters)
             {
-                m_parameter_types.push_back(entry);
+                m_parameter_types.push_back(entry(type));
             } else {
-                m_return_types.push_back(entry);
+                m_return_types.push_back(entry(type));
             }
         }
     }
@@ -70,30 +70,40 @@ namespace laskin
         : m_parameter_types(that.m_parameter_types)
         , m_return_types(that.m_return_types) {}
 
-    bool signature::test(const class stack<value>& stack) const
+    signature& signature::assign(const signature& that)
     {
-        if (stack.size() < m_parameter_types.size())
+        m_parameter_types = that.m_parameter_types;
+        m_return_types = that.m_return_types;
+
+        return *this;
+    }
+
+    bool signature::test(const stack<value>& operands) const
+    {
+        if (operands.size() < m_parameter_types.size())
         {
             return false;
         }
-
-        for (std::size_t i = m_parameter_types.size(), j = stack.size(); i > 0; --i, --j)
+        for (std::size_t i = m_parameter_types.size(), j = operands.size();
+             i > 0;
+             --i, --j)
         {
-            const class value value = stack[j - 1];
+            const class value& value = operands[j - 1];
+            const class entry& entry = m_parameter_types[i - 1];
 
-            switch (m_parameter_types[i - 1])
+            switch (entry.type())
             {
-                case type_any:
+                case entry::type_any:
                     break;
 
-                case type_bool:
+                case entry::type_bool:
                     if (!value.is(value::type_bool))
                     {
                         return false;
                     }
                     break;
 
-                case type_num:
+                case entry::type_num:
                     if (!value.is(value::type_int)
                         && !value.is(value::type_real)
                         && !value.is(value::type_ratio))
@@ -102,42 +112,42 @@ namespace laskin
                     }
                     break;
 
-                case type_int:
+                case entry::type_int:
                     if (!value.is(value::type_int))
                     {
                         return false;
                     }
                     break;
 
-                case type_real:
+                case entry::type_real:
                     if (!value.is(value::type_real))
                     {
                         return false;
                     }
                     break;
 
-                case type_ratio:
+                case entry::type_ratio:
                     if (!value.is(value::type_ratio))
                     {
                         return false;
                     }
                     break;
 
-                case type_string:
+                case entry::type_string:
                     if (!value.is(value::type_string))
                     {
                         return false;
                     }
                     break;
 
-                case type_list:
+                case entry::type_list:
                     if (!value.is(value::type_list))
                     {
                         return false;
                     }
                     break;
 
-                case type_function:
+                case entry::type_function:
                     if (!value.is(value::type_function))
                     {
                         return false;
@@ -148,14 +158,6 @@ namespace laskin
         return true;
     }
 
-    signature& signature::assign(const signature& that)
-    {
-        m_parameter_types = that.m_parameter_types;
-        m_return_types = that.m_return_types;
-
-        return *this;
-    }
-
     bool signature::equals(const signature& that) const
     {
         if (m_parameter_types.size() != that.m_parameter_types.size())
@@ -164,16 +166,36 @@ namespace laskin
         }
         for (std::vector<entry>::size_type i = 0; i < m_parameter_types.size(); ++i)
         {
-            const entry a = m_parameter_types[i];
-            const entry b = that.m_parameter_types[i];
+            const entry& a = m_parameter_types[i];
+            const entry& b = that.m_parameter_types[i];
 
-            if (a != type_any && b != type_any && a != b)
+            if (a != b)
             {
                 return false;
             }
         }
 
         return true;
+    }
+
+    signature::entry::entry(enum type type)
+        : m_type(type) {}
+
+    signature::entry::entry(const entry& that)
+        : m_type(that.m_type) {}
+
+    bool signature::entry::equals(const entry& that) const
+    {
+        return m_type == type_any
+            || that.m_type == type_any
+            || m_type == that.m_type;
+    }
+
+    signature::entry& signature::entry::assign(const entry& that)
+    {
+        m_type = that.m_type;
+
+        return *this;
     }
 
     std::ostream& operator<<(std::ostream& os, const class signature& signature)
@@ -210,39 +232,44 @@ namespace laskin
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, signature::entry entry)
+    std::ostream& operator<<(std::ostream& os, const signature::entry& entry)
     {
-        switch (entry)
+        return os << entry.type();
+    }
+
+    std::ostream& operator<<(std::ostream& os, enum signature::entry::type type)
+    {
+        switch (type)
         {
-            case signature::type_any:
+            case signature::entry::type_any:
                 os << "any";
                 break;
 
-            case signature::type_bool:
+            case signature::entry::type_bool:
                 os << "bool";
                 break;
 
-            case signature::type_num:
+            case signature::entry::type_num:
                 os << "num";
                 break;
 
-            case signature::type_int:
+            case signature::entry::type_int:
                 os << "int";
                 break;
 
-            case signature::type_real:
+            case signature::entry::type_real:
                 os << "real";
                 break;
 
-            case signature::type_ratio:
+            case signature::entry::type_ratio:
                 os << "ratio";
                 break;
 
-            case signature::type_string:
+            case signature::entry::type_string:
                 os << "string";
                 break;
 
-            case signature::type_list:
+            case signature::entry::type_list:
                 os << "list";
                 break;
 

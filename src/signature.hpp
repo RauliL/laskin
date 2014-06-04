@@ -10,17 +10,66 @@ namespace laskin
     class signature
     {
     public:
-        enum entry
+        class entry
         {
-            type_any,
-            type_bool,
-            type_num,
-            type_int,
-            type_real,
-            type_ratio,
-            type_string,
-            type_list,
-            type_function
+        public:
+            enum type
+            {
+                type_any,
+                type_bool,
+                type_num,
+                type_int,
+                type_real,
+                type_ratio,
+                type_string,
+                type_list,
+                type_function
+            };
+
+            explicit entry(enum type type = type_any);
+
+            entry(const entry& that);
+
+            /**
+             * Returns type of the entry.
+             */
+            inline enum type type() const
+            {
+                return m_type;
+            }
+
+            /**
+             * Tests whether entry is specified type.
+             */
+            inline bool is(enum type type) const
+            {
+                return m_type == type;
+            }
+
+            bool equals(const entry& that) const;
+
+            inline bool operator==(const entry& that) const
+            {
+                return equals(that);
+            }
+
+            inline bool operator!=(const entry& that) const
+            {
+                return !equals(that);
+            }
+
+            entry& assign(const entry& that);
+
+            /**
+             * Assignment operator.
+             */
+            inline entry& operator=(const entry& that)
+            {
+                return assign(that);
+            }
+
+        private:
+            enum type m_type;
         };
 
         /**
@@ -49,7 +98,7 @@ namespace laskin
             return m_return_types;
         }
 
-        bool test(const class stack<value>& stack) const;
+        bool test(const stack<value>& operands) const;
 
         signature& assign(const signature& that);
 
@@ -85,7 +134,8 @@ namespace laskin
     };
 
     std::ostream& operator<<(std::ostream&, const signature&);
-    std::ostream& operator<<(std::ostream&, signature::entry);
+    std::ostream& operator<<(std::ostream&, const signature::entry&);
+    std::ostream& operator<<(std::ostream&, enum signature::entry::type);
 }
 
 #endif /* !LASKIN_SIGNATURE_HPP_GUARD */
