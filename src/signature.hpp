@@ -28,7 +28,11 @@ namespace laskin
 
             explicit entry(enum type type = type_any);
 
+            explicit entry(const class signature& signature);
+
             entry(const entry& that);
+
+            virtual ~entry();
 
             /**
              * Returns type of the entry.
@@ -45,6 +49,8 @@ namespace laskin
             {
                 return m_type == type;
             }
+
+            bool test(const class value& value) const;
 
             bool equals(const entry& that) const;
 
@@ -70,6 +76,7 @@ namespace laskin
 
         private:
             enum type m_type;
+            signature* m_signature;
         };
 
         /**
@@ -81,12 +88,12 @@ namespace laskin
                 const std::vector<entry>& return_types = std::vector<entry>()
         );
 
-        explicit signature(const std::string& source);
-
         /**
          * Copy constructor.
          */
         signature(const signature& that);
+
+        static signature parse(const std::string& source);
 
         inline const std::vector<entry>& parameter_types() const
         {

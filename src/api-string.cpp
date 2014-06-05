@@ -387,8 +387,8 @@ namespace laskin
             i->register_function("reverse", "s:s", func_reverse);
 
             // Traversal functions.
-            i->register_function("each-line", "sf", func_each_line);
-            i->register_function("each-word", "sf", func_each_word);
+            i->register_function("each-line", "sf(s)", func_each_line);
+            i->register_function("each-word", "sf(s)", func_each_word);
 
             i->register_function("+", "ss:s", func_add);
             i->register_function("@", "si:i", func_at);

@@ -102,7 +102,7 @@ namespace laskin
                                         const std::string& sig,
                                         function::callback callback)
     {
-        register_function(name, signature(sig), callback);
+        register_function(name, signature::parse(sig), callback);
     }
 
     void interpreter::register_function(const std::string& name,

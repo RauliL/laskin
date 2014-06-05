@@ -185,7 +185,7 @@ namespace laskin
             i->register_function("empty?", "l:b", func_is_empty);
 
             // Traversing functions.
-            i->register_function("each", "lf", func_each);
+            i->register_function("each", "lf(?)", func_each);
 
             // Manipulation functions.
             i->register_function("reverse", "l:l", func_reverse);
