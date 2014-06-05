@@ -56,7 +56,7 @@ namespace laskin
     script::script(const script& that)
         : m_tokens(that.m_tokens) {}
 
-    script script::scan(std::istream& is)
+    script script::compile(std::istream& is)
         throw(error)
     {
         std::vector<token> tokens;

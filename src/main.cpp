@@ -53,7 +53,7 @@ int main(int argc, char** argv)
                     {
                         locals.clear();
                     }
-                    script::scan(is).execute(
+                    script::compile(is).execute(
                             interpreter,
                             data,
                             locals,
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
                     source.clear();
                     try
                     {
-                        script::scan(ss).execute(
+                        script::compile(ss).execute(
                                 interpreter,
                                 data,
                                 locals,
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
     } else {
         try
         {
-            script::scan(std::cin).execute(
+            script::compile(std::cin).execute(
                     interpreter,
                     data,
                     locals,

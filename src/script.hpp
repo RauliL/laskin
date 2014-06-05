@@ -20,7 +20,7 @@ namespace laskin
 
         script(const script& that);
 
-        static script scan(std::istream& is)
+        static script compile(std::istream& is)
             throw(error);
 
         /**
