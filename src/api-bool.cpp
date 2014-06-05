@@ -70,6 +70,19 @@ namespace laskin
         stack.back() = !stack.back().as_bool();
     }
 
+    /**
+     * ?(bool any any : any)
+     *
+     * Chooses between two values depending on the boolean value.
+     */
+    BUILT_IN_FUNCTION(func_choose)
+    {
+        value a, b, c;
+
+        stack >> c >> b >> a;
+        stack.push(a.as_bool() ? b : c);
+    }
+
     namespace internal
     {
         void initialize_bool(interpreter* i)
@@ -81,6 +94,8 @@ namespace laskin
             i->register_function("or", "bb:b", func_or);
             i->register_function("xor", "bb:b", func_xor);
             i->register_function("not", "b:b", func_not);
+
+            i->register_function("?", "b??:?", func_choose);
         }
     }
 }
