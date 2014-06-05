@@ -174,6 +174,131 @@ namespace laskin
     }
 
     /**
+     * each-line(string function)
+     *
+     * Traverses over each line in the string and passes them to the given
+     * function.
+     */
+    BUILT_IN_FUNCTION(func_each_line)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+        const std::string& s = a.as_string();
+        const class function& function = b.as_function();
+        std::string::size_type begin = 0;
+        std::string::size_type end = 0;
+
+        stack.pop();
+        stack.pop();
+        for (std::string::size_type i = 0; i < s.length();)
+        {
+            if (i + 1 < s.length() && s[i] == '\n' && s[i + 1] == '\r')
+            {
+                hashmap<value> locals(local_variables);
+
+                stack.push(s.substr(begin, end - begin));
+                if (!function.signature().test(stack))
+                {
+                    throw error(
+                            error::type_type,
+                            "function signature mismatch"
+                    );
+                }
+                function.invoke(interpreter, stack, locals, in, out);
+                begin = end = i += 2;
+            }
+            else if (s[i] == '\n' || s[i] == '\r')
+            {
+                hashmap<value> locals(local_variables);
+
+                stack.push(s.substr(begin, end - begin));
+                if (!function.signature().test(stack))
+                {
+                    throw error(
+                            error::type_type,
+                            "function signature mismatch"
+                    );
+                }
+                function.invoke(interpreter, stack, locals, in, out);
+                begin = end = ++i;
+            } else {
+                ++end;
+                ++i;
+            }
+        }
+        if (end - begin > 0)
+        {
+            hashmap<value> locals(local_variables);
+
+            stack.push(s.substr(begin, end - begin));
+            if (!function.signature().test(stack))
+            {
+                throw error(
+                        error::type_type,
+                        "function signature mismatch"
+                );
+            }
+            function.invoke(interpreter, stack, locals, in, out);
+        }
+    }
+
+    /**
+     * each-word(string function)
+     *
+     * Traverses over each whitespace separated word in the string and passes
+     * them to the given function.
+     */
+    BUILT_IN_FUNCTION(func_each_word)
+    {
+        const value a = stack[stack.size() - 2];
+        const value b = stack[stack.size() - 1];
+        const std::string& s = a.as_string();
+        const class function& function = b.as_function();
+        std::string::size_type begin = 0;
+        std::string::size_type end = 0;
+
+        stack.pop();
+        stack.pop();
+        for (std::string::size_type i = 0; i < s.length(); ++i)
+        {
+            if (std::isspace(s[i]))
+            {
+                if (end - begin > 0)
+                {
+                    hashmap<value> locals(local_variables);
+
+                    stack.push(s.substr(begin, end - begin));
+                    if (!function.signature().test(stack))
+                    {
+                        throw error(
+                                error::type_type,
+                                "function signature mismatch"
+                        );
+                    }
+                    function.invoke(interpreter, stack, locals, in, out);
+                }
+                begin = end = i + 1;
+            } else {
+                ++end;
+            }
+        }
+        if (end - begin > 0)
+        {
+            hashmap<value> locals(local_variables);
+
+            stack.push(s.substr(begin, end - begin));
+            if (!function.signature().test(stack))
+            {
+                throw error(
+                        error::type_type,
+                        "function signature mismatch"
+                );
+            }
+            function.invoke(interpreter, stack, locals, in, out);
+        }
+    }
+
+    /**
      * +(string string -- string)
      *
      * Concatenates two strings into one.
@@ -260,6 +385,10 @@ namespace laskin
             i->register_function("lower", "s:s", func_lower);
             i->register_function("upper", "s:s", func_upper);
             i->register_function("reverse", "s:s", func_reverse);
+
+            // Traversal functions.
+            i->register_function("each-line", "sf", func_each_line);
+            i->register_function("each-word", "sf", func_each_word);
 
             i->register_function("+", "ss:s", func_add);
             i->register_function("@", "si:i", func_at);
