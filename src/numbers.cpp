@@ -46,7 +46,7 @@ namespace laskin
         } else {
             char buffer[256];
 
-            std::snprintf(buffer, sizeof(buffer), "%.17f", number);
+            std::snprintf(buffer, sizeof(buffer), "%.17g", number);
 
             return buffer;
         }
