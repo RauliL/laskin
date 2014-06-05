@@ -5,30 +5,34 @@
 #include <sstream>
 #include <unistd.h>
 
-static void repl_peek(laskin::interpreter&, laskin::stack<laskin::value>&);
-static void repl_quit(laskin::interpreter&, laskin::stack<laskin::value>&);
-static void repl_stack(laskin::interpreter&, laskin::stack<laskin::value>&);
+using namespace laskin;
 
-struct repl_command
+static void count_open_braces(stack<char>&, const std::string&);
+
+static void cmd_peek(interpreter&, stack<value>&);
+static void cmd_quit(interpreter&, stack<value>&);
+static void cmd_stack(interpreter&, stack<value>&);
+
+struct cli_command
 {
     const char* name;
     const char* name_shortcut;
-    void (*callback)(laskin::interpreter&, laskin::stack<laskin::value>&);
+    void (*callback)(interpreter&, stack<laskin::value>&);
 };
 
-static const repl_command repl_command_list[] =
+static const cli_command cli_command_list[] =
 {
-    {"peek", "p", repl_peek},
-    {"quit", "q", repl_quit},
-    {"stack", "s", repl_stack},
+    {"peek", "p", cmd_peek},
+    {"quit", "q", cmd_quit},
+    {"stack", "s", cmd_stack},
     {0, 0, 0}
 };
 
 int main(int argc, char** argv)
 {
-    laskin::interpreter interpreter;
-    laskin::stack<laskin::value> data;
-    laskin::hashmap<laskin::value> locals;
+    class interpreter interpreter;
+    stack<value> data;
+    hashmap<value> locals;
 
     interpreter.initialize();
     if (argc > 1)
@@ -49,7 +53,7 @@ int main(int argc, char** argv)
                     {
                         locals.clear();
                     }
-                    laskin::script::scan(is).execute(
+                    script::scan(is).execute(
                             interpreter,
                             data,
                             locals,
@@ -57,10 +61,10 @@ int main(int argc, char** argv)
                             std::cout
                     );
                 }
-                catch (laskin::error& e)
+                catch (error& e)
                 {
                     is.close();
-                    if (e.is(laskin::error::type_exit))
+                    if (e.is(error::type_exit))
                     {
                         std::exit(EXIT_SUCCESS);
                     } else {
@@ -80,14 +84,16 @@ int main(int argc, char** argv)
     }
     else if (isatty(fileno(stdin)))
     {
-        unsigned int line_counter = 1;
-        std::string line;
-        std::stringstream ss;
+        int line_counter = 0;
+        std::string source;
+        stack<char> open_braces;
 
-        do
+        while (std::cin.good())
         {
+            std::string line;
+
             std::cout << "laskin:"
-                      << line_counter++
+                      << ++line_counter
                       << ":"
                       << data.size()
                       << "> ";
@@ -104,13 +110,13 @@ int main(int argc, char** argv)
                 bool found = false;
 
                 line = line.substr(1);
-                for (int i = 0; repl_command_list[i].name; ++i)
+                for (int i = 0; cli_command_list[i].name; ++i)
                 {
-                    if (!line.compare(repl_command_list[i].name)
-                        || !line.compare(repl_command_list[i].name_shortcut))
+                    if (!line.compare(cli_command_list[i].name)
+                        || !line.compare(cli_command_list[i].name_shortcut))
                     {
                         found = true;
-                        repl_command_list[i].callback(interpreter, data);
+                        cli_command_list[i].callback(interpreter, data);
                         break;
                     }
                 }
@@ -119,33 +125,40 @@ int main(int argc, char** argv)
                     std::cout << "unrecognized command" << std::endl;
                 }
             } else {
-                ss.str(line);
-                try
+                count_open_braces(open_braces, line);
+                source.append(line).append(1, '\n');
+                if (open_braces.empty())
                 {
-                    laskin::script::scan(ss).execute(
-                            interpreter,
-                            data,
-                            locals,
-                            std::cin,
-                            std::cout
-                    );
-                }
-                catch (laskin::error& e)
-                {
-                    if (e.is(laskin::error::type_exit))
+                    std::stringstream ss;
+
+                    ss.str(source);
+                    source.clear();
+                    try
                     {
-                        std::exit(EXIT_SUCCESS);
-                    } else {
-                        std::cout << "error: " << e.message() << std::endl;
+                        script::scan(ss).execute(
+                                interpreter,
+                                data,
+                                locals,
+                                std::cin,
+                                std::cout
+                        );
+                    }
+                    catch (error& e)
+                    {
+                        if (e.is(error::type_exit))
+                        {
+                            std::exit(EXIT_SUCCESS);
+                        } else {
+                            std::cout << "error: " << e.message() << std::endl;
+                        }
                     }
                 }
             }
         }
-        while (std::cin.good());
     } else {
         try
         {
-            laskin::script::scan(std::cin).execute(
+            script::scan(std::cin).execute(
                     interpreter,
                     data,
                     locals,
@@ -153,9 +166,9 @@ int main(int argc, char** argv)
                     std::cout
             );
         }
-        catch (laskin::error& e)
+        catch (error& e)
         {
-            if (!e.is(laskin::error::type_exit))
+            if (!e.is(error::type_exit))
             {
                 std::cerr << "error: " << e.message() << std::endl;
                 std::exit(EXIT_FAILURE);
@@ -166,33 +179,83 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-static void repl_peek(laskin::interpreter& interpreter,
-                      laskin::stack<laskin::value>& stack)
+static void count_open_braces(stack<char>& open_braces, const std::string& s)
 {
-    if (stack.empty())
+    for (std::string::size_type i = 0; i < s.length(); ++i)
     {
-        std::cout << "stack is empty" << std::endl;
-    } else {
-        std::cout << stack[stack.size() - 1] << std::endl;
+        switch (s[i])
+        {
+            case '#':
+                return;
+
+            case '(':
+                open_braces.push(')');
+                break;
+
+            case '[':
+                open_braces.push(']');
+                break;
+
+            case '{':
+                open_braces.push('}');
+                break;
+
+            case ')':
+            case ']':
+            case '}':
+                if (!open_braces.empty() && open_braces.back() == s[i])
+                {
+                    open_braces.pop();
+                }
+                break;
+
+            case '"':
+            case '\'':
+            {
+                const char separator = s[i++];
+
+                while (i < s.length())
+                {
+                    if (s[i] == separator)
+                    {
+                        break;
+                    }
+                    else if (s[i] == '\\' && i + 1 < s.length())
+                    {
+                        i += 2;
+                    } else {
+                        ++i;
+                    }
+                }
+            }
+        }
     }
 }
 
-static void repl_quit(laskin::interpreter& interpreter,
-                      laskin::stack<laskin::value>& stack)
+static void cmd_peek(class interpreter& interpreter, stack<value>& data)
+{
+    if (data.empty())
+    {
+        std::cout << "stack is empty" << std::endl;
+    } else {
+        std::cout << data.back() << std::endl;
+    }
+}
+
+static void cmd_quit(class interpreter& interpreter, stack<value>& data)
 {
     std::exit(EXIT_SUCCESS);
 }
 
-static void repl_stack(laskin::interpreter& interpreter,
-                       laskin::stack<laskin::value>& stack)
+static void cmd_stack(class interpreter& interpreter, stack<value>& data)
 {
-    for (laskin::stack<laskin::value>::size_type i = 0; i < stack.size(); ++i)
+    for (stack<value>::size_type i = 0; i < data.size(); ++i)
     {
         if (i > 0)
         {
             std::cout << ' ';
         }
-        std::cout << stack[i];
+        std::cout << data[i];
     }
     std::cout << std::endl;
 }
