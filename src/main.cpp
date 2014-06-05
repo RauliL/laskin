@@ -186,13 +186,13 @@ static void repl_quit(laskin::interpreter& interpreter,
 static void repl_stack(laskin::interpreter& interpreter,
                        laskin::stack<laskin::value>& stack)
 {
-    for (std::size_t i = stack.size(); i > 0; --i)
+    for (laskin::stack<laskin::value>::size_type i = 0; i < stack.size(); ++i)
     {
-        if (i != stack.size())
+        if (i > 0)
         {
             std::cout << ' ';
         }
-        std::cout << stack[i - 1];
+        std::cout << stack[i];
     }
     std::cout << std::endl;
 }
