@@ -44,9 +44,9 @@ namespace laskin
         {
             return "nan";
         } else {
-            char buffer[20];
+            char buffer[256];
 
-            std::snprintf(buffer, sizeof(buffer), "%g", number);
+            std::snprintf(buffer, sizeof(buffer), "%.17f", number);
 
             return buffer;
         }
