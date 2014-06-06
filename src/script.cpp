@@ -10,6 +10,13 @@ namespace laskin
     static inline bool isword(char);
     static inline token str_to_word(const std::string&);
 
+    static token scan_number(stream_iterator&,
+                             const stream_iterator&,
+                             bool);
+    static token scan_number_from_zero(stream_iterator&,
+                                       const stream_iterator&,
+                                       bool);
+
     static value parse_literal(script::const_iterator&,
                                const script::const_iterator&);
     static value parse_list_literal(script::const_iterator&,
@@ -64,15 +71,13 @@ namespace laskin
 
         for (stream_iterator current(is), end; current != end;)
         {
-            char c = *current++;
-
-            switch (c)
+            switch (*current)
             {
                 // Skip comments.
                 case '#':
-                    while (current != end)
+                    while (++current != end)
                     {
-                        if (*current++ == '\n')
+                        if (*current == '\n')
                         {
                             break;
                         }
@@ -84,6 +89,7 @@ namespace laskin
                 case '\t':
                 case '\r':
                 case '\n':
+                    ++current;
                     break;
 
                 // Various separators.
@@ -91,6 +97,9 @@ namespace laskin
                 case '[': case ']':
                 case '{': case '}':
                 case ':':
+                {
+                    const char c = *current++;
+
                     tokens.push_back(token(
                                 c == '(' ? token::type_lparen :
                                 c == ')' ? token::type_rparen :
@@ -101,162 +110,33 @@ namespace laskin
                                 token::type_colon
                     ));
                     break;
+                }
 
                 // Parse numbers from zero.
                 case '0':
-                    buffer.assign(1, '0');
-                    if (current != end)
-                    {
-SCAN_NUMBER_FROM_ZERO:
-                        switch (c = *current++)
-                        {
-                            case 'b': case 'B':
-                                buffer.append(1, c);
-                                while (current != end && std::isdigit(*current))
-                                {
-                                    if ((c = *current++) != '0' && c != '1')
-                                    {
-                                        throw error(
-                                                error::type_syntax,
-                                                "invalid binary digit"
-                                        );
-                                    }
-                                    buffer.append(1, c);
-                                }
-                                break;
-
-                            case 'x': case 'X':
-                                buffer.append(1, 'x');
-                                while (current != end && std::isxdigit(*current))
-                                {
-                                    buffer.append(1, *current++);
-                                }
-                                break;
-
-                            case 'o': case 'O':
-                            case '0': case '1':
-                            case '2': case '3':
-                            case '4': case '5':
-                            case '6': case '7':
-                                buffer.append(1, c);
-                                while (current != end && std::isdigit(*current))
-                                {
-                                    if ((c = *current++) > '7')
-                                    {
-                                        throw error(
-                                                error::type_syntax,
-                                                "invalid octal digit"
-                                        );
-                                    }
-                                    buffer.append(1, c);
-                                }
-                                break;
-
-                            case '8': case '9':
-                                throw error(
-                                        error::type_syntax,
-                                        "invalid octal digit"
-                                );
-
-                            case 'e': case 'E':
-                                goto SCAN_EXPONENT;
-
-                            case '.':
-                                goto SCAN_REAL;
-                        }
-                    }
-                    tokens.push_back(token(token::type_int, buffer));
+                    tokens.push_back(scan_number_from_zero(++current, end, true));
                     break;
 
                 // Parse numbers.
                 case '1': case '2': case '3':
                 case '4': case '5': case '6':
                 case '7': case '8': case '9':
-                    buffer.assign(1, c);
-SCAN_NUMBER:
-                    while (current != end && std::isdigit(*current))
-                    {
-                        buffer.append(1, *current++);
-                    }
-                    if (current != end && *current == '.')
-                    {
-                        ++current;
-SCAN_REAL:
-                        buffer.append(1, '.');
-                        if (current == end || !std::isdigit(*current))
-                        {
-                            throw error(
-                                    error::type_syntax,
-                                    "missing digits after `.'"
-                            );
-                        }
-                        do
-                        {
-                            buffer.append(1, *current++);
-                        }
-                        while (current != end && std::isdigit(*current));
-                        if (current != end && (*current == 'e' || *current == 'E'))
-                        {
-                            ++current;
-SCAN_EXPONENT:
-                            buffer.append(1, 'e');
-                            if (current != end && (*current == '+' || *current == '-'))
-                            {
-                                buffer.append(1, *current++);
-                            }
-                            if (current == end || !std::isdigit(*current))
-                            {
-                                throw error(
-                                        error::type_syntax,
-                                        "missing exponent"
-                                );
-                            }
-                            do
-                            {
-                                buffer.append(1, *current++);
-                            }
-                            while (current != end && std::isdigit(*current));
-                        }
-                        tokens.push_back(token(token::type_real, buffer));
-                    }
-                    else if (current != end && (*current == 'e' || *current == 'E'))
-                    {
-                        ++current;
-                        goto SCAN_EXPONENT;
-                    }
-                    // Rational numbers.
-                    else if (current != end && *current == '/')
-                    {
-                        buffer.append(1, *current++);
-                        if (current == end || !std::isdigit(*current))
-                        {
-                            throw error(
-                                    error::type_syntax,
-                                    "rational number is missing denominator"
-                            );
-                        }
-                        do
-                        {
-                            buffer.append(1, *current++);
-                        }
-                        while (current != end && std::isdigit(*current));
-                        tokens.push_back(token(token::type_ratio, buffer));
-                    } else {
-                        tokens.push_back(token(token::type_int, buffer));
-                    }
+                    tokens.push_back(scan_number(current, end, true));
                     break;
 
                 // Parse string literals.
                 case '"':
                 case '\'':
                 {
-                    const char separator = c;
+                    const char separator = *current++;
 
                     buffer.clear();
                     while (current != end && *current != separator)
                     {
                         if (*current == '\\')
                         {
+                            char c;
+
                             if (++current == end)
                             {
                                 throw error(
@@ -316,25 +196,26 @@ SCAN_EXPONENT:
 
                 case '-':
                 case '+':
-                    buffer.assign(1, c);
+                    buffer.assign(1, *current++);
                     if (current != end)
                     {
                         if (*current == '0')
                         {
-                            buffer.append(1, *current++);
-                            goto SCAN_NUMBER_FROM_ZERO;
+                            tokens.push_back(scan_number_from_zero(++current, end, buffer[0] == '+'));
+                            break;
                         }
                         else if (std::isdigit(*current))
                         {
-                            goto SCAN_NUMBER;
+                            tokens.push_back(scan_number(++current, end, buffer[0] == '+'));
+                            break;
                         }
                     }
                     goto SCAN_WORD;
 
                 default:
-                    if (isword(c))
+                    if (isword(*current))
                     {
-                        buffer.assign(1, c);
+                        buffer.assign(1, *current++);
 SCAN_WORD:
                         while (current != end && isword(*current))
                         {
@@ -592,6 +473,205 @@ SCAN_WORD:
         }
 
         return token(token::type_word, s);
+    }
+
+    static token scan_exponent(std::string& buffer,
+                               stream_iterator& current,
+                               const stream_iterator& end)
+    {
+        buffer.append(1, 'e');
+        if (current != end && (*current == '+' || *current == '-'))
+        {
+            buffer.append(1, *current++);
+        }
+        if (current == end || !std::isdigit(*current))
+        {
+            throw error(error::type_syntax, "missing exponent");
+        }
+        do
+        {
+            char c = *current++;
+
+            if (c != '_')
+            {
+                buffer.append(1, c);
+            }
+        }
+        while (current != end && (std::isdigit(*current) || *current == '_'));
+
+        return token(token::type_real, buffer);
+    }
+
+    static token scan_real(std::string& buffer,
+                           stream_iterator& current,
+                           const stream_iterator& end)
+    {
+        buffer.append(1, '.');
+        if (current == end || !std::isdigit(*current))
+        {
+            throw error(error::type_syntax, "missing decimals after `.'");
+        }
+        do
+        {
+            char c = *current++;
+
+            if (c != '_')
+            {
+                buffer.append(1, c);
+            }
+        }
+        while (current != end && (std::isdigit(*current) || *current == '_'));
+        if (current != end && (*current == 'e' || *current == 'E'))
+        {
+            return scan_exponent(buffer, ++current, end);
+        }
+
+        return token(token::type_real, buffer);
+    }
+
+    static token scan_number(stream_iterator& current,
+                             const stream_iterator& end,
+                             bool sign)
+    {
+        std::string buffer;
+
+        if (!sign)
+        {
+            buffer.append(1, '-');
+        }
+        while (current != end && (std::isdigit(*current) || *current == '_'))
+        {
+            char c = *current++;
+
+            if (c != '_')
+            {
+                buffer.append(1, c);
+            }
+        }
+        if (current != end)
+        {
+            if (*current == '.')
+            {
+                return scan_real(buffer, ++current, end);
+            }
+            else if (*current == 'e' || *current == 'E')
+            {
+                return scan_exponent(buffer, ++current, end);
+            }
+            // Rational numbers.
+            else if (*current == '/')
+            {
+                buffer.append(1, '/');
+                ++current;
+                if (current == end || !std::isdigit(*current))
+                {
+                    throw error(
+                            error::type_syntax,
+                            "rational number is missing denominator"
+                    );
+                }
+                do
+                {
+                    char c = *current++;
+
+                    if (c != '_')
+                    {
+                        buffer.append(1, c);
+                    }
+                }
+                while (current != end && (std::isdigit(*current) || *current == '_'));
+
+                return token(token::type_ratio, buffer);
+            }
+        }
+
+        return token(token::type_int, buffer);
+    }
+
+    static token scan_number_from_zero(stream_iterator& current,
+                                       const stream_iterator& end,
+                                       bool sign)
+    {
+        std::string buffer;
+
+        if (!sign)
+        {
+            buffer.append(1, '-');
+        }
+        buffer.append(1, '0');
+        if (current != end)
+        {
+            char c = *current++;
+
+            switch (c)
+            {
+                case 'b': case 'B':
+                    buffer.append(1, 'b');
+                    if (current == end)
+                    {
+                        throw error(error::type_syntax, "missing digits");
+                    }
+                    while (current != end && (std::isdigit(*current) || *current == '_'))
+                    {
+                        if ((c = *current++) == '_')
+                        {
+                            continue;
+                        }
+                        else if (c != '0' && c != '1')
+                        {
+                            throw error(error::type_syntax, "invalid binary digit");
+                        }
+                        buffer.append(1, c);
+                    }
+                    break;
+
+                case 'x': case 'X':
+                    buffer.append(1, 'x');
+                    if (current == end)
+                    {
+                        throw error(error::type_syntax, "missing digits");
+                    }
+                    while (current != end && (std::isxdigit(*current) || *current == '_'))
+                    {
+                        if ((c = *current++) != '_')
+                        {
+                            buffer.append(1, c);
+                        }
+                    }
+                    break;
+
+                case 'o': case 'O':
+                case '0': case '1':
+                case '2': case '3':
+                case '4': case '5':
+                case '6': case '7':
+                    buffer.append(1, c);
+                    while (current != end && (std::isdigit(*current) || *current == '_'))
+                    {
+                        if ((c = *current) == '_')
+                        {
+                            continue;
+                        }
+                        else if (c > '7')
+                        {
+                            throw error(error::type_syntax, "invalid octal digit");
+                        }
+                        buffer.append(1, c);
+                    }
+                    break;
+
+                case '8': case '9':
+                    throw error(error::type_syntax, "invalid octal digit");
+
+                case 'e': case 'E':
+                    return scan_exponent(buffer, current, end);
+
+                case '.':
+                    return scan_real(buffer, current, end);
+            }
+        }
+
+        return token(token::type_int, buffer);
     }
 
     static value parse_literal(script::const_iterator& current,
