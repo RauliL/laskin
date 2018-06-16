@@ -35,14 +35,18 @@ namespace laskin
 
   namespace api
   {
+    extern "C" const context::dictionary_definition number;
     extern "C" const context::dictionary_definition quote;
     extern "C" const context::dictionary_definition utils;
+    extern "C" const context::dictionary_definition vector;
   }
 
   context::context()
   {
     initialize_dictionary(m_dictionary, api::utils);
+    initialize_dictionary(m_dictionary, api::number);
     initialize_dictionary(m_dictionary, api::quote);
+    initialize_dictionary(m_dictionary, api::vector);
   }
 
   context::context(const context& that)

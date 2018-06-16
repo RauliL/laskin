@@ -45,8 +45,10 @@ SET(
   src/parser.cpp
   src/quote.cpp
   src/value.cpp
+  src/api/number.cpp
   src/api/quote.cpp
   src/api/utils.cpp
+  src/api/vector.cpp
 )
 
 ADD_EXECUTABLE(

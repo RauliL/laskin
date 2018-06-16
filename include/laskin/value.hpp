@@ -146,6 +146,41 @@ namespace laskin
      */
     std::u32string to_source() const;
 
+    /**
+     * Compares two values against each other.
+     */
+    int compare(const value& that) const;
+
+    inline bool operator==(const value& that) const
+    {
+      return compare(that) == 0;
+    }
+
+    inline bool operator!=(const value& that) const
+    {
+      return compare(that) != 0;
+    }
+
+    inline bool operator<(const value& that) const
+    {
+      return compare(that) < 0;
+    }
+
+    inline bool operator>(const value& that) const
+    {
+      return compare(that) > 0;
+    }
+
+    inline bool operator<=(const value& that) const
+    {
+      return compare(that) <= 0;
+    }
+
+    inline bool operator>=(const value& that) const
+    {
+      return compare(that) >= 0;
+    }
+
   private:
     /** Type of the value. */
     enum type m_type;

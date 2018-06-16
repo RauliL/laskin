@@ -370,6 +370,33 @@ namespace laskin
     }
   }
 
+  static inline int compare_number(const mpf_class& a, const mpf_class& b)
+  {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
+  int value::compare(const value& that) const
+  {
+    if (!that.is(m_type))
+    {
+      throw error(
+        error::type_type,
+        U"Cannot compare " +
+        type_description(m_type) +
+        U" with " +
+        type_description(that.m_type)
+      );
+    }
+
+    switch (m_type)
+    {
+      case type_number:
+        return compare_number(*m_value_number, *that.m_value_number);
+    }
+
+    return 0; // TODO
+  }
+
   std::ostream& operator<<(std::ostream& out, enum value::type type)
   {
     out << peelo::unicode::utf8::encode(value::type_description(type));
