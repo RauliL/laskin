@@ -213,7 +213,7 @@ namespace laskin
 
   std::u32string node::definition::to_source() const
   {
-    return U"<- " + m_id;
+    return U"-> " + m_id;
   }
 
   static bool isnumeric(const std::u32string& input)

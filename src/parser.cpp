@@ -315,7 +315,7 @@ namespace laskin
         }
         while (peek(issymbol));
 
-        if (!buffer.compare(U"<-"))
+        if (!buffer.compare(U"->"))
         {
           const auto symbol = parse_symbol();
 
