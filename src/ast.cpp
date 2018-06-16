@@ -23,12 +23,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode.hpp>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
 namespace laskin
 {
+  static bool isnumeric(const std::u32string&);
+
   node::node(int line, int column)
     : m_line(line)
     , m_column(column) {}
@@ -144,7 +148,13 @@ namespace laskin
       }
     }
 
-    // TODO: Attempt to parse identifier as number.
+    if (isnumeric(m_id))
+    {
+      data.push_back(value::make_number(mpf_class(
+        peelo::unicode::utf8::encode(m_id)
+      )));
+      return;
+    }
 
     throw error(
       error::type_name,
@@ -164,8 +174,10 @@ namespace laskin
     {
       return value::make_boolean(false);
     }
-
-    // TODO: Attempt to parse identifier as number.
+    else if (isnumeric(m_id))
+    {
+      return value::make_number(mpf_class(peelo::unicode::utf8::encode(m_id)));
+    }
 
     throw error(
       error::type_name,
@@ -202,5 +214,46 @@ namespace laskin
   std::u32string node::definition::to_source() const
   {
     return U"<- " + m_id;
+  }
+
+  static bool isnumeric(const std::u32string& input)
+  {
+    const auto length = input.length();
+    std::u32string::size_type start;
+    bool dot_seen = false;
+
+    if (!length)
+    {
+      return false;
+    }
+    if (input[0] == '+' || input[0] == '-')
+    {
+      start = 1;
+      if (length < 2)
+      {
+        return false;
+      }
+    } else {
+      start = 0;
+    }
+    for (std::u32string::size_type i = start; i < length; ++i)
+    {
+      const auto& c = input[i];
+
+      if (c == '.')
+      {
+        if (dot_seen || i == start || i + 1 > length)
+        {
+          return false;
+        }
+        dot_seen = true;
+      }
+      else if (!std::isdigit(c))
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

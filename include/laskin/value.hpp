@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include <gmpxx.h>
+
 namespace laskin
 {
   class quote;
@@ -46,6 +48,7 @@ namespace laskin
     enum type
     {
       type_boolean,
+      type_number,
       type_quote,
       type_vector
     };
@@ -54,6 +57,11 @@ namespace laskin
      * Constructs boolean value.
      */
     static value make_boolean(bool value);
+
+    /**
+     * Constructs number value.
+     */
+    static value make_number(const mpf_class& value);
 
     /**
      * Constructs vector value.
@@ -123,6 +131,7 @@ namespace laskin
     void reset();
 
     bool as_boolean() const;
+    const mpf_class& as_number() const;
     const std::vector<value>& as_vector() const;
     const quote& as_quote() const;
 
@@ -143,6 +152,7 @@ namespace laskin
     union
     {
       bool m_value_boolean;
+      mpf_class* m_value_number;
       std::vector<value>* m_value_vector;
       quote* m_value_quote;
     };

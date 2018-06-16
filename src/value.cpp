@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <sstream>
+
 #include <peelo/unicode.hpp>
 
 #include "laskin/error.hpp"
@@ -35,6 +37,16 @@ namespace laskin
     class value instance;
 
     instance.m_value_boolean = value;
+
+    return instance;
+  }
+
+  value value::make_number(const mpf_class& value)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new mpf_class(value);
 
     return instance;
   }
@@ -72,6 +84,10 @@ namespace laskin
         m_value_boolean = that.m_value_boolean;
         break;
 
+      case type_number:
+        m_value_number = new mpf_class(*that.m_value_number);
+        break;
+
       case type_vector:
         m_value_vector = new std::vector<value>(*that.m_value_vector);
         break;
@@ -89,6 +105,10 @@ namespace laskin
     {
       case type_boolean:
         m_value_boolean = that.m_value_boolean;
+        break;
+
+      case type_number:
+        m_value_number = that.m_value_number;
         break;
 
       case type_vector:
@@ -119,6 +139,10 @@ namespace laskin
           m_value_boolean = that.m_value_boolean;
           break;
 
+        case type_number:
+          m_value_number = new mpf_class(*that.m_value_number);
+          break;
+
         case type_vector:
           m_value_vector = new std::vector<value>(*that.m_value_vector);
           break;
@@ -143,6 +167,10 @@ namespace laskin
           m_value_boolean = that.m_value_boolean;
           break;
 
+        case type_number:
+          m_value_number = that.m_value_number;
+          break;
+
         case type_vector:
           m_value_vector = that.m_value_vector;
           break;
@@ -165,6 +193,9 @@ namespace laskin
       case type_boolean:
         return U"boolean";
 
+      case type_number:
+        return U"number";
+
       case type_vector:
         return U"vector";
 
@@ -177,6 +208,10 @@ namespace laskin
   {
     switch (m_type)
     {
+      case type_number:
+        delete m_value_number;
+        break;
+
       case type_vector:
         delete m_value_vector;
         break;
@@ -203,6 +238,21 @@ namespace laskin
     }
 
     return m_value_boolean;
+  }
+
+  const mpf_class& value::as_number() const
+  {
+    if (!is(type_number))
+    {
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting number."
+      );
+    }
+
+    return *m_value_number;
   }
 
   const std::vector<value>& value::as_vector() const
@@ -235,6 +285,15 @@ namespace laskin
     return *m_value_quote;
   }
 
+  static std::u32string number_to_string(const mpf_class& value)
+  {
+    std::stringstream buffer;
+
+    buffer << value;
+
+    return peelo::unicode::utf8::decode(buffer.str());
+  }
+
   static std::u32string vector_to_string(const std::vector<value>& elements)
   {
     std::u32string result;
@@ -260,6 +319,9 @@ namespace laskin
     {
       case type_boolean:
         return m_value_boolean ? U"true" : U"false";
+
+      case type_number:
+        return number_to_string(*m_value_number);
 
       case type_vector:
         return vector_to_string(*m_value_vector);
@@ -296,6 +358,9 @@ namespace laskin
     {
       case type_boolean:
         return m_value_boolean ? U"true" : U"false";
+
+      case type_number:
+        return number_to_string(*m_value_number);
 
       case type_vector:
         return vector_to_source(*m_value_vector);
