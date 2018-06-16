@@ -164,7 +164,7 @@ namespace laskin
     );
   }
 
-  value node::symbol::eval(context&, std::ostream&) const
+  value node::symbol::eval(class context& context, std::ostream&) const
   {
     if (!m_id.compare(U"true"))
     {
@@ -173,6 +173,10 @@ namespace laskin
     else if (!m_id.compare(U"false"))
     {
       return value::make_boolean(false);
+    }
+    else if (!m_id.compare(U"drop"))
+    {
+      return context.pop();
     }
     else if (isnumeric(m_id))
     {
