@@ -27,37 +27,43 @@
 
 namespace laskin
 {
-  static void w_range(class context& context, std::ostream&)
+  static void w_not(class context& context, std::ostream&)
   {
-    const auto limit = context.pop().as_number();
-    auto current = context.pop().as_number();
-    std::vector<value> result;
-
-    while (current < limit)
-    {
-      result.push_back(value::make_number(current));
-      current += 1;
-    }
-    context << value::make_vector(result);
+    context.push(value::make_boolean(!context.pop().as_boolean()));
   }
 
-  static void w_clamp(class context& context, std::ostream&)
+  static void w_and(class context& context, std::ostream&)
   {
-    const auto value = context.pop().as_number();
-    const auto max = context.pop().as_number();
-    const auto min = context.pop().as_number();
+    const auto b = context.pop().as_boolean();
+    const auto a = context.pop().as_boolean();
 
-    context.push(value::make_number(
-      value > max ? max : value < min ? min : value
-    ));
+    context.push(value::make_boolean(a && b));
+  }
+
+  static void w_or(class context& context, std::ostream&)
+  {
+    const auto b = context.pop().as_boolean();
+    const auto a = context.pop().as_boolean();
+
+    context.push(value::make_boolean(a || b));
+  }
+
+  static void w_xor(class context& context, std::ostream&)
+  {
+    const auto b = context.pop().as_boolean();
+    const auto a = context.pop().as_boolean();
+
+    context.push(value::make_boolean(a != b && (a || b)));
   }
 
   namespace api
   {
-    extern "C" const context::dictionary_definition number =
+    extern "C" const context::dictionary_definition boolean =
     {
-      { U"number:range", w_range },
-      { U"number:clamp", w_clamp }
+      { U"boolean:not", w_not },
+      { U"boolean:and", w_and },
+      { U"boolean:or", w_or },
+      { U"boolean:xor", w_xor }
     };
   }
 }

@@ -47,10 +47,16 @@ SET(
   src/quote.cpp
   src/unit.cpp
   src/value.cpp
+  src/api/boolean.cpp
   src/api/number.cpp
   src/api/quote.cpp
   src/api/utils.cpp
   src/api/vector.cpp
+  src/operator/add.cpp
+  src/operator/compare.cpp
+  src/operator/equals.cpp
+  src/operator/multiply.cpp
+  src/operator/substract.cpp
 )
 
 ADD_EXECUTABLE(

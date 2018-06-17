@@ -37,6 +37,70 @@ namespace laskin
     context << value::make_boolean(false);
   }
 
+  static void w_eq(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a == b);
+  }
+
+  static void w_ne(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a != b);
+  }
+
+  static void w_gt(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a > b);
+  }
+
+  static void w_lt(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a < b);
+  }
+
+  static void w_gte(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a >= b);
+  }
+
+  static void w_lte(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << value::make_boolean(a <= b);
+  }
+
+  static void w_add(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << a + b;
+  }
+
+  static void w_sub(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << a - b;
+  }
+
   static void w_clear(class context& context, std::ostream&)
   {
     context.clear();
@@ -103,6 +167,31 @@ namespace laskin
     std::exit(EXIT_SUCCESS);
   }
 
+  static void w_if(class context& context, std::ostream& out)
+  {
+    const auto quote = context.pop().as_quote();
+    const auto condition = context.pop().as_boolean();
+
+    if (condition)
+    {
+      quote.call(context, out);
+    }
+  }
+
+  static void w_if_else(class context& context, std::ostream& out)
+  {
+    const auto else_quote = context.pop().as_quote();
+    const auto then_quote = context.pop().as_quote();
+    const auto condition = context.pop().as_boolean();
+
+    if (condition)
+    {
+      then_quote.call(context, out);
+    } else {
+      else_quote.call(context, out);
+    }
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition utils =
@@ -110,6 +199,16 @@ namespace laskin
       // Constants.
       { U"true", w_true },
       { U"false", w_false },
+
+      // Common operators.
+      { U"=", w_eq },
+      { U"<>", w_ne },
+      { U">", w_gt },
+      { U"<", w_lt },
+      { U">=", w_gte },
+      { U"<=", w_lte },
+      { U"+", w_add },
+      { U"-", w_sub },
 
       // Stack manipulation.
       { U"clear", w_clear },
@@ -125,7 +224,9 @@ namespace laskin
       { U".", w_print },
 
       // Program logic.
-      { U"quit", w_quit }
+      { U"quit", w_quit },
+      { U"if", w_if },
+      { U"if-else", w_if_else }
     };
   }
 }

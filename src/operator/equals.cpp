@@ -23,41 +23,62 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/context.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
-  static void w_range(class context& context, std::ostream&)
+  static bool equals_boolean(bool a, bool b)
   {
-    const auto limit = context.pop().as_number();
-    auto current = context.pop().as_number();
-    std::vector<value> result;
+    return a == b;
+  }
 
-    while (current < limit)
+  static bool equals_number(const number& a, const number& b)
+  {
+    return a == b;
+  }
+
+  static bool equals_vector(const std::vector<value>& a,
+                            const std::vector<value>& b)
+  {
+    const auto size = a.size();
+
+    if (size != b.size())
     {
-      result.push_back(value::make_number(current));
-      current += 1;
+      return false;
     }
-    context << value::make_vector(result);
-  }
-
-  static void w_clamp(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number();
-    const auto max = context.pop().as_number();
-    const auto min = context.pop().as_number();
-
-    context.push(value::make_number(
-      value > max ? max : value < min ? min : value
-    ));
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition number =
+    for (std::vector<value>::size_type i = 0; i < size; ++i)
     {
-      { U"number:range", w_range },
-      { U"number:clamp", w_clamp }
-    };
+      if (a[i] != b[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool value::equals(const value& that) const
+  {
+    if (that.is(m_type))
+    {
+      switch (m_type)
+      {
+        case type_boolean:
+          return equals_boolean(m_value_boolean, that.m_value_boolean);
+
+        case type_number:
+          return equals_number(*m_value_number, *that.m_value_number);
+
+        case type_vector:
+          return equals_vector(*m_value_vector, *that.m_value_vector);
+
+        // TODO: Quote equality test.
+
+        default:
+          break;
+      }
+    }
+
+    return false;
   }
 }

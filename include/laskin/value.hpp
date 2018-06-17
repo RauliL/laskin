@@ -152,18 +152,38 @@ namespace laskin
     std::u32string to_source() const;
 
     /**
+     * Tests whether the value is equal with the one given as argument.
+     */
+    bool equals(const value& that) const;
+
+    /**
      * Compares two values against each other.
      */
     int compare(const value& that) const;
 
+    /**
+     * Adds another value into this one.
+     */
+    value add(const value& that) const;
+
+    /**
+     * Substracts given value from this one.
+     */
+    value substract(const value& that) const;
+
+    /**
+     * Multiplies this value with the given value.
+     */
+    value multiply(const value& that) const;
+
     inline bool operator==(const value& that) const
     {
-      return compare(that) == 0;
+      return equals(that);
     }
 
     inline bool operator!=(const value& that) const
     {
-      return compare(that) != 0;
+      return !equals(that);
     }
 
     inline bool operator<(const value& that) const
@@ -184,6 +204,21 @@ namespace laskin
     inline bool operator>=(const value& that) const
     {
       return compare(that) >= 0;
+    }
+
+    inline value operator+(const value& that) const
+    {
+      return add(that);
+    }
+
+    inline value operator-(const value& that) const
+    {
+      return substract(that);
+    }
+
+    inline value operator*(const value& that) const
+    {
+      return multiply(that);
     }
 
   private:

@@ -23,41 +23,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/context.hpp"
+#include "laskin/error.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
-  static void w_range(class context& context, std::ostream&)
+  static int compare_number(const number& a, const number& b)
   {
-    const auto limit = context.pop().as_number();
-    auto current = context.pop().as_number();
-    std::vector<value> result;
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
 
-    while (current < limit)
+  int value::compare(const value& that) const
+  {
+    if (that.is(m_type))
     {
-      result.push_back(value::make_number(current));
-      current += 1;
+      switch (m_type)
+      {
+        case type_number:
+          return compare_number(*m_value_number, *that.m_value_number);
+
+        default:
+          break;
+      }
     }
-    context << value::make_vector(result);
-  }
 
-  static void w_clamp(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number();
-    const auto max = context.pop().as_number();
-    const auto min = context.pop().as_number();
-
-    context.push(value::make_number(
-      value > max ? max : value < min ? min : value
-    ));
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition number =
-    {
-      { U"number:range", w_range },
-      { U"number:clamp", w_clamp }
-    };
+    throw error(
+      error::type_type,
+      U"Cannot compare " +
+      type_description(that.m_type) +
+      U" with " +
+      type_description(m_type)
+    );
   }
 }

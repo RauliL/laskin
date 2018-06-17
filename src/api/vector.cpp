@@ -118,6 +118,52 @@ namespace laskin
     throw error(error::type_range, U"Vector is empty.");
   }
 
+  static void w_for_each(class context& context, std::ostream& out)
+  {
+    const auto vec = context.pop().as_vector();
+    const auto quote = context.pop().as_quote();
+
+    for (const auto& value : vec)
+    {
+      context.push(value);
+      quote.call(context, out);
+    }
+  }
+
+  static void w_map(class context& context, std::ostream& out)
+  {
+    const auto vec = context.pop().as_vector();
+    const auto quote = context.pop().as_quote();
+    std::vector<value> result;
+
+    result.reserve(vec.size());
+    for (const auto& value : vec)
+    {
+      context.push(value);
+      quote.call(context, out);
+      result.push_back(context.pop());
+    }
+    context.push(value::make_vector(result));
+  }
+
+  static void w_filter(class context& context, std::ostream& out)
+  {
+    const auto vec = context.pop().as_vector();
+    const auto quote = context.pop().as_quote();
+    std::vector<value> result;
+
+    for (const auto& value : vec)
+    {
+      context.push(value);
+      quote.call(context, out);
+      if (context.pop().as_boolean())
+      {
+        result.push_back(value);
+      }
+    }
+    context.push(value::make_vector(result));
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition vector =
@@ -126,6 +172,11 @@ namespace laskin
       { U"vector:min", w_min },
       { U"vector:mean", w_mean },
       { U"vector:sum", w_sum },
+
+      // Iteration.
+      { U"vector:for-each", w_for_each },
+      { U"vector:map", w_map },
+      { U"filter", w_filter }
     };
   }
 }
