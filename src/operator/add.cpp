@@ -52,6 +52,11 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value add_string(const std::u32string& a, const std::u32string& b)
+  {
+    return value::make_string(a + b);
+  }
+
   value value::add(const value& that) const
   {
     if (that.is(m_type))
@@ -63,6 +68,9 @@ namespace laskin
 
         case type_vector:
           return add_vector(*m_value_vector, *that.m_value_vector);
+
+        case type_string:
+          return add_string(*m_value_string, *that.m_value_string);
 
         default:
           break;

@@ -93,6 +93,10 @@ namespace laskin
           case '[':
             return parse_vector_literal();
 
+          case '"':
+          case '\'':
+            return parse_string_literal();
+
           default:
             return parse_statement_symbol();
         }
@@ -119,6 +123,10 @@ namespace laskin
 
           case '[':
             return parse_vector_literal();
+
+          case '"':
+          case '\'':
+            return parse_string_literal();
 
           default:
             return parse_symbol();
@@ -242,6 +250,173 @@ namespace laskin
         }
 
         return std::make_shared<node::vector_literal>(elements, line, column);
+      }
+
+      std::shared_ptr<node::literal> parse_string_literal()
+      {
+        std::u32string buffer;
+        char32_t separator;
+        int line;
+        int column;
+
+        skip_whitespace();
+
+        line = m_line;
+        column = m_column;
+
+        if (peek_read('"'))
+        {
+          separator = '"';
+        }
+        else if (peek_read('\''))
+        {
+          separator = '\'';
+        } else {
+          throw error(
+            error::type_syntax,
+            std::u32string(U"Unexpected ") +
+            (eof() ? U"end of input" : U"input") +
+            U"; Missing string literal.",
+            line,
+            column
+          );
+        }
+
+        for (;;)
+        {
+          if (eof())
+          {
+            throw error(
+              error::type_syntax,
+              std::u32string(U"Unterminated string literal: Missing `") +
+              separator +
+              U"'",
+              line,
+              column
+            );
+          }
+          else if (peek_read(separator))
+          {
+            break;
+          }
+          else if (peek_read('\\'))
+          {
+            parse_escape_sequence(buffer);
+          } else {
+            buffer.append(1, read());
+          }
+        }
+
+        return std::make_shared<node::literal>(
+          value::make_string(buffer),
+          line,
+          column
+        );
+      }
+
+      void parse_escape_sequence(std::u32string& buffer)
+      {
+        const int line = m_line;
+        const int column = m_column;
+
+        if (eof())
+        {
+          throw error(
+            error::type_syntax,
+            U"Unexpected end of input; Missing escape sequence.",
+            line,
+            column
+          );
+        }
+
+        switch (read())
+        {
+        case 'b':
+          buffer.append(1, 010);
+          break;
+
+        case 't':
+          buffer.append(1, 011);
+          break;
+
+        case 'n':
+          buffer.append(1, 012);
+          break;
+
+        case 'f':
+          buffer.append(1, 014);
+          break;
+
+        case 'r':
+          buffer.append(1, 015);
+          break;
+
+        case '"':
+        case '\'':
+        case '\\':
+        case '/':
+          buffer.append(1, *(m_pos - 1));
+          break;
+
+        case 'u':
+          {
+            char32_t result = 0;
+
+            for (int i = 0; i < 4; ++i)
+            {
+              if (eof())
+              {
+                throw error(
+                  error::type_syntax,
+                  U"Unterminated escape sequence.",
+                  line,
+                  column
+                );
+              }
+              else if (!peelo::unicode::isxdigit(peek()))
+              {
+                throw error(
+                  error::type_syntax,
+                  U"Illegal Unicode hex escape sequence.",
+                  line,
+                  column
+                );
+              }
+
+              if (peek() >= 'A' && peek() <= 'F')
+              {
+                result = result * 16 + (read() - 'A' + 10);
+              }
+              else if (peek() >= 'a' && peek() <= 'f')
+              {
+                result = result * 16 + (read() - 'a' + 10);
+              } else {
+                result = result * 16 + (read() - '0');
+              }
+            }
+
+            if (!peelo::unicode::isvalid(result))
+            {
+              throw error(
+                error::type_syntax,
+                U"Illegal Unicode hex escape sequence.",
+                line,
+                column
+              );
+            }
+
+            buffer.append(1, result);
+          }
+          break;
+
+        default:
+          throw error(
+            error::type_syntax,
+            U"Illegal escape sequence in string literal.",
+            line,
+            column
+          );
+        }
       }
 
       std::shared_ptr<node::symbol> parse_symbol()

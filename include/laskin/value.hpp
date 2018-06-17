@@ -50,6 +50,7 @@ namespace laskin
       type_boolean,
       type_number,
       type_quote,
+      type_string,
       type_vector
     };
 
@@ -72,6 +73,11 @@ namespace laskin
      * Constructs vector value.
      */
     static value make_vector(const std::vector<value>& elements);
+
+    /**
+     * Constructs string value.
+     */
+    static value make_string(const std::u32string& string);
 
     /**
      * Constructs quote value.
@@ -138,6 +144,7 @@ namespace laskin
     bool as_boolean() const;
     const number& as_number() const;
     const std::vector<value>& as_vector() const;
+    const std::u32string& as_string() const;
     const quote& as_quote() const;
 
     /**
@@ -229,6 +236,7 @@ namespace laskin
       bool m_value_boolean;
       number* m_value_number;
       std::vector<value>* m_value_vector;
+      std::u32string* m_value_string;
       quote* m_value_quote;
     };
   };

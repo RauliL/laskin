@@ -57,6 +57,11 @@ namespace laskin
     return true;
   }
 
+  static bool equals_string(const std::u32string& a, const std::u32string& b)
+  {
+    return !a.compare(b);
+  }
+
   bool value::equals(const value& that) const
   {
     if (that.is(m_type))
@@ -71,6 +76,9 @@ namespace laskin
 
         case type_vector:
           return equals_vector(*m_value_vector, *that.m_value_vector);
+
+        case type_string:
+          return equals_string(*m_value_string, *that.m_value_string);
 
         // TODO: Quote equality test.
 

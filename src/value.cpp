@@ -71,6 +71,16 @@ namespace laskin
     return instance;
   }
 
+  value value::make_string(const std::u32string& string)
+  {
+    value instance;
+
+    instance.m_type = type_string;
+    instance.m_value_string = new std::u32string(string);
+
+    return instance;
+  }
+
   value value::make_quote(const class quote& quote)
   {
     class value instance;
@@ -102,6 +112,10 @@ namespace laskin
         m_value_vector = new std::vector<value>(*that.m_value_vector);
         break;
 
+      case type_string:
+        m_value_string = new std::u32string(*that.m_value_string);
+        break;
+
       case type_quote:
         m_value_quote = new quote(*that.m_value_quote);
         break;
@@ -123,6 +137,10 @@ namespace laskin
 
       case type_vector:
         m_value_vector = that.m_value_vector;
+        break;
+
+      case type_string:
+        m_value_string = that.m_value_string;
         break;
 
       case type_quote:
@@ -157,6 +175,10 @@ namespace laskin
           m_value_vector = new std::vector<value>(*that.m_value_vector);
           break;
 
+        case type_string:
+          m_value_string = new std::u32string(*that.m_value_string);
+          break;
+
         case type_quote:
           m_value_quote = new quote(*that.m_value_quote);
           break;
@@ -185,6 +207,10 @@ namespace laskin
           m_value_vector = that.m_value_vector;
           break;
 
+        case type_string:
+          m_value_string = that.m_value_string;
+          break;
+
         case type_quote:
           m_value_quote = that.m_value_quote;
           break;
@@ -209,6 +235,9 @@ namespace laskin
       case type_vector:
         return U"vector";
 
+      case type_string:
+        return U"string";
+
       case type_quote:
         return U"quote";
     }
@@ -226,6 +255,10 @@ namespace laskin
 
       case type_vector:
         delete m_value_vector;
+        break;
+
+      case type_string:
+        delete m_value_string;
         break;
 
       case type_quote:
@@ -285,6 +318,21 @@ namespace laskin
     return *m_value_vector;
   }
 
+  const std::u32string& value::as_string() const
+  {
+    if (!is(type_string))
+    {
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was expecting string."
+      );
+    }
+
+    return *m_value_string;
+  }
+
   const quote& value::as_quote() const
   {
     if (!is(type_quote))
@@ -337,6 +385,9 @@ namespace laskin
       case type_vector:
         return vector_to_string(*m_value_vector);
 
+      case type_string:
+        return *m_value_string;
+
       case type_quote:
         return m_value_quote->to_source();
     }
@@ -365,6 +416,70 @@ namespace laskin
     return result;
   }
 
+  static std::u32string string_to_source(const std::u32string& string)
+  {
+    std::u32string result;
+
+    result.reserve(string.length() + 2);
+    result.append(1, '"');
+
+    for (const auto& c : string)
+    {
+      switch (c)
+      {
+        case 010:
+          result.append(1, '\\');
+          result.append(1, 'b');
+          break;
+
+        case 011:
+          result.append(1, '\\');
+          result.append(1, 't');
+          break;
+
+        case 012:
+          result.append(1, '\\');
+          result.append(1, 'n');
+          break;
+
+        case 014:
+          result.append(1, '\\');
+          result.append(1, 'f');
+          break;
+
+        case 015:
+          result.append(1, '\\');
+          result.append(1, 'r');
+          break;
+
+        case '"':
+        case '\\':
+        case '/':
+          result.append(1, '\\');
+          result.append(1, c);
+          break;
+
+        default:
+          if (!peelo::unicode::isprint(c))
+          {
+            char buffer[7];
+
+            std::snprintf(buffer, 7, "\\u%04x", c);
+            for (const char* p = buffer; *p; ++p)
+            {
+              result.append(1, static_cast<char32_t>(*p));
+            }
+          } else {
+            result.append(1, c);
+          }
+      }
+    }
+
+    result.append(1, '"');
+
+    return result;
+  }
+
   std::u32string value::to_source() const
   {
     switch (m_type)
@@ -377,6 +492,9 @@ namespace laskin
 
       case type_vector:
         return vector_to_source(*m_value_vector);
+
+      case type_string:
+        return string_to_source(*m_value_string);
 
       case type_quote:
         return m_value_quote->to_source();

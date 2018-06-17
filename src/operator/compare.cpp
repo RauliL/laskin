@@ -33,6 +33,11 @@ namespace laskin
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
+  static int compare_string(const std::u32string& a, const std::u32string& b)
+  {
+    return a.compare(b);
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -41,6 +46,9 @@ namespace laskin
       {
         case type_number:
           return compare_number(*m_value_number, *that.m_value_number);
+
+        case type_string:
+          return compare_string(*m_value_string, *that.m_value_string);
 
         default:
           break;
