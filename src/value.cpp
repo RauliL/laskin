@@ -41,12 +41,22 @@ namespace laskin
     return instance;
   }
 
-  value value::make_number(const mpf_class& value)
+  value value::make_number(const number& value)
   {
     class value instance;
 
     instance.m_type = type_number;
-    instance.m_value_number = new mpf_class(value);
+    instance.m_value_number = new number(value);
+
+    return instance;
+  }
+
+  value value::make_number(const std::u32string& input)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new number(number::from_string(input));
 
     return instance;
   }
@@ -85,7 +95,7 @@ namespace laskin
         break;
 
       case type_number:
-        m_value_number = new mpf_class(*that.m_value_number);
+        m_value_number = new number(*that.m_value_number);
         break;
 
       case type_vector:
@@ -140,7 +150,7 @@ namespace laskin
           break;
 
         case type_number:
-          m_value_number = new mpf_class(*that.m_value_number);
+          m_value_number = new number(*that.m_value_number);
           break;
 
         case type_vector:
@@ -240,7 +250,7 @@ namespace laskin
     return m_value_boolean;
   }
 
-  const mpf_class& value::as_number() const
+  const number& value::as_number() const
   {
     if (!is(type_number))
     {
@@ -285,13 +295,9 @@ namespace laskin
     return *m_value_quote;
   }
 
-  static std::u32string number_to_string(const mpf_class& value)
+  static std::u32string number_to_string(const number& value)
   {
-    std::stringstream buffer;
-
-    buffer << value;
-
-    return peelo::unicode::utf8::decode(buffer.str());
+    return value.to_string();
   }
 
   static std::u32string vector_to_string(const std::vector<value>& elements)
@@ -370,7 +376,7 @@ namespace laskin
     }
   }
 
-  static inline int compare_number(const mpf_class& a, const mpf_class& b)
+  static inline int compare_number(const number& a, const number& b)
   {
     return a > b ? 1 : a < b ? -1 : 0;
   }

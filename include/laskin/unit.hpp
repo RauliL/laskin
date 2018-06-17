@@ -23,77 +23,56 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_ERROR_HPP_GUARD
-#define LASKIN_ERROR_HPP_GUARD
+#ifndef LASKIN_UNIT_HPP_GUARD
+#define LASKIN_UNIT_HPP_GUARD
 
-#include <exception>
 #include <iostream>
 #include <string>
 
 namespace laskin
 {
-  class error : public std::exception
+  enum class unit
   {
-  public:
-    enum type
-    {
-      type_syntax,
-      type_type,
-      type_unit,
-      type_range,
-      type_name
-    };
+    // No unit.
+    none,
 
-    explicit error(
-      enum type type,
-      const std::u32string& message,
-      int line = 0,
-      int column = 0
-    );
+    // Length units.
+    mm,
+    cm,
+    m,
+    km,
 
-    error(const error& that);
-    error& operator=(const error& that);
+    // Mass units.
+    mg,
+    g,
+    kg,
 
-    inline enum type type() const
-    {
-      return m_type;
-    }
-
-    inline bool is(enum type type) const
-    {
-      return m_type == type;
-    }
-
-    inline const std::string& message() const
-    {
-      return m_message;
-    }
-
-    inline const char* what() const noexcept
-    {
-      return m_message.c_str();
-    }
-
-    inline int line() const
-    {
-      return m_line;
-    }
-
-    inline int column() const
-    {
-      return m_column;
-    }
-
-    static std::u32string type_description(enum type type);
-
-  private:
-    enum type m_type;
-    std::string m_message;
-    int m_line;
-    int m_column;
+    // Time units.
+    ms,
+    s,
+    min,
+    h,
+    d
   };
 
-  std::ostream& operator<<(std::ostream&, const error&);
+  enum class quantity
+  {
+    none,
+    length,
+    mass,
+    time
+  };
+
+  unit unit_base(unit);
+  quantity unit_quantity(unit);
+
+  std::u32string unit_name(unit);
+  std::u32string quantity_name(quantity);
+
+  unit find_unit_by_name(const std::u32string&);
+
+  std::ostream& operator<<(std::ostream&, unit);
+  std::ostream& operator<<(std::ostream&, quantity);
 }
 
-#endif /* !LASKIN_ERROR_HPP_GUARD */
+#endif /* !LASKIN_UNIT_HPP_GUARD */

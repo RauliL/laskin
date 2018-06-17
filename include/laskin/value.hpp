@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-#include <gmpxx.h>
+#include "laskin/number.hpp"
 
 namespace laskin
 {
@@ -61,7 +61,12 @@ namespace laskin
     /**
      * Constructs number value.
      */
-    static value make_number(const mpf_class& value);
+    static value make_number(const number& value);
+
+    /**
+     * Constructs number value by parsing number and unit from given string.
+     */
+    static value make_number(const std::u32string& input);
 
     /**
      * Constructs vector value.
@@ -131,7 +136,7 @@ namespace laskin
     void reset();
 
     bool as_boolean() const;
-    const mpf_class& as_number() const;
+    const number& as_number() const;
     const std::vector<value>& as_vector() const;
     const quote& as_quote() const;
 
@@ -187,7 +192,7 @@ namespace laskin
     union
     {
       bool m_value_boolean;
-      mpf_class* m_value_number;
+      number* m_value_number;
       std::vector<value>* m_value_vector;
       quote* m_value_quote;
     };

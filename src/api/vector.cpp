@@ -101,13 +101,21 @@ namespace laskin
   static void w_sum(class context& context, std::ostream&)
   {
     const auto vec = context.pop().as_vector();
-    mpf_class sum;
+    const auto size = vec.size();
 
-    for (const auto& value : vec)
+    if (size > 0)
     {
-      sum += value.as_number();
+      auto sum = vec[0].as_number();
+
+      for (std::vector<value>::size_type i = 1; i < size; ++i)
+      {
+        sum += vec[i].as_number();
+      }
+      context << value::make_number(sum);
+      return;
     }
-    context << value::make_number(sum);
+
+    throw error(error::type_range, U"Vector is empty.");
   }
 
   namespace api

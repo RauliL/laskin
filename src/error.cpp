@@ -64,6 +64,9 @@ namespace laskin
     case type_type:
       return U"Type error";
 
+    case type_unit:
+      return U"Unit error";
+
     case type_range:
       return U"Range error";
 

@@ -42,8 +42,10 @@ SET(
   src/context.cpp
   src/error.cpp
   src/main.cpp
+  src/number.cpp
   src/parser.cpp
   src/quote.cpp
+  src/unit.cpp
   src/value.cpp
   src/api/number.cpp
   src/api/quote.cpp
