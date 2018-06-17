@@ -95,7 +95,7 @@ namespace laskin
   {
     const auto entry = unit_quantity_mapping.find(u);
 
-    if (entry == std::end(unit_quantity_mapping))
+    if (entry != std::end(unit_quantity_mapping))
     {
       return entry->second;
     } else {

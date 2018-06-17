@@ -261,7 +261,7 @@ namespace laskin
     const auto quantity_a = unit_quantity(a->unit());
     const auto quantity_b = unit_quantity(b.unit());
 
-    if (quantity_a != quantity_b && quantity_b != quantity::none)
+    if (quantity_a != quantity_b)
     {
       throw error(
         error::type_unit,
