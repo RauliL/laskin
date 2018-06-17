@@ -73,6 +73,8 @@ namespace laskin
     case type_name:
       return U"Name error";
     }
+
+    return U"Unknown error"; // Just to keep GCC happy.
   }
 
   std::ostream& operator<<(std::ostream& out, const class error& error)

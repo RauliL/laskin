@@ -325,6 +325,9 @@ namespace laskin
         u = unit::s;
         value *= 86400;
         break;
+
+      default:
+        break;
     }
   }
 }

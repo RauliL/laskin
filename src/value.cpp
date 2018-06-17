@@ -212,6 +212,8 @@ namespace laskin
       case type_quote:
         return U"quote";
     }
+
+    return U"unknown";
   }
 
   void value::reset()
@@ -228,6 +230,9 @@ namespace laskin
 
       case type_quote:
         delete m_value_quote;
+        break;
+
+      default:
         break;
     }
 
@@ -335,6 +340,8 @@ namespace laskin
       case type_quote:
         return m_value_quote->to_source();
     }
+
+    return U"";
   }
 
   static std::u32string vector_to_source(const std::vector<value>& elements)
@@ -374,6 +381,8 @@ namespace laskin
       case type_quote:
         return m_value_quote->to_source();
     }
+
+    return U"";
   }
 
   static inline int compare_number(const number& a, const number& b)
@@ -398,9 +407,18 @@ namespace laskin
     {
       case type_number:
         return compare_number(*m_value_number, *that.m_value_number);
+
+      default:
+        break;
     }
 
-    return 0; // TODO
+    throw error(
+      error::type_type,
+      U"Cannot compare " +
+      type_description(m_type) +
+      U" with " +
+      type_description(that.m_type)
+    );
   }
 
   std::ostream& operator<<(std::ostream& out, enum value::type type)
