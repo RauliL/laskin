@@ -183,6 +183,11 @@ namespace laskin
      */
     value multiply(const value& that) const;
 
+    /**
+     * Divides this value with the given value.
+     */
+    value divide(const value& that) const;
+
     inline bool operator==(const value& that) const
     {
       return equals(that);
@@ -226,6 +231,11 @@ namespace laskin
     inline value operator*(const value& that) const
     {
       return multiply(that);
+    }
+
+    inline value operator/(const value& that) const
+    {
+      return divide(that);
     }
 
   private:

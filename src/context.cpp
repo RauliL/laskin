@@ -38,6 +38,7 @@ namespace laskin
     extern "C" const context::dictionary_definition boolean;
     extern "C" const context::dictionary_definition number;
     extern "C" const context::dictionary_definition quote;
+    extern "C" const context::dictionary_definition string;
     extern "C" const context::dictionary_definition utils;
     extern "C" const context::dictionary_definition vector;
   }
@@ -48,6 +49,7 @@ namespace laskin
     initialize_dictionary(m_dictionary, api::boolean);
     initialize_dictionary(m_dictionary, api::number);
     initialize_dictionary(m_dictionary, api::quote);
+    initialize_dictionary(m_dictionary, api::string);
     initialize_dictionary(m_dictionary, api::vector);
   }
 

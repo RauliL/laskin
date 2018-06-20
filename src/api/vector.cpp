@@ -28,6 +28,13 @@
 
 namespace laskin
 {
+  static void w_length(class context& context, std::ostream&)
+  {
+    context << value::make_number(number(mpf_class(
+      context.peek().as_vector().size()
+    )));
+  }
+
   static void w_max(class context& context, std::ostream&)
   {
     const auto vec = context.pop().as_vector();
@@ -164,10 +171,87 @@ namespace laskin
     context.push(value::make_vector(result));
   }
 
+  static void w_reduce(class context& context, std::ostream& out)
+  {
+    const auto vec = context.pop().as_vector();
+    const auto quote = context.pop().as_quote();
+    const auto size = vec.size();
+    value result;
+
+    if (!size)
+    {
+      throw error(error::type_range, U"Cannot reduce empty vector.");
+    }
+    result = vec[0];
+    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    {
+      context << result << vec[i];
+      quote.call(context, out);
+      context >> result;
+    }
+    context << result;
+  }
+
+  static void w_prepend(class context& context, std::ostream&)
+  {
+    auto vec = context.pop().as_vector();
+    const auto value = context.pop();
+
+    vec.insert(std::begin(vec), 1, value);
+    context << value::make_vector(vec);
+  }
+
+  static void w_append(class context& context, std::ostream&)
+  {
+    auto vec = context.pop().as_vector();
+    const auto value = context.pop();
+
+    vec.push_back(value);
+    context << value::make_vector(vec);
+  }
+
+  static void w_insert(class context& context, std::ostream&)
+  {
+    auto vec = context.pop().as_vector();
+    const auto size = vec.size();
+    const auto value = context.pop();
+    auto index = context.pop().as_number().as_long();
+
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type_range, U"Vector index out of bounds.");
+    }
+    vec.insert(std::begin(vec) + index, 1, value);
+    context << value::make_vector(vec);
+  }
+
+  static void w_at(class context& context, std::ostream&)
+  {
+    const auto vector = context.pop().as_vector();
+    const auto size = vector.size();
+    auto index = context.pop().as_number().as_long();
+
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type_range, U"Vector index out of bounds.");
+    }
+    context << vector[index];
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition vector =
     {
+      { U"vector:length", w_length },
+
       { U"vector:max", w_max },
       { U"vector:min", w_min },
       { U"vector:mean", w_mean },
@@ -176,7 +260,15 @@ namespace laskin
       // Iteration.
       { U"vector:for-each", w_for_each },
       { U"vector:map", w_map },
-      { U"filter", w_filter }
+      { U"vector:filter", w_filter },
+      { U"vector:reduce", w_reduce },
+
+      // Modifications.
+      { U"prepend", w_prepend },
+      { U"append", w_append },
+      { U"insert", w_insert },
+
+      { U"@", w_at }
     };
   }
 }

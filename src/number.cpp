@@ -128,6 +128,16 @@ namespace laskin
     return number(mpf_class(peelo::unicode::utf8::encode(input)));
   }
 
+  long number::as_long() const
+  {
+    if (!m_value.fits_slong_p())
+    {
+      throw error(error::type_range, U"Numeric value is too large.");
+    }
+
+    return m_value.get_si();
+  }
+
   std::u32string number::to_string() const
   {
     std::stringstream ss;
@@ -164,8 +174,39 @@ namespace laskin
     return number(m_value * that.m_value, m_unit);
   }
 
+  number number::operator/(const number& that) const
+  {
+    unit_check(this, that);
+    if (that.m_value == 0.0)
+    {
+      throw error(error::type_range, U"Division by zero.");
+    }
+
+    return number(m_value / that.m_value, m_unit);
+  }
+
+  number number::operator+(int operand) const
+  {
+    return number(m_value + operand, m_unit);
+  }
+
+  number number::operator-(int operand) const
+  {
+    return number(m_value - operand, m_unit);
+  }
+
+  number number::operator*(int operand) const
+  {
+    return number(m_value * operand, m_unit);
+  }
+
   number number::operator/(int operand) const
   {
+    if (operand == 0)
+    {
+      throw error(error::type_range, U"Division by zero.");
+    }
+
     return number(m_value / operand, m_unit);
   }
 
@@ -193,6 +234,18 @@ namespace laskin
     return *this;
   }
 
+  number& number::operator/=(const number& that)
+  {
+    unit_check(this, that);
+    if (that.m_value == 0.0)
+    {
+      throw error(error::type_range, U"Division by zero.");
+    }
+    m_value /= that.m_value;
+
+    return *this;
+  }
+
   number& number::operator+=(int operand)
   {
     m_value += operand;
@@ -203,6 +256,24 @@ namespace laskin
   number& number::operator-=(int operand)
   {
     m_value -= operand;
+
+    return *this;
+  }
+
+  number& number::operator*=(int operand)
+  {
+    m_value *= operand;
+
+    return *this;
+  }
+
+  number& number::operator/=(int operand)
+  {
+    if (operand == 0)
+    {
+      throw error(error::type_range, U"Division by zero.");
+    }
+    m_value /= operand;
 
     return *this;
   }

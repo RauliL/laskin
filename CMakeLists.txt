@@ -50,10 +50,12 @@ SET(
   src/api/boolean.cpp
   src/api/number.cpp
   src/api/quote.cpp
+  src/api/string.cpp
   src/api/utils.cpp
   src/api/vector.cpp
   src/operator/add.cpp
   src/operator/compare.cpp
+  src/operator/divide.cpp
   src/operator/equals.cpp
   src/operator/multiply.cpp
   src/operator/substract.cpp

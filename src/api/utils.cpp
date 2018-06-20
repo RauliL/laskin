@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode.hpp>
+
 #include "laskin/context.hpp"
 
 namespace laskin
@@ -101,6 +103,52 @@ namespace laskin
     context << a - b;
   }
 
+  static void w_mul(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << a * b;
+  }
+
+  static void w_div(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << a / b;
+  }
+
+  static void type_test(class context& context, enum value::type type)
+  {
+    context << value::make_boolean(context.peek().is(type));
+  }
+
+  static void w_is_boolean(class context& context, std::ostream&)
+  {
+    type_test(context, value::type_boolean);
+  }
+
+  static void w_is_number(class context& context, std::ostream&)
+  {
+    type_test(context, value::type_number);
+  }
+
+  static void w_is_vector(class context& context, std::ostream&)
+  {
+    type_test(context, value::type_vector);
+  }
+
+  static void w_is_string(class context& context, std::ostream&)
+  {
+    type_test(context, value::type_string);
+  }
+
+  static void w_is_quote(class context& context, std::ostream&)
+  {
+    type_test(context, value::type_quote);
+  }
+
   static void w_clear(class context& context, std::ostream&)
   {
     context.clear();
@@ -162,6 +210,28 @@ namespace laskin
     out << context.pop() << std::endl;
   }
 
+  static void w_stack_preview(class context& context, std::ostream& out)
+  {
+    const auto& data = context.data();
+    const auto size = data.size();
+
+    if (!size)
+    {
+      out << "Stack is empty." << std::endl;
+      return;
+    }
+    for (std::deque<value>::size_type i = 0; i < size && i < 10; ++i)
+    {
+      const auto& value = data[size - i - 1];
+
+      std::cout
+        << (size - i)
+        << ": "
+        << peelo::unicode::utf8::encode(value.to_source())
+        << std::endl;
+    }
+  }
+
   static void w_quit(class context& context, std::ostream&)
   {
     std::exit(EXIT_SUCCESS);
@@ -209,6 +279,15 @@ namespace laskin
       { U"<=", w_lte },
       { U"+", w_add },
       { U"-", w_sub },
+      { U"*", w_mul },
+      { U"/", w_div },
+
+      // Stack testing.
+      { U"boolean?", w_is_boolean },
+      { U"number?", w_is_number },
+      { U"vector?", w_is_vector },
+      { U"string?", w_is_string },
+      { U"quote?", w_is_quote },
 
       // Stack manipulation.
       { U"clear", w_clear },
@@ -222,6 +301,7 @@ namespace laskin
 
       // I/O.
       { U".", w_print },
+      { U".s", w_stack_preview },
 
       // Program logic.
       { U"quit", w_quit },

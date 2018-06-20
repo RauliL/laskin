@@ -65,20 +65,29 @@ namespace laskin
       return m_unit;
     }
 
+    long as_long() const;
+
     std::u32string to_string() const;
 
     number operator+(const number& that) const;
     number operator-(const number& that) const;
     number operator*(const number& that) const;
+    number operator/(const number& that) const;
 
+    number operator+(int operand) const;
+    number operator-(int operand) const;
+    number operator*(int operand) const;
     number operator/(int operand) const;
 
     number& operator+=(const number& that);
     number& operator-=(const number& that);
     number& operator*=(const number& that);
+    number& operator/=(const number& that);
 
     number& operator+=(int operand);
     number& operator-=(int operand);
+    number& operator*=(int operand);
+    number& operator/=(int operand);
 
     bool operator==(const number& that) const;
     bool operator!=(const number& that) const;
