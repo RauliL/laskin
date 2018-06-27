@@ -23,9 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cstdlib>
 #include <fstream>
-#include <stack>
 #include <unistd.h>
 
 #include <peelo/unicode.hpp>
@@ -34,7 +32,11 @@
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
-static void repl(laskin::context&);
+namespace laskin
+{
+  void run_repl(context&);
+}
+
 static void run_file(laskin::context&, std::istream&);
 
 int main(int argc, char** argv)
@@ -62,109 +64,12 @@ int main(int argc, char** argv)
   }
   else if (isatty(fileno(stdin)))
   {
-    repl(context);
+    laskin::run_repl(context);
   } else {
     run_file(context, std::cin);
   }
 
   return EXIT_SUCCESS;
-}
-
-static void count_open_braces(std::stack<char>& open_braces,
-                              const std::string& line)
-{
-  const auto length = line.length();
-
-  for (std::string::size_type i = 0; i < length; ++i)
-  {
-    const auto c = line[i];
-
-    switch (line[i])
-    {
-      case '#':
-        return;
-
-      case '(':
-        open_braces.push(')');
-        break;
-
-      case '[':
-        open_braces.push(']');
-        break;
-
-      case ')':
-      case ']':
-        if (!open_braces.empty() && open_braces.top() == c)
-        {
-          open_braces.pop();
-        }
-        break;
-
-      case '"':
-      case '\'':
-        ++i;
-        while (i < length)
-        {
-          if (line[i] == '"')
-          {
-            break;
-          }
-          else if (line[i] == '\\' && i + 1 < length && line[i + 1] == c)
-          {
-            i += 2;
-          } else {
-            ++i;
-          }
-        }
-        break;
-    }
-  }
-}
-
-static void repl(laskin::context& context)
-{
-  int line_counter = 0;
-  std::u32string source;
-  std::stack<char> open_braces;
-
-  while (std::cin.good())
-  {
-    std::string line;
-
-    std::cout << "laskin:"
-              << ++line_counter
-              << ':'
-              << context.data().size()
-              << (open_braces.empty() ? '>' : '*')
-              << ' ';
-    if (!std::getline(std::cin, line))
-    {
-      break;
-    }
-    else if (line.empty())
-    {
-      continue;
-    }
-    source.append(peelo::unicode::utf8::decode(line));
-    source.append(1, '\n');
-    count_open_braces(open_braces, line);
-    if (!open_braces.empty())
-    {
-      continue;
-    }
-    try
-    {
-      laskin::quote::parse(
-        source,
-        line_counter
-      ).call(context, std::cout);
-    }
-    catch (const laskin::error& error)
-    {
-      std::cout << error << std::endl;
-    }
-    source.clear();
-  }
 }
 
 static void run_file(laskin::context& context, std::istream& input)
