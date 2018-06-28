@@ -32,35 +32,53 @@
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
+static std::string programfile;
+static std::vector<std::u32string> inline_scripts;
+
 namespace laskin
 {
   void run_repl(context&);
 }
 
 static void run_file(laskin::context&, std::istream&);
+static void parse_args(int, char**);
+static void print_usage(std::ostream&, const char*);
 
 int main(int argc, char** argv)
 {
   laskin::context context;
 
-  if (argc > 1)
-  {
-    for (int i = 1; i < argc; ++i)
-    {
-      std::ifstream input(argv[i], std::ios_base::in);
+  parse_args(argc, argv);
 
-      if (input.good())
+  if (!inline_scripts.empty())
+  {
+    for (const auto& source : inline_scripts)
+    {
+      try
       {
-        run_file(context, input);
-      } else {
-        std::cerr << argv[0]
-                  << ": Unable to open file `"
-                  << argv[i]
-                  << "' for reading."
-                  << std::endl;
+        laskin::quote::parse(source).call(context, std::cout);
+      }
+      catch (const laskin::error& error)
+      {
+        std::cerr << error << std::endl;
         std::exit(EXIT_FAILURE);
       }
     }
+  }
+  else if (!programfile.empty())
+  {
+    std::ifstream input(programfile, std::ios_base::in);
+
+    if (!input.good())
+    {
+      std::cerr << argv[0]
+                << ": Unable to open file `"
+                << programfile
+                << "' for reading."
+                << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
+    run_file(context, input);
   }
   else if (isatty(fileno(stdin)))
   {
@@ -90,4 +108,102 @@ static void run_file(laskin::context& context, std::istream& input)
     std::cerr << error << std::endl;
     std::exit(EXIT_FAILURE);
   }
+}
+
+static void parse_args(int argc, char** argv)
+{
+  int offset = 1;
+
+  while (offset < argc)
+  {
+    auto arg = argv[offset++];
+
+    if (!*arg)
+    {
+      continue;
+    }
+    else if (*arg != '-')
+    {
+      programfile = arg;
+      break;
+    }
+    else if (!arg[1])
+    {
+      break;
+    }
+    else if (arg[1] == '-')
+    {
+      if (!std::strcmp(arg, "--help"))
+      {
+        print_usage(std::cout, argv[0]);
+        std::exit(EXIT_SUCCESS);
+      }
+      else if (!std::strcmp(arg, "--version"))
+      {
+        std::cerr << "Laskin 2.0.0" << std::endl;
+        std::exit(EXIT_SUCCESS);
+      } else {
+        std::cerr << "Unrecognized switch: " << arg << std::endl;
+        print_usage(std::cerr, argv[0]);
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    for (int i = 1; arg[i]; ++i)
+    {
+      switch (arg[i])
+      {
+        case 'e':
+          if (offset < argc)
+          {
+            std::u32string script;
+
+            if (!peelo::unicode::utf8::decode_validate(argv[offset++], script))
+            {
+              std::cerr << "Unable to decode given inline script as UTF-8."
+                        << std::endl;
+              std::exit(EXIT_FAILURE);
+            }
+            inline_scripts.push_back(script);
+          } else {
+            std::cerr << "Argument expected for the -e option." << std::endl;
+            print_usage(std::cerr, argv[0]);
+            std::exit(EXIT_FAILURE);
+          }
+          break;
+
+        case 'h':
+          print_usage(std::cout, argv[0]);
+          std::exit(EXIT_SUCCESS);
+          break;
+
+        default:
+          std::cerr << "Unrecognized switch: `" << arg[i] << "'" << std::endl;
+          std::exit(EXIT_FAILURE);
+          break;
+      }
+    }
+  }
+
+  if (offset < argc)
+  {
+    std::cerr << "Too many arguments given." << std::endl;
+    print_usage(std::cerr, argv[0]);
+    std::exit(EXIT_FAILURE);
+  }
+}
+
+static void print_usage(std::ostream& output, const char* executable_name)
+{
+  output << std::endl
+         << "Usage: "
+         << executable_name
+         << " [switches] [programfile]"
+         << std::endl
+         << "  -e program        One line of program. (Omit programfile.)"
+         << std::endl
+         << "  --version         Print the version."
+         << std::endl
+         << "  --help            Display this message."
+         << std::endl
+         << std::endl;
 }
