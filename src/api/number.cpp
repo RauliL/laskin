@@ -36,7 +36,7 @@ namespace laskin
     while (current < limit)
     {
       result.push_back(value::make_number(current));
-      current += 1;
+      ++current;
     }
     context << value::make_vector(result);
   }

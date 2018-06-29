@@ -27,7 +27,6 @@
 #define LASKIN_NUMBER_HPP_GUARD
 
 #include <iostream>
-#include <string>
 
 #include <gmpxx.h>
 
@@ -35,71 +34,38 @@
 
 namespace laskin
 {
-  class number
-  {
-  public:
-    using value_type = mpf_class;
-    using unit_type = laskin::unit;
+  using number = std::pair<mpf_class, unit::optional_any>;
 
-    explicit number(const value_type& value, unit_type unit = unit_type::none);
-    number(const number& that);
-    number& operator=(const number& that);
+  /**
+   * Tests whether given string contains a valid number.
+   */
+  bool is_number(const std::u32string&);
 
-    /**
-     * Tests whether given string contains a valid number.
-     */
-    static bool isnumber(const std::u32string& input);
+  /**
+   * Parses given string into a number.
+   */
+  number parse_number(const std::u32string&);
 
-    /**
-     * Parses given string into a number.
-     */
-    static number from_string(const std::u32string& input);
+  /**
+   * Converts given number into C++ long integer, or throws an exception if the
+   * number is too large for that data type.
+   */
+  long to_long(const number&);
 
-    inline const value_type& value() const
-    {
-      return m_value;
-    }
+  number operator+(const number&, const number&);
+  number operator-(const number&, const number&);
+  number operator*(const number&, const number&);
+  number operator/(const number&, const number&);
 
-    inline unit_type unit() const
-    {
-      return m_unit;
-    }
+  number& operator++(number&);
+  number& operator--(number&);
 
-    long as_long() const;
-
-    std::u32string to_string() const;
-
-    number operator+(const number& that) const;
-    number operator-(const number& that) const;
-    number operator*(const number& that) const;
-    number operator/(const number& that) const;
-
-    number operator+(int operand) const;
-    number operator-(int operand) const;
-    number operator*(int operand) const;
-    number operator/(int operand) const;
-
-    number& operator+=(const number& that);
-    number& operator-=(const number& that);
-    number& operator*=(const number& that);
-    number& operator/=(const number& that);
-
-    number& operator+=(int operand);
-    number& operator-=(int operand);
-    number& operator*=(int operand);
-    number& operator/=(int operand);
-
-    bool operator==(const number& that) const;
-    bool operator!=(const number& that) const;
-    bool operator<(const number& that) const;
-    bool operator>(const number& that) const;
-    bool operator<=(const number& that) const;
-    bool operator>=(const number& that) const;
-
-  private:
-    value_type m_value;
-    unit_type m_unit;
-  };
+  bool operator==(const number&, const number&);
+  bool operator!=(const number&, const number&);
+  bool operator<(const number&, const number&);
+  bool operator>(const number&, const number&);
+  bool operator<=(const number&, const number&);
+  bool operator>=(const number&, const number&);
 
   std::ostream& operator<<(std::ostream&, const number&);
 }

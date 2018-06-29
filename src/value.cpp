@@ -51,12 +51,23 @@ namespace laskin
     return instance;
   }
 
+  value value::make_number(const mpf_class& value,
+                           const unit::optional_any& unit)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new number(value, unit);
+
+    return instance;
+  }
+
   value value::make_number(const std::u32string& input)
   {
     class value instance;
 
     instance.m_type = type_number;
-    instance.m_value_number = new number(number::from_string(input));
+    instance.m_value_number = new number(parse_number(input));
 
     return instance;
   }
@@ -350,7 +361,11 @@ namespace laskin
 
   static std::u32string number_to_string(const number& value)
   {
-    return value.to_string();
+    std::stringstream ss;
+
+    ss << value;
+
+    return peelo::unicode::utf8::decode(ss.str());
   }
 
   static std::u32string vector_to_string(const std::vector<value>& elements)

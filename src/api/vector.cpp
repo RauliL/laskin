@@ -30,9 +30,9 @@ namespace laskin
 {
   static void w_length(class context& context, std::ostream&)
   {
-    context << value::make_number(number(mpf_class(
-      context.peek().as_vector().size()
-    )));
+    context << value::make_number(
+      mpf_class(context.peek().as_vector().size()
+    ));
   }
 
   static void w_max(class context& context, std::ostream&)
@@ -96,9 +96,9 @@ namespace laskin
 
       for (std::vector<value>::size_type i = 1; i < size; ++i)
       {
-        sum += vec[i].as_number();
+        sum = sum + vec[i].as_number();
       }
-      context << value::make_number(sum / size);
+      context << value::make_number(sum.first / size, sum.second);
       return;
     }
 
@@ -116,7 +116,7 @@ namespace laskin
 
       for (std::vector<value>::size_type i = 1; i < size; ++i)
       {
-        sum += vec[i].as_number();
+        sum = sum + vec[i].as_number();
       }
       context << value::make_number(sum);
       return;
@@ -215,7 +215,7 @@ namespace laskin
     auto vec = context.pop().as_vector();
     const auto size = vec.size();
     const auto value = context.pop();
-    auto index = context.pop().as_number().as_long();
+    auto index = to_long(context.pop().as_number());
 
     if (index < 0)
     {
@@ -233,7 +233,7 @@ namespace laskin
   {
     const auto vector = context.pop().as_vector();
     const auto size = vector.size();
-    auto index = context.pop().as_number().as_long();
+    auto index = to_long(context.pop().as_number());
 
     if (index < 0)
     {

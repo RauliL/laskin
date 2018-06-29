@@ -65,6 +65,14 @@ namespace laskin
     static value make_number(const number& value);
 
     /**
+     * Constructs number value.
+     */
+    static value make_number(
+      const mpf_class& value,
+      const unit::optional_any& unit = unit::optional_any()
+    );
+
+    /**
      * Constructs number value by parsing number and unit from given string.
      */
     static value make_number(const std::u32string& input);

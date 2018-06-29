@@ -31,141 +31,188 @@
 
 namespace laskin
 {
-  static const std::unordered_map<unit, quantity> unit_quantity_mapping =
+  namespace unit
   {
-    // Length units.
-    { unit::mm, quantity::length },
-    { unit::cm, quantity::length },
-    { unit::m, quantity::length },
-    { unit::km, quantity::length },
-
-    // Mass units.
-    { unit::mg, quantity::mass },
-    { unit::g, quantity::mass },
-    { unit::kg, quantity::mass },
-
-    // Time units.
-    { unit::ms, quantity::time },
-    { unit::s, quantity::time },
-    { unit::min, quantity::time },
-    { unit::h, quantity::time },
-    { unit::d, quantity::time }
-  };
-
-  static const std::unordered_map<unit, unit> unit_base_mapping =
-  {
-    // Length units.
-    { unit::mm, unit::m },
-    { unit::cm, unit::m },
-    { unit::km, unit::m },
-
-    // Mass units.
-    { unit::mg, unit::kg },
-    { unit::g, unit::kg },
-
-    // Time units.
-    { unit::ms, unit::s },
-    { unit::min, unit::s },
-    { unit::h, unit::s },
-    { unit::d, unit::s }
-  };
-
-  static const std::unordered_map<unit, std::u32string> unit_name_mapping =
-  {
-    // Length units.
-    { unit::mm, U"mm" },
-    { unit::cm, U"cm" },
-    { unit::m, U"m" },
-    { unit::km, U"km" },
-
-    // Mass units.
-    { unit::mg, U"mg" },
-    { unit::g, U"g" },
-    { unit::kg, U"kg" },
-
-    // Time units.
-    { unit::ms, U"ms" },
-    { unit::s, U"s" },
-    { unit::min, U"min" },
-    { unit::h, U"h" },
-    { unit::d, U"d" }
-  };
-
-  quantity unit_quantity(unit u)
-  {
-    const auto entry = unit_quantity_mapping.find(u);
-
-    if (entry != std::end(unit_quantity_mapping))
+    optional_any base_unit_of(const optional_any& unit)
     {
-      return entry->second;
-    } else {
-      return quantity::none;
-    }
-  }
-
-  unit unit_base(unit u)
-  {
-    const auto entry = unit_base_mapping.find(u);
-
-    return entry == std::end(unit_base_mapping) ? u : entry->second;
-  }
-
-  unit find_unit_by_name(const std::u32string& input)
-  {
-    for (const auto& mapping : unit_name_mapping)
-    {
-      if (!mapping.second.compare(input))
+      if (unit)
       {
-        return mapping.first;
+        return base_unit_of(unit.value());
+      } else {
+        return optional_any();
       }
     }
 
-    return unit::none;
-  }
-
-  std::u32string unit_name(unit u)
-  {
-    const auto entry = unit_name_mapping.find(u);
-
-    if (entry != std::end(unit_name_mapping))
+    any base_unit_of(const any& unit)
     {
-      return entry->second;
-    } else {
-      return U"";
+      struct visitor
+      {
+        any operator()(length) const
+        {
+          return length::m;
+        }
+
+        any operator()(mass) const
+        {
+          return mass::kg;
+        }
+
+        any operator()(time) const
+        {
+          return time::s;
+        }
+      };
+
+      return std::visit(visitor(), unit);
     }
-  }
 
-  std::u32string quantity_name(quantity q)
-  {
-    switch (q)
+    static const std::unordered_map<std::u32string, any> name_mapping =
     {
-      case quantity::none:
+      // Length units.
+      { U"mm", length::mm },
+      { U"cm", length::cm },
+      { U"m", length::m },
+      { U"km", length::km },
+
+      // Mass units.
+      { U"mg", mass::mg },
+      { U"g", mass::g },
+      { U"kg", mass::kg },
+
+      // Time units.
+      { U"ms", time::ms },
+      { U"s", time::s },
+      { U"min", time::min },
+      { U"h", time::h },
+      { U"d", time::d }
+    };
+
+    optional_any find_by_name(const std::u32string& name)
+    {
+      const auto entry = name_mapping.find(name);
+
+      if (entry != std::end(name_mapping))
+      {
+        return entry->second;
+      }
+
+      return optional_any();
+    }
+
+    std::u32string name_of(const any& unit)
+    {
+      struct visitor
+      {
+        std::u32string operator()(length x) const
+        {
+          return name_of(x);
+        }
+
+        std::u32string operator()(mass x) const
+        {
+          return name_of(x);
+        }
+
+        std::u32string operator()(time x) const
+        {
+          return name_of(x);
+        }
+      };
+
+      return std::visit(visitor(), unit);
+    }
+
+    std::u32string name_of(length u)
+    {
+      switch (u)
+      {
+        case length::mm:
+          return U"mm";
+
+        case length::cm:
+          return U"cm";
+
+        case length::m:
+          return U"m";
+
+        case length::km:
+          return U"km";
+      }
+
+      return U"unknown";
+    }
+
+    std::u32string name_of(mass u)
+    {
+      switch (u)
+      {
+        case mass::mg:
+          return U"mg";
+
+        case mass::g:
+          return U"g";
+
+        case mass::kg:
+          return U"kg";
+      }
+
+      return U"unknown";
+    }
+
+    std::u32string name_of(time u)
+    {
+      switch (u)
+      {
+        case time::ms:
+          return U"ms";
+
+        case time::s:
+          return U"s";
+
+        case time::min:
+          return U"min";
+
+        case time::h:
+          return U"h";
+
+        case time::d:
+          return U"d";
+      }
+
+      return U"unknown";
+    }
+
+    std::u32string quantity_of(const optional_any& unit)
+    {
+      if (unit)
+      {
+        return quantity_of(unit.value());
+      } else {
         return U"no unit";
-
-      case quantity::length:
-        return U"length";
-
-      case quantity::mass:
-        return U"mass";
-
-      case quantity::time:
-        return U"time";
+      }
     }
 
-    return U"";
-  }
+    std::u32string quantity_of(const any& unit)
+    {
+      struct visitor
+      {
+        std::u32string operator()(length) const
+        {
+          return U"length";
+        }
 
-  std::ostream& operator<<(std::ostream& out, unit u)
-  {
-    out << peelo::unicode::utf8::encode(unit_name(u));
+        std::u32string operator()(mass) const
+        {
+          return U"mass";
+        }
 
-    return out;
-  }
+        std::u32string operator()(time) const
+        {
+          return U"time";
+        }
+      };
 
-  std::ostream& operator<<(std::ostream& out, quantity q)
-  {
-    out << peelo::unicode::utf8::encode(quantity_name(q));
-
-    return out;
+      return std::visit(visitor(), unit);
+    }
   }
 }

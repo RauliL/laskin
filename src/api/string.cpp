@@ -30,16 +30,16 @@ namespace laskin
 {
   static void w_length(class context& context, std::ostream&)
   {
-    context << value::make_number(number(mpf_class(
-      context.peek().as_string().length()
-    )));
+    context << value::make_number(
+      mpf_class(context.peek().as_string().length())
+    );
   }
 
   static void w_at(class context& context, std::ostream&)
   {
     const auto string = context.pop().as_string();
     const auto length = string.length();
-    auto index = context.pop().as_number().as_long();
+    auto index = to_long(context.pop().as_number());
     char32_t c;
 
     if (index < 0)

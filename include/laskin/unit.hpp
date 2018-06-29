@@ -27,52 +27,54 @@
 #define LASKIN_UNIT_HPP_GUARD
 
 #include <iostream>
+#include <optional>
 #include <string>
+#include <variant>
 
 namespace laskin
 {
-  enum class unit
+  namespace unit
   {
-    // No unit.
-    none,
+    enum class length
+    {
+      mm,
+      cm,
+      m,
+      km
+    };
 
-    // Length units.
-    mm,
-    cm,
-    m,
-    km,
+    enum class mass
+    {
+      mg,
+      g,
+      kg
+    };
 
-    // Mass units.
-    mg,
-    g,
-    kg,
+    enum class time
+    {
+      ms,
+      s,
+      min,
+      h,
+      d
+    };
 
-    // Time units.
-    ms,
-    s,
-    min,
-    h,
-    d
-  };
+    using any = std::variant<length, mass, time>;
+    using optional_any = std::optional<any>;
 
-  enum class quantity
-  {
-    none,
-    length,
-    mass,
-    time
-  };
+    optional_any base_unit_of(const optional_any&);
+    any base_unit_of(const any&);
 
-  unit unit_base(unit);
-  quantity unit_quantity(unit);
+    optional_any find_by_name(const std::u32string&);
 
-  std::u32string unit_name(unit);
-  std::u32string quantity_name(quantity);
+    std::u32string name_of(const any&);
+    std::u32string name_of(length);
+    std::u32string name_of(mass);
+    std::u32string name_of(time);
 
-  unit find_unit_by_name(const std::u32string&);
-
-  std::ostream& operator<<(std::ostream&, unit);
-  std::ostream& operator<<(std::ostream&, quantity);
+    std::u32string quantity_of(const optional_any&);
+    std::u32string quantity_of(const any&);
+  }
 }
 
 #endif /* !LASKIN_UNIT_HPP_GUARD */
