@@ -133,7 +133,7 @@ namespace laskin
           ++i;
           while (i < length)
           {
-            if (line[i] == '"')
+            if (line[i] == c)
             {
               break;
             }
