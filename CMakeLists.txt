@@ -50,6 +50,7 @@ INCLUDE_DIRECTORIES(
 
 SET(
   COMMON_SOURCES
+  ext/peelocpp-unicode/src/convert.cpp
   ext/peelocpp-unicode/src/test.cpp
   ext/peelocpp-unicode/src/utf8.cpp
   src/ast.cpp

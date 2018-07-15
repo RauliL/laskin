@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode.hpp>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -33,6 +35,35 @@ namespace laskin
     context << value::make_number(
       mpf_class(context.peek().as_string().length())
     );
+  }
+
+  static void w_reverse(class context& context, std::ostream&)
+  {
+    const auto string = context.pop().as_string();
+
+    context << value::make_string(string.rbegin(), string.rend());
+  }
+
+  static void convert_string(class context& context,
+                             char32_t (*callback)(char32_t))
+  {
+    auto string = context.pop().as_string();
+
+    for (auto& c : string)
+    {
+      c = callback(c);
+    }
+    context << value::make_string(string);
+  }
+
+  static void w_lower_case(class context& context, std::ostream&)
+  {
+    convert_string(context, peelo::unicode::tolower);
+  }
+
+  static void w_upper_case(class context& context, std::ostream&)
+  {
+    convert_string(context, peelo::unicode::toupper);
   }
 
   static void w_at(class context& context, std::ostream&)
@@ -60,7 +91,12 @@ namespace laskin
     {
       { U"string:length", w_length },
 
-      { U"@", w_at }
+      // Modifications.
+      { U"string:reverse", w_reverse },
+      { U"string:lower-case", w_lower_case },
+      { U"string:upper-case", w_upper_case },
+
+      { U"string:@", w_at }
     };
   }
 }

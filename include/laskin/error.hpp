@@ -41,12 +41,13 @@ namespace laskin
       type_type,
       type_unit,
       type_range,
+      type_domain,
       type_name
     };
 
     explicit error(
       enum type type,
-      const std::u32string& message,
+      const std::u32string& message = std::u32string(),
       int line = 0,
       int column = 0
     );

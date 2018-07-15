@@ -229,6 +229,23 @@ namespace laskin
     context << value::make_vector(vec);
   }
 
+  static void w_reverse(class context& context, std::ostream&)
+  {
+    const auto vector = context.pop().as_vector();
+
+    context << value::make_vector(vector.rbegin(), vector.rend());
+  }
+
+  static void w_extract(class context& context, std::ostream&)
+  {
+    const auto vector = context.pop().as_vector();
+
+    for (const auto& value : vector)
+    {
+      context << value;
+    }
+  }
+
   static void w_at(class context& context, std::ostream&)
   {
     const auto vector = context.pop().as_vector();
@@ -264,11 +281,13 @@ namespace laskin
       { U"vector:reduce", w_reduce },
 
       // Modifications.
-      { U"prepend", w_prepend },
-      { U"append", w_append },
-      { U"insert", w_insert },
+      { U"vector:prepend", w_prepend },
+      { U"vector:append", w_append },
+      { U"vector:insert", w_insert },
+      { U"vector:reverse", w_reverse },
+      { U"vector:extract", w_extract },
 
-      { U"@", w_at }
+      { U"vector:@", w_at }
     };
   }
 }

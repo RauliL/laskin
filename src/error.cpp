@@ -70,6 +70,9 @@ namespace laskin
     case type_range:
       return U"Range error";
 
+    case type_domain:
+      return U"Domain error";
+
     case type_name:
       return U"Name error";
     }
@@ -80,14 +83,17 @@ namespace laskin
   std::ostream& operator<<(std::ostream& out, const class error& error)
   {
     const auto line = error.line();
+    const auto& message = error.message();
 
     if (line != 0)
     {
       out << line << ':' << error.column() << ':';
     }
-    out << peelo::unicode::utf8::encode(error::type_description(error.type()))
-        << ": "
-        << error.message();
+    out << peelo::unicode::utf8::encode(error::type_description(error.type()));
+    if (!message.empty())
+    {
+      out << ": " << message;
+    }
 
     return out;
   }

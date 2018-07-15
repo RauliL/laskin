@@ -32,11 +32,61 @@ namespace laskin
     context.pop().as_quote().call(context, out);
   }
 
+  static void w_compose(class context& context, std::ostream& out)
+  {
+    const auto right = context.pop().as_quote();
+    const auto left = context.pop().as_quote();
+    const auto call = std::make_shared<node::symbol>(U"quote:call");
+
+    context << value::make_quote({
+      std::make_shared<node::literal>(value::make_quote(left)),
+      call,
+      std::make_shared<node::literal>(value::make_quote(right)),
+      call
+    });
+  }
+
+  static void w_curry(class context& context, std::ostream&)
+  {
+    const auto quote = context.pop().as_quote();
+    const auto argument = context.pop();
+
+    context << value::make_quote({
+      std::make_shared<node::literal>(argument),
+      std::make_shared<node::literal>(value::make_quote(quote)),
+      std::make_shared<node::symbol>(U"quote:call")
+    });
+  }
+
+  static void w_negate(class context& context, std::ostream&)
+  {
+    const auto quote = context.pop().as_quote();
+
+    context << value::make_quote({
+      std::make_shared<node::literal>(value::make_quote(quote)),
+      std::make_shared<node::symbol>(U"quote:call"),
+      std::make_shared<node::symbol>(U"boolean:not")
+    });
+  }
+
+  static void w_dip(class context& context, std::ostream& out)
+  {
+    const auto quote = context.pop().as_quote();
+    const auto value = context.pop();
+
+    quote.call(context, out);
+    context << value;
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition quote =
     {
-      { U"quote:call", w_call }
+      { U"quote:call", w_call },
+      { U"quote:compose", w_compose },
+      { U"quote:curry", w_curry },
+      { U"quote:negate", w_negate },
+      { U"quote:dip", w_dip }
     };
   }
 }

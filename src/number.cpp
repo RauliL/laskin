@@ -126,6 +126,11 @@ namespace laskin
     return num.first.get_si();
   }
 
+  double to_double(const number& num)
+  {
+    return num.first.get_d();
+  }
+
   static void unit_check(const number& a, const number& b)
   {
     const auto quantity_a = unit::quantity_of(a.second);

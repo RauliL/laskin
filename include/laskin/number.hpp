@@ -52,6 +52,12 @@ namespace laskin
    */
   long to_long(const number&);
 
+  /**
+   * Converts given number into C++ double precision, or throws an exception if
+   * the number is too large for that data type.
+   */
+  double to_double(const number&);
+
   number operator+(const number&, const number&);
   number operator-(const number&, const number&);
   number operator*(const number&, const number&);

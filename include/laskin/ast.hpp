@@ -43,7 +43,7 @@ namespace laskin
     class symbol;
     class vector_literal;
 
-    explicit node(int line, int column);
+    explicit node(int line = 0, int column = 0);
 
     node(const node&) = delete;
     node(node&&) = delete;
@@ -92,7 +92,7 @@ namespace laskin
   class node::literal : public node
   {
   public:
-    explicit literal(const class value& value, int line, int column);
+    explicit literal(const class value& value, int line = 0, int column = 0);
 
     void exec(class context& context, std::ostream& out) const;
     value eval(class context& context, std::ostream& out) const;
@@ -109,8 +109,8 @@ namespace laskin
 
     explicit vector_literal(
       const container_type& elements,
-      int line,
-      int column
+      int line = 0,
+      int column = 0
     );
 
     void exec(class context& context, std::ostream& out) const;
@@ -124,7 +124,7 @@ namespace laskin
   class node::symbol : public node
   {
   public:
-    explicit symbol(const std::u32string& id, int line, int column);
+    explicit symbol(const std::u32string& id, int line = 0, int column = 0);
 
     inline const std::u32string& id() const
     {
@@ -142,7 +142,11 @@ namespace laskin
   class node::definition : public node
   {
   public:
-    explicit definition(const std::u32string& id, int line, int column);
+    explicit definition(
+      const std::u32string& id,
+      int line = 0,
+      int column = 0
+    );
 
     void exec(class context& context, std::ostream& out) const;
     value eval(class context& context, std::ostream& out) const;

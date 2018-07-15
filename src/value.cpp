@@ -102,6 +102,16 @@ namespace laskin
     return instance;
   }
 
+  value value::make_quote(const quote::node_container& nodes)
+  {
+    class value instance;
+
+    instance.m_type = type_quote;
+    instance.m_value_quote = new class quote(nodes);
+
+    return instance;
+  }
+
   value::value()
     : m_type(type_boolean)
     , m_value_boolean(false) {}

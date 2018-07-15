@@ -26,6 +26,7 @@
 #include <peelo/unicode.hpp>
 
 #include "laskin/context.hpp"
+#include "laskin/error.hpp"
 
 namespace laskin
 {
@@ -205,6 +206,11 @@ namespace laskin
     context << a << b << a;
   }
 
+  static void w_depth(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.data().size());
+  }
+
   static void w_print(class context& context, std::ostream& out)
   {
     out << context.pop() << std::endl;
@@ -262,6 +268,29 @@ namespace laskin
     }
   }
 
+  static void w_lookup(class context& context, std::ostream&)
+  {
+    const auto& dictionary = context.dictionary();
+    const auto id = context.pop().as_string();
+    const auto word = dictionary.find(id);
+
+    if (word != std::end(dictionary))
+    {
+      context << word->second;
+      return;
+    }
+
+    throw error(error::type_name, U"Unrecognized symbol: `" + id + U"'");
+  }
+
+  static void w_define(class context& context, std::ostream&)
+  {
+    const auto id = context.pop().as_string();
+    const auto value = context.pop();
+
+    context.dictionary()[id] = value;
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition utils =
@@ -298,6 +327,7 @@ namespace laskin
       { U"rot", w_rot },
       { U"swap", w_swap },
       { U"tuck", w_tuck },
+      { U"depth", w_depth },
 
       // I/O.
       { U".", w_print },
@@ -306,7 +336,11 @@ namespace laskin
       // Program logic.
       { U"quit", w_quit },
       { U"if", w_if },
-      { U"if-else", w_if_else }
+      { U"if-else", w_if_else },
+
+      // Dictionary related.
+      { U"lookup", w_lookup },
+      { U"define", w_define }
     };
   }
 }

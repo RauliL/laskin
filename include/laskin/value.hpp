@@ -27,6 +27,7 @@
 #define LASKIN_VALUE_HPP_GUARD
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,7 @@
 
 namespace laskin
 {
+  class node;
   class quote;
 
   /**
@@ -83,14 +85,37 @@ namespace laskin
     static value make_vector(const std::vector<value>& elements);
 
     /**
+     * Constructs vector value from given iterator.
+     */
+    template<class InputIt>
+    static value make_vector(InputIt first, InputIt last)
+    {
+      return make_vector(std::vector<value>(first, last));
+    }
+
+    /**
      * Constructs string value.
      */
     static value make_string(const std::u32string& string);
 
     /**
+     * Constructs string value from given iterator.
+     */
+    template<class InputIt>
+    static value make_string(InputIt first, InputIt last)
+    {
+      return make_string(std::u32string(first, last));
+    }
+
+    /**
      * Constructs quote value.
      */
     static value make_quote(const class quote& quote);
+
+    /**
+     * Constructs quote from given sequence of nodes.
+     */
+    static value make_quote(const std::vector<std::shared_ptr<node>>& nodes);
 
     /**
      * Constructs boolean value of false.

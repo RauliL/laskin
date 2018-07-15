@@ -23,7 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cmath>
+
 #include "laskin/context.hpp"
+#include "laskin/error.hpp"
 
 namespace laskin
 {
@@ -52,12 +55,78 @@ namespace laskin
     ));
   }
 
+  static void double_op(class context& context, double (*callback)(double))
+  {
+    const auto value = context.pop().as_number();
+    const auto result = callback(to_double(value));
+
+    if (std::isnan(result))
+    {
+      throw error(error::type_domain);
+    }
+    context << value::make_number(result, value.second);
+  }
+
+  static void w_acos(class context& context, std::ostream&)
+  {
+    double_op(context, std::acos);
+  }
+
+  static void w_asin(class context& context, std::ostream&)
+  {
+    double_op(context, std::asin);
+  }
+
+  static void w_atan(class context& context, std::ostream&)
+  {
+    double_op(context, std::atan);
+  }
+
+  static void w_cos(class context& context, std::ostream&)
+  {
+    double_op(context, std::cos);
+  }
+
+  static void w_sin(class context& context, std::ostream&)
+  {
+    double_op(context, std::sin);
+  }
+
+  static void w_tan(class context& context, std::ostream&)
+  {
+    double_op(context, std::tan);
+  }
+
+  static void w_deg(class context& context, std::ostream&)
+  {
+    const auto value = context.pop().as_number();
+
+    context << value::make_number(value.first * 180 / M_PI, value.second);
+  }
+
+  static void w_rad(class context& context, std::ostream&)
+  {
+    const auto value = context.pop().as_number();
+
+    context << value::make_number(value.first * M_PI / 180, value.second);
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition number =
     {
       { U"number:range", w_range },
-      { U"number:clamp", w_clamp }
+      { U"number:clamp", w_clamp },
+
+      // Trigonometry.
+      { U"number:acos", w_acos },
+      { U"number:asin", w_asin },
+      { U"number:atan", w_atan },
+      { U"number:cos", w_cos },
+      { U"number:sin", w_sin },
+      { U"number:tan", w_tan },
+      { U"number:deg", w_deg },
+      { U"number:rad", w_rad }
     };
   }
 }
