@@ -23,78 +23,44 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode.hpp>
-
 #include "laskin/error.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
-  error::error(enum type type,
-               const std::u32string& message,
-               int line,
-               int column)
-    : m_type(type)
-    , m_message(peelo::unicode::utf8::encode(message))
-    , m_line(line)
-    , m_column(column) {}
-
-  error::error(const error& that)
-    : m_type(that.m_type)
-    , m_message(that.m_message)
-    , m_line(that.m_line)
-    , m_column(that.m_column) {}
-
-  error& error::operator=(const error& that)
+  static int compare_number(const number& a, const number& b)
   {
-    m_type = that.m_type;
-    m_message = that.m_message;
-    m_line = that.m_line;
-    m_column = that.m_column;
-
-    return *this;
+    return a > b ? 1 : a < b ? -1 : 0;
   }
 
-  std::u32string error::type_description(enum type type)
+  static int compare_string(const std::u32string& a, const std::u32string& b)
   {
-    switch (type)
-    {
-    case type_syntax:
-      return U"Syntax error";
-
-    case type_type:
-      return U"Type error";
-
-    case type_unit:
-      return U"Unit error";
-
-    case type_range:
-      return U"Range error";
-
-    case type_domain:
-      return U"Domain error";
-
-    case type_name:
-      return U"Name error";
-    }
-
-    return U"Unknown error"; // Just to keep GCC happy.
+    return a.compare(b);
   }
 
-  std::ostream& operator<<(std::ostream& out, const class error& error)
+  int value::compare(const value& that) const
   {
-    const auto line = error.line();
-    const auto& message = error.message();
-
-    if (line != 0)
+    if (that.is(m_type))
     {
-      out << line << ':' << error.column() << ':';
-    }
-    out << peelo::unicode::utf8::encode(error::type_description(error.type()));
-    if (!message.empty())
-    {
-      out << ": " << message;
+      switch (m_type)
+      {
+        case type_number:
+          return compare_number(*m_value_number, *that.m_value_number);
+
+        case type_string:
+          return compare_string(*m_value_string, *that.m_value_string);
+
+        default:
+          break;
+      }
     }
 
-    return out;
+    throw error(
+      error::type_type,
+      U"Cannot compare " +
+      type_description(that.m_type) +
+      U" with " +
+      type_description(m_type)
+    );
   }
 }

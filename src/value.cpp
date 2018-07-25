@@ -1,606 +1,544 @@
-#include "function.hpp"
-#include "numbers.hpp"
-#include "value.hpp"
-#include <cmath>
+/*
+ * Copyright (c) 2018, Rauli Laine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+#include <sstream>
+
+#include <peelo/unicode.hpp>
+
+#include "laskin/error.hpp"
+#include "laskin/quote.hpp"
 
 namespace laskin
 {
-    value::value()
-        : m_type(type_int)
-        , m_counter(0)
+  value value::make_boolean(bool value)
+  {
+    class value instance;
+
+    instance.m_value_boolean = value;
+
+    return instance;
+  }
+
+  value value::make_number(const number& value)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new number(value);
+
+    return instance;
+  }
+
+  value value::make_number(const mpf_class& value,
+                           const unit::optional_any& unit)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new number(value, unit);
+
+    return instance;
+  }
+
+  value value::make_number(const std::u32string& input)
+  {
+    class value instance;
+
+    instance.m_type = type_number;
+    instance.m_value_number = new number(parse_number(input));
+
+    return instance;
+  }
+
+  value value::make_vector(const std::vector<value>& elements)
+  {
+    class value instance;
+
+    instance.m_type = type_vector;
+    instance.m_value_vector = new std::vector<value>(elements);
+
+    return instance;
+  }
+
+  value value::make_string(const std::u32string& string)
+  {
+    value instance;
+
+    instance.m_type = type_string;
+    instance.m_value_string = new std::u32string(string);
+
+    return instance;
+  }
+
+  value value::make_quote(const class quote& quote)
+  {
+    class value instance;
+
+    instance.m_type = type_quote;
+    instance.m_value_quote = new class quote(quote);
+
+    return instance;
+  }
+
+  value value::make_quote(const quote::node_container& nodes)
+  {
+    class value instance;
+
+    instance.m_type = type_quote;
+    instance.m_value_quote = new class quote(nodes);
+
+    return instance;
+  }
+
+  value::value()
+    : m_type(type_boolean)
+    , m_value_boolean(false) {}
+
+  value::value(const value& that)
+    : m_type(that.m_type)
+  {
+    switch (m_type)
     {
-        m_data.i = 0;
+      case type_boolean:
+        m_value_boolean = that.m_value_boolean;
+        break;
+
+      case type_number:
+        m_value_number = new number(*that.m_value_number);
+        break;
+
+      case type_vector:
+        m_value_vector = new std::vector<value>(*that.m_value_vector);
+        break;
+
+      case type_string:
+        m_value_string = new std::u32string(*that.m_value_string);
+        break;
+
+      case type_quote:
+        m_value_quote = new quote(*that.m_value_quote);
+        break;
+    }
+  }
+
+  value::value(value&& that)
+    : m_type(that.m_type)
+  {
+    switch (m_type)
+    {
+      case type_boolean:
+        m_value_boolean = that.m_value_boolean;
+        break;
+
+      case type_number:
+        m_value_number = that.m_value_number;
+        break;
+
+      case type_vector:
+        m_value_vector = that.m_value_vector;
+        break;
+
+      case type_string:
+        m_value_string = that.m_value_string;
+        break;
+
+      case type_quote:
+        m_value_quote = that.m_value_quote;
+        break;
+    }
+    that.m_type = type_boolean;
+    that.m_value_boolean = false;
+  }
+
+  value::~value()
+  {
+    reset();
+  }
+
+  value& value::operator=(const value& that)
+  {
+    if (this != &that)
+    {
+      reset();
+      switch (m_type = that.m_type)
+      {
+        case type_boolean:
+          m_value_boolean = that.m_value_boolean;
+          break;
+
+        case type_number:
+          m_value_number = new number(*that.m_value_number);
+          break;
+
+        case type_vector:
+          m_value_vector = new std::vector<value>(*that.m_value_vector);
+          break;
+
+        case type_string:
+          m_value_string = new std::u32string(*that.m_value_string);
+          break;
+
+        case type_quote:
+          m_value_quote = new quote(*that.m_value_quote);
+          break;
+      }
     }
 
-    value::value(const value& that)
-        : m_type(that.m_type)
-        , m_counter(that.m_counter)
+    return *this;
+  }
+
+  value& value::operator=(value&& that)
+  {
+    if (this != &that)
     {
-        switch (m_type)
-        {
-            case type_bool:
-            case type_int:
-                m_data.i = that.m_data.i;
-                break;
+      reset();
+      switch (m_type = that.m_type)
+      {
+        case type_boolean:
+          m_value_boolean = that.m_value_boolean;
+          break;
 
-            case type_real:
-                m_data.r = that.m_data.r;
-                break;
+        case type_number:
+          m_value_number = that.m_value_number;
+          break;
 
-            case type_ratio:
-                m_data.ratio = that.m_data.ratio;
-                break;
+        case type_vector:
+          m_value_vector = that.m_value_vector;
+          break;
 
-            case type_string:
-                m_data.string = that.m_data.string;
-                break;
+        case type_string:
+          m_value_string = that.m_value_string;
+          break;
 
-            case type_list:
-                m_data.list = that.m_data.list;
-                break;
-
-            case type_function:
-                m_data.function = that.m_data.function;
-        }
-        if (m_counter)
-        {
-            ++(*m_counter);
-        }
+        case type_quote:
+          m_value_quote = that.m_value_quote;
+          break;
+      }
+      that.m_type = type_boolean;
+      that.m_value_boolean = false;
     }
 
-    value::value(bool b)
-        : m_type(type_bool)
-        , m_counter(0)
+    return *this;
+  }
+
+  std::u32string value::type_description(enum type type)
+  {
+    switch (type)
     {
-        m_data.i = b ? 1 : 0;
+      case type_boolean:
+        return U"boolean";
+
+      case type_number:
+        return U"number";
+
+      case type_vector:
+        return U"vector";
+
+      case type_string:
+        return U"string";
+
+      case type_quote:
+        return U"quote";
     }
 
-    value::value(integer i)
-        : m_type(type_int)
-        , m_counter(0)
+    return U"unknown";
+  }
+
+  void value::reset()
+  {
+    switch (m_type)
     {
-        m_data.i = i;
+      case type_number:
+        delete m_value_number;
+        break;
+
+      case type_vector:
+        delete m_value_vector;
+        break;
+
+      case type_string:
+        delete m_value_string;
+        break;
+
+      case type_quote:
+        delete m_value_quote;
+        break;
+
+      default:
+        break;
     }
 
-    value::value(real r)
-        : m_type(type_real)
-        , m_counter(0)
+    m_type = type_boolean;
+    m_value_boolean = false;
+  }
+
+  bool value::as_boolean() const
+  {
+    if (!is(type_boolean))
     {
-        m_data.r = r;
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting boolean."
+      );
     }
 
-    value::value(const class ratio& ratio)
-        : m_type(type_ratio)
-        , m_counter(new unsigned(1))
+    return m_value_boolean;
+  }
+
+  const number& value::as_number() const
+  {
+    if (!is(type_number))
     {
-        m_data.ratio = new class ratio(ratio);
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting number."
+      );
     }
 
-    value::value(const std::string& s)
-        : m_type(type_string)
-        , m_counter(new unsigned(1))
+    return *m_value_number;
+  }
+
+  const std::vector<value>& value::as_vector() const
+  {
+    if (!is(type_vector))
     {
-        m_data.string = new std::string(s);
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting vector."
+      );
     }
 
-    value::value(const std::vector<value>& l)
-        : m_type(type_list)
-        , m_counter(new unsigned(1))
+    return *m_value_vector;
+  }
+
+  const std::u32string& value::as_string() const
+  {
+    if (!is(type_string))
     {
-        m_data.list = new std::vector<value>(l);
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was expecting string."
+      );
     }
 
-    value::value(const class function& f)
-        : m_type(type_function)
-        , m_counter(new unsigned(1))
+    return *m_value_string;
+  }
+
+  const quote& value::as_quote() const
+  {
+    if (!is(type_quote))
     {
-        m_data.function = new function(f);
+      throw error(
+        error::type_type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting quote."
+      );
     }
 
-    value::~value()
+    return *m_value_quote;
+  }
+
+  static std::u32string number_to_string(const number& value)
+  {
+    std::stringstream ss;
+
+    ss << value;
+
+    return peelo::unicode::utf8::decode(ss.str());
+  }
+
+  static std::u32string vector_to_string(const std::vector<value>& elements)
+  {
+    std::u32string result;
+    bool first = true;
+
+    for (const auto& element : elements)
     {
-        reset();
+      if (first)
+      {
+        first = false;
+      } else {
+        result.append(U", ");
+      }
+      result.append(element.to_string());
     }
 
-    void value::reset()
+    return result;
+  }
+
+  std::u32string value::to_string() const
+  {
+    switch (m_type)
     {
-        if (m_counter && --(*m_counter) == 0)
-        {
-            delete m_counter;
-            m_counter = 0;
-            switch (m_type)
+      case type_boolean:
+        return m_value_boolean ? U"true" : U"false";
+
+      case type_number:
+        return number_to_string(*m_value_number);
+
+      case type_vector:
+        return vector_to_string(*m_value_vector);
+
+      case type_string:
+        return *m_value_string;
+
+      case type_quote:
+        return m_value_quote->to_source();
+    }
+
+    return U"";
+  }
+
+  static std::u32string vector_to_source(const std::vector<value>& elements)
+  {
+    std::u32string result;
+    bool first = true;
+
+    result.append(1, U'[');
+    for (const auto& element : elements)
+    {
+      if (first)
+      {
+        first = false;
+      } else {
+        result.append(U", ");
+      }
+      result.append(element.to_source());
+    }
+    result.append(1, U']');
+
+    return result;
+  }
+
+  static std::u32string string_to_source(const std::u32string& string)
+  {
+    std::u32string result;
+
+    result.reserve(string.length() + 2);
+    result.append(1, '"');
+
+    for (const auto& c : string)
+    {
+      switch (c)
+      {
+        case 010:
+          result.append(1, '\\');
+          result.append(1, 'b');
+          break;
+
+        case 011:
+          result.append(1, '\\');
+          result.append(1, 't');
+          break;
+
+        case 012:
+          result.append(1, '\\');
+          result.append(1, 'n');
+          break;
+
+        case 014:
+          result.append(1, '\\');
+          result.append(1, 'f');
+          break;
+
+        case 015:
+          result.append(1, '\\');
+          result.append(1, 'r');
+          break;
+
+        case '"':
+        case '\\':
+        case '/':
+          result.append(1, '\\');
+          result.append(1, c);
+          break;
+
+        default:
+          if (!peelo::unicode::isprint(c))
+          {
+            char buffer[7];
+
+            std::snprintf(buffer, 7, "\\u%04x", c);
+            for (const char* p = buffer; *p; ++p)
             {
-                case type_ratio:
-                    delete m_data.ratio;
-                    break;
-
-                case type_string:
-                    delete m_data.string;
-                    break;
-
-                case type_list:
-                    delete m_data.list;
-                    break;
-
-                case type_function:
-                    delete m_data.function;
-
-                default:
-                    break;
+              result.append(1, static_cast<char32_t>(*p));
             }
-        }
+          } else {
+            result.append(1, c);
+          }
+      }
     }
 
-    integer value::as_int() const
-        throw(std::out_of_range)
+    result.append(1, '"');
+
+    return result;
+  }
+
+  std::u32string value::to_source() const
+  {
+    switch (m_type)
     {
-        if (m_type == type_int)
-        {
-            return m_data.i;
-        }
-        else if (m_type == type_real)
-        {
-            real r = m_data.r;
+      case type_boolean:
+        return m_value_boolean ? U"true" : U"false";
 
-            if (r > 0.0)
-            {
-                r = std::floor(r);
-            }
-            if (r < 0.0)
-            {
-                r = std::ceil(r);
-            }
-            if (!LASKIN_IS_IN_INTEGER_RANGE(r))
-            {
-                throw std::out_of_range("real number out of integer bounds");
-            }
+      case type_number:
+        return number_to_string(*m_value_number);
 
-            return static_cast<integer>(r);
-        }
-        else if (m_type == type_ratio)
-        {
-            const integer numerator = m_data.ratio->numerator();
-            const integer denominator = m_data.ratio->denominator();
+      case type_vector:
+        return vector_to_source(*m_value_vector);
 
-            if (numerator < 0)
-            {
-                return -(-numerator / denominator);
-            } else {
-                return numerator / denominator;
-            }
-        }
+      case type_string:
+        return string_to_source(*m_value_string);
 
-        return 0;
+      case type_quote:
+        return m_value_quote->to_source();
     }
 
-    real value::as_real() const
-    {
-        if (m_type == type_real)
-        {
-            return m_data.r;
-        }
-        else if (m_type == type_int)
-        {
-            return static_cast<real>(m_data.i);
-        }
-        else if (m_type == type_ratio)
-        {
-            return static_cast<real>(m_data.ratio->numerator())
-                / static_cast<real>(m_data.ratio->denominator());
-        }
+    return U"";
+  }
 
-        return 0.0;
-    }
+  std::ostream& operator<<(std::ostream& out, enum value::type type)
+  {
+    out << peelo::unicode::utf8::encode(value::type_description(type));
 
-    value& value::assign(const value& that)
-    {
-        reset();
-        if ((m_counter = that.m_counter))
-        {
-            ++(*m_counter);
-        }
-        switch (m_type = that.m_type)
-        {
-            case type_bool:
-            case type_int:
-                m_data.i = that.m_data.i;
-                break;
+    return out;
+  }
 
-            case type_real:
-                m_data.r = that.m_data.r;
-                break;
+  std::ostream& operator<<(std::ostream& out, const class value& value)
+  {
+    out << peelo::unicode::utf8::encode(value.to_string());
 
-            case type_ratio:
-                m_data.ratio = that.m_data.ratio;
-                break;
-
-            case type_string:
-                m_data.string = that.m_data.string;
-                break;
-
-            case type_list:
-                m_data.list = that.m_data.list;
-                break;
-
-            case type_function:
-                m_data.function = that.m_data.function;
-        }
-
-        return *this;
-    }
-
-    value& value::assign(bool b)
-    {
-        reset();
-        m_type = type_bool;
-        m_data.i = b ? 1 : 0;
-
-        return *this;
-    }
-
-    value& value::assign(integer i)
-    {
-        reset();
-        m_type = type_bool;
-        m_data.i = i;
-
-        return *this;
-    }
-
-    value& value::assign(real r)
-    {
-        reset();
-        m_type = type_real;
-        m_data.r = r;
-
-        return *this;
-    }
-
-    value& value::assign(const class ratio& r)
-    {
-        reset();
-        m_type = type_ratio;
-        m_data.ratio = new class ratio(r);
-        m_counter = new unsigned(1);
-
-        return *this;
-    }
-
-    value& value::assign(const std::string& s)
-    {
-        reset();
-        m_type = type_string;
-        m_data.string = new std::string(s);
-        m_counter = new unsigned(1);
-
-        return *this;
-    }
-
-    value& value::assign(const std::vector<value>& l)
-    {
-        reset();
-        m_type = type_list;
-        m_data.list = new std::vector<value>(l);
-        m_counter = new unsigned(1);
-
-        return *this;
-    }
-
-    value& value::assign(const class function& f)
-    {
-        reset();
-        m_type = type_function;
-        m_data.function = new function(f);
-        m_counter = new unsigned(1);
-
-        return *this;
-    }
-
-    bool value::equals(const value& that) const
-    {
-        switch (m_type)
-        {
-            case type_bool:
-                return that.m_type == type_bool && m_data.i == that.m_data.i;
-
-            case type_int:
-                if (that.m_type == type_int)
-                {
-                    return m_data.i == that.m_data.i;
-                }
-                else if (that.m_type == type_real)
-                {
-                    return static_cast<real>(m_data.i) == that.m_data.r;
-                }
-                break;
-
-            case type_real:
-                if (that.m_type == type_real)
-                {
-                    return m_data.r == that.m_data.r;
-                }
-                else if (that.m_type == type_int)
-                {
-                    return m_data.r == static_cast<real>(that.m_data.r);
-                }
-                break;
-
-            case type_ratio:
-                if (that.m_type == type_ratio)
-                {
-                    return m_data.ratio->equals(*that.m_data.ratio);
-                }
-                else if (that.m_type == type_int)
-                {
-                    return m_data.ratio->numerator() == that.m_data.i
-                        && m_data.ratio->denominator() == 1;
-                }
-                else if (that.m_type == type_real)
-                {
-                    return static_cast<real>(m_data.ratio->numerator()) == that.m_data.r
-                        && m_data.ratio->denominator() == 1;
-                }
-                break;
-
-            case type_string:
-                if (that.m_type == type_string)
-                {
-                    return !m_data.string->compare(*that.m_data.string);
-                }
-                break;
-
-            case type_list:
-                if (that.m_type == type_list)
-                {
-                    const std::vector<value>& a = *m_data.list;
-                    const std::vector<value>& b = *m_data.list;
-
-                    if (a.size() != b.size())
-                    {
-                        return false;
-                    }
-                    for (std::vector<value>::size_type i = 0; i < a.size(); ++i)
-                    {
-                        if (a[i] != b[i])
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-                break;
-
-            case type_function:
-                if (that.m_type == type_function)
-                {
-                    return m_data.function->signature()
-                        == that.m_data.function->signature();
-                }
-        }
-
-        return false;
-    }
-
-    int value::compare(const value& that) const
-    {
-        switch (m_type)
-        {
-            case value::type_int:
-                if (that.m_type == type_int)
-                {
-                    if (m_data.i > that.m_data.i)
-                    {
-                        return 1;
-                    }
-                    else if (m_data.i < that.m_data.i)
-                    {
-                        return -1;
-                    }
-                }
-                else if (that.m_type == type_real)
-                {
-                    const real a = static_cast<real>(m_data.i);
-                    const real b = that.m_data.r;
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                else if (that.m_type == type_ratio)
-                {
-                    const integer a = m_data.i;
-                    const integer b = that.m_data.ratio->numerator() / that.m_data.ratio->denominator();
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                break;
-
-            case value::type_real:
-                if (that.m_type == type_real)
-                {
-                    if (m_data.r > that.m_data.r)
-                    {
-                        return 1;
-                    }
-                    else if (m_data.r < that.m_data.r)
-                    {
-                        return -1;
-                    }
-                }
-                else if (that.m_type == type_int)
-                {
-                    const real a = m_data.r;
-                    const real b = static_cast<real>(that.m_data.r);
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                else if (that.m_type == type_ratio)
-                {
-                    const real a = m_data.r;
-                    const real b = static_cast<real>(that.m_data.ratio->numerator()) /
-                                   static_cast<real>(that.m_data.ratio->denominator());
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                break;
-
-            case value::type_ratio:
-                if (that.m_type == type_ratio)
-                {
-                    return m_data.ratio->compare(*that.m_data.ratio);
-                }
-                else if (that.m_type == type_int)
-                {
-                    const integer a = m_data.ratio->numerator() / m_data.ratio->denominator();
-                    const integer b = that.m_data.i;
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                else if (that.m_type == type_real)
-                {
-                    const real a = static_cast<real>(m_data.ratio->numerator()) /
-                                   static_cast<real>(m_data.ratio->denominator());
-                    const real b = that.m_data.r;
-
-                    if (a > b)
-                    {
-                        return 1;
-                    }
-                    else if (a < b)
-                    {
-                        return -1;
-                    }
-                }
-                break;
-
-            case value::type_string:
-                if (that.m_type == type_string)
-                {
-                    return m_data.string->compare(*that.m_data.string);
-                }
-                break;
-
-            case value::type_bool:
-            case value::type_list:
-            case value::type_function:
-                break;
-        }
-
-        return 0;
-    }
-
-    std::ostream& operator<<(std::ostream& os, const class value& value)
-    {
-        switch (value.type())
-        {
-            case value::type_bool:
-                os << (value.as_bool() ? "true" : "false");
-                break;
-
-            case value::type_int:
-                os << int_to_string(value.as_int());
-                break;
-
-            case value::type_real:
-                os << real_to_string(value.as_real());
-                break;
-
-            case value::type_ratio:
-                os << value.as_ratio();
-                break;
-
-            case value::type_string:
-                os << value.as_string();
-                break;
-
-            case value::type_list:
-            {
-                const std::vector<class value>& list = value.as_list();
-
-                for (std::size_t i = 0; i < list.size(); ++i)
-                {
-                    if (i > 0)
-                    {
-                        os << ", ";
-                    }
-                    os << list[i];
-                }
-                break;
-            }
-
-            case value::type_function:
-                os << "function" << value.as_function().signature();
-                break;
-        }
-        return os;
-    }
-
-    std::ostream& operator<<(std::ostream& os, enum value::type type)
-    {
-        switch (type)
-        {
-            case value::type_bool:
-                os << "bool";
-                break;
-
-            case value::type_int:
-                os << "int";
-                break;
-
-            case value::type_real:
-                os << "real";
-                break;
-
-            case value::type_ratio:
-                os << "ratio";
-                break;
-
-            case value::type_string:
-                os << "string";
-                break;
-
-            case value::type_list:
-                os << "list";
-                break;
-
-            case value::type_function:
-                os << "function";
-        }
-
-        return os;
-    }
+    return out;
+  }
 }

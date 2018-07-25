@@ -23,78 +23,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode.hpp>
-
 #include "laskin/error.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
-  error::error(enum type type,
-               const std::u32string& message,
-               int line,
-               int column)
-    : m_type(type)
-    , m_message(peelo::unicode::utf8::encode(message))
-    , m_line(line)
-    , m_column(column) {}
-
-  error::error(const error& that)
-    : m_type(that.m_type)
-    , m_message(that.m_message)
-    , m_line(that.m_line)
-    , m_column(that.m_column) {}
-
-  error& error::operator=(const error& that)
+  static value multiply_number(const number& a, const number& b)
   {
-    m_type = that.m_type;
-    m_message = that.m_message;
-    m_line = that.m_line;
-    m_column = that.m_column;
-
-    return *this;
+    return value::make_number(a * b);
   }
 
-  std::u32string error::type_description(enum type type)
+  static value multiply_vector(const std::vector<value>& a,
+                               const std::vector<value>& b)
   {
-    switch (type)
+    const auto size = a.size();
+    std::vector<value> result;
+
+    if (size != b.size())
     {
-    case type_syntax:
-      return U"Syntax error";
-
-    case type_type:
-      return U"Type error";
-
-    case type_unit:
-      return U"Unit error";
-
-    case type_range:
-      return U"Range error";
-
-    case type_domain:
-      return U"Domain error";
-
-    case type_name:
-      return U"Name error";
+      throw error(error::type_range, U"Vector length mismatch.");
+    }
+    result.reserve(size);
+    for (std::vector<value>::size_type i = 0; i < size; ++i)
+    {
+      result.push_back(a[i] * b[i]);
     }
 
-    return U"Unknown error"; // Just to keep GCC happy.
+    return value::make_vector(result);
   }
 
-  std::ostream& operator<<(std::ostream& out, const class error& error)
+  value value::multiply(const value& that) const
   {
-    const auto line = error.line();
-    const auto& message = error.message();
-
-    if (line != 0)
+    if (that.is(m_type))
     {
-      out << line << ':' << error.column() << ':';
-    }
-    out << peelo::unicode::utf8::encode(error::type_description(error.type()));
-    if (!message.empty())
-    {
-      out << ": " << message;
+      switch (m_type)
+      {
+        case type_number:
+          return multiply_number(*m_value_number, *that.m_value_number);
+
+        case type_vector:
+          return multiply_vector(*m_value_vector, *that.m_value_vector);
+
+        default:
+          break;
+      }
     }
 
-    return out;
+    throw error(
+      error::type_type,
+      U"Cannot multiply " +
+      type_description(that.m_type) +
+      U" with " +
+      type_description(m_type)
+    );
   }
 }
+

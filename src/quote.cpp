@@ -23,78 +23,77 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode.hpp>
+#ifndef LASKIN_VARIANT_HPP_GUARD
+#define LASKIN_VARIANT_HPP_GUARD
 
-#include "laskin/error.hpp"
+#include "laskin/quote.hpp"
 
 namespace laskin
 {
-  error::error(enum type type,
-               const std::u32string& message,
-               int line,
-               int column)
-    : m_type(type)
-    , m_message(peelo::unicode::utf8::encode(message))
-    , m_line(line)
-    , m_column(column) {}
+  quote::quote() {}
 
-  error::error(const error& that)
-    : m_type(that.m_type)
-    , m_message(that.m_message)
-    , m_line(that.m_line)
-    , m_column(that.m_column) {}
+  quote::quote(const callback& cb)
+    : m_container(cb) {}
 
-  error& error::operator=(const error& that)
+  quote::quote(const node_container& nodes)
+    : m_container(nodes) {}
+
+  quote::quote(const quote& that)
+    : m_container(that.m_container) {}
+
+  quote& quote::operator=(const quote& that)
   {
-    m_type = that.m_type;
-    m_message = that.m_message;
-    m_line = that.m_line;
-    m_column = that.m_column;
+    m_container = that.m_container;
 
     return *this;
   }
 
-  std::u32string error::type_description(enum type type)
+  void quote::call(class context& context, std::ostream& out) const
   {
-    switch (type)
+    if (std::holds_alternative<node_container>(m_container))
     {
-    case type_syntax:
-      return U"Syntax error";
-
-    case type_type:
-      return U"Type error";
-
-    case type_unit:
-      return U"Unit error";
-
-    case type_range:
-      return U"Range error";
-
-    case type_domain:
-      return U"Domain error";
-
-    case type_name:
-      return U"Name error";
+      for (const auto& node : std::get<node_container>(m_container))
+      {
+        if (node)
+        {
+          node->exec(context, out);
+        }
+      }
     }
-
-    return U"Unknown error"; // Just to keep GCC happy.
+    else if (std::holds_alternative<callback>(m_container))
+    {
+      std::get<callback>(m_container)(context, out);
+    }
   }
 
-  std::ostream& operator<<(std::ostream& out, const class error& error)
+  std::u32string quote::to_source() const
   {
-    const auto line = error.line();
-    const auto& message = error.message();
-
-    if (line != 0)
+    if (std::holds_alternative<node_container>(m_container))
     {
-      out << line << ':' << error.column() << ':';
-    }
-    out << peelo::unicode::utf8::encode(error::type_description(error.type()));
-    if (!message.empty())
-    {
-      out << ": " << message;
+      std::u32string result;
+      bool first = true;
+
+      result.append(1, U'(');
+      for (const auto& node : std::get<node_container>(m_container))
+      {
+        if (first)
+        {
+          first = false;
+        } else {
+          result.append(1, U' ');
+        }
+        if (node)
+        {
+          result.append(node->to_source());
+        }
+      }
+      result.append(1, U')');
+
+      return result;
     }
 
-    return out;
+    return U"(\"native quote\")";
   }
 }
+
+#endif /* !LASKIN_VARIANT_HPP_GUARD */

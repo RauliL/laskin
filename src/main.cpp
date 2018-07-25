@@ -1,261 +1,209 @@
-#include "interpreter.hpp"
-#include "script.hpp"
-#include "value.hpp"
+/*
+ * Copyright (c) 2018, Rauli Laine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 #include <fstream>
-#include <sstream>
 #include <unistd.h>
 
-using namespace laskin;
+#include <peelo/unicode.hpp>
 
-static void count_open_braces(stack<char>&, const std::string&);
+#include "laskin/context.hpp"
+#include "laskin/error.hpp"
+#include "laskin/quote.hpp"
 
-static void cmd_peek(interpreter&, stack<value>&);
-static void cmd_quit(interpreter&, stack<value>&);
-static void cmd_stack(interpreter&, stack<value>&);
+static std::string programfile;
+static std::vector<std::u32string> inline_scripts;
 
-struct cli_command
+namespace laskin
 {
-    const char* name;
-    const char* name_shortcut;
-    void (*callback)(interpreter&, stack<laskin::value>&);
-};
+  void run_repl(context&);
+}
 
-static const cli_command cli_command_list[] =
-{
-    {"peek", "p", cmd_peek},
-    {"quit", "q", cmd_quit},
-    {"stack", "s", cmd_stack},
-    {0, 0, 0}
-};
+static void run_file(laskin::context&, std::istream&);
+static void parse_args(int, char**);
+static void print_usage(std::ostream&, const char*);
 
 int main(int argc, char** argv)
 {
-    class interpreter interpreter;
-    stack<value> data;
-    hashmap<value> locals;
+  laskin::context context;
 
-    interpreter.initialize();
-    if (argc > 1)
+  parse_args(argc, argv);
+
+  if (!inline_scripts.empty())
+  {
+    for (const auto& source : inline_scripts)
     {
-        for (int i = 1; i < argc; ++i)
-        {
-            std::ifstream is(argv[i], std::ios_base::in);
-
-            if (is.good())
-            {
-                try
-                {
-                    if (!data.empty())
-                    {
-                        data.clear();
-                    }
-                    if (!locals.empty())
-                    {
-                        locals.clear();
-                    }
-                    script::compile(is).execute(
-                            interpreter,
-                            data,
-                            locals,
-                            std::cin,
-                            std::cout
-                    );
-                }
-                catch (error& e)
-                {
-                    is.close();
-                    if (e.is(error::type_exit))
-                    {
-                        std::exit(EXIT_SUCCESS);
-                    } else {
-                        std::cerr << "error: " << e.message() << std::endl;
-                        std::exit(EXIT_FAILURE);
-                    }
-                }
-                is.close();
-            } else {
-                std::cerr << "unable to open file `"
-                          << argv[i]
-                          << "' for reading"
-                          << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }
+      try
+      {
+        laskin::quote::parse(source).call(context, std::cout);
+      }
+      catch (const laskin::error& error)
+      {
+        std::cerr << error << std::endl;
+        std::exit(EXIT_FAILURE);
+      }
     }
-    else if (isatty(fileno(stdin)))
+  }
+  else if (!programfile.empty())
+  {
+    std::ifstream input(programfile, std::ios_base::in);
+
+    if (!input.good())
     {
-        int line_counter = 0;
-        std::string source;
-        stack<char> open_braces;
-
-        while (std::cin.good())
-        {
-            std::string line;
-
-            std::cout << "laskin:"
-                      << ++line_counter
-                      << ":"
-                      << data.size()
-                      << "> ";
-            if (!std::getline(std::cin, line))
-            {
-                break;
-            }
-            if (line.empty())
-            {
-                continue;
-            }
-            else if (line[0] == '\\')
-            {
-                bool found = false;
-
-                line = line.substr(1);
-                for (int i = 0; cli_command_list[i].name; ++i)
-                {
-                    if (!line.compare(cli_command_list[i].name)
-                        || !line.compare(cli_command_list[i].name_shortcut))
-                    {
-                        found = true;
-                        cli_command_list[i].callback(interpreter, data);
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    std::cout << "unrecognized command" << std::endl;
-                }
-            } else {
-                count_open_braces(open_braces, line);
-                source.append(line).append(1, '\n');
-                if (open_braces.empty())
-                {
-                    std::stringstream ss;
-
-                    ss.str(source);
-                    source.clear();
-                    try
-                    {
-                        script::compile(ss).execute(
-                                interpreter,
-                                data,
-                                locals,
-                                std::cin,
-                                std::cout
-                        );
-                    }
-                    catch (error& e)
-                    {
-                        if (e.is(error::type_exit))
-                        {
-                            std::exit(EXIT_SUCCESS);
-                        } else {
-                            std::cout << "error: " << e.message() << std::endl;
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        try
-        {
-            script::compile(std::cin).execute(
-                    interpreter,
-                    data,
-                    locals,
-                    std::cin,
-                    std::cout
-            );
-        }
-        catch (error& e)
-        {
-            if (!e.is(error::type_exit))
-            {
-                std::cerr << "error: " << e.message() << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }
+      std::cerr << argv[0]
+                << ": Unable to open file `"
+                << programfile
+                << "' for reading."
+                << std::endl;
+      std::exit(EXIT_FAILURE);
     }
+    run_file(context, input);
+  }
+  else if (isatty(fileno(stdin)))
+  {
+    laskin::run_repl(context);
+  } else {
+    run_file(context, std::cin);
+  }
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
-static void count_open_braces(stack<char>& open_braces, const std::string& s)
+static void run_file(laskin::context& context, std::istream& input)
 {
-    for (std::string::size_type i = 0; i < s.length(); ++i)
+  const auto source = peelo::unicode::utf8::decode(
+    std::string(
+      std::istreambuf_iterator<char>(input),
+      std::istreambuf_iterator<char>()
+    )
+  );
+
+  try
+  {
+    laskin::quote::parse(source).call(context, std::cout);
+  }
+  catch (const laskin::error& error)
+  {
+    std::cerr << error << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+}
+
+static void parse_args(int argc, char** argv)
+{
+  int offset = 1;
+
+  while (offset < argc)
+  {
+    auto arg = argv[offset++];
+
+    if (!*arg)
     {
-        switch (s[i])
-        {
-            case '#':
-                return;
+      continue;
+    }
+    else if (*arg != '-')
+    {
+      programfile = arg;
+      break;
+    }
+    else if (!arg[1])
+    {
+      break;
+    }
+    else if (arg[1] == '-')
+    {
+      if (!std::strcmp(arg, "--help"))
+      {
+        print_usage(std::cout, argv[0]);
+        std::exit(EXIT_SUCCESS);
+      }
+      else if (!std::strcmp(arg, "--version"))
+      {
+        std::cerr << "Laskin 2.0.0" << std::endl;
+        std::exit(EXIT_SUCCESS);
+      } else {
+        std::cerr << "Unrecognized switch: " << arg << std::endl;
+        print_usage(std::cerr, argv[0]);
+        std::exit(EXIT_FAILURE);
+      }
+    }
+    for (int i = 1; arg[i]; ++i)
+    {
+      switch (arg[i])
+      {
+        case 'e':
+          if (offset < argc)
+          {
+            std::u32string script;
 
-            case '(':
-                open_braces.push(')');
-                break;
-
-            case '[':
-                open_braces.push(']');
-                break;
-
-            case '{':
-                open_braces.push('}');
-                break;
-
-            case ')':
-            case ']':
-            case '}':
-                if (!open_braces.empty() && open_braces.back() == s[i])
-                {
-                    open_braces.pop();
-                }
-                break;
-
-            case '"':
-            case '\'':
+            if (!peelo::unicode::utf8::decode_validate(argv[offset++], script))
             {
-                const char separator = s[i++];
-
-                while (i < s.length())
-                {
-                    if (s[i] == separator)
-                    {
-                        break;
-                    }
-                    else if (s[i] == '\\' && i + 1 < s.length())
-                    {
-                        i += 2;
-                    } else {
-                        ++i;
-                    }
-                }
+              std::cerr << "Unable to decode given inline script as UTF-8."
+                        << std::endl;
+              std::exit(EXIT_FAILURE);
             }
-        }
+            inline_scripts.push_back(script);
+          } else {
+            std::cerr << "Argument expected for the -e option." << std::endl;
+            print_usage(std::cerr, argv[0]);
+            std::exit(EXIT_FAILURE);
+          }
+          break;
+
+        case 'h':
+          print_usage(std::cout, argv[0]);
+          std::exit(EXIT_SUCCESS);
+          break;
+
+        default:
+          std::cerr << "Unrecognized switch: `" << arg[i] << "'" << std::endl;
+          std::exit(EXIT_FAILURE);
+          break;
+      }
     }
+  }
+
+  if (offset < argc)
+  {
+    std::cerr << "Too many arguments given." << std::endl;
+    print_usage(std::cerr, argv[0]);
+    std::exit(EXIT_FAILURE);
+  }
 }
 
-static void cmd_peek(class interpreter& interpreter, stack<value>& data)
+static void print_usage(std::ostream& output, const char* executable_name)
 {
-    if (data.empty())
-    {
-        std::cout << "stack is empty" << std::endl;
-    } else {
-        std::cout << data.back() << std::endl;
-    }
-}
-
-static void cmd_quit(class interpreter& interpreter, stack<value>& data)
-{
-    std::exit(EXIT_SUCCESS);
-}
-
-static void cmd_stack(class interpreter& interpreter, stack<value>& data)
-{
-    for (stack<value>::size_type i = 0; i < data.size(); ++i)
-    {
-        if (i > 0)
-        {
-            std::cout << ' ';
-        }
-        std::cout << data[i];
-    }
-    std::cout << std::endl;
+  output << std::endl
+         << "Usage: "
+         << executable_name
+         << " [switches] [programfile]"
+         << std::endl
+         << "  -e program        One line of program. (Omit programfile.)"
+         << std::endl
+         << "  --version         Print the version."
+         << std::endl
+         << "  --help            Display this message."
+         << std::endl
+         << std::endl;
 }
