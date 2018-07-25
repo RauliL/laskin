@@ -43,6 +43,7 @@ namespace laskin
     extern "C" const context::dictionary_definition string;
     extern "C" const context::dictionary_definition utils;
     extern "C" const context::dictionary_definition vector;
+    extern "C" const context::dictionary_definition weekday;
   }
 
   context::context()
@@ -55,6 +56,7 @@ namespace laskin
     initialize_dictionary(m_dictionary, api::quote);
     initialize_dictionary(m_dictionary, api::string);
     initialize_dictionary(m_dictionary, api::vector);
+    initialize_dictionary(m_dictionary, api::weekday);
   }
 
   context::context(const context& that)

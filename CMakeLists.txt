@@ -63,6 +63,7 @@ SET(
   src/api/string.cpp
   src/api/utils.cpp
   src/api/vector.cpp
+  src/api/weekday.cpp
   src/operator/add.cpp
   src/operator/compare.cpp
   src/operator/divide.cpp

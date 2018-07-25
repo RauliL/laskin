@@ -83,13 +83,9 @@ namespace laskin
     context << value::make_number(context.peek().as_date().day());
   }
 
-  static void w_day_of_week(class context& context, std::ostream&)
+  static void w_weekday(class context& context, std::ostream&)
   {
-    const auto value = static_cast<int>(
-      context.peek().as_date().day_of_week()
-    );
-
-    context << value::make_number(value);
+    context << value::make_weekday(context.peek().as_date().day_of_week());
   }
 
   static void w_day_of_year(class context& context, std::ostream&)
@@ -142,7 +138,7 @@ namespace laskin
       { U"date:year", w_year },
       { U"date:month", w_month },
       { U"date:day", w_day },
-      { U"date:day-of-week", w_day_of_week },
+      { U"date:weekday", w_weekday },
       { U"date:day-of-year", w_day_of_year },
       { U"date:days-in-month", w_days_in_month },
       { U"date:days-in-year", w_days_in_year },

@@ -55,6 +55,7 @@ namespace laskin
       string,
       vector,
       month,
+      weekday,
       date
     };
 
@@ -123,6 +124,11 @@ namespace laskin
      * Constructs month value.
      */
     static value make_month(peelo::month month);
+
+    /**
+     * Constructs weekday value.
+     */
+    static value make_weekday(peelo::weekday weekday);
 
     /**
      * Constructs date value.
@@ -198,6 +204,7 @@ namespace laskin
     const std::u32string& as_string() const;
     const quote& as_quote() const;
     peelo::month as_month() const;
+    peelo::weekday as_weekday() const;
     const peelo::date& as_date() const;
 
     /**
@@ -302,6 +309,7 @@ namespace laskin
       std::u32string* m_value_string;
       quote* m_value_quote;
       peelo::month m_value_month;
+      peelo::weekday m_value_weekday;
       peelo::date* m_value_date;
     };
   };

@@ -63,6 +63,11 @@ namespace laskin
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
+  static int compare_weekday(peelo::weekday a, peelo::weekday b)
+  {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
   static int compare_date(const peelo::date& a, const peelo::date& b)
   {
     return a.compare(b);
@@ -85,6 +90,9 @@ namespace laskin
 
         case type::month:
           return compare_month(m_value_month, that.m_value_month);
+
+        case type::weekday:
+          return compare_weekday(m_value_weekday, that.m_value_weekday);
 
         case type::date:
           return compare_date(*m_value_date, *that.m_value_date);

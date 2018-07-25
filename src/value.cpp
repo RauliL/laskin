@@ -123,6 +123,16 @@ namespace laskin
     return instance;
   }
 
+  value value::make_weekday(peelo::weekday weekday)
+  {
+    value instance;
+
+    instance.m_type = type::weekday;
+    instance.m_value_weekday = weekday;
+
+    return instance;
+  }
+
   value value::make_date(const peelo::date& date)
   {
     value instance;
@@ -177,6 +187,10 @@ namespace laskin
         m_value_month = that.m_value_month;
         break;
 
+      case type::weekday:
+        m_value_weekday = that.m_value_weekday;
+        break;
+
       case type::date:
         m_value_date = new peelo::date(*that.m_value_date);
         break;
@@ -210,6 +224,10 @@ namespace laskin
 
       case type::month:
         m_value_month = that.m_value_month;
+        break;
+
+      case type::weekday:
+        m_value_weekday = that.m_value_weekday;
         break;
 
       case type::date:
@@ -256,6 +274,10 @@ namespace laskin
           m_value_month = that.m_value_month;
           break;
 
+        case type::weekday:
+          m_value_weekday = that.m_value_weekday;
+          break;
+
         case type::date:
           m_value_date = new peelo::date(*that.m_value_date);
           break;
@@ -296,6 +318,10 @@ namespace laskin
           m_value_month = that.m_value_month;
           break;
 
+        case type::weekday:
+          m_value_weekday = that.m_value_weekday;
+          break;
+
         case type::date:
           m_value_date = that.m_value_date;
           break;
@@ -328,6 +354,9 @@ namespace laskin
 
       case type::month:
         return U"month";
+
+      case type::weekday:
+        return U"weekday";
 
       case type::date:
         return U"date";
@@ -458,6 +487,21 @@ namespace laskin
     return m_value_month;
   }
 
+  peelo::weekday value::as_weekday() const
+  {
+    if (!is(type::weekday))
+    {
+      throw error(
+        error::type::type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting day of week."
+      );
+    }
+
+    return m_value_weekday;
+  }
+
   const peelo::date& value::as_date() const
   {
     if (!is(type::date))
@@ -545,6 +589,35 @@ namespace laskin
     return U"unknown";
   }
 
+  static std::u32string weekday_to_string(peelo::weekday weekday)
+  {
+    switch (weekday)
+    {
+      case peelo::weekday::sun:
+        return U"sunday";
+
+      case peelo::weekday::mon:
+        return U"monday";
+
+      case peelo::weekday::tue:
+        return U"tuesday";
+
+      case peelo::weekday::wed:
+        return U"wednesday";
+
+      case peelo::weekday::thu:
+        return U"thursday";
+
+      case peelo::weekday::fri:
+        return U"friday";
+
+      case peelo::weekday::sat:
+        return U"saturday";
+    }
+
+    return U"unknown";
+  }
+
   static std::u32string date_to_string(const peelo::date& date)
   {
     const auto year = date.year();
@@ -591,6 +664,9 @@ namespace laskin
 
       case type::month:
         return month_to_string(m_value_month);
+
+      case type::weekday:
+        return weekday_to_string(m_value_weekday);
 
       case type::date:
         return date_to_string(*m_value_date);
@@ -705,6 +781,9 @@ namespace laskin
 
       case type::month:
         return month_to_string(m_value_month);
+
+      case type::weekday:
+        return weekday_to_string(m_value_weekday);
 
       case type::date:
         return date_to_string(*m_value_date);
