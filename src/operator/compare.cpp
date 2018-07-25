@@ -73,6 +73,11 @@ namespace laskin
     return a.compare(b);
   }
 
+  static int compare_time(const peelo::time& a, const peelo::time& b)
+  {
+    return a.compare(b);
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -96,6 +101,9 @@ namespace laskin
 
         case type::date:
           return compare_date(*m_value_date, *that.m_value_date);
+
+        case type::time:
+          return compare_time(*m_value_time, *that.m_value_time);
 
         default:
           break;

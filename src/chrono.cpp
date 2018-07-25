@@ -57,6 +57,18 @@ namespace laskin
     );
   }
 
+  bool is_time(const std::u32string& input)
+  {
+    return (
+      input.length() == 8
+      && input[2] == ':'
+      && input[5] == ':'
+      && is_digits(input, 0, 2)
+      && is_digits(input, 3, 5)
+      && is_digits(input, 6, 8)
+    );
+  }
+
   peelo::date parse_date(const std::u32string& input)
   {
     const auto length = input.length();
@@ -96,6 +108,37 @@ namespace laskin
     }
 
     return peelo::date(year, converted_month, day);
+  }
+
+  peelo::time parse_time(const std::u32string& input)
+  {
+    int hour;
+    int minute;
+    int second;
+
+    if (input.length() != 8
+        || input[2] != ':'
+        || input[5] != ':'
+        || !is_digits(input, 0, 2)
+        || !is_digits(input, 3, 5)
+        || !is_digits(input, 6, 8))
+    {
+      throw error(
+        error::type::syntax,
+        U"Given time literal does not contain valid time."
+      );
+    }
+
+    hour = to_integer(input, 0, 2);
+    minute = to_integer(input, 3, 5);
+    second = to_integer(input, 6, 8);
+
+    if (!peelo::time::is_valid(hour, minute, second))
+    {
+      throw error(error::type::range, U"Given time value is out of range.");
+    }
+
+    return peelo::time(hour, minute, second);
   }
 
   static bool is_digits(const std::u32string& input,

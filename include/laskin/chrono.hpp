@@ -27,6 +27,7 @@
 #define LASKIN_CHRONO_HPP_GUARD
 
 #include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
 
 namespace laskin
 {
@@ -36,10 +37,21 @@ namespace laskin
   bool is_date(const std::u32string&);
 
   /**
+   * Tests whether given string contains valid ISO 8601 time.
+   */
+  bool is_time(const std::u32string&);
+
+  /**
    * Parses given string into a date. The date is expected to be in ISO 8601
    * format.
    */
   peelo::date parse_date(const std::u32string&);
+
+  /**
+   * Parses given string into a time. The time is expected to be in ISO 8601
+   * format.
+   */
+  peelo::time parse_time(const std::u32string&);
 }
 
 #endif /* !LASKIN_CHRONO_HPP_GUARD */

@@ -154,6 +154,27 @@ namespace laskin
     return instance;
   }
 
+  value value::make_time(const peelo::time& time)
+  {
+    value instance;
+
+    instance.m_type = type::time;
+    instance.m_value_time = new peelo::time(time);
+
+    return instance;
+  }
+
+  value value::make_time(const std::u32string& input)
+  {
+    const auto time = parse_time(input);
+    value instance;
+
+    instance.m_type = type::time;
+    instance.m_value_time = new peelo::time(time);
+
+    return instance;
+  }
+
   value::value()
     : m_type(type::boolean)
     , m_value_boolean(false) {}
@@ -194,6 +215,10 @@ namespace laskin
       case type::date:
         m_value_date = new peelo::date(*that.m_value_date);
         break;
+
+      case type::time:
+        m_value_time = new peelo::time(*that.m_value_time);
+        break;
     }
   }
 
@@ -232,6 +257,10 @@ namespace laskin
 
       case type::date:
         m_value_date = that.m_value_date;
+        break;
+
+      case type::time:
+        m_value_time = that.m_value_time;
         break;
     }
     that.m_type = type::boolean;
@@ -281,6 +310,10 @@ namespace laskin
         case type::date:
           m_value_date = new peelo::date(*that.m_value_date);
           break;
+
+        case type::time:
+          m_value_time = new peelo::time(*that.m_value_time);
+          break;
       }
     }
 
@@ -325,6 +358,10 @@ namespace laskin
         case type::date:
           m_value_date = that.m_value_date;
           break;
+
+        case type::time:
+          m_value_time = that.m_value_time;
+          break;
       }
       that.m_type = type::boolean;
       that.m_value_boolean = false;
@@ -360,6 +397,9 @@ namespace laskin
 
       case type::date:
         return U"date";
+
+      case type::time:
+        return U"time";
     }
 
     return U"unknown";
@@ -387,6 +427,10 @@ namespace laskin
 
       case type::date:
         delete m_value_date;
+        break;
+
+      case type::time:
+        delete m_value_time;
         break;
 
       default:
@@ -517,6 +561,21 @@ namespace laskin
     return *m_value_date;
   }
 
+  const peelo::time& value::as_time() const
+  {
+    if (!is(type::time))
+    {
+      throw error(
+        error::type::type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was expecting time."
+      );
+    }
+
+    return *m_value_time;
+  }
+
   static std::u32string number_to_string(const number& value)
   {
     std::stringstream ss;
@@ -643,6 +702,31 @@ namespace laskin
     return result;
   }
 
+  static std::u32string time_to_string(const peelo::time& time)
+  {
+    const auto hour = time.hour();
+    const auto minute = time.minute();
+    const auto second = time.second();
+    char buffer[9];
+    std::u32string result;
+
+    std::snprintf(
+      buffer,
+      9,
+      "%02d:%02d:%02d",
+      hour,
+      minute,
+      second
+    );
+    result.reserve(8);
+    for (auto p = buffer; *p; ++p)
+    {
+      result.append(1, static_cast<char32_t>(*p));
+    }
+
+    return result;
+  }
+
   std::u32string value::to_string() const
   {
     switch (m_type)
@@ -670,6 +754,9 @@ namespace laskin
 
       case type::date:
         return date_to_string(*m_value_date);
+
+      case type::time:
+        return time_to_string(*m_value_time);
     }
 
     return U"";
@@ -787,6 +874,9 @@ namespace laskin
 
       case type::date:
         return date_to_string(*m_value_date);
+
+      case type::time:
+        return time_to_string(*m_value_time);
     }
 
     return U"";

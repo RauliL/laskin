@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
 
 #include "laskin/number.hpp"
 
@@ -56,7 +57,8 @@ namespace laskin
       vector,
       month,
       weekday,
-      date
+      date,
+      time
     };
 
     /**
@@ -142,6 +144,17 @@ namespace laskin
     static value make_date(const std::u32string& input);
 
     /**
+     * Constructs time value.
+     */
+    static value make_time(const peelo::time& time);
+
+    /**
+     * Constructs time value from given string. The input is expected to be in
+     * ISO 8601 format.
+     */
+    static value make_time(const std::u32string& input);
+
+    /**
      * Constructs boolean value of false.
      */
     explicit value();
@@ -206,6 +219,7 @@ namespace laskin
     peelo::month as_month() const;
     peelo::weekday as_weekday() const;
     const peelo::date& as_date() const;
+    const peelo::time& as_time() const;
 
     /**
      * Constructs string representation of the value.
@@ -311,6 +325,7 @@ namespace laskin
       peelo::month m_value_month;
       peelo::weekday m_value_weekday;
       peelo::date* m_value_date;
+      peelo::time* m_value_time;
     };
   };
 

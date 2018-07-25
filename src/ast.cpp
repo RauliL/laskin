@@ -155,6 +155,11 @@ namespace laskin
       data.push_back(value::make_date(m_id));
       return;
     }
+    else if (is_time(m_id))
+    {
+      data.push_back(value::make_time(m_id));
+      return;
+    }
 
     throw error(
       error::type::name,
@@ -185,6 +190,10 @@ namespace laskin
     else if (is_date(m_id))
     {
       return value::make_date(m_id);
+    }
+    else if (is_time(m_id))
+    {
+      return value::make_time(m_id);
     }
 
     throw error(
