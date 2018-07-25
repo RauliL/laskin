@@ -27,10 +27,9 @@
 #define LASKIN_VALUE_HPP_GUARD
 
 #include <memory>
-#include <string>
 #include <vector>
 
-#include <peelo/chrono/month.hpp>
+#include <peelo/chrono/date.hpp>
 
 #include "laskin/number.hpp"
 
@@ -55,7 +54,8 @@ namespace laskin
       quote,
       string,
       vector,
-      month
+      month,
+      date
     };
 
     /**
@@ -125,6 +125,17 @@ namespace laskin
     static value make_month(peelo::month month);
 
     /**
+     * Constructs date value.
+     */
+    static value make_date(const peelo::date& date);
+
+    /**
+     * Constructs date value from given string. The input is expected to be in
+     * ISO 8601 format.
+     */
+    static value make_date(const std::u32string& input);
+
+    /**
      * Constructs boolean value of false.
      */
     explicit value();
@@ -187,6 +198,7 @@ namespace laskin
     const std::u32string& as_string() const;
     const quote& as_quote() const;
     peelo::month as_month() const;
+    const peelo::date& as_date() const;
 
     /**
      * Constructs string representation of the value.
@@ -290,6 +302,7 @@ namespace laskin
       std::u32string* m_value_string;
       quote* m_value_quote;
       peelo::month m_value_month;
+      peelo::date* m_value_date;
     };
   };
 

@@ -63,6 +63,11 @@ namespace laskin
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
+  static int compare_date(const peelo::date& a, const peelo::date& b)
+  {
+    return a.compare(b);
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -80,6 +85,9 @@ namespace laskin
 
         case type::month:
           return compare_month(m_value_month, that.m_value_month);
+
+        case type::date:
+          return compare_date(*m_value_date, *that.m_value_date);
 
         default:
           break;

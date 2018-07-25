@@ -27,6 +27,7 @@
 
 #include <peelo/unicode.hpp>
 
+#include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
@@ -122,6 +123,27 @@ namespace laskin
     return instance;
   }
 
+  value value::make_date(const peelo::date& date)
+  {
+    value instance;
+
+    instance.m_type = type::date;
+    instance.m_value_date = new peelo::date(date);
+
+    return instance;
+  }
+
+  value value::make_date(const std::u32string& input)
+  {
+    const auto date = parse_date(input);
+    value instance;
+
+    instance.m_type = type::date;
+    instance.m_value_date = new peelo::date(date);
+
+    return instance;
+  }
+
   value::value()
     : m_type(type::boolean)
     , m_value_boolean(false) {}
@@ -154,6 +176,10 @@ namespace laskin
       case type::month:
         m_value_month = that.m_value_month;
         break;
+
+      case type::date:
+        m_value_date = new peelo::date(*that.m_value_date);
+        break;
     }
   }
 
@@ -184,6 +210,10 @@ namespace laskin
 
       case type::month:
         m_value_month = that.m_value_month;
+        break;
+
+      case type::date:
+        m_value_date = that.m_value_date;
         break;
     }
     that.m_type = type::boolean;
@@ -225,6 +255,10 @@ namespace laskin
         case type::month:
           m_value_month = that.m_value_month;
           break;
+
+        case type::date:
+          m_value_date = new peelo::date(*that.m_value_date);
+          break;
       }
     }
 
@@ -261,6 +295,10 @@ namespace laskin
         case type::month:
           m_value_month = that.m_value_month;
           break;
+
+        case type::date:
+          m_value_date = that.m_value_date;
+          break;
       }
       that.m_type = type::boolean;
       that.m_value_boolean = false;
@@ -290,6 +328,9 @@ namespace laskin
 
       case type::month:
         return U"month";
+
+      case type::date:
+        return U"date";
     }
 
     return U"unknown";
@@ -313,6 +354,10 @@ namespace laskin
 
       case type::quote:
         delete m_value_quote;
+        break;
+
+      case type::date:
+        delete m_value_date;
         break;
 
       default:
@@ -413,6 +458,21 @@ namespace laskin
     return m_value_month;
   }
 
+  const peelo::date& value::as_date() const
+  {
+    if (!is(type::date))
+    {
+      throw error(
+        error::type::type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting date."
+      );
+    }
+
+    return *m_value_date;
+  }
+
   static std::u32string number_to_string(const number& value)
   {
     std::stringstream ss;
@@ -480,10 +540,34 @@ namespace laskin
 
       case peelo::month::dec:
         return U"december";
-
     }
 
     return U"unknown";
+  }
+
+  static std::u32string date_to_string(const peelo::date& date)
+  {
+    const auto year = date.year();
+    const auto month = date.month();
+    const auto day = date.day();
+    char buffer[32];
+    std::u32string result;
+
+    std::snprintf(
+      buffer,
+      32,
+      "%d-%02d-%02d",
+      year,
+      static_cast<int>(month) + 1,
+      day
+    );
+    result.reserve(std::strlen(buffer));
+    for (auto p = buffer; *p; ++p)
+    {
+      result.append(1, static_cast<char32_t>(*p));
+    }
+
+    return result;
   }
 
   std::u32string value::to_string() const
@@ -507,6 +591,9 @@ namespace laskin
 
       case type::month:
         return month_to_string(m_value_month);
+
+      case type::date:
+        return date_to_string(*m_value_date);
     }
 
     return U"";
@@ -618,6 +705,9 @@ namespace laskin
 
       case type::month:
         return month_to_string(m_value_month);
+
+      case type::date:
+        return date_to_string(*m_value_date);
     }
 
     return U"";
