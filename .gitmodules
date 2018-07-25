@@ -4,3 +4,6 @@
 [submodule "ext/peelocpp-prompt"]
 	path = ext/peelocpp-prompt
 	url = https://github.com/peelonet/peelocpp-prompt.git
+[submodule "ext/peelocpp-chrono"]
+    path = ext/peelocpp-chrono
+    url = https://github.com/peelonet/peelocpp-chrono.git
