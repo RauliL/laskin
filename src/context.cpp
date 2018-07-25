@@ -36,6 +36,7 @@ namespace laskin
   namespace api
   {
     extern "C" const context::dictionary_definition boolean;
+    extern "C" const context::dictionary_definition month;
     extern "C" const context::dictionary_definition number;
     extern "C" const context::dictionary_definition quote;
     extern "C" const context::dictionary_definition string;
@@ -47,6 +48,7 @@ namespace laskin
   {
     initialize_dictionary(m_dictionary, api::utils);
     initialize_dictionary(m_dictionary, api::boolean);
+    initialize_dictionary(m_dictionary, api::month);
     initialize_dictionary(m_dictionary, api::number);
     initialize_dictionary(m_dictionary, api::quote);
     initialize_dictionary(m_dictionary, api::string);

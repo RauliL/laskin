@@ -58,6 +58,11 @@ namespace laskin
     return size_a > size_b ? 1 : size_a < size_b ? -1 : 0;
   }
 
+  static int compare_month(peelo::month a, peelo::month b)
+  {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -72,6 +77,9 @@ namespace laskin
 
         case type::vector:
           return compare_vector(*m_value_vector, *that.m_value_vector);
+
+        case type::month:
+          return compare_month(m_value_month, that.m_value_month);
 
         default:
           break;

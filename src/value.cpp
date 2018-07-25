@@ -112,6 +112,16 @@ namespace laskin
     return instance;
   }
 
+  value value::make_month(peelo::month month)
+  {
+    value instance;
+
+    instance.m_type = type::month;
+    instance.m_value_month = month;
+
+    return instance;
+  }
+
   value::value()
     : m_type(type::boolean)
     , m_value_boolean(false) {}
@@ -140,6 +150,10 @@ namespace laskin
       case type::quote:
         m_value_quote = new quote(*that.m_value_quote);
         break;
+
+      case type::month:
+        m_value_month = that.m_value_month;
+        break;
     }
   }
 
@@ -166,6 +180,10 @@ namespace laskin
 
       case type::quote:
         m_value_quote = that.m_value_quote;
+        break;
+
+      case type::month:
+        m_value_month = that.m_value_month;
         break;
     }
     that.m_type = type::boolean;
@@ -203,6 +221,10 @@ namespace laskin
         case type::quote:
           m_value_quote = new quote(*that.m_value_quote);
           break;
+
+        case type::month:
+          m_value_month = that.m_value_month;
+          break;
       }
     }
 
@@ -235,6 +257,10 @@ namespace laskin
         case type::quote:
           m_value_quote = that.m_value_quote;
           break;
+
+        case type::month:
+          m_value_month = that.m_value_month;
+          break;
       }
       that.m_type = type::boolean;
       that.m_value_boolean = false;
@@ -261,6 +287,9 @@ namespace laskin
 
       case type::quote:
         return U"quote";
+
+      case type::month:
+        return U"month";
     }
 
     return U"unknown";
@@ -369,6 +398,21 @@ namespace laskin
     return *m_value_quote;
   }
 
+  peelo::month value::as_month() const
+  {
+    if (!is(type::month))
+    {
+      throw error(
+        error::type::type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting month."
+      );
+    }
+
+    return m_value_month;
+  }
+
   static std::u32string number_to_string(const number& value)
   {
     std::stringstream ss;
@@ -397,6 +441,51 @@ namespace laskin
     return result;
   }
 
+  static std::u32string month_to_string(peelo::month month)
+  {
+    switch (month)
+    {
+      case peelo::month::jan:
+        return U"january";
+
+      case peelo::month::feb:
+        return U"february";
+
+      case peelo::month::mar:
+        return U"march";
+
+      case peelo::month::apr:
+        return U"april";
+
+      case peelo::month::may:
+        return U"may";
+
+      case peelo::month::jun:
+        return U"june";
+
+      case peelo::month::jul:
+        return U"july";
+
+      case peelo::month::aug:
+        return U"august";
+
+      case peelo::month::sep:
+        return U"september";
+
+      case peelo::month::oct:
+        return U"october";
+
+      case peelo::month::nov:
+        return U"november";
+
+      case peelo::month::dec:
+        return U"december";
+
+    }
+
+    return U"unknown";
+  }
+
   std::u32string value::to_string() const
   {
     switch (m_type)
@@ -415,6 +504,9 @@ namespace laskin
 
       case type::quote:
         return m_value_quote->to_source();
+
+      case type::month:
+        return month_to_string(m_value_month);
     }
 
     return U"";
@@ -523,6 +615,9 @@ namespace laskin
 
       case type::quote:
         return m_value_quote->to_source();
+
+      case type::month:
+        return month_to_string(m_value_month);
     }
 
     return U"";
