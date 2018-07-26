@@ -79,7 +79,7 @@ namespace laskin
     }
     if (!length || index < 0 || index >= static_cast<long>(length))
     {
-      throw error(error::type_range, U"String index out of bounds.");
+      throw error(error::type::range, U"String index out of bounds.");
     }
     c = string[index];
     context << value::make_string(std::u32string(&c, 1));

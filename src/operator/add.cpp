@@ -41,7 +41,7 @@ namespace laskin
 
     if (size != b.size())
     {
-      throw error(error::type_range, U"Vector length mismatch.");
+      throw error(error::type::range, U"Vector length mismatch.");
     }
     result.reserve(size);
     for (std::vector<value>::size_type i = 0; i < size; ++i)
@@ -63,13 +63,13 @@ namespace laskin
     {
       switch (m_type)
       {
-        case type_number:
+        case type::number:
           return add_number(*m_value_number, *that.m_value_number);
 
-        case type_vector:
+        case type::vector:
           return add_vector(*m_value_vector, *that.m_value_vector);
 
-        case type_string:
+        case type::string:
           return add_string(*m_value_string, *that.m_value_string);
 
         default:
@@ -78,7 +78,7 @@ namespace laskin
     }
 
     throw error(
-      error::type_type,
+      error::type::type,
       U"Cannot add " +
       type_description(that.m_type) +
       U" to " +

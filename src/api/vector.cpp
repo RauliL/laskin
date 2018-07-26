@@ -57,7 +57,7 @@ namespace laskin
       return;
     }
 
-    throw error(error::type_range, U"Vector is empty.");
+    throw error(error::type::range, U"Vector is empty.");
   }
 
   static void w_min(class context& context, std::ostream&)
@@ -82,7 +82,7 @@ namespace laskin
       return;
     }
 
-    throw error(error::type_range, U"Vector is empty.");
+    throw error(error::type::range, U"Vector is empty.");
   }
 
   static void w_mean(class context& context, std::ostream&)
@@ -102,7 +102,7 @@ namespace laskin
       return;
     }
 
-    throw error(error::type_range, U"Vector is empty.");
+    throw error(error::type::range, U"Vector is empty.");
   }
 
   static void w_sum(class context& context, std::ostream&)
@@ -122,7 +122,7 @@ namespace laskin
       return;
     }
 
-    throw error(error::type_range, U"Vector is empty.");
+    throw error(error::type::range, U"Vector is empty.");
   }
 
   static void w_for_each(class context& context, std::ostream& out)
@@ -180,7 +180,7 @@ namespace laskin
 
     if (!size)
     {
-      throw error(error::type_range, U"Cannot reduce empty vector.");
+      throw error(error::type::range, U"Cannot reduce empty vector.");
     }
     result = vec[0];
     for (std::vector<value>::size_type i = 1; i < size; ++i)
@@ -223,7 +223,7 @@ namespace laskin
     }
     if (!size || index < 0 || index >= static_cast<long>(size))
     {
-      throw error(error::type_range, U"Vector index out of bounds.");
+      throw error(error::type::range, U"Vector index out of bounds.");
     }
     vec.insert(std::begin(vec) + index, 1, value);
     context << value::make_vector(vec);
@@ -258,7 +258,7 @@ namespace laskin
     }
     if (!size || index < 0 || index >= static_cast<long>(size))
     {
-      throw error(error::type_range, U"Vector index out of bounds.");
+      throw error(error::type::range, U"Vector index out of bounds.");
     }
     context << vector[index];
   }

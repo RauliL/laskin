@@ -58,22 +58,22 @@ namespace laskin
   {
     switch (type)
     {
-    case type_syntax:
+    case type::syntax:
       return U"Syntax error";
 
-    case type_type:
+    case type::type:
       return U"Type error";
 
-    case type_unit:
+    case type::unit:
       return U"Unit error";
 
-    case type_range:
+    case type::range:
       return U"Range error";
 
-    case type_domain:
+    case type::domain:
       return U"Domain error";
 
-    case type_name:
+    case type::name:
       return U"Name error";
     }
 

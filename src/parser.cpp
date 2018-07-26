@@ -78,7 +78,7 @@ namespace laskin
         if (eof())
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             U"Unexpected end of input; Missing statement.",
             m_line,
             m_column
@@ -109,7 +109,7 @@ namespace laskin
         if (eof())
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             U"Unexpected end of input; Missing expression.",
             m_line,
             m_column
@@ -147,7 +147,7 @@ namespace laskin
         if (!peek_read('('))
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             std::u32string(U"Unexpected ") +
             (eof() ? U"end of input" : U"input") +
             U"; Missing quote literal.",
@@ -165,7 +165,7 @@ namespace laskin
             if (eof())
             {
               throw error(
-                error::type_syntax,
+                error::type::syntax,
                 U"Unterminated quote literal; Missing `)'",
                 line,
                 column
@@ -201,7 +201,7 @@ namespace laskin
         if (!peek_read('['))
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             std::u32string(U"Unexpected ") +
             (eof() ? U"end of input" : U"input") +
             U"; Missing vector literal.",
@@ -219,7 +219,7 @@ namespace laskin
             if (eof())
             {
               throw error(
-                error::type_syntax,
+                error::type::syntax,
                 U"Unterminated vector literal; Missing `]'",
                 line,
                 column
@@ -240,7 +240,7 @@ namespace laskin
               break;
             } else {
               throw error(
-                error::type_syntax,
+                error::type::syntax,
                 U"Unterminated vector literal; Missing `]'",
                 line,
                 column
@@ -273,7 +273,7 @@ namespace laskin
           separator = '\'';
         } else {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             std::u32string(U"Unexpected ") +
             (eof() ? U"end of input" : U"input") +
             U"; Missing string literal.",
@@ -287,7 +287,7 @@ namespace laskin
           if (eof())
           {
             throw error(
-              error::type_syntax,
+              error::type::syntax,
               std::u32string(U"Unterminated string literal: Missing `") +
               separator +
               U"'",
@@ -322,7 +322,7 @@ namespace laskin
         if (eof())
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             U"Unexpected end of input; Missing escape sequence.",
             line,
             column
@@ -367,7 +367,7 @@ namespace laskin
               if (eof())
               {
                 throw error(
-                  error::type_syntax,
+                  error::type::syntax,
                   U"Unterminated escape sequence.",
                   line,
                   column
@@ -376,7 +376,7 @@ namespace laskin
               else if (!peelo::unicode::isxdigit(peek()))
               {
                 throw error(
-                  error::type_syntax,
+                  error::type::syntax,
                   U"Illegal Unicode hex escape sequence.",
                   line,
                   column
@@ -398,7 +398,7 @@ namespace laskin
             if (!peelo::unicode::isvalid(result))
             {
               throw error(
-                error::type_syntax,
+                error::type::syntax,
                 U"Illegal Unicode hex escape sequence.",
                 line,
                 column
@@ -411,7 +411,7 @@ namespace laskin
 
         default:
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             U"Illegal escape sequence in string literal.",
             line,
             column
@@ -433,7 +433,7 @@ namespace laskin
         if (!peek(issymbol))
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             std::u32string(U"Unexpected ") +
             (eof() ? U"end of input" : U"input") +
             U"; Missing symbol.",
@@ -451,7 +451,7 @@ namespace laskin
         if (!buffer.compare(U"->"))
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             U"Unexpected definition; Missing symbol.",
             line,
             column
@@ -475,7 +475,7 @@ namespace laskin
         if (!peek(issymbol))
         {
           throw error(
-            error::type_syntax,
+            error::type::syntax,
             std::u32string(U"Unexpected ") +
             (eof() ? U"end of input" : U"input") +
             U"; Missing symbol or definition.",

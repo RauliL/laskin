@@ -62,7 +62,7 @@ namespace laskin
 
     if (std::isnan(result))
     {
-      throw error(error::type_domain);
+      throw error(error::type::domain);
     }
     context << value::make_number(result, value.second);
   }

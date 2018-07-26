@@ -120,7 +120,7 @@ namespace laskin
   {
     if (!num.first.fits_slong_p())
     {
-      throw error(error::type_range, U"Numeric value is too large.");
+      throw error(error::type::range, U"Numeric value is too large.");
     }
 
     return num.first.get_si();
@@ -139,7 +139,7 @@ namespace laskin
     if (quantity_a.compare(quantity_b))
     {
       throw error(
-        error::type_unit,
+        error::type::unit,
         U"Cannot compare " +
         quantity_a +
         U" against " +
@@ -278,7 +278,7 @@ namespace laskin
   {
     if (b.first == 0)
     {
-      throw error(error::type_range, U"Division by zero.");
+      throw error(error::type::range, U"Division by zero.");
     }
 
     return binary_op<std::divides<mpf_class>>(a, b);

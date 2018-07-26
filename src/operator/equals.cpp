@@ -68,16 +68,16 @@ namespace laskin
     {
       switch (m_type)
       {
-        case type_boolean:
+        case type::boolean:
           return equals_boolean(m_value_boolean, that.m_value_boolean);
 
-        case type_number:
+        case type::number:
           return equals_number(*m_value_number, *that.m_value_number);
 
-        case type_vector:
+        case type::vector:
           return equals_vector(*m_value_vector, *that.m_value_vector);
 
-        case type_string:
+        case type::string:
           return equals_string(*m_value_string, *that.m_value_string);
 
         // TODO: Quote equality test.

@@ -35,14 +35,14 @@ namespace laskin
   class error : public std::exception
   {
   public:
-    enum type
+    enum class type
     {
-      type_syntax,
-      type_type,
-      type_unit,
-      type_range,
-      type_domain,
-      type_name
+      syntax,
+      type,
+      unit,
+      range,
+      domain,
+      name
     };
 
     explicit error(

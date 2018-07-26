@@ -45,7 +45,7 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_number;
+    instance.m_type = type::number;
     instance.m_value_number = new number(value);
 
     return instance;
@@ -56,7 +56,7 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_number;
+    instance.m_type = type::number;
     instance.m_value_number = new number(value, unit);
 
     return instance;
@@ -66,7 +66,7 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_number;
+    instance.m_type = type::number;
     instance.m_value_number = new number(parse_number(input));
 
     return instance;
@@ -76,7 +76,7 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_vector;
+    instance.m_type = type::vector;
     instance.m_value_vector = new std::vector<value>(elements);
 
     return instance;
@@ -86,7 +86,7 @@ namespace laskin
   {
     value instance;
 
-    instance.m_type = type_string;
+    instance.m_type = type::string;
     instance.m_value_string = new std::u32string(string);
 
     return instance;
@@ -96,7 +96,7 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_quote;
+    instance.m_type = type::quote;
     instance.m_value_quote = new class quote(quote);
 
     return instance;
@@ -106,14 +106,14 @@ namespace laskin
   {
     class value instance;
 
-    instance.m_type = type_quote;
+    instance.m_type = type::quote;
     instance.m_value_quote = new class quote(nodes);
 
     return instance;
   }
 
   value::value()
-    : m_type(type_boolean)
+    : m_type(type::boolean)
     , m_value_boolean(false) {}
 
   value::value(const value& that)
@@ -121,23 +121,23 @@ namespace laskin
   {
     switch (m_type)
     {
-      case type_boolean:
+      case type::boolean:
         m_value_boolean = that.m_value_boolean;
         break;
 
-      case type_number:
+      case type::number:
         m_value_number = new number(*that.m_value_number);
         break;
 
-      case type_vector:
+      case type::vector:
         m_value_vector = new std::vector<value>(*that.m_value_vector);
         break;
 
-      case type_string:
+      case type::string:
         m_value_string = new std::u32string(*that.m_value_string);
         break;
 
-      case type_quote:
+      case type::quote:
         m_value_quote = new quote(*that.m_value_quote);
         break;
     }
@@ -148,27 +148,27 @@ namespace laskin
   {
     switch (m_type)
     {
-      case type_boolean:
+      case type::boolean:
         m_value_boolean = that.m_value_boolean;
         break;
 
-      case type_number:
+      case type::number:
         m_value_number = that.m_value_number;
         break;
 
-      case type_vector:
+      case type::vector:
         m_value_vector = that.m_value_vector;
         break;
 
-      case type_string:
+      case type::string:
         m_value_string = that.m_value_string;
         break;
 
-      case type_quote:
+      case type::quote:
         m_value_quote = that.m_value_quote;
         break;
     }
-    that.m_type = type_boolean;
+    that.m_type = type::boolean;
     that.m_value_boolean = false;
   }
 
@@ -184,23 +184,23 @@ namespace laskin
       reset();
       switch (m_type = that.m_type)
       {
-        case type_boolean:
+        case type::boolean:
           m_value_boolean = that.m_value_boolean;
           break;
 
-        case type_number:
+        case type::number:
           m_value_number = new number(*that.m_value_number);
           break;
 
-        case type_vector:
+        case type::vector:
           m_value_vector = new std::vector<value>(*that.m_value_vector);
           break;
 
-        case type_string:
+        case type::string:
           m_value_string = new std::u32string(*that.m_value_string);
           break;
 
-        case type_quote:
+        case type::quote:
           m_value_quote = new quote(*that.m_value_quote);
           break;
       }
@@ -216,27 +216,27 @@ namespace laskin
       reset();
       switch (m_type = that.m_type)
       {
-        case type_boolean:
+        case type::boolean:
           m_value_boolean = that.m_value_boolean;
           break;
 
-        case type_number:
+        case type::number:
           m_value_number = that.m_value_number;
           break;
 
-        case type_vector:
+        case type::vector:
           m_value_vector = that.m_value_vector;
           break;
 
-        case type_string:
+        case type::string:
           m_value_string = that.m_value_string;
           break;
 
-        case type_quote:
+        case type::quote:
           m_value_quote = that.m_value_quote;
           break;
       }
-      that.m_type = type_boolean;
+      that.m_type = type::boolean;
       that.m_value_boolean = false;
     }
 
@@ -247,19 +247,19 @@ namespace laskin
   {
     switch (type)
     {
-      case type_boolean:
+      case type::boolean:
         return U"boolean";
 
-      case type_number:
+      case type::number:
         return U"number";
 
-      case type_vector:
+      case type::vector:
         return U"vector";
 
-      case type_string:
+      case type::string:
         return U"string";
 
-      case type_quote:
+      case type::quote:
         return U"quote";
     }
 
@@ -270,19 +270,19 @@ namespace laskin
   {
     switch (m_type)
     {
-      case type_number:
+      case type::number:
         delete m_value_number;
         break;
 
-      case type_vector:
+      case type::vector:
         delete m_value_vector;
         break;
 
-      case type_string:
+      case type::string:
         delete m_value_string;
         break;
 
-      case type_quote:
+      case type::quote:
         delete m_value_quote;
         break;
 
@@ -290,16 +290,16 @@ namespace laskin
         break;
     }
 
-    m_type = type_boolean;
+    m_type = type::boolean;
     m_value_boolean = false;
   }
 
   bool value::as_boolean() const
   {
-    if (!is(type_boolean))
+    if (!is(type::boolean))
     {
       throw error(
-        error::type_type,
+        error::type::type,
         U"Unexpected " +
         type_description(m_type) +
         U"; Was excepting boolean."
@@ -311,10 +311,10 @@ namespace laskin
 
   const number& value::as_number() const
   {
-    if (!is(type_number))
+    if (!is(type::number))
     {
       throw error(
-        error::type_type,
+        error::type::type,
         U"Unexpected " +
         type_description(m_type) +
         U"; Was excepting number."
@@ -326,10 +326,10 @@ namespace laskin
 
   const std::vector<value>& value::as_vector() const
   {
-    if (!is(type_vector))
+    if (!is(type::vector))
     {
       throw error(
-        error::type_type,
+        error::type::type,
         U"Unexpected " +
         type_description(m_type) +
         U"; Was excepting vector."
@@ -341,10 +341,10 @@ namespace laskin
 
   const std::u32string& value::as_string() const
   {
-    if (!is(type_string))
+    if (!is(type::string))
     {
       throw error(
-        error::type_type,
+        error::type::type,
         U"Unexpected " +
         type_description(m_type) +
         U"; Was expecting string."
@@ -356,10 +356,10 @@ namespace laskin
 
   const quote& value::as_quote() const
   {
-    if (!is(type_quote))
+    if (!is(type::quote))
     {
       throw error(
-        error::type_type,
+        error::type::type,
         U"Unexpected " +
         type_description(m_type) +
         U"; Was excepting quote."
@@ -401,19 +401,19 @@ namespace laskin
   {
     switch (m_type)
     {
-      case type_boolean:
+      case type::boolean:
         return m_value_boolean ? U"true" : U"false";
 
-      case type_number:
+      case type::number:
         return number_to_string(*m_value_number);
 
-      case type_vector:
+      case type::vector:
         return vector_to_string(*m_value_vector);
 
-      case type_string:
+      case type::string:
         return *m_value_string;
 
-      case type_quote:
+      case type::quote:
         return m_value_quote->to_source();
     }
 
@@ -509,19 +509,19 @@ namespace laskin
   {
     switch (m_type)
     {
-      case type_boolean:
+      case type::boolean:
         return m_value_boolean ? U"true" : U"false";
 
-      case type_number:
+      case type::number:
         return number_to_string(*m_value_number);
 
-      case type_vector:
+      case type::vector:
         return vector_to_source(*m_value_vector);
 
-      case type_string:
+      case type::string:
         return string_to_source(*m_value_string);
 
-      case type_quote:
+      case type::quote:
         return m_value_quote->to_source();
     }
 

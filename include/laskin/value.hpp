@@ -47,13 +47,13 @@ namespace laskin
     /**
      * Enumeration of different supported value types.
      */
-    enum type
+    enum class type
     {
-      type_boolean,
-      type_number,
-      type_quote,
-      type_string,
-      type_vector
+      boolean,
+      number,
+      quote,
+      string,
+      vector
     };
 
     /**

@@ -119,7 +119,7 @@ namespace laskin
 
       if (word != std::end(dictionary))
       {
-        if (word->second.is(value::type_quote))
+        if (word->second.is(value::type::quote))
         {
           word->second.as_quote().call(context, out);
         } else {
@@ -134,7 +134,7 @@ namespace laskin
 
       if (word != std::end(dictionary))
       {
-        if (word->second.is(value::type_quote))
+        if (word->second.is(value::type::quote))
         {
           word->second.as_quote().call(context, out);
         } else {
@@ -151,7 +151,7 @@ namespace laskin
     }
 
     throw error(
-      error::type_name,
+      error::type::name,
       U"Unrecognized symbol: `" + m_id + U"'",
       line(),
       column()
@@ -178,7 +178,7 @@ namespace laskin
     }
 
     throw error(
-      error::type_name,
+      error::type::name,
       U"Unable to evaluate `" + m_id + U"' as expression.",
       line(),
       column()
@@ -202,7 +202,7 @@ namespace laskin
   value node::definition::eval(context&, std::ostream&) const
   {
     throw error(
-      error::type_syntax,
+      error::type::syntax,
       U"Unable to evaluate definition of `" + m_id + U"' as expression.",
       line(),
       column()

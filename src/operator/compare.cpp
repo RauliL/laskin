@@ -64,13 +64,13 @@ namespace laskin
     {
       switch (m_type)
       {
-        case type_number:
+        case type::number:
           return compare_number(*m_value_number, *that.m_value_number);
 
-        case type_string:
+        case type::string:
           return compare_string(*m_value_string, *that.m_value_string);
 
-        case type_vector:
+        case type::vector:
           return compare_vector(*m_value_vector, *that.m_value_vector);
 
         default:
@@ -79,7 +79,7 @@ namespace laskin
     }
 
     throw error(
-      error::type_type,
+      error::type::type,
       U"Cannot compare " +
       type_description(that.m_type) +
       U" with " +

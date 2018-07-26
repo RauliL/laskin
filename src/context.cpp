@@ -72,7 +72,7 @@ namespace laskin
       return m_data.back();
     }
 
-    throw error(error::type_range, U"Stack underflow.");
+    throw error(error::type::range, U"Stack underflow.");
   }
 
   value context::pop()
@@ -86,7 +86,7 @@ namespace laskin
       return value;
     }
 
-    throw error(error::type_range, U"Stack underflow.");
+    throw error(error::type::range, U"Stack underflow.");
   }
 
   void context::push(const class value& value)

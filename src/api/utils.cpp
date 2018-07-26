@@ -127,27 +127,27 @@ namespace laskin
 
   static void w_is_boolean(class context& context, std::ostream&)
   {
-    type_test(context, value::type_boolean);
+    type_test(context, value::type::boolean);
   }
 
   static void w_is_number(class context& context, std::ostream&)
   {
-    type_test(context, value::type_number);
+    type_test(context, value::type::number);
   }
 
   static void w_is_vector(class context& context, std::ostream&)
   {
-    type_test(context, value::type_vector);
+    type_test(context, value::type::vector);
   }
 
   static void w_is_string(class context& context, std::ostream&)
   {
-    type_test(context, value::type_string);
+    type_test(context, value::type::string);
   }
 
   static void w_is_quote(class context& context, std::ostream&)
   {
-    type_test(context, value::type_quote);
+    type_test(context, value::type::quote);
   }
 
   static void w_clear(class context& context, std::ostream&)
@@ -290,7 +290,7 @@ namespace laskin
       return;
     }
 
-    throw error(error::type_name, U"Unrecognized symbol: `" + id + U"'");
+    throw error(error::type::name, U"Unrecognized symbol: `" + id + U"'");
   }
 
   static void w_define(class context& context, std::ostream&)
