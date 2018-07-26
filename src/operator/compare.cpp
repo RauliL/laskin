@@ -38,6 +38,26 @@ namespace laskin
     return a.compare(b);
   }
 
+  static int compare_vector(const std::vector<value>& a,
+                            const std::vector<value>& b)
+  {
+    const auto size_a = a.size();
+    const auto size_b = b.size();
+    const auto min_size = std::min(size_a, size_b);
+
+    for (std::vector<value>::size_type i = 0; i < min_size; ++i)
+    {
+      const auto cmp = a[i].compare(b[i]);
+
+      if (cmp != 0)
+      {
+        return cmp;
+      }
+    }
+
+    return size_a > size_b ? 1 : size_a < size_b ? -1 : 0;
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -49,6 +69,9 @@ namespace laskin
 
         case type_string:
           return compare_string(*m_value_string, *that.m_value_string);
+
+        case type_vector:
+          return compare_vector(*m_value_vector, *that.m_value_vector);
 
         default:
           break;
