@@ -211,6 +211,16 @@ namespace laskin
     context << value::make_number(context.data().size());
   }
 
+  static void w_to_string(class context& context, std::ostream&)
+  {
+    context << value::make_string(context.pop().to_string());
+  }
+
+  static void w_to_source(class context& context, std::ostream&)
+  {
+    context << value::make_string(context.pop().to_source());
+  }
+
   static void w_print(class context& context, std::ostream& out)
   {
     out << context.pop() << std::endl;
@@ -328,6 +338,10 @@ namespace laskin
       { U"swap", w_swap },
       { U"tuck", w_tuck },
       { U"depth", w_depth },
+
+      // Conversions.
+      { U">string", w_to_string },
+      { U">source", w_to_source },
 
       // I/O.
       { U".", w_print },
