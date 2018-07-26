@@ -27,8 +27,7 @@
 #include <cstring>
 #include <stack>
 
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <linenoise.h>
 #include <peelo/unicode.hpp>
 
 #include "laskin/context.hpp"
@@ -49,20 +48,20 @@ namespace laskin
 
   void run_repl(class context& context)
   {
-    char* line;
     std::u32string source;
 
-    while ((line = ::readline(get_prompt(context))) != nullptr)
+    while (auto line = ::linenoise(get_prompt(context)))
     {
       if (!*line)
       {
+        ::linenoiseFree(line);
         continue;
       }
-      ::add_history(line);
+      ::linenoiseHistoryAdd(line);
       source.append(peelo::unicode::utf8::decode(line));
       source.append(1, '\n');
       count_open_braces(open_braces, line);
-      std::free(line);
+      ::linenoiseFree(line);
       if (!open_braces.empty())
       {
         continue;

@@ -6,9 +6,14 @@ inspired by [Forth], [RPL] and [Plorth].
 ## Requirements
 
 * [GNU Multiple Precision Arithmetic Library]
-* [GNU Readline]
 * [CMake]
 * C++17 compatible C++ compiler
+
+Other dependencies already included in the source code repository as Git
+submodules:
+
+* [linenoise]
+* [peelocpp-unicode]
 
 ## How to compile
 
@@ -20,5 +25,6 @@ mkdir build && cd build && cmake .. && make
 [RPL]: https://en.wikipedia.org/wiki/RPL_(programming_language)
 [Plorth]: https://plorth.org
 [GNU Multiple Precision Arithmetic Library]: https://gmplib.org/
-[GNU Readline]: https://tiswww.case.edu/php/chet/readline/rltop.html<Paste>
 [CMake]: https://cmake.org/
+[linenoise]: https://github.com/antirez/linenoise
+[peelocpp-unicode]: https://github.com/peelonet/peelocpp-unicode
