@@ -1,3 +1,6 @@
 [submodule "ext/peelocpp-unicode"]
 	path = ext/peelocpp-unicode
 	url = git@github.com:peelonet/peelocpp-unicode.git
+[submodule "ext/linenoise"]
+	path = ext/linenoise
+	url = git@github.com:antirez/linenoise.git
