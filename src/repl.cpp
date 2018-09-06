@@ -27,12 +27,13 @@
 #include <cstring>
 #include <stack>
 
-#include <linenoise.h>
+#include <peelo/prompt.hpp>
 #include <peelo/unicode.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
+#include "laskin/utils.hpp"
 
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
@@ -44,24 +45,24 @@ namespace laskin
   static std::stack<char> open_braces;
 
   static const char* get_prompt(context&);
-  static void count_open_braces(std::stack<char>&, const char*);
+  static void count_open_braces(std::stack<char>&, const std::string&);
 
   void run_repl(class context& context)
   {
     std::u32string source;
 
-    while (auto line = ::linenoise(get_prompt(context)))
+    while (auto optional_line = peelo::prompt::input(get_prompt(context)))
     {
-      if (!*line)
+      const auto& line = optional_line.value();
+
+      if (utils::is_blank(line))
       {
-        ::linenoiseFree(line);
         continue;
       }
-      ::linenoiseHistoryAdd(line);
+      peelo::prompt::history::add(line);
       source.append(peelo::unicode::utf8::decode(line));
       source.append(1, '\n');
       count_open_braces(open_braces, line);
-      ::linenoiseFree(line);
       if (!open_braces.empty())
       {
         continue;
@@ -98,9 +99,9 @@ namespace laskin
   }
 
   static void count_open_braces(std::stack<char>& open_braces,
-                                const char* line)
+                                const std::string& line)
   {
-    const auto length = std::strlen(line);
+    const auto length = line.length();
 
     for (std::string::size_type i = 0; i < length; ++i)
     {

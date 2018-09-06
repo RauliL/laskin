@@ -31,13 +31,13 @@ INCLUDE_DIRECTORIES(
   ${GMP_INCLUDE_DIR}
   ${GMPXX_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/linenoise
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-prompt/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-unicode/include
 )
 
 SET(
   COMMON_SOURCES
-  ext/linenoise/linenoise.c
+  ext/peelocpp-prompt/src/prompt.cpp
   ext/peelocpp-unicode/src/convert.cpp
   ext/peelocpp-unicode/src/test.cpp
   ext/peelocpp-unicode/src/utf8.cpp
