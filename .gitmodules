@@ -1,6 +1,6 @@
 [submodule "ext/peelocpp-unicode"]
-	path = ext/peelocpp-unicode
-	url = git@github.com:peelonet/peelocpp-unicode.git
+    path = ext/peelocpp-unicode
+    url = https://github.com/peelonet/peelocpp-unicode.git
 [submodule "ext/peelocpp-prompt"]
 	path = ext/peelocpp-prompt
 	url = https://github.com/peelonet/peelocpp-prompt.git
