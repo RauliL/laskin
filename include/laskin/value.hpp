@@ -26,10 +26,11 @@
 #ifndef LASKIN_VALUE_HPP_GUARD
 #define LASKIN_VALUE_HPP_GUARD
 
-#include <iostream>
 #include <memory>
-#include <string>
 #include <vector>
+
+#include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
 
 #include "laskin/number.hpp"
 
@@ -53,7 +54,11 @@ namespace laskin
       number,
       quote,
       string,
-      vector
+      vector,
+      month,
+      weekday,
+      date,
+      time
     };
 
     /**
@@ -118,6 +123,38 @@ namespace laskin
     static value make_quote(const std::vector<std::shared_ptr<node>>& nodes);
 
     /**
+     * Constructs month value.
+     */
+    static value make_month(peelo::month month);
+
+    /**
+     * Constructs weekday value.
+     */
+    static value make_weekday(peelo::weekday weekday);
+
+    /**
+     * Constructs date value.
+     */
+    static value make_date(const peelo::date& date);
+
+    /**
+     * Constructs date value from given string. The input is expected to be in
+     * ISO 8601 format.
+     */
+    static value make_date(const std::u32string& input);
+
+    /**
+     * Constructs time value.
+     */
+    static value make_time(const peelo::time& time);
+
+    /**
+     * Constructs time value from given string. The input is expected to be in
+     * ISO 8601 format.
+     */
+    static value make_time(const std::u32string& input);
+
+    /**
      * Constructs boolean value of false.
      */
     explicit value();
@@ -179,6 +216,10 @@ namespace laskin
     const std::vector<value>& as_vector() const;
     const std::u32string& as_string() const;
     const quote& as_quote() const;
+    peelo::month as_month() const;
+    peelo::weekday as_weekday() const;
+    const peelo::date& as_date() const;
+    const peelo::time& as_time() const;
 
     /**
      * Constructs string representation of the value.
@@ -281,6 +322,10 @@ namespace laskin
       std::vector<value>* m_value_vector;
       std::u32string* m_value_string;
       quote* m_value_quote;
+      peelo::month m_value_month;
+      peelo::weekday m_value_weekday;
+      peelo::date* m_value_date;
+      peelo::time* m_value_time;
     };
   };
 

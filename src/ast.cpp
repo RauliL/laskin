@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
@@ -149,6 +150,16 @@ namespace laskin
       data.push_back(value::make_number(m_id));
       return;
     }
+    else if (is_date(m_id))
+    {
+      data.push_back(value::make_date(m_id));
+      return;
+    }
+    else if (is_time(m_id))
+    {
+      data.push_back(value::make_time(m_id));
+      return;
+    }
 
     throw error(
       error::type::name,
@@ -175,6 +186,14 @@ namespace laskin
     else if (is_number(m_id))
     {
       return value::make_number(m_id);
+    }
+    else if (is_date(m_id))
+    {
+      return value::make_date(m_id);
+    }
+    else if (is_time(m_id))
+    {
+      return value::make_time(m_id);
     }
 
     throw error(

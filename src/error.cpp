@@ -75,6 +75,9 @@ namespace laskin
 
     case type::name:
       return U"Name error";
+
+    case type::system:
+      return U"System error";
     }
 
     return U"Unknown error"; // Just to keep GCC happy.

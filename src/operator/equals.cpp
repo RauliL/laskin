@@ -62,6 +62,26 @@ namespace laskin
     return !a.compare(b);
   }
 
+  static bool equals_month(peelo::month a, peelo::month b)
+  {
+    return a == b;
+  }
+
+  static bool equals_weekday(peelo::weekday a, peelo::weekday b)
+  {
+    return a == b;
+  }
+
+  static bool equals_date(const peelo::date& a, const peelo::date& b)
+  {
+    return a == b;
+  }
+
+  static bool equals_time(const peelo::time& a, const peelo::time& b)
+  {
+    return a == b;
+  }
+
   bool value::equals(const value& that) const
   {
     if (that.is(m_type))
@@ -79,6 +99,18 @@ namespace laskin
 
         case type::string:
           return equals_string(*m_value_string, *that.m_value_string);
+
+        case type::month:
+          return equals_month(m_value_month, that.m_value_month);
+
+        case type::weekday:
+          return equals_weekday(m_value_weekday, that.m_value_weekday);
+
+        case type::date:
+          return equals_date(*m_value_date, *that.m_value_date);
+
+        case type::time:
+          return equals_time(*m_value_time, *that.m_value_time);
 
         // TODO: Quote equality test.
 

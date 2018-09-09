@@ -23,79 +23,35 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_ERROR_HPP_GUARD
-#define LASKIN_ERROR_HPP_GUARD
+#ifndef LASKIN_CHRONO_HPP_GUARD
+#define LASKIN_CHRONO_HPP_GUARD
 
-#include <exception>
-#include <iostream>
-#include <string>
+#include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
 
 namespace laskin
 {
-  class error : public std::exception
-  {
-  public:
-    enum class type
-    {
-      syntax,
-      type,
-      unit,
-      range,
-      domain,
-      name,
-      system
-    };
+  /**
+   * Tests whether given string contains valid ISO 8601 date.
+   */
+  bool is_date(const std::u32string&);
 
-    explicit error(
-      enum type type,
-      const std::u32string& message = std::u32string(),
-      int line = 0,
-      int column = 0
-    );
+  /**
+   * Tests whether given string contains valid ISO 8601 time.
+   */
+  bool is_time(const std::u32string&);
 
-    error(const error& that);
-    error& operator=(const error& that);
+  /**
+   * Parses given string into a date. The date is expected to be in ISO 8601
+   * format.
+   */
+  peelo::date parse_date(const std::u32string&);
 
-    inline enum type type() const
-    {
-      return m_type;
-    }
-
-    inline bool is(enum type type) const
-    {
-      return m_type == type;
-    }
-
-    inline const std::string& message() const
-    {
-      return m_message;
-    }
-
-    inline const char* what() const noexcept
-    {
-      return m_message.c_str();
-    }
-
-    inline int line() const
-    {
-      return m_line;
-    }
-
-    inline int column() const
-    {
-      return m_column;
-    }
-
-    static std::u32string type_description(enum type type);
-
-  private:
-    enum type m_type;
-    std::string m_message;
-    int m_line;
-    int m_column;
-  };
-
-  std::ostream& operator<<(std::ostream&, const error&);
+  /**
+   * Parses given string into a time. The time is expected to be in ISO 8601
+   * format.
+   */
+  peelo::time parse_time(const std::u32string&);
 }
 
-#endif /* !LASKIN_ERROR_HPP_GUARD */
+#endif /* !LASKIN_CHRONO_HPP_GUARD */

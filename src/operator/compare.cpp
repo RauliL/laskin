@@ -58,6 +58,26 @@ namespace laskin
     return size_a > size_b ? 1 : size_a < size_b ? -1 : 0;
   }
 
+  static int compare_month(peelo::month a, peelo::month b)
+  {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
+  static int compare_weekday(peelo::weekday a, peelo::weekday b)
+  {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
+  static int compare_date(const peelo::date& a, const peelo::date& b)
+  {
+    return a.compare(b);
+  }
+
+  static int compare_time(const peelo::time& a, const peelo::time& b)
+  {
+    return a.compare(b);
+  }
+
   int value::compare(const value& that) const
   {
     if (that.is(m_type))
@@ -72,6 +92,18 @@ namespace laskin
 
         case type::vector:
           return compare_vector(*m_value_vector, *that.m_value_vector);
+
+        case type::month:
+          return compare_month(m_value_month, that.m_value_month);
+
+        case type::weekday:
+          return compare_weekday(m_value_weekday, that.m_value_weekday);
+
+        case type::date:
+          return compare_date(*m_value_date, *that.m_value_date);
+
+        case type::time:
+          return compare_time(*m_value_time, *that.m_value_time);
 
         default:
           break;

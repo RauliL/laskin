@@ -32,16 +32,21 @@ INCLUDE_DIRECTORIES(
   ${GMPXX_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-prompt/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-chrono/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-unicode/include
 )
 
 SET(
   COMMON_SOURCES
   ext/peelocpp-prompt/src/prompt.cpp
+  ext/peelocpp-chrono/src/date.cpp
+  ext/peelocpp-chrono/src/month.cpp
+  ext/peelocpp-chrono/src/time.cpp
   ext/peelocpp-unicode/src/convert.cpp
   ext/peelocpp-unicode/src/test.cpp
   ext/peelocpp-unicode/src/utf8.cpp
   src/ast.cpp
+  src/chrono.cpp
   src/context.cpp
   src/error.cpp
   src/main.cpp
@@ -52,11 +57,15 @@ SET(
   src/unit.cpp
   src/value.cpp
   src/api/boolean.cpp
+  src/api/date.cpp
+  src/api/month.cpp
   src/api/number.cpp
   src/api/quote.cpp
   src/api/string.cpp
+  src/api/time.cpp
   src/api/utils.cpp
   src/api/vector.cpp
+  src/api/weekday.cpp
   src/operator/add.cpp
   src/operator/compare.cpp
   src/operator/divide.cpp

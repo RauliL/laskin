@@ -36,21 +36,29 @@ namespace laskin
   namespace api
   {
     extern "C" const context::dictionary_definition boolean;
+    extern "C" const context::dictionary_definition date;
+    extern "C" const context::dictionary_definition month;
     extern "C" const context::dictionary_definition number;
     extern "C" const context::dictionary_definition quote;
     extern "C" const context::dictionary_definition string;
+    extern "C" const context::dictionary_definition time;
     extern "C" const context::dictionary_definition utils;
     extern "C" const context::dictionary_definition vector;
+    extern "C" const context::dictionary_definition weekday;
   }
 
   context::context()
   {
     initialize_dictionary(m_dictionary, api::utils);
     initialize_dictionary(m_dictionary, api::boolean);
+    initialize_dictionary(m_dictionary, api::date);
+    initialize_dictionary(m_dictionary, api::month);
     initialize_dictionary(m_dictionary, api::number);
     initialize_dictionary(m_dictionary, api::quote);
     initialize_dictionary(m_dictionary, api::string);
+    initialize_dictionary(m_dictionary, api::time);
     initialize_dictionary(m_dictionary, api::vector);
+    initialize_dictionary(m_dictionary, api::weekday);
   }
 
   context::context(const context& that)
