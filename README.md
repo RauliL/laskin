@@ -16,6 +16,13 @@ submodules:
 * [peelocpp-prompt]
 * [peelocpp-unicode]
 
+On Ubuntu, requirements for the compilation of this software can be installed
+with this command:
+
+```bash
+$ sudo apt install build-essential cmake libgmp-dev
+```
+
 ## How to compile
 
 ```bash
