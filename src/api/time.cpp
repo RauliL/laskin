@@ -81,7 +81,7 @@ namespace laskin
 
   namespace api
   {
-    extern "C" const context::dictionary_definition time =
+    extern "C" const context::dictionary_definition time_api =
     {
       { U"now", w_now },
 
