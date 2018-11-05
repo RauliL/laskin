@@ -53,7 +53,7 @@ namespace laskin
   }
 
   value value::make_number(const mpf_class& value,
-                           const unit::optional_any& unit)
+                           const std::optional<unit>& unit)
   {
     class value instance;
 

@@ -26,42 +26,78 @@
 #ifndef LASKIN_UNIT_HPP_GUARD
 #define LASKIN_UNIT_HPP_GUARD
 
-#include <iostream>
 #include <optional>
 #include <string>
-#include <variant>
+#include <vector>
 
 namespace laskin
 {
+  /**
+   * Representation of measurement unit.
+   */
+  class unit
+  {
+  public:
+    /**
+     * Enumeration of different supported types of measurement.
+     */
+    enum class type
+    {
+      length,
+      mass,
+      time
+    };
+
+    static std::optional<unit> find_by_symbol(const std::u32string& symbol);
+
+    static const unit& base_unit_of(enum type type);
+
+    static const std::vector<unit>& all_units_of(enum type type);
+
+    explicit unit(
+      enum type type,
+      const std::u32string& symbol,
+      int multiplier
+    );
+
+    /**
+     * Constructs copy of existing measurement unit.
+     */
+    unit(const unit& that);
+
+    unit& operator=(const unit& that);
+
+    inline enum type type() const
+    {
+      return m_type;
+    }
+
+    inline const std::u32string& symbol() const
+    {
+      return m_symbol;
+    }
+
+    inline int multiplier() const
+    {
+      return m_multiplier;
+    }
+
+    inline bool is_base_unit() const
+    {
+      return m_multiplier == 1;
+    }
+
+  private:
+    enum type m_type;
+    std::u32string m_symbol;
+    int m_multiplier;
+  };
+
+  std::u32string to_string(enum unit::type);
+
+#if 0
   namespace unit
   {
-    enum class length
-    {
-      mm,
-      cm,
-      m,
-      km
-    };
-
-    enum class mass
-    {
-      mg,
-      g,
-      kg
-    };
-
-    enum class time
-    {
-      ms,
-      s,
-      min,
-      h,
-      d
-    };
-
-    using any = std::variant<length, mass, time>;
-    using optional_any = std::optional<any>;
-
     optional_any base_unit_of(const optional_any&);
     any base_unit_of(const any&);
 
@@ -75,6 +111,7 @@ namespace laskin
     std::u32string quantity_of(const optional_any&);
     std::u32string quantity_of(const any&);
   }
+#endif
 }
 
 #endif /* !LASKIN_UNIT_HPP_GUARD */

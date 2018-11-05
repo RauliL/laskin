@@ -76,7 +76,7 @@ namespace laskin
      */
     static value make_number(
       const mpf_class& value,
-      const unit::optional_any& unit = unit::optional_any()
+      const std::optional<class unit>& unit = std::optional<class unit>()
     );
 
     /**

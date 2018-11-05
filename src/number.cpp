@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <functional>
-
 #include <peelo/unicode.hpp>
 
 #include "laskin/error.hpp"
@@ -32,6 +30,10 @@
 
 namespace laskin
 {
+  static std::optional<unit> base_unit_of(const number&);
+  static mpf_class to_base_unit(const number&);
+  static void unit_check(const number&, const number&);
+
   bool is_number(const std::u32string& input)
   {
     const auto length = input.length();
@@ -66,7 +68,7 @@ namespace laskin
       }
       else if (!std::isdigit(c))
       {
-        return unit::find_by_name(input.substr(i, length - i)).has_value();
+        return unit::find_by_symbol(input.substr(i, length - i)).has_value();
       }
     }
 
@@ -81,7 +83,7 @@ namespace laskin
 
     if (!length)
     {
-      return number(mpf_class(), unit::optional_any());
+      return number(mpf_class(), std::optional<unit>());
     }
     if (input[0] == '+' || input[0] == '-')
     {
@@ -105,14 +107,14 @@ namespace laskin
       {
         return number(
           mpf_class(peelo::unicode::utf8::encode(input.substr(0, i))),
-          unit::find_by_name(input.substr(i, length - i))
+          unit::find_by_symbol(input.substr(i, length - i))
         );
       }
     }
 
     return number(
       mpf_class(peelo::unicode::utf8::encode(input)),
-      unit::optional_any()
+      std::optional<unit>()
     );
   }
 
@@ -131,127 +133,25 @@ namespace laskin
     return num.first.get_d();
   }
 
-  static void unit_check(const number& a, const number& b)
-  {
-    const auto quantity_a = unit::quantity_of(a.second);
-    const auto quantity_b = unit::quantity_of(b.second);
-
-    if (quantity_a.compare(quantity_b))
-    {
-      throw error(
-        error::type::unit,
-        U"Cannot compare " +
-        quantity_a +
-        U" against " +
-        quantity_b +
-        U"."
-      );
-    }
-  }
-
-  static mpf_class to_base_unit(const number& num)
-  {
-    unit::any unit;
-
-    if (!num.second)
-    {
-      return num.first;
-    }
-    unit = num.second.value();
-    if (std::holds_alternative<unit::length>(unit))
-    {
-      switch (std::get<unit::length>(unit))
-      {
-        case unit::length::mm:
-          return num.first / 1000;
-
-        case unit::length::cm:
-          return num.first / 100;
-
-        case unit::length::km:
-          return num.first * 1000;
-
-        default:
-          return num.first;
-      }
-    }
-    else if (std::holds_alternative<unit::mass>(unit))
-    {
-      switch (std::get<unit::mass>(unit))
-      {
-        case unit::mass::mg:
-          return num.first / 1000000;
-
-        case unit::mass::g:
-          return num.first / 1000;
-
-        default:
-          return num.first;
-      }
-    }
-    else if (std::holds_alternative<unit::time>(unit))
-    {
-      switch (std::get<unit::time>(unit))
-      {
-        case unit::time::ms:
-          return num.first / 1000;
-
-        case unit::time::min:
-          return num.first * 60;
-
-        case unit::time::h:
-          return num.first * 3600;
-
-        case unit::time::d:
-          return num.first * 86400;
-
-        default:
-          return num.first;
-      }
-    }
-
-    return num.first;
-  }
-
   template<class Operator>
   static number binary_op(const number& a, const number& b)
   {
-    auto base = unit::base_unit_of(a.second);
-    auto base_a = to_base_unit(a);
-    auto base_b = to_base_unit(b);
+    const auto base = base_unit_of(a);
+    const auto base_value_a = to_base_unit(a);
+    const auto base_value_b = to_base_unit(b);
     mpf_class result;
 
     unit_check(a, b);
-    result = Operator()(base_a, base_b);
-
+    result = Operator()(base_value_a, base_value_b);
     if (base)
     {
-      auto base_value = base.value();
+      for (const auto& unit : unit::all_units_of(base->type()))
+      {
+        const auto multiplier = unit.multiplier();
 
-      if (std::holds_alternative<unit::length>(base_value))
-      {
-        if (result >= 1000)
+        if (multiplier > 0 && result >= multiplier)
         {
-          result /= 1000;
-          base = unit::length::km;
-        }
-      }
-      else if (std::holds_alternative<unit::time>(base_value))
-      {
-        if (result >= 86400)
-        {
-          result /= 86400;
-          base = unit::time::d;
-        }
-        else if (result >= 3600)
-        {
-          result /= 3600;
-          base = unit::time::h;
-        }
-        else if (result >= 60)
-        {
-          result /= 60;
-          base = unit::time::min;
+          return number(result / multiplier, unit);
         }
       }
     }
@@ -345,9 +245,72 @@ namespace laskin
     out << num.first;
     if (num.second)
     {
-      out << peelo::unicode::utf8::encode(unit::name_of(num.second.value()));
+      out << peelo::unicode::utf8::encode(num.second->symbol());
     }
 
     return out;
+  }
+
+  /**
+   * Determines base unit of the given number, if the given number has a
+   * measurement unit.
+   */
+  static std::optional<unit> base_unit_of(const number& num)
+  {
+    if (num.second)
+    {
+      return unit::base_unit_of(num.second->type());
+    }
+
+    return std::optional<unit>();
+  }
+
+  static mpf_class to_base_unit(const number& num)
+  {
+    if (num.second && !num.second->is_base_unit())
+    {
+      const auto multiplier = num.second->multiplier();
+
+      if (multiplier > 0)
+      {
+        return num.first * multiplier;
+      }
+      else if (multiplier < 0)
+      {
+        return num.first / -multiplier;
+      }
+    }
+
+    return num.first;
+  }
+
+  static void unit_check(const number& a, const number& b)
+  {
+    if (a.second && b.second)
+    {
+      const auto type_a = a.second->type();
+      const auto type_b = b.second->type();
+
+      if (type_a != type_b)
+      {
+        throw error(
+          error::type::unit,
+          U"Cannot compare " +
+          to_string(type_a) +
+          U" against " +
+          to_string(type_b) +
+          U"."
+        );
+      }
+    }
+    else if (b.second)
+    {
+      throw error(
+        error::type::unit,
+        U"Cannot compare number without an unit against number which has " +
+        to_string(b.second->type()) +
+        U" as measurement unit."
+      );
+    }
   }
 }
