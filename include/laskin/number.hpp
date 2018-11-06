@@ -34,7 +34,7 @@
 
 namespace laskin
 {
-  using number = std::pair<mpf_class, unit::optional_any>;
+  using number = std::pair<mpf_class, std::optional<unit>>;
 
   /**
    * Tests whether given string contains a valid number.

@@ -25,194 +25,202 @@
  */
 #include <unordered_map>
 
-#include <peelo/unicode.hpp>
-
 #include "laskin/unit.hpp"
 
 namespace laskin
 {
-  namespace unit
+  // Supported length units.
+  static const unit unit_length_mm = unit(
+    unit::type::length,
+    U"mm",
+    -1000
+  );
+  static const unit unit_length_cm = unit(
+    unit::type::length,
+    U"cm",
+    -100
+  );
+  static const unit unit_length_m = unit(
+    unit::type::length,
+    U"m",
+    1
+  );
+  static const unit unit_length_km = unit(
+    unit::type::length,
+    U"km",
+    1000
+  );
+
+  // Supported mass units.
+  static const unit unit_mass_mg = unit(
+    unit::type::mass,
+    U"mg",
+    -1000000
+  );
+  static const unit unit_mass_g = unit(
+    unit::type::mass,
+    U"g",
+    -1000
+  );
+  static const unit unit_mass_kg = unit(
+    unit::type::mass,
+    U"kg",
+    1
+  );
+
+  // Supported time units.
+  static const unit unit_time_ms = unit(
+    unit::type::time,
+    U"ms",
+    -1000
+  );
+  static const unit unit_time_s = unit(
+    unit::type::time,
+    U"s",
+    1
+  );
+  static const unit unit_time_min = unit(
+    unit::type::time,
+    U"min",
+    60
+  );
+  static const unit unit_time_h = unit(
+    unit::type::time,
+    U"h",
+    3600
+  );
+  static const unit unit_time_d = unit(
+    unit::type::time,
+    U"d",
+    86400
+  );
+
+  static const std::unordered_map<std::u32string, unit> symbol_mapping =
   {
-    optional_any base_unit_of(const optional_any& unit)
+    // Length units.
+    { U"mm", unit_length_mm },
+    { U"cm", unit_length_cm },
+    { U"m", unit_length_m },
+    { U"km", unit_length_km },
+
+    // Mass units.
+    { U"mg", unit_mass_mg },
+    { U"g", unit_mass_g },
+    { U"kg", unit_mass_kg },
+
+    // Time units.
+    { U"ms", unit_time_ms },
+    { U"s", unit_time_s },
+    { U"min", unit_time_min },
+    { U"h", unit_time_h },
+    { U"d", unit_time_d },
+  };
+
+  static const std::vector<unit> all_length_units =
+  {
+    unit_length_km,
+    unit_length_m,
+    unit_length_cm,
+    unit_length_mm
+  };
+
+  static const std::vector<unit> all_mass_units =
+  {
+    unit_mass_kg,
+    unit_mass_g,
+    unit_mass_mg
+  };
+
+  static const std::vector<unit> all_time_units =
+  {
+    unit_time_d,
+    unit_time_h,
+    unit_time_min,
+    unit_time_s,
+    unit_time_ms
+  };
+
+  std::optional<unit> unit::find_by_symbol(const std::u32string& symbol)
+  {
+    const auto entry = symbol_mapping.find(symbol);
+
+    if (entry != std::end(symbol_mapping))
     {
-      if (unit)
-      {
-        return base_unit_of(unit.value());
-      } else {
-        return optional_any();
-      }
+      return entry->second;
     }
 
-    any base_unit_of(const any& unit)
+    return std::optional<unit>();
+  }
+
+  const unit& unit::base_unit_of(enum type type)
+  {
+    switch (type)
     {
-      struct visitor
-      {
-        any operator()(length) const
-        {
-          return length::m;
-        }
+      case type::length:
+        return unit_length_m;
 
-        any operator()(mass) const
-        {
-          return mass::kg;
-        }
+      case type::mass:
+        return unit_mass_kg;
 
-        any operator()(time) const
-        {
-          return time::s;
-        }
-      };
-
-      return std::visit(visitor(), unit);
+      case type::time:
+        return unit_time_s;
     }
 
-    static const std::unordered_map<std::u32string, any> name_mapping =
+    // Just to keep the compiler happy.
+    return unit_length_m;
+  }
+
+  const std::vector<unit>& unit::all_units_of(enum type type)
+  {
+    switch (type)
     {
-      // Length units.
-      { U"mm", length::mm },
-      { U"cm", length::cm },
-      { U"m", length::m },
-      { U"km", length::km },
+      case type::length:
+        return all_length_units;
 
-      // Mass units.
-      { U"mg", mass::mg },
-      { U"g", mass::g },
-      { U"kg", mass::kg },
+      case type::mass:
+        return all_mass_units;
 
-      // Time units.
-      { U"ms", time::ms },
-      { U"s", time::s },
-      { U"min", time::min },
-      { U"h", time::h },
-      { U"d", time::d }
-    };
-
-    optional_any find_by_name(const std::u32string& name)
-    {
-      const auto entry = name_mapping.find(name);
-
-      if (entry != std::end(name_mapping))
-      {
-        return entry->second;
-      }
-
-      return optional_any();
+      case type::time:
+        return all_time_units;
     }
 
-    std::u32string name_of(const any& unit)
+    // Just to keep the compiler happy.
+    return all_length_units;
+  }
+
+  unit::unit(enum type type, const std::u32string& symbol, int multiplier)
+    : m_type(type)
+    , m_symbol(symbol)
+    , m_multiplier(multiplier) {}
+
+  unit::unit(const unit& that)
+    : m_type(that.m_type)
+    , m_symbol(that.m_symbol)
+    , m_multiplier(that.m_multiplier) {}
+
+  unit& unit::operator=(const unit& that)
+  {
+    m_type = that.m_type;
+    m_symbol = that.m_symbol;
+    m_multiplier = that.m_multiplier;
+
+    return *this;
+  }
+
+  std::u32string to_string(enum unit::type type)
+  {
+    switch (type)
     {
-      struct visitor
-      {
-        std::u32string operator()(length x) const
-        {
-          return name_of(x);
-        }
+      case unit::type::length:
+        return U"length";
 
-        std::u32string operator()(mass x) const
-        {
-          return name_of(x);
-        }
+      case unit::type::mass:
+        return U"mass";
 
-        std::u32string operator()(time x) const
-        {
-          return name_of(x);
-        }
-      };
-
-      return std::visit(visitor(), unit);
+      case unit::type::time:
+        return U"time";
     }
 
-    std::u32string name_of(length u)
-    {
-      switch (u)
-      {
-        case length::mm:
-          return U"mm";
-
-        case length::cm:
-          return U"cm";
-
-        case length::m:
-          return U"m";
-
-        case length::km:
-          return U"km";
-      }
-
-      return U"unknown";
-    }
-
-    std::u32string name_of(mass u)
-    {
-      switch (u)
-      {
-        case mass::mg:
-          return U"mg";
-
-        case mass::g:
-          return U"g";
-
-        case mass::kg:
-          return U"kg";
-      }
-
-      return U"unknown";
-    }
-
-    std::u32string name_of(time u)
-    {
-      switch (u)
-      {
-        case time::ms:
-          return U"ms";
-
-        case time::s:
-          return U"s";
-
-        case time::min:
-          return U"min";
-
-        case time::h:
-          return U"h";
-
-        case time::d:
-          return U"d";
-      }
-
-      return U"unknown";
-    }
-
-    std::u32string quantity_of(const optional_any& unit)
-    {
-      if (unit)
-      {
-        return quantity_of(unit.value());
-      } else {
-        return U"no unit";
-      }
-    }
-
-    std::u32string quantity_of(const any& unit)
-    {
-      struct visitor
-      {
-        std::u32string operator()(length) const
-        {
-          return U"length";
-        }
-
-        std::u32string operator()(mass) const
-        {
-          return U"mass";
-        }
-
-        std::u32string operator()(time) const
-        {
-          return U"time";
-        }
-      };
-
-      return std::visit(visitor(), unit);
-    }
+    return U"unknown";
   }
 }
