@@ -58,13 +58,13 @@ namespace laskin
   static void double_op(class context& context, double (*callback)(double))
   {
     const auto value = context.pop().as_number();
-    const auto result = callback(to_double(value));
+    const auto result = callback(value.to_double());
 
     if (std::isnan(result))
     {
       throw error(error::type::domain);
     }
-    context << value::make_number(result, value.second);
+    context << value::make_number(result, value.measurement_unit());
   }
 
   static void w_acos(class context& context, std::ostream&)
@@ -101,14 +101,20 @@ namespace laskin
   {
     const auto value = context.pop().as_number();
 
-    context << value::make_number(value.first * 180 / M_PI, value.second);
+    context << value::make_number(
+      value.value() * 180 / M_PI,
+      value.measurement_unit()
+    );
   }
 
   static void w_rad(class context& context, std::ostream&)
   {
     const auto value = context.pop().as_number();
 
-    context << value::make_number(value.first * M_PI / 180, value.second);
+    context << value::make_number(
+      value.value() * M_PI / 180,
+      value.measurement_unit()
+    );
   }
 
   namespace api

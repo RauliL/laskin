@@ -52,8 +52,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_number(const mpf_class& value,
-                           const std::optional<unit>& unit)
+  value value::make_number(const number::value_type& value,
+                           const number::unit_type& unit)
   {
     class value instance;
 
@@ -68,7 +68,7 @@ namespace laskin
     class value instance;
 
     instance.m_type = type::number;
-    instance.m_value_number = new number(parse_number(input));
+    instance.m_value_number = new number(number::parse(input));
 
     return instance;
   }

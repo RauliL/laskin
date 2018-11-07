@@ -70,7 +70,7 @@ namespace laskin
   {
     const auto string = context.pop().as_string();
     const auto length = string.length();
-    auto index = to_long(context.pop().as_number());
+    auto index = context.pop().as_number().to_long();
     char32_t c;
 
     if (index < 0)
