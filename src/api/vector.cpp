@@ -98,7 +98,10 @@ namespace laskin
       {
         sum = sum + vec[i].as_number();
       }
-      context << value::make_number(sum.first / size, sum.second);
+      context << value::make_number(
+        sum.value() / size,
+        sum.measurement_unit()
+      );
       return;
     }
 
@@ -215,7 +218,7 @@ namespace laskin
     auto vec = context.pop().as_vector();
     const auto size = vec.size();
     const auto value = context.pop();
-    auto index = to_long(context.pop().as_number());
+    auto index = context.pop().as_number().to_long();
 
     if (index < 0)
     {
@@ -250,7 +253,7 @@ namespace laskin
   {
     const auto vector = context.pop().as_vector();
     const auto size = vector.size();
-    auto index = to_long(context.pop().as_number());
+    auto index = context.pop().as_number().to_long();
 
     if (index < 0)
     {

@@ -75,8 +75,8 @@ namespace laskin
      * Constructs number value.
      */
     static value make_number(
-      const mpf_class& value,
-      const std::optional<class unit>& unit = std::optional<class unit>()
+      const number::value_type& value,
+      const number::unit_type& unit = number::unit_type()
     );
 
     /**

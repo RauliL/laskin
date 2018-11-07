@@ -34,44 +34,97 @@
 
 namespace laskin
 {
-  using number = std::pair<mpf_class, std::optional<unit>>;
-
   /**
-   * Tests whether given string contains a valid number.
+   * Combination of number and measurement unit.
    */
-  bool is_number(const std::u32string&);
+  class number
+  {
+  public:
+    using value_type = mpf_class;
+    using unit_type = std::optional<unit>;
 
-  /**
-   * Parses given string into a number.
-   */
-  number parse_number(const std::u32string&);
+    /**
+     * Tests whether given string contains valid number.
+     */
+    static bool is_valid(const std::u32string& input);
 
-  /**
-   * Converts given number into C++ long integer, or throws an exception if the
-   * number is too large for that data type.
-   */
-  long to_long(const number&);
+    /**
+     * Attempts to parse given string into a number.
+     */
+    static number parse(const std::u32string& input);
 
-  /**
-   * Converts given number into C++ double precision, or throws an exception if
-   * the number is too large for that data type.
-   */
-  double to_double(const number&);
+    /**
+     * Constructs new number from given value and measurement unit.
+     */
+    number(
+      const value_type& value = value_type(),
+      const unit_type& measurement_unit = unit_type()
+    );
 
-  number operator+(const number&, const number&);
-  number operator-(const number&, const number&);
-  number operator*(const number&, const number&);
-  number operator/(const number&, const number&);
+    /**
+     * Constructs copy of existing number.
+     */
+    number(const number& that);
 
-  number& operator++(number&);
-  number& operator--(number&);
+    /**
+     * Moves contents of given number into new one.
+     */
+    number(number&& that);
 
-  bool operator==(const number&, const number&);
-  bool operator!=(const number&, const number&);
-  bool operator<(const number&, const number&);
-  bool operator>(const number&, const number&);
-  bool operator<=(const number&, const number&);
-  bool operator>=(const number&, const number&);
+    /**
+     * Returns the numeric value of the number.
+     */
+    inline const value_type& value() const
+    {
+      return m_value;
+    }
+
+    /**
+     * Returns the optional measurement unit of the number, or empty value if
+     * the number doesn't have one.
+     */
+    inline const unit_type& measurement_unit() const
+    {
+      return m_measurement_unit;
+    }
+
+    /**
+     * Converts number into C++ long integer, or throws an exception if the
+     * number is too large for that data type.
+     */
+    long to_long() const;
+
+    /**
+     * Converts number into C++ double precision, or throws an exception if the
+     * number is too large for that data type.
+     */
+    double to_double() const;
+
+    number& operator=(const number& that);
+    number& operator=(number&& that);
+
+    bool operator==(const number& that) const;
+    bool operator!=(const number& that) const;
+    bool operator<(const number& that) const;
+    bool operator>(const number& that) const;
+    bool operator<=(const number& that) const;
+    bool operator>=(const number& that) const;
+
+    number operator+(const number& that) const;
+    number operator-(const number& that) const;
+    number operator*(const number& that) const;
+    number operator/(const number& that) const;
+
+    number& operator++();
+    number& operator--();
+
+    number operator++(int);
+    number operator--(int);
+
+  private:
+    value_type m_value;
+    unit_type m_measurement_unit;
+  };
 
   std::ostream& operator<<(std::ostream&, const number&);
 }

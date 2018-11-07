@@ -23,6 +23,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <functional>
+#include <utility>
+
 #include <peelo/unicode.hpp>
 
 #include "laskin/error.hpp"
@@ -30,11 +33,12 @@
 
 namespace laskin
 {
-  static std::optional<unit> base_unit_of(const number&);
-  static mpf_class to_base_unit(const number&);
+  static number::value_type to_base_unit(const number&);
+  template<class Operator>
+  static number binary_op(const number&, const number&);
   static void unit_check(const number&, const number&);
 
-  bool is_number(const std::u32string& input)
+  bool number::is_valid(const std::u32string& input)
   {
     const auto length = input.length();
     std::u32string::size_type start;
@@ -75,7 +79,7 @@ namespace laskin
     return true;
   }
 
-  number parse_number(const std::u32string& input)
+  number number::parse(const std::u32string& input)
   {
     const auto length = input.length();
     std::u32string::size_type start;
@@ -83,7 +87,7 @@ namespace laskin
 
     if (!length)
     {
-      return number(mpf_class(), std::optional<unit>());
+      return number();
     }
     if (input[0] == '+' || input[0] == '-')
     {
@@ -106,31 +110,204 @@ namespace laskin
       else if (!std::isdigit(c))
       {
         return number(
-          mpf_class(peelo::unicode::utf8::encode(input.substr(0, i))),
+          value_type(peelo::unicode::utf8::encode(input.substr(0, i))),
           unit::find_by_symbol(input.substr(i, length - i))
         );
       }
     }
 
     return number(
-      mpf_class(peelo::unicode::utf8::encode(input)),
-      std::optional<unit>()
+      value_type(peelo::unicode::utf8::encode(input)),
+      unit_type()
     );
   }
 
-  long to_long(const number& num)
+  number::number(const value_type& value, const unit_type& measurement_unit)
+    : m_value(value)
+    , m_measurement_unit(measurement_unit) {}
+
+  number::number(const number& that)
+    : m_value(that.m_value)
+    , m_measurement_unit(that.m_measurement_unit) {}
+
+  number::number(number&& that)
+    : m_value(std::move(that.m_value))
+    , m_measurement_unit(std::move(that.m_measurement_unit)) {}
+
+  long number::to_long() const
   {
-    if (!num.first.fits_slong_p())
+    if (!m_value.fits_slong_p())
     {
       throw error(error::type::range, U"Numeric value is too large.");
     }
 
-    return num.first.get_si();
+    return m_value.get_si();
   }
 
-  double to_double(const number& num)
+  double number::to_double() const
   {
-    return num.first.get_d();
+    return m_value.get_d();
+  }
+
+  number& number::operator=(const number& that)
+  {
+    m_value = that.m_value;
+    m_measurement_unit = that.m_measurement_unit;
+
+    return *this;
+  }
+
+  number& number::operator=(number&& that)
+  {
+    m_value = std::move(that.m_value);
+    m_measurement_unit = std::move(that.m_measurement_unit);
+
+    return *this;
+  }
+
+  bool number::operator==(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) == to_base_unit(that);
+  }
+
+  bool number::operator!=(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) != to_base_unit(that);
+  }
+
+  bool number::operator<(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) < to_base_unit(that);
+  }
+
+  bool number::operator>(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) > to_base_unit(that);
+  }
+
+  bool number::operator<=(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) <= to_base_unit(that);
+  }
+
+  bool number::operator>=(const number& that) const
+  {
+    unit_check(*this, that);
+
+    return to_base_unit(*this) >= to_base_unit(that);
+  }
+
+  number number::operator+(const number& that) const
+  {
+    return binary_op<std::plus<value_type>>(*this, that);
+  }
+
+  number number::operator-(const number& that) const
+  {
+    return binary_op<std::minus<value_type>>(*this, that);
+  }
+
+  number number::operator*(const number& that) const
+  {
+    return binary_op<std::multiplies<value_type>>(*this, that);
+  }
+
+  number number::operator/(const number& that) const
+  {
+    if (that.m_value == 0)
+    {
+      throw error(error::type::range, U"Division by zero.");
+    }
+
+    return binary_op<std::divides<value_type>>(*this, that);
+  }
+
+  number& number::operator++()
+  {
+    ++m_value;
+
+    return *this;
+  }
+
+  number& number::operator--()
+  {
+    --m_value;
+
+    return *this;
+  }
+
+  number number::operator++(int)
+  {
+    const auto copy(*this);
+
+    ++m_value;
+
+    return copy;
+  }
+
+  number number::operator--(int)
+  {
+    const auto copy(*this);
+
+    --m_value;
+
+    return copy;
+  }
+
+  std::ostream& operator<<(std::ostream& out, const number& num)
+  {
+    const auto& unit = num.measurement_unit();
+
+    out << num.value();
+    if (unit)
+    {
+      out << peelo::unicode::utf8::encode(unit->symbol());
+    }
+
+    return out;
+  }
+
+  /**
+   * Determines base unit of the given number, if the given number has a
+   * measurement unit.
+   */
+  static number::unit_type base_unit_of(const number& num)
+  {
+    const auto& unit = num.measurement_unit();
+
+    return unit ? unit::base_unit_of(unit->type()) : number::unit_type();
+  }
+
+  static number::value_type to_base_unit(const number& num)
+  {
+    const auto& value = num.value();
+    const auto& unit = num.measurement_unit();
+
+    if (unit && !unit->is_base_unit())
+    {
+      const auto multiplier = unit->multiplier();
+
+      if (multiplier > 0)
+      {
+        return value * multiplier;
+      }
+      else if (multiplier < 0)
+      {
+        return value / -multiplier;
+      }
+    }
+
+    return value;
   }
 
   template<class Operator>
@@ -139,7 +316,7 @@ namespace laskin
     const auto base = base_unit_of(a);
     const auto base_value_a = to_base_unit(a);
     const auto base_value_b = to_base_unit(b);
-    mpf_class result;
+    number::value_type result;
 
     unit_check(a, b);
     result = Operator()(base_value_a, base_value_b);
@@ -159,137 +336,15 @@ namespace laskin
     return number(result, base);
   }
 
-  number operator+(const number& a, const number& b)
-  {
-    return binary_op<std::plus<mpf_class>>(a, b);
-  }
-
-  number operator-(const number& a, const number& b)
-  {
-    return binary_op<std::minus<mpf_class>>(a, b);
-  }
-
-  number operator*(const number& a, const number& b)
-  {
-    return binary_op<std::multiplies<mpf_class>>(a, b);
-  }
-
-  number operator/(const number& a, const number& b)
-  {
-    if (b.first == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
-
-    return binary_op<std::divides<mpf_class>>(a, b);
-  }
-
-  number& operator++(number& num)
-  {
-    ++num.first;
-
-    return num;
-  }
-
-  number& operator--(number& num)
-  {
-    --num.first;
-
-    return num;
-  }
-
-  bool operator==(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) == to_base_unit(b);
-  }
-
-  bool operator!=(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) != to_base_unit(b);
-  }
-
-  bool operator<(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) < to_base_unit(b);
-  }
-
-  bool operator>(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) > to_base_unit(b);
-  }
-
-  bool operator<=(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) <= to_base_unit(b);
-  }
-
-  bool operator>=(const number& a, const number& b)
-  {
-    unit_check(a, b);
-
-    return to_base_unit(a) >= to_base_unit(b);
-  }
-
-  std::ostream& operator<<(std::ostream& out, const number& num)
-  {
-    out << num.first;
-    if (num.second)
-    {
-      out << peelo::unicode::utf8::encode(num.second->symbol());
-    }
-
-    return out;
-  }
-
-  /**
-   * Determines base unit of the given number, if the given number has a
-   * measurement unit.
-   */
-  static std::optional<unit> base_unit_of(const number& num)
-  {
-    if (num.second)
-    {
-      return unit::base_unit_of(num.second->type());
-    }
-
-    return std::optional<unit>();
-  }
-
-  static mpf_class to_base_unit(const number& num)
-  {
-    if (num.second && !num.second->is_base_unit())
-    {
-      const auto multiplier = num.second->multiplier();
-
-      if (multiplier > 0)
-      {
-        return num.first * multiplier;
-      }
-      else if (multiplier < 0)
-      {
-        return num.first / -multiplier;
-      }
-    }
-
-    return num.first;
-  }
-
   static void unit_check(const number& a, const number& b)
   {
-    if (a.second && b.second)
+    const auto& unit_a = a.measurement_unit();
+    const auto& unit_b = b.measurement_unit();
+
+    if (unit_a && unit_b)
     {
-      const auto type_a = a.second->type();
-      const auto type_b = b.second->type();
+      const auto type_a = unit_a->type();
+      const auto type_b = unit_b->type();
 
       if (type_a != type_b)
       {
@@ -303,12 +358,12 @@ namespace laskin
         );
       }
     }
-    else if (b.second)
+    else if (unit_b)
     {
       throw error(
         error::type::unit,
         U"Cannot compare number without an unit against number which has " +
-        to_string(b.second->type()) +
+        to_string(unit_b->type()) +
         U" as measurement unit."
       );
     }

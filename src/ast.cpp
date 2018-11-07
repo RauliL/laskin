@@ -145,7 +145,7 @@ namespace laskin
       }
     }
 
-    if (is_number(m_id))
+    if (number::is_valid(m_id))
     {
       data.push_back(value::make_number(m_id));
       return;
@@ -183,7 +183,7 @@ namespace laskin
     {
       return context.pop();
     }
-    else if (is_number(m_id))
+    else if (number::is_valid(m_id))
     {
       return value::make_number(m_id);
     }
