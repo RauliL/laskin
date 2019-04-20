@@ -264,6 +264,11 @@ namespace laskin
     return copy;
   }
 
+  number number::operator-() const
+  {
+    return number(-m_value);
+  }
+
   std::ostream& operator<<(std::ostream& out, const number& num)
   {
     const auto& unit = num.measurement_unit();

@@ -121,6 +121,18 @@ namespace laskin
     number operator++(int);
     number operator--(int);
 
+    number operator-() const;
+
+    inline explicit operator bool() const
+    {
+      return m_value != 0;
+    }
+
+    inline bool operator!() const
+    {
+      return m_value == 0;
+    }
+
   private:
     value_type m_value;
     unit_type m_measurement_unit;

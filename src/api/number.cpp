@@ -55,6 +55,22 @@ namespace laskin
     ));
   }
 
+  static void w_times(class context& context, std::ostream& out)
+  {
+    auto count = context.pop().as_number();
+    const auto quote = context.pop().as_quote();
+
+    if (count < number(0))
+    {
+      count = -count;
+    }
+    while (count)
+    {
+      --count;
+      quote.call(context, out);
+    }
+  }
+
   static void double_op(class context& context, double (*callback)(double))
   {
     const auto value = context.pop().as_number();
@@ -123,6 +139,7 @@ namespace laskin
     {
       { U"number:range", w_range },
       { U"number:clamp", w_clamp },
+      { U"number:times", w_times },
 
       // Trigonometry.
       { U"number:acos", w_acos },
