@@ -45,13 +45,13 @@ namespace laskin
    * Parses given string into a date. The date is expected to be in ISO 8601
    * format.
    */
-  peelo::date parse_date(const std::u32string&);
+  peelo::chrono::date parse_date(const std::u32string&);
 
   /**
    * Parses given string into a time. The time is expected to be in ISO 8601
    * format.
    */
-  peelo::time parse_time(const std::u32string&);
+  peelo::chrono::time parse_time(const std::u32string&);
 }
 
 #endif /* !LASKIN_CHRONO_HPP_GUARD */

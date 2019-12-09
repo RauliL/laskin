@@ -69,7 +69,7 @@ namespace laskin
     );
   }
 
-  peelo::date parse_date(const std::u32string& input)
+  peelo::chrono::date parse_date(const std::u32string& input)
   {
     const auto length = input.length();
     std::u32string::size_type dash1;
@@ -77,7 +77,7 @@ namespace laskin
     int year;
     int month;
     int day;
-    peelo::month converted_month;
+    peelo::chrono::month converted_month;
 
     if (length < 5
         || (dash1 = input.find('-')) == std::u32string::npos
@@ -100,17 +100,17 @@ namespace laskin
     {
       throw error(error::type::range, U"Given month is out of range.");
     }
-    converted_month = static_cast<peelo::month>(month - 1);
+    converted_month = static_cast<peelo::chrono::month>(month - 1);
 
-    if (!peelo::date::is_valid(year, converted_month, day))
+    if (!peelo::chrono::date::is_valid(year, converted_month, day))
     {
       throw error(error::type::range, U"Given date literal is out of range.");
     }
 
-    return peelo::date(year, converted_month, day);
+    return peelo::chrono::date(year, converted_month, day);
   }
 
-  peelo::time parse_time(const std::u32string& input)
+  peelo::chrono::time parse_time(const std::u32string& input)
   {
     int hour;
     int minute;
@@ -133,12 +133,12 @@ namespace laskin
     minute = to_integer(input, 3, 5);
     second = to_integer(input, 6, 8);
 
-    if (!peelo::time::is_valid(hour, minute, second))
+    if (!peelo::chrono::time::is_valid(hour, minute, second))
     {
       throw error(error::type::range, U"Given time value is out of range.");
     }
 
-    return peelo::time(hour, minute, second);
+    return peelo::chrono::time(hour, minute, second);
   }
 
   static bool is_digits(const std::u32string& input,

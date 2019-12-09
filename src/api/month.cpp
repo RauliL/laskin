@@ -29,62 +29,62 @@ namespace laskin
 {
   static void w_january(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::jan);
+    context << value::make_month(peelo::chrono::month::jan);
   }
 
   static void w_february(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::feb);
+    context << value::make_month(peelo::chrono::month::feb);
   }
 
   static void w_march(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::mar);
+    context << value::make_month(peelo::chrono::month::mar);
   }
 
   static void w_april(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::apr);
+    context << value::make_month(peelo::chrono::month::apr);
   }
 
   static void w_may(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::may);
+    context << value::make_month(peelo::chrono::month::may);
   }
 
   static void w_june(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::jun);
+    context << value::make_month(peelo::chrono::month::jun);
   }
 
   static void w_july(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::jul);
+    context << value::make_month(peelo::chrono::month::jul);
   }
 
   static void w_august(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::aug);
+    context << value::make_month(peelo::chrono::month::aug);
   }
 
   static void w_september(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::sep);
+    context << value::make_month(peelo::chrono::month::sep);
   }
 
   static void w_october(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::oct);
+    context << value::make_month(peelo::chrono::month::oct);
   }
 
   static void w_november(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::nov);
+    context << value::make_month(peelo::chrono::month::nov);
   }
 
   static void w_december(class context& context, std::ostream&)
   {
-    context << value::make_month(peelo::month::dec);
+    context << value::make_month(peelo::chrono::month::dec);
   }
 
   static void w_to_number(class context& context, std::ostream&)

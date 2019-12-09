@@ -62,22 +62,25 @@ namespace laskin
     return !a.compare(b);
   }
 
-  static bool equals_month(peelo::month a, peelo::month b)
+  static bool equals_month(peelo::chrono::month a, peelo::chrono::month b)
   {
     return a == b;
   }
 
-  static bool equals_weekday(peelo::weekday a, peelo::weekday b)
+  static bool equals_weekday(peelo::chrono::weekday a,
+                             peelo::chrono::weekday b)
   {
     return a == b;
   }
 
-  static bool equals_date(const peelo::date& a, const peelo::date& b)
+  static bool equals_date(const peelo::chrono::date& a,
+                          const peelo::chrono::date& b)
   {
     return a == b;
   }
 
-  static bool equals_time(const peelo::time& a, const peelo::time& b)
+  static bool equals_time(const peelo::chrono::time& a,
+                          const peelo::chrono::time& b)
   {
     return a == b;
   }

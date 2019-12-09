@@ -30,7 +30,7 @@
 
 namespace laskin
 {
-  static inline peelo::date get_current_date()
+  static inline peelo::chrono::date get_current_date()
   {
     const auto now = std::chrono::system_clock::now();
     const auto ts = std::chrono::system_clock::to_time_t(now);
@@ -38,9 +38,9 @@ namespace laskin
 
     try
     {
-      return peelo::date(
+      return peelo::chrono::date(
         tm->tm_year + 1900,
-        static_cast<enum peelo::month>(tm->tm_mon),
+        static_cast<enum peelo::chrono::month>(tm->tm_mon),
         tm->tm_mday
       );
     }

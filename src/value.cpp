@@ -113,7 +113,7 @@ namespace laskin
     return instance;
   }
 
-  value value::make_month(peelo::month month)
+  value value::make_month(peelo::chrono::month month)
   {
     value instance;
 
@@ -123,7 +123,7 @@ namespace laskin
     return instance;
   }
 
-  value value::make_weekday(peelo::weekday weekday)
+  value value::make_weekday(peelo::chrono::weekday weekday)
   {
     value instance;
 
@@ -133,12 +133,12 @@ namespace laskin
     return instance;
   }
 
-  value value::make_date(const peelo::date& date)
+  value value::make_date(const peelo::chrono::date& date)
   {
     value instance;
 
     instance.m_type = type::date;
-    instance.m_value_date = new peelo::date(date);
+    instance.m_value_date = new peelo::chrono::date(date);
 
     return instance;
   }
@@ -149,17 +149,17 @@ namespace laskin
     value instance;
 
     instance.m_type = type::date;
-    instance.m_value_date = new peelo::date(date);
+    instance.m_value_date = new peelo::chrono::date(date);
 
     return instance;
   }
 
-  value value::make_time(const peelo::time& time)
+  value value::make_time(const peelo::chrono::time& time)
   {
     value instance;
 
     instance.m_type = type::time;
-    instance.m_value_time = new peelo::time(time);
+    instance.m_value_time = new peelo::chrono::time(time);
 
     return instance;
   }
@@ -170,7 +170,7 @@ namespace laskin
     value instance;
 
     instance.m_type = type::time;
-    instance.m_value_time = new peelo::time(time);
+    instance.m_value_time = new peelo::chrono::time(time);
 
     return instance;
   }
@@ -213,11 +213,11 @@ namespace laskin
         break;
 
       case type::date:
-        m_value_date = new peelo::date(*that.m_value_date);
+        m_value_date = new peelo::chrono::date(*that.m_value_date);
         break;
 
       case type::time:
-        m_value_time = new peelo::time(*that.m_value_time);
+        m_value_time = new peelo::chrono::time(*that.m_value_time);
         break;
     }
   }
@@ -308,11 +308,11 @@ namespace laskin
           break;
 
         case type::date:
-          m_value_date = new peelo::date(*that.m_value_date);
+          m_value_date = new peelo::chrono::date(*that.m_value_date);
           break;
 
         case type::time:
-          m_value_time = new peelo::time(*that.m_value_time);
+          m_value_time = new peelo::chrono::time(*that.m_value_time);
           break;
       }
     }
@@ -516,7 +516,7 @@ namespace laskin
     return *m_value_quote;
   }
 
-  peelo::month value::as_month() const
+  peelo::chrono::month value::as_month() const
   {
     if (!is(type::month))
     {
@@ -531,7 +531,7 @@ namespace laskin
     return m_value_month;
   }
 
-  peelo::weekday value::as_weekday() const
+  peelo::chrono::weekday value::as_weekday() const
   {
     if (!is(type::weekday))
     {
@@ -546,7 +546,7 @@ namespace laskin
     return m_value_weekday;
   }
 
-  const peelo::date& value::as_date() const
+  const peelo::chrono::date& value::as_date() const
   {
     if (!is(type::date))
     {
@@ -561,7 +561,7 @@ namespace laskin
     return *m_value_date;
   }
 
-  const peelo::time& value::as_time() const
+  const peelo::chrono::time& value::as_time() const
   {
     if (!is(type::time))
     {
@@ -604,80 +604,80 @@ namespace laskin
     return result;
   }
 
-  static std::u32string month_to_string(peelo::month month)
+  static std::u32string month_to_string(peelo::chrono::month month)
   {
     switch (month)
     {
-      case peelo::month::jan:
+      case peelo::chrono::month::jan:
         return U"january";
 
-      case peelo::month::feb:
+      case peelo::chrono::month::feb:
         return U"february";
 
-      case peelo::month::mar:
+      case peelo::chrono::month::mar:
         return U"march";
 
-      case peelo::month::apr:
+      case peelo::chrono::month::apr:
         return U"april";
 
-      case peelo::month::may:
+      case peelo::chrono::month::may:
         return U"may";
 
-      case peelo::month::jun:
+      case peelo::chrono::month::jun:
         return U"june";
 
-      case peelo::month::jul:
+      case peelo::chrono::month::jul:
         return U"july";
 
-      case peelo::month::aug:
+      case peelo::chrono::month::aug:
         return U"august";
 
-      case peelo::month::sep:
+      case peelo::chrono::month::sep:
         return U"september";
 
-      case peelo::month::oct:
+      case peelo::chrono::month::oct:
         return U"october";
 
-      case peelo::month::nov:
+      case peelo::chrono::month::nov:
         return U"november";
 
-      case peelo::month::dec:
+      case peelo::chrono::month::dec:
         return U"december";
     }
 
     return U"unknown";
   }
 
-  static std::u32string weekday_to_string(peelo::weekday weekday)
+  static std::u32string weekday_to_string(peelo::chrono::weekday weekday)
   {
     switch (weekday)
     {
-      case peelo::weekday::sun:
+      case peelo::chrono::weekday::sun:
         return U"sunday";
 
-      case peelo::weekday::mon:
+      case peelo::chrono::weekday::mon:
         return U"monday";
 
-      case peelo::weekday::tue:
+      case peelo::chrono::weekday::tue:
         return U"tuesday";
 
-      case peelo::weekday::wed:
+      case peelo::chrono::weekday::wed:
         return U"wednesday";
 
-      case peelo::weekday::thu:
+      case peelo::chrono::weekday::thu:
         return U"thursday";
 
-      case peelo::weekday::fri:
+      case peelo::chrono::weekday::fri:
         return U"friday";
 
-      case peelo::weekday::sat:
+      case peelo::chrono::weekday::sat:
         return U"saturday";
     }
 
     return U"unknown";
   }
 
-  static std::u32string date_to_string(const peelo::date& date)
+  static std::u32string date_to_string(const peelo::chrono::date& date)
   {
     const auto year = date.year();
     const auto month = date.month();
@@ -702,7 +702,7 @@ namespace laskin
     return result;
   }
 
-  static std::u32string time_to_string(const peelo::time& time)
+  static std::u32string time_to_string(const peelo::chrono::time& time)
   {
     const auto hour = time.hour();
     const auto minute = time.minute();
