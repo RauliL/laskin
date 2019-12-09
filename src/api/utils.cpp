@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode.hpp>
+#include <peelo/unicode/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"

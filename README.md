@@ -14,7 +14,7 @@ submodules:
 
 * [peelocpp-chrono]
 * [peelocpp-prompt]
-* [peelocpp-unicode]
+* [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
 with this command:
@@ -42,4 +42,4 @@ $ make
 [CMake]: https://cmake.org/
 [peelocpp-chrono]: https://github.com/peelonet/peelocpp-chrono
 [peelocpp-prompt]: https://github.com/peelonet/peelocpp-prompt
-[peelocpp-unicode]: https://github.com/peelonet/peelocpp-unicode
+[peelo-unicode]: https://github.com/peelonet/peelo-unicode

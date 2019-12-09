@@ -26,7 +26,7 @@
 #include <fstream>
 #include <unistd.h>
 
-#include <peelo/unicode.hpp>
+#include <peelo/unicode/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"

@@ -26,7 +26,7 @@
 #ifndef LASKIN_UTILS_HPP_GUARD
 #define LASKIN_UTILS_HPP_GUARD
 
-#include <peelo/unicode.hpp>
+#include <peelo/unicode/ctype.hpp>
 
 namespace laskin
 {

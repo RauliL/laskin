@@ -25,7 +25,7 @@
  */
 #include <sstream>
 
-#include <peelo/unicode.hpp>
+#include <peelo/unicode/utf8.hpp>
 
 #include "laskin/chrono.hpp"
 #include "laskin/error.hpp"

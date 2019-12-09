@@ -33,7 +33,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-prompt/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-chrono/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-unicode/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-unicode/include
 )
 
 SET(
@@ -42,9 +42,6 @@ SET(
   ext/peelocpp-chrono/src/date.cpp
   ext/peelocpp-chrono/src/month.cpp
   ext/peelocpp-chrono/src/time.cpp
-  ext/peelocpp-unicode/src/convert.cpp
-  ext/peelocpp-unicode/src/test.cpp
-  ext/peelocpp-unicode/src/utf8.cpp
   src/ast.cpp
   src/chrono.cpp
   src/context.cpp
