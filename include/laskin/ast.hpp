@@ -44,6 +44,7 @@ namespace laskin
     class vector_literal;
 
     explicit node(int line = 0, int column = 0);
+    virtual ~node();
 
     node(const node&) = delete;
     node(node&&) = delete;
