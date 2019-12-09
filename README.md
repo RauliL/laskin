@@ -13,7 +13,7 @@ Other dependencies already included in the source code repository as Git
 submodules:
 
 * [peelocpp-chrono]
-* [peelocpp-prompt]
+* [peelo-prompt]
 * [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
@@ -41,5 +41,5 @@ $ make
 [GNU Multiple Precision Arithmetic Library]: https://gmplib.org/
 [CMake]: https://cmake.org/
 [peelocpp-chrono]: https://github.com/peelonet/peelocpp-chrono
-[peelocpp-prompt]: https://github.com/peelonet/peelocpp-prompt
+[peelo-prompt]: https://github.com/peelonet/peelo-prompt
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode

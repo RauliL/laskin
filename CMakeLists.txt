@@ -31,14 +31,14 @@ INCLUDE_DIRECTORIES(
   ${GMP_INCLUDE_DIR}
   ${GMPXX_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-prompt/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-prompt/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelocpp-chrono/include
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-unicode/include
 )
 
 SET(
   COMMON_SOURCES
-  ext/peelocpp-prompt/src/prompt.cpp
+  ext/peelo-prompt/src/prompt.cpp
   ext/peelocpp-chrono/src/date.cpp
   ext/peelocpp-chrono/src/month.cpp
   ext/peelocpp-chrono/src/time.cpp
