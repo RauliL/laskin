@@ -1,21 +1,11 @@
 language: cpp
-dist: trusty
-
-matrix:
-  include:
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-
-before_install:
-  - eval "${MATRIX_EVAL}"
-
+os: linux
+dist: bionic
+compiler:
+  - clang
+  - gcc
+env:
+  - CXXFLAGS="-Wall -Werror"
 script:
   - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXE_LINKER_FLAGS=${LINKER_FLAGS} .
   - cmake --build . -- VERBOSE=1
