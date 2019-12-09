@@ -38,7 +38,7 @@ namespace laskin
 
     try
     {
-      context << value::make_time(peelo::time(
+      context << value::make_time(peelo::chrono::time(
         tm->tm_hour,
         tm->tm_min,
         tm->tm_sec

@@ -12,9 +12,9 @@ inspired by [Forth], [RPL] and [Plorth].
 Other dependencies already included in the source code repository as Git
 submodules:
 
-* [peelocpp-chrono]
-* [peelocpp-prompt]
-* [peelocpp-unicode]
+* [peelo-chrono]
+* [peelo-prompt]
+* [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
 with this command:
@@ -40,6 +40,6 @@ $ make
 [Plorth]: https://plorth.org
 [GNU Multiple Precision Arithmetic Library]: https://gmplib.org/
 [CMake]: https://cmake.org/
-[peelocpp-chrono]: https://github.com/peelonet/peelocpp-chrono
-[peelocpp-prompt]: https://github.com/peelonet/peelocpp-prompt
-[peelocpp-unicode]: https://github.com/peelonet/peelocpp-unicode
+[peelo-chrono]: https://github.com/peelonet/peelo-chrono
+[peelo-prompt]: https://github.com/peelonet/peelo-prompt
+[peelo-unicode]: https://github.com/peelonet/peelo-unicode

@@ -34,6 +34,8 @@ namespace laskin
     : m_line(line)
     , m_column(column) {}
 
+  node::~node() {}
+
   node::literal::literal(const class value& value, int line, int column)
     : node(line, column)
     , m_value(value) {}

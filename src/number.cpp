@@ -26,7 +26,7 @@
 #include <functional>
 #include <utility>
 
-#include <peelo/unicode.hpp>
+#include <peelo/unicode/utf8.hpp>
 
 #include "laskin/error.hpp"
 #include "laskin/number.hpp"

@@ -29,37 +29,37 @@ namespace laskin
 {
   static void w_sunday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::sun);
+    context << value::make_weekday(peelo::chrono::weekday::sun);
   }
 
   static void w_monday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::mon);
+    context << value::make_weekday(peelo::chrono::weekday::mon);
   }
 
   static void w_tuesday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::tue);
+    context << value::make_weekday(peelo::chrono::weekday::tue);
   }
 
   static void w_wednesday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::wed);
+    context << value::make_weekday(peelo::chrono::weekday::wed);
   }
 
   static void w_thursday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::thu);
+    context << value::make_weekday(peelo::chrono::weekday::thu);
   }
 
   static void w_friday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::fri);
+    context << value::make_weekday(peelo::chrono::weekday::fri);
   }
 
   static void w_saturday(class context& context, std::ostream&)
   {
-    context << value::make_weekday(peelo::weekday::sat);
+    context << value::make_weekday(peelo::chrono::weekday::sat);
   }
 
   static void w_is_weekend(class context& context, std::ostream&)
@@ -67,8 +67,8 @@ namespace laskin
     const auto weekday = context.peek().as_weekday();
 
     context << value::make_boolean(
-      weekday == peelo::weekday::sat
-      || weekday == peelo::weekday::sun
+      weekday == peelo::chrono::weekday::sat
+      || weekday == peelo::chrono::weekday::sun
     );
   }
 
