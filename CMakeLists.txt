@@ -27,18 +27,8 @@ IF(NOT GMP_LIBRARIES OR NOT GMPXX_LIBRARIES)
   MESSAGE(FATAL_ERROR "Could not find GMPXX library.")
 ENDIF()
 
-INCLUDE_DIRECTORIES(
-  ${GMP_INCLUDE_DIR}
-  ${GMPXX_INCLUDE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-chrono/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-prompt/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-unicode/include
-)
-
 SET(
   COMMON_SOURCES
-  ext/peelo-prompt/src/prompt.cpp
   src/ast.cpp
   src/chrono.cpp
   src/context.cpp
@@ -71,6 +61,29 @@ SET(
 ADD_EXECUTABLE(
   laskin
   ${COMMON_SOURCES}
+)
+
+TARGET_COMPILE_OPTIONS(
+  laskin
+  PRIVATE
+    -Wall -Werror
+)
+
+TARGET_COMPILE_FEATURES(
+  laskin
+  PRIVATE
+    cxx_std_17
+)
+
+TARGET_INCLUDE_DIRECTORIES(
+  laskin
+  PRIVATE
+    ${GMP_INCLUDE_DIR}
+    ${GMPXX_INCLUDE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-chrono/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-prompt/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/peelo-unicode/include
 )
 
 TARGET_LINK_LIBRARIES(

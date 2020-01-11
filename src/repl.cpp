@@ -49,9 +49,10 @@ namespace laskin
 
   void run_repl(class context& context)
   {
+    peelo::prompt prompt;
     std::u32string source;
 
-    while (auto optional_line = peelo::prompt::input(get_prompt(context)))
+    while (auto optional_line = prompt.input(get_prompt(context)))
     {
       const auto& line = optional_line.value();
 
@@ -59,7 +60,7 @@ namespace laskin
       {
         continue;
       }
-      peelo::prompt::history::add(line);
+      prompt.add_to_history(line);
       source.append(peelo::unicode::utf8::decode(line));
       source.append(1, '\n');
       count_open_braces(open_braces, line);
