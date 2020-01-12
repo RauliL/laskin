@@ -1,5 +1,7 @@
 # Laskin
 
+[![travis][travis-image]][travis-url]
+
 *Laskin* is a reverse polish notation calculator / programming language
 inspired by [Forth], [RPL] and [Plorth].
 
@@ -43,3 +45,5 @@ $ make
 [peelo-chrono]: https://github.com/peelonet/peelo-chrono
 [peelo-prompt]: https://github.com/peelonet/peelo-prompt
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode
+[travis-image]: https://travis-ci.com/RauliL/laskin.svg?branch=master
+[travis-url]: https://travis-ci.com/RauliL/laskin
