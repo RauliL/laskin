@@ -26,7 +26,7 @@
 #include <functional>
 #include <utility>
 
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/error.hpp"
 #include "laskin/number.hpp"
@@ -110,14 +110,16 @@ namespace laskin
       else if (!std::isdigit(c))
       {
         return number(
-          value_type(peelo::unicode::utf8::encode(input.substr(0, i))),
+          value_type(
+            peelo::unicode::encoding::utf8::encode(input.substr(0, i))
+          ),
           unit::find_by_symbol(input.substr(i, length - i))
         );
       }
     }
 
     return number(
-      value_type(peelo::unicode::utf8::encode(input)),
+      value_type(peelo::unicode::encoding::utf8::encode(input)),
       unit_type()
     );
   }
@@ -276,7 +278,7 @@ namespace laskin
     out << num.value();
     if (unit)
     {
-      out << peelo::unicode::utf8::encode(unit->symbol());
+      out << peelo::unicode::encoding::utf8::encode(unit->symbol());
     }
 
     return out;

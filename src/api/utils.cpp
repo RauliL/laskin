@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
@@ -243,7 +243,7 @@ namespace laskin
       std::cout
         << (size - i)
         << ": "
-        << peelo::unicode::utf8::encode(value.to_source())
+        << peelo::unicode::encoding::utf8::encode(value.to_source())
         << std::endl;
     }
   }

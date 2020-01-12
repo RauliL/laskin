@@ -25,7 +25,8 @@
  */
 #include <sstream>
 
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/ctype/isprint.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
@@ -582,7 +583,7 @@ namespace laskin
 
     ss << value;
 
-    return peelo::unicode::utf8::decode(ss.str());
+    return peelo::unicode::encoding::utf8::decode(ss.str());
   }
 
   static std::u32string vector_to_string(const std::vector<value>& elements)
@@ -827,7 +828,7 @@ namespace laskin
           break;
 
         default:
-          if (!peelo::unicode::isprint(c))
+          if (!peelo::unicode::ctype::isprint(c))
           {
             char buffer[7];
 
@@ -884,14 +885,16 @@ namespace laskin
 
   std::ostream& operator<<(std::ostream& out, enum value::type type)
   {
-    out << peelo::unicode::utf8::encode(value::type_description(type));
+    out << peelo::unicode::encoding::utf8::encode(
+      value::type_description(type)
+    );
 
     return out;
   }
 
   std::ostream& operator<<(std::ostream& out, const class value& value)
   {
-    out << peelo::unicode::utf8::encode(value.to_string());
+    out << peelo::unicode::encoding::utf8::encode(value.to_string());
 
     return out;
   }

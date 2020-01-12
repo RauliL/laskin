@@ -26,7 +26,7 @@
 #include <fstream>
 #include <unistd.h>
 
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
@@ -92,7 +92,7 @@ int main(int argc, char** argv)
 
 static void run_file(laskin::context& context, std::istream& input)
 {
-  const auto source = peelo::unicode::utf8::decode(
+  const auto source = peelo::unicode::encoding::utf8::decode(
     std::string(
       std::istreambuf_iterator<char>(input),
       std::istreambuf_iterator<char>()
@@ -157,7 +157,10 @@ static void parse_args(int argc, char** argv)
           {
             std::u32string script;
 
-            if (!peelo::unicode::utf8::decode_validate(argv[offset++], script))
+            if (!peelo::unicode::encoding::utf8::decode_validate(
+                  argv[offset++],
+                  script
+                ))
             {
               std::cerr << "Unable to decode given inline script as UTF-8."
                         << std::endl;

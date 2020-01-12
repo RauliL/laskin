@@ -23,7 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/ctype/isgraph.hpp>
+#include <peelo/unicode/ctype/isspace.hpp>
+#include <peelo/unicode/ctype/isvalid.hpp>
+#include <peelo/unicode/ctype/isxdigit.hpp>
 
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
@@ -373,7 +376,7 @@ namespace laskin
                   column
                 );
               }
-              else if (!peelo::unicode::isxdigit(peek()))
+              else if (!peelo::unicode::ctype::isxdigit(peek()))
               {
                 throw error(
                   error::type::syntax,
@@ -395,7 +398,7 @@ namespace laskin
               }
             }
 
-            if (!peelo::unicode::isvalid(result))
+            if (!peelo::unicode::ctype::isvalid(result))
             {
               throw error(
                 error::type::syntax,
@@ -604,7 +607,7 @@ namespace laskin
               }
             }
           }
-          else if (!peek(peelo::unicode::isspace))
+          else if (!peek(peelo::unicode::ctype::isspace))
           {
             return;
           } else {
@@ -633,6 +636,6 @@ namespace laskin
       && c != '('
       && c != ')'
       && c != ','
-      && peelo::unicode::isgraph(c);
+      && peelo::unicode::ctype::isgraph(c);
   }
 }

@@ -28,7 +28,7 @@
 #include <stack>
 
 #include <peelo/prompt.hpp>
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
@@ -61,7 +61,7 @@ namespace laskin
         continue;
       }
       prompt.add_to_history(line);
-      source.append(peelo::unicode::utf8::decode(line));
+      source.append(peelo::unicode::encoding::utf8::decode(line));
       source.append(1, '\n');
       count_open_braces(open_braces, line);
       if (!open_braces.empty())

@@ -23,7 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/utf8.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/error.hpp"
 
@@ -34,7 +34,7 @@ namespace laskin
                int line,
                int column)
     : m_type(type)
-    , m_message(peelo::unicode::utf8::encode(message))
+    , m_message(peelo::unicode::encoding::utf8::encode(message))
     , m_line(line)
     , m_column(column) {}
 
@@ -92,7 +92,9 @@ namespace laskin
     {
       out << line << ':' << error.column() << ':';
     }
-    out << peelo::unicode::utf8::encode(error::type_description(error.type()));
+    out << peelo::unicode::encoding::utf8::encode(
+      error::type_description(error.type())
+    );
     if (!message.empty())
     {
       out << ": " << message;

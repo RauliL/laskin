@@ -26,7 +26,7 @@
 #ifndef LASKIN_UTILS_HPP_GUARD
 #define LASKIN_UTILS_HPP_GUARD
 
-#include <peelo/unicode/ctype.hpp>
+#include <peelo/unicode/ctype/isspace.hpp>
 
 namespace laskin
 {
@@ -47,7 +47,7 @@ namespace laskin
       }
       for (std::size_t i = 0; i < length; ++i)
       {
-        if (!peelo::unicode::isspace(str[i]))
+        if (!peelo::unicode::ctype::isspace(str[i]))
         {
           return false;
         }

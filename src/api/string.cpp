@@ -23,7 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/ctype.hpp>
+#include <peelo/unicode/ctype/tolower.hpp>
+#include <peelo/unicode/ctype/toupper.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
@@ -58,12 +59,12 @@ namespace laskin
 
   static void w_lower_case(class context& context, std::ostream&)
   {
-    convert_string(context, peelo::unicode::tolower);
+    convert_string(context, peelo::unicode::ctype::tolower);
   }
 
   static void w_upper_case(class context& context, std::ostream&)
   {
-    convert_string(context, peelo::unicode::toupper);
+    convert_string(context, peelo::unicode::ctype::toupper);
   }
 
   static void w_at(class context& context, std::ostream&)
