@@ -249,6 +249,51 @@ namespace laskin
     }
   }
 
+  static std::vector<value>::size_type partition(
+    std::vector<value>& vector,
+    std::vector<value>::size_type low,
+    std::vector<value>::size_type high
+  )
+  {
+    const auto& pivot = vector[high];
+    auto i = low - 1;
+
+    for (std::vector<value>::size_type j = low; j <= high - 1; ++j)
+    {
+      if (vector[j] < pivot)
+      {
+        ++i;
+        std::swap(vector[i], vector[j]);
+      }
+    }
+    std::swap(vector[i + 1], vector[high]);
+
+    return i + 1;
+  }
+
+  static void quicksort(
+    std::vector<value>& vector,
+    std::vector<value>::size_type low,
+    std::vector<value>::size_type high
+  )
+  {
+    if (low < high)
+    {
+      const auto pi = partition(vector, low, high);
+
+      quicksort(vector, low, pi - 1);
+      quicksort(vector, pi + 1, high);
+    }
+  }
+
+  static void w_sort(class context& context, std::ostream&)
+  {
+    auto vector = context.pop().as_vector();
+
+    quicksort(vector, 0, vector.size() - 1);
+    context << value::make_vector(vector);
+  }
+
   static void w_at(class context& context, std::ostream&)
   {
     const auto vector = context.pop().as_vector();
@@ -289,6 +334,7 @@ namespace laskin
       { U"vector:insert", w_insert },
       { U"vector:reverse", w_reverse },
       { U"vector:extract", w_extract },
+      { U"vector:sort", w_sort },
 
       { U"vector:@", w_at }
     };
