@@ -23,39 +23,25 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_UTILS_HPP_GUARD
-#define LASKIN_UTILS_HPP_GUARD
-
-#include <peelo/chrono/time.hpp>
-#include <peelo/unicode/ctype/isspace.hpp>
+#include "laskin/utils.hpp"
 
 namespace laskin::utils
 {
-  /**
-   * Tests whether given string is blank or not. String is considered to be
-   * blank when it's either empty or contains only whitespace characters.
-   */
-  template<class T>
-  inline bool is_blank(const std::basic_string<T>& str)
+  std::int64_t time_as_seconds(const peelo::chrono::time& time)
   {
-    const auto length = str.length();
+    const auto hour = static_cast<std::int64_t>(time.hour());
+    const auto minute = static_cast<std::int64_t>(time.minute());
+    auto second = static_cast<std::int64_t>(time.second());
 
-    if (!length)
+    if (minute > 0)
     {
-      return true;
+      second += minute * 60;
     }
-    for (std::size_t i = 0; i < length; ++i)
+    if (hour > 0)
     {
-      if (!peelo::unicode::ctype::isspace(str[i]))
-      {
-        return false;
-      }
+      second += hour * 3600;
     }
 
-    return true;
+    return second;
   }
-
-  std::int64_t time_as_seconds(const peelo::chrono::time& time);
 }
-
-#endif /* !LASKIN_UTILS_HPP_GUARD */

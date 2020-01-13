@@ -24,6 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/error.hpp"
+#include "laskin/utils.hpp"
 #include "laskin/value.hpp"
 
 namespace laskin
@@ -52,6 +53,21 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value substract_date(const peelo::chrono::date& a,
+                              const peelo::chrono::date& b)
+  {
+    return value::make_number(a - b, unit::day);
+  }
+
+  static value substract_time(const peelo::chrono::time& a,
+                              const peelo::chrono::time& b)
+  {
+    return value::make_number(
+      utils::time_as_seconds(a) - utils::time_as_seconds(b),
+      unit::second
+    );
+  }
+
   value value::substract(const value& that) const
   {
     if (that.is(m_type))
@@ -63,6 +79,12 @@ namespace laskin
 
         case type::vector:
           return substract_vector(*m_value_vector, *that.m_value_vector);
+
+        case type::date:
+          return substract_date(*m_value_date, *that.m_value_date);
+
+        case type::time:
+          return substract_time(*m_value_time, *that.m_value_time);
 
         default:
           break;

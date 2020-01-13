@@ -39,6 +39,7 @@ SET(
   src/quote.cpp
   src/repl.cpp
   src/unit.cpp
+  src/utils.cpp
   src/value.cpp
   src/api/boolean.cpp
   src/api/date.cpp

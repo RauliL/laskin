@@ -38,6 +38,21 @@ namespace laskin
   class unit
   {
   public:
+    static const unit millimeter;
+    static const unit centimeter;
+    static const unit meter;
+    static const unit kilometer;
+
+    static const unit milligram;
+    static const unit gram;
+    static const unit kilogram;
+
+    static const unit millisecond;
+    static const unit second;
+    static const unit minute;
+    static const unit hour;
+    static const unit day;
+
     /**
      * Enumeration of different supported types of measurement.
      */
@@ -94,24 +109,6 @@ namespace laskin
   };
 
   std::u32string to_string(enum unit::type);
-
-#if 0
-  namespace unit
-  {
-    optional_any base_unit_of(const optional_any&);
-    any base_unit_of(const any&);
-
-    optional_any find_by_name(const std::u32string&);
-
-    std::u32string name_of(const any&);
-    std::u32string name_of(length);
-    std::u32string name_of(mass);
-    std::u32string name_of(time);
-
-    std::u32string quantity_of(const optional_any&);
-    std::u32string quantity_of(const any&);
-  }
-#endif
 }
 
 #endif /* !LASKIN_UNIT_HPP_GUARD */

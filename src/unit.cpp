@@ -30,66 +30,66 @@
 namespace laskin
 {
   // Supported length units.
-  static const unit unit_length_mm = unit(
+  const unit unit::millimeter(
     unit::type::length,
     U"mm",
     -1000
   );
-  static const unit unit_length_cm = unit(
+  const unit unit::centimeter(
     unit::type::length,
     U"cm",
     -100
   );
-  static const unit unit_length_m = unit(
+  const unit unit::meter(
     unit::type::length,
     U"m",
     1
   );
-  static const unit unit_length_km = unit(
+  const unit unit::kilometer(
     unit::type::length,
     U"km",
     1000
   );
 
   // Supported mass units.
-  static const unit unit_mass_mg = unit(
+  const unit unit::milligram(
     unit::type::mass,
     U"mg",
     -1000000
   );
-  static const unit unit_mass_g = unit(
+  const unit unit::gram(
     unit::type::mass,
     U"g",
     -1000
   );
-  static const unit unit_mass_kg = unit(
+  const unit unit::kilogram(
     unit::type::mass,
     U"kg",
     1
   );
 
   // Supported time units.
-  static const unit unit_time_ms = unit(
+  const unit unit::millisecond(
     unit::type::time,
     U"ms",
     -1000
   );
-  static const unit unit_time_s = unit(
+  const unit unit::second(
     unit::type::time,
     U"s",
     1
   );
-  static const unit unit_time_min = unit(
+  const unit unit::minute(
     unit::type::time,
     U"min",
     60
   );
-  static const unit unit_time_h = unit(
+  const unit unit::hour(
     unit::type::time,
     U"h",
     3600
   );
-  static const unit unit_time_d = unit(
+  const unit unit::day(
     unit::type::time,
     U"d",
     86400
@@ -98,46 +98,46 @@ namespace laskin
   static const std::unordered_map<std::u32string, unit> symbol_mapping =
   {
     // Length units.
-    { U"mm", unit_length_mm },
-    { U"cm", unit_length_cm },
-    { U"m", unit_length_m },
-    { U"km", unit_length_km },
+    { U"mm", unit::millimeter },
+    { U"cm", unit::centimeter },
+    { U"m", unit::meter },
+    { U"km", unit::kilometer },
 
     // Mass units.
-    { U"mg", unit_mass_mg },
-    { U"g", unit_mass_g },
-    { U"kg", unit_mass_kg },
+    { U"mg", unit::milligram },
+    { U"g", unit::gram },
+    { U"kg", unit::kilogram },
 
     // Time units.
-    { U"ms", unit_time_ms },
-    { U"s", unit_time_s },
-    { U"min", unit_time_min },
-    { U"h", unit_time_h },
-    { U"d", unit_time_d },
+    { U"ms", unit::millisecond },
+    { U"s", unit::second },
+    { U"min", unit::minute },
+    { U"h", unit::hour },
+    { U"d", unit::day },
   };
 
   static const std::vector<unit> all_length_units =
   {
-    unit_length_km,
-    unit_length_m,
-    unit_length_cm,
-    unit_length_mm
+    unit::kilometer,
+    unit::meter,
+    unit::centimeter,
+    unit::millimeter
   };
 
   static const std::vector<unit> all_mass_units =
   {
-    unit_mass_kg,
-    unit_mass_g,
-    unit_mass_mg
+    unit::kilogram,
+    unit::gram,
+    unit::milligram
   };
 
   static const std::vector<unit> all_time_units =
   {
-    unit_time_d,
-    unit_time_h,
-    unit_time_min,
-    unit_time_s,
-    unit_time_ms
+    unit::day,
+    unit::hour,
+    unit::minute,
+    unit::second,
+    unit::millisecond
   };
 
   std::optional<unit> unit::find_by_symbol(const std::u32string& symbol)
@@ -157,17 +157,17 @@ namespace laskin
     switch (type)
     {
       case type::length:
-        return unit_length_m;
+        return unit::meter;
 
       case type::mass:
-        return unit_mass_kg;
+        return unit::kilogram;
 
       case type::time:
-        return unit_time_s;
+        return unit::second;
     }
 
     // Just to keep the compiler happy.
-    return unit_length_m;
+    return unit::meter;
   }
 
   const std::vector<unit>& unit::all_units_of(enum type type)
