@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cmath>
+
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
@@ -38,6 +40,16 @@ namespace laskin
   static void w_false(class context& context, std::ostream&)
   {
     context << value::make_boolean(false);
+  }
+
+  static void w_pi(class context& context, std::ostream&)
+  {
+    context << value::make_number(M_PI);
+  }
+
+  static void w_e(class context& context, std::ostream&)
+  {
+    context << value::make_number(M_E);
   }
 
   static void w_eq(class context& context, std::ostream&)
@@ -308,6 +320,8 @@ namespace laskin
       // Constants.
       { U"true", w_true },
       { U"false", w_false },
+      { U"pi", w_pi },
+      { U"e", w_e },
 
       // Common operators.
       { U"=", w_eq },
