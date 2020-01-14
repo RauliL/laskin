@@ -25,6 +25,8 @@
  */
 #include <chrono>
 
+#include <peelo/unicode/encoding/utf8.hpp>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -108,6 +110,16 @@ namespace laskin
     context << value::make_boolean(context.peek().as_date().is_leap_year());
   }
 
+  static void w_format(class context& context, std::ostream&)
+  {
+    using peelo::unicode::encoding::utf8::encode;
+    using peelo::unicode::encoding::utf8::decode;
+    const auto time = context.pop().as_date();
+    const auto format = context.pop().as_string();
+
+    context << value::make_string(decode(time.format(encode(format))));
+  }
+
   static void w_to_number(class context& context, std::ostream&)
   {
     context << value::make_number(context.pop().as_date().timestamp());
@@ -143,6 +155,8 @@ namespace laskin
       { U"date:days-in-month", w_days_in_month },
       { U"date:days-in-year", w_days_in_year },
       { U"date:leap-year?", w_is_leap_year },
+
+      { U"date:format", w_format },
 
       { U"date:>number", w_to_number },
       { U"date:>vector", w_to_vector }

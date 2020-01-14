@@ -25,6 +25,8 @@
  */
 #include <chrono>
 
+#include <peelo/unicode/encoding/utf8.hpp>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -68,6 +70,16 @@ namespace laskin
     context << value::make_number(context.peek().as_time().second());
   }
 
+  static void w_format(class context& context, std::ostream&)
+  {
+    using peelo::unicode::encoding::utf8::encode;
+    using peelo::unicode::encoding::utf8::decode;
+    const auto time = context.pop().as_time();
+    const auto format = context.pop().as_string();
+
+    context << value::make_string(decode(time.format(encode(format))));
+  }
+
   static void w_to_vector(class context& context, std::ostream&)
   {
     const auto time = context.pop().as_time();
@@ -88,6 +100,8 @@ namespace laskin
       { U"time:hour", w_hour },
       { U"time:minute", w_minute },
       { U"time:second", w_second },
+
+      { U"time:format", w_format },
 
       { U"time:>vector", w_to_vector }
     };
