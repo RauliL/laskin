@@ -1,0 +1,46 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+PROJECT(laskin-cli C CXX)
+
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake/FindGMP.cmake)
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake/paths.cmake)
+
+ADD_EXECUTABLE(
+  laskin
+  ${COMMON_SOURCES}
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/repl.cpp
+)
+
+TARGET_COMPILE_OPTIONS(
+  laskin
+  PRIVATE
+    -Wall -Werror
+)
+
+TARGET_COMPILE_FEATURES(
+  laskin
+  PRIVATE
+    cxx_std_17
+)
+
+TARGET_INCLUDE_DIRECTORIES(
+  laskin
+  PRIVATE
+    ${GMP_INCLUDE_DIR}
+    ${GMPXX_INCLUDE_DIR}
+    ${COMMON_INCLUDES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-prompt/include
+)
+
+TARGET_LINK_LIBRARIES(
+  laskin
+  ${GMP_LIBRARIES}
+  ${GMPXX_LIBRARIES}
+)
+
+INSTALL(
+  TARGETS
+    laskin
+  RUNTIME DESTINATION
+    bin
+)

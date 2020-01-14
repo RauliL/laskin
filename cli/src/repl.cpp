@@ -39,7 +39,7 @@
 # define BUFSIZ 1024
 #endif
 
-namespace laskin
+namespace laskin::cli
 {
   static int line_counter = 0;
   static std::stack<char> open_braces;

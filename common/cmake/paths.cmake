@@ -1,0 +1,36 @@
+SET(
+  COMMON_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/ast.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/chrono.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/error.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/number.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/parser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/quote.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/unit.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/utils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/value.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/boolean.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/date.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/month.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/number.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/quote.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/string.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/time.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/utils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/vector.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/weekday.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/add.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/compare.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/divide.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/equals.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/multiply.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/operator/substract.cpp
+)
+
+SET(
+  COMMON_INCLUDES
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-chrono/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-unicode/include
+)
