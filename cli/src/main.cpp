@@ -35,7 +35,7 @@
 static std::string programfile;
 static std::vector<std::u32string> inline_scripts;
 
-namespace laskin
+namespace laskin::cli
 {
   void run_repl(context&);
 }
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
   }
   else if (isatty(fileno(stdin)))
   {
-    laskin::run_repl(context);
+    laskin::cli::run_repl(context);
   } else {
     run_file(context, std::cin);
   }
