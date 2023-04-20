@@ -133,6 +133,22 @@ namespace laskin
     context << a / b;
   }
 
+  static void w_max(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << (a > b ? a : b);
+  }
+
+  static void w_min(class context& context, std::ostream&)
+  {
+    const auto b = context.pop();
+    const auto a = context.pop();
+
+    context << (a < b ? a : b);
+  }
+
   static void type_test(class context& context, enum value::type type)
   {
     context << value::make_boolean(context.peek().is(type));
@@ -401,6 +417,8 @@ namespace laskin
       { U"-", w_sub },
       { U"*", w_mul },
       { U"/", w_div },
+      { U"max", w_max },
+      { U"min", w_min },
 
       // Stack testing.
       { U"boolean?", w_is_boolean },
