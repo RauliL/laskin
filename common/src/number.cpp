@@ -273,13 +273,14 @@ namespace laskin
 
   std::ostream& operator<<(std::ostream& out, const number& num)
   {
+    const auto& value = num.value();
     ::mp_exp_t exp = 0;
     auto buffer = ::mpf_get_str(
       nullptr,
       &exp,
       10,
       0,
-      num.value().get_mpf_t()
+      value.get_mpf_t()
     );
     std::string result(buffer);
 
@@ -290,6 +291,10 @@ namespace laskin
     if (result.empty())
     {
       result.assign(1, '0');
+    }
+    if (value < 0)
+    {
+      ++exp;
     }
     if (exp > 0)
     {
