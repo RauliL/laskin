@@ -290,6 +290,22 @@ namespace laskin
     }
   }
 
+  static void w_while(class context& context, std::ostream& out)
+  {
+    const auto quote = context.pop().as_quote();
+    const auto condition = context.pop().as_quote();
+
+    for (;;)
+    {
+      condition.call(context, out);
+      if (!context.pop().as_boolean())
+      {
+        return;
+      }
+      quote.call(context, out);
+    }
+  }
+
   static void w_lookup(class context& context, std::ostream&)
   {
     const auto& dictionary = context.dictionary();
@@ -365,6 +381,7 @@ namespace laskin
       { U"quit", w_quit },
       { U"if", w_if },
       { U"if-else", w_if_else },
+      { U"while", w_while },
 
       // Dictionary related.
       { U"lookup", w_lookup },
