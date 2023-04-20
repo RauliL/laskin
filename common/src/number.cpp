@@ -273,13 +273,49 @@ namespace laskin
 
   std::ostream& operator<<(std::ostream& out, const number& num)
   {
-    const auto& unit = num.measurement_unit();
+    ::mp_exp_t exp = 0;
+    auto buffer = ::mpf_get_str(
+      nullptr,
+      &exp,
+      10,
+      0,
+      num.value().get_mpf_t()
+    );
+    std::string result(buffer);
 
-    out << num.value();
-    if (unit)
+    if (buffer)
     {
-      out << peelo::unicode::encoding::utf8::encode(unit->symbol());
+      std::free(buffer);
     }
+    if (result.empty())
+    {
+      result.assign(1, '0');
+    }
+    if (exp > 0)
+    {
+      if (static_cast<std::string::size_type>(exp) >= result.length())
+      {
+        const auto size = result.length();
+
+        for (
+          std::string::size_type i = 0;
+          i < static_cast<std::string::size_type>(exp) - size;
+          ++i
+        )
+        {
+          result.append(1, '0');
+        }
+      } else {
+        result.insert(std::begin(result) + exp, '.');
+      }
+    } else {
+      result.insert(0, "0.");
+    }
+    if (const auto& unit = num.measurement_unit())
+    {
+      result += peelo::unicode::encoding::utf8::encode(unit->symbol());
+    }
+    out << result;
 
     return out;
   }
