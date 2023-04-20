@@ -68,6 +68,103 @@ namespace laskin
     );
   }
 
+  static value substract_month(peelo::chrono::month a, const number& b)
+  {
+    long delta;
+
+    if (b.measurement_unit())
+    {
+      throw error(
+        error::type::type,
+        U"Cannot add number to month."
+      );
+    } else {
+      delta = b.to_long();
+    }
+
+    return value::make_month(a - delta);
+  }
+
+  static value substract_weekday(peelo::chrono::weekday a, const number& b)
+  {
+    long delta;
+
+    if (const auto& unit = b.measurement_unit())
+    {
+      if (!unit->symbol().compare(U"d"))
+      {
+        delta = b.to_long();
+      } else {
+        throw error(
+          error::type::type,
+          U"Cannot add number to weekday."
+        );
+      }
+    } else {
+      delta = b.to_long();
+    }
+
+    return value::make_weekday(a - delta);
+  }
+
+  static value substract_date(const peelo::chrono::date& a, const number& b)
+  {
+    long delta;
+
+    if (const auto& unit = b.measurement_unit())
+    {
+      if (!unit->symbol().compare(U"d"))
+      {
+        delta = b.to_long();
+      } else {
+        throw error(
+          error::type::type,
+          U"Cannot add number to date."
+        );
+      }
+    } else {
+      delta = b.to_long();
+    }
+
+    return value::make_date(a - delta);
+  }
+
+  static value substract_time(const peelo::chrono::time& a, const number& b)
+  {
+    long delta;
+
+    if (const auto& unit = b.measurement_unit())
+    {
+      const auto& symbol = unit->symbol();
+
+      if (!symbol.compare(U"s"))
+      {
+        delta = b.to_long();
+      }
+      else if (!symbol.compare(U"min"))
+      {
+        delta = b.to_long() * peelo::chrono::duration::minutes_per_hour;
+      }
+      else if (!symbol.compare(U"h"))
+      {
+        delta = b.to_long() * peelo::chrono::duration::seconds_per_hour;
+      }
+      else if (!symbol.compare(U"d"))
+      {
+        delta = b.to_long() * peelo::chrono::duration::seconds_per_day;
+      } else {
+        throw error(
+          error::type::type,
+          U"Cannot add number to time."
+        );
+      }
+    } else {
+      delta = b.to_long();
+    }
+
+    return value::make_time(a - delta);
+  }
+
   value value::substract(const value& that) const
   {
     if (that.is(m_type))
@@ -95,20 +192,16 @@ namespace laskin
       switch (m_type)
       {
         case type::month:
-          // TODO: Make sure there is no measurement units.
-          return make_month(m_value_month - that.m_value_number->to_long());
+          return substract_month(m_value_month, *that.m_value_number);
 
         case type::weekday:
-          // TODO: Make sure there is no measurement units.
-          return make_weekday(m_value_weekday - that.m_value_number->to_long());
+          return substract_weekday(m_value_weekday, *that.m_value_number);
 
         case type::date:
-          // TODO: Acknowledge measurement units.
-          return make_date(*m_value_date - that.m_value_number->to_long());
+          return substract_date(*m_value_date, *that.m_value_number);
 
         case type::time:
-          // TODO: Acknowledge measurement units.
-          return make_time(*m_value_time - that.m_value_number->to_long());
+          return substract_time(*m_value_time, *that.m_value_number);
 
         default:
           break;
