@@ -76,7 +76,7 @@ namespace laskin
     {
       throw error(
         error::type::type,
-        U"Cannot add number to month."
+        U"Cannot substract number to month."
       );
     } else {
       delta = b.to_long();
@@ -97,7 +97,7 @@ namespace laskin
       } else {
         throw error(
           error::type::type,
-          U"Cannot add number to weekday."
+          U"Cannot substract number to weekday."
         );
       }
     } else {
@@ -119,7 +119,7 @@ namespace laskin
       } else {
         throw error(
           error::type::type,
-          U"Cannot add number to date."
+          U"Cannot substract number to date."
         );
       }
     } else {
@@ -155,7 +155,7 @@ namespace laskin
       } else {
         throw error(
           error::type::type,
-          U"Cannot add number to time."
+          U"Cannot substract number to time."
         );
       }
     } else {
