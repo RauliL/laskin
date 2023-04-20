@@ -24,6 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cmath>
+#include <fstream>
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
@@ -349,6 +350,36 @@ namespace laskin
     context.dictionary()[id] = value;
   }
 
+  static void w_include(class context& context, std::ostream& out)
+  {
+    using peelo::unicode::encoding::utf8::decode_validate;
+    const auto path = context.pop().as_string();
+    std::ifstream input(peelo::unicode::encoding::utf8::encode(path));
+    std::string raw_source;
+    std::u32string source;
+
+    if (!input.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to open file `" + path + U"' for reading."
+      );
+    }
+    raw_source = std::string(
+      std::istreambuf_iterator<char>(input),
+      std::istreambuf_iterator<char>()
+    );
+    input.close();
+    if (!decode_validate(raw_source, source))
+    {
+      throw error(
+        error::type::system,
+        U"Unable to decode contents of the file with UTF-8 character encoding."
+      );
+    }
+    quote::parse(source).call(context, out);
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition utils =
@@ -409,7 +440,10 @@ namespace laskin
 
       // Dictionary related.
       { U"lookup", w_lookup },
-      { U"define", w_define }
+      { U"define", w_define },
+
+      // Importing stuff from the file system.
+      { U"include", w_include }
     };
   }
 }
