@@ -90,6 +90,26 @@ namespace laskin
           break;
       }
     }
+    else if (that.is(type::number))
+    {
+      switch (m_type)
+      {
+        case type::month:
+          return make_month(m_value_month - that.m_value_number->to_long());
+
+        case type::weekday:
+          return make_weekday(m_value_weekday - that.m_value_number->to_long());
+
+        case type::date:
+          return make_date(*m_value_date - that.m_value_number->to_long());
+
+        case type::time:
+          return make_time(*m_value_time - that.m_value_number->to_long());
+
+        default:
+          break;
+      }
+    }
 
     throw error(
       error::type::type,
