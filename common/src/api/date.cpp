@@ -148,7 +148,10 @@ namespace laskin
 
   static void w_to_number(class context& context, std::ostream&)
   {
-    context << value::make_number(context.pop().as_date().timestamp());
+    context << value::make_number(
+      context.pop().as_date().timestamp(),
+      unit::second
+    );
   }
 
   static void w_to_vector(class context& context, std::ostream&)
