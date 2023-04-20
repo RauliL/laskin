@@ -28,6 +28,20 @@
 
 namespace laskin
 {
+  static void w_vector(class context& context, std::ostream&)
+  {
+    const auto size = context.pop().as_number();
+    std::vector<value> elements;
+
+    elements.reserve(size.to_long());
+    for (number i; i < size; ++i)
+    {
+      elements.push_back(context.pop());
+    }
+
+    context << value::make_vector(elements.rbegin(), elements.rend());
+  }
+
   static void w_length(class context& context, std::ostream&)
   {
     context << value::make_number(
@@ -315,6 +329,8 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition vector =
     {
+      { U"vector", w_vector },
+
       { U"vector:length", w_length },
 
       { U"vector:max", w_max },

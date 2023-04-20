@@ -55,6 +55,32 @@ namespace laskin
     }
   }
 
+  static void w_date(class context& context, std::ostream&)
+  {
+    const auto day = context.pop().as_number().to_long();
+    peelo::chrono::month month;
+    long year;
+
+    if (context.peek().is(value::type::month))
+    {
+      month = context.pop().as_month();
+    } else {
+      const auto value = context.pop().as_number().to_long();
+
+      if (value < 1 || value > 12)
+      {
+        throw error(error::type::range, U"Given month is out of range.");
+      }
+      month = static_cast<peelo::chrono::month>(value - 1);
+    }
+    year = context.pop().as_number().to_long();
+    if (!peelo::chrono::date::is_valid(year, month, day))
+    {
+      throw error(error::type::range, U"Invalid date.");
+    }
+    context << value::make_date(peelo::chrono::date(year, month, day));
+  }
+
   static void w_today(class context& context, std::ostream&)
   {
     context << value::make_date(get_current_date());
@@ -143,6 +169,7 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition date =
     {
+      { U"date", w_date },
       { U"today", w_today },
       { U"tomorrow", w_tomorrow },
       { U"yesterday", w_yesterday },

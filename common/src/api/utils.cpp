@@ -182,20 +182,6 @@ namespace laskin
     type_test(context, value::type::weekday);
   }
 
-  static void w_vector(class context& context, std::ostream&)
-  {
-    const auto size = context.pop().as_number();
-    std::vector<value> elements;
-
-    elements.reserve(size.to_long());
-    for (number i; i < size; ++i)
-    {
-      elements.push_back(context.pop());
-    }
-
-    context << value::make_vector(elements.rbegin(), elements.rend());
-  }
-
   static void w_clear(class context& context, std::ostream&)
   {
     context.clear();
@@ -395,9 +381,6 @@ namespace laskin
       { U"time?", w_is_time },
       { U"quote?", w_is_quote },
       { U"weekday?", w_is_weekday },
-
-      // Constructors.
-      { U"vector", w_vector },
 
       // Stack manipulation.
       { U"clear", w_clear },
