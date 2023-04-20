@@ -56,7 +56,7 @@ namespace laskin
   static value substract_date(const peelo::chrono::date& a,
                               const peelo::chrono::date& b)
   {
-    return value::make_number(a - b, unit::day);
+    return value::make_number((a - b).days(), unit::day);
   }
 
   static value substract_time(const peelo::chrono::time& a,

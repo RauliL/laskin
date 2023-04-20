@@ -93,6 +93,18 @@ namespace laskin
     context << value::make_string(decode(time.format(encode(format))));
   }
 
+  static void w_to_number(class context& context, std::ostream&)
+  {
+    const auto time = context.pop().as_time();
+    number::value_type result = 0;
+
+    result += time.hour() * peelo::chrono::duration::seconds_per_hour;
+    result += time.minute() * peelo::chrono::duration::seconds_per_minute;
+    result += time.second();
+
+    context << value::make_number(result, unit::second);
+  }
+
   static void w_to_vector(class context& context, std::ostream&)
   {
     const auto time = context.pop().as_time();
@@ -117,6 +129,7 @@ namespace laskin
 
       { U"time:format", w_format },
 
+      { U"time:>number", w_to_number },
       { U"time:>vector", w_to_vector }
     };
   }
