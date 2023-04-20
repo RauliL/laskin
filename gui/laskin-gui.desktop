@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Icon=laskin-gui
+Exec=laskin-gui
+Terminal=false
+StartupNotify=true
+Categories=GTK;Utility;Calculator
+Name=Laskin
+GenericName=Calculator

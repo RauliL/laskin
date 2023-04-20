@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2023, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,72 +23,74 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/quote.hpp"
+#include "laskin/gui/utils.hpp"
 
-namespace laskin
+namespace laskin::gui::utils
 {
-  quote::quote() {}
-
-  quote::quote(const callback& cb)
-    : m_container(cb) {}
-
-  quote::quote(const node_container& nodes)
-    : m_container(nodes) {}
-
-  quote::quote(const quote& that)
-    : m_container(that.m_container) {}
-
-  quote& quote::operator=(const quote& that)
+  void count_open_braces(
+    std::stack<char32_t>& open_braces,
+    const Glib::ustring& line
+  )
   {
-    m_container = that.m_container;
+    const auto length = line.length();
 
-    return *this;
-  }
-
-  void quote::call(class context& context, std::ostream& out) const
-  {
-    if (std::holds_alternative<node_container>(m_container))
+    for (std::string::size_type i = 0; i < length; ++i)
     {
-      for (const auto& node : std::get<node_container>(m_container))
+      const auto c = line[i];
+
+      switch (line[i])
       {
-        if (node)
-        {
-          node->exec(context, out);
-        }
+        case '#':
+          return;
+
+        case '(':
+          open_braces.push(')');
+          break;
+
+        case '[':
+          open_braces.push(']');
+          break;
+
+        case ')':
+        case ']':
+          if (!open_braces.empty() && open_braces.top() == c)
+          {
+            open_braces.pop();
+          }
+          break;
+
+        case '"':
+        case '\'':
+          ++i;
+          while (i < length)
+          {
+            if (line[i] == c)
+            {
+              break;
+            }
+            else if (line[i] == '\\' && i + 1 < length && line[i + 1] == c)
+            {
+              i += 2;
+            } else {
+              ++i;
+            }
+          }
+          break;
       }
     }
-    else if (std::holds_alternative<callback>(m_container))
-    {
-      std::get<callback>(m_container)(context, out);
-    }
   }
 
-  std::u32string quote::to_source() const
+  const Pango::FontDescription& get_monospace_font()
   {
-    if (std::holds_alternative<node_container>(m_container))
+    static Pango::FontDescription font;
+    static bool initialized = false;
+
+    if (!initialized)
     {
-      std::u32string result;
-      bool first = true;
-
-      result.append(1, U'(');
-      for (const auto& node : std::get<node_container>(m_container))
-      {
-        if (first)
-        {
-          first = false;
-        } else {
-          result.append(1, U' ');
-        }
-        if (node)
-        {
-          result.append(node->to_source());
-        }
-      }
-      result.append(1, U')');
-
-      return result;
+      font.set_family("monospace");
+      initialized = true;
     }
 
-    return U"(\"native quote\")";
+    return font;
   }
 }
