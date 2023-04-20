@@ -30,6 +30,33 @@
 
 namespace laskin
 {
+  static void w_has_unit(class context& context, std::ostream&)
+  {
+    context << value::make_boolean(bool(context.peek().as_number().measurement_unit()));
+  }
+
+  static void w_unit(class context& context, std::ostream&)
+  {
+    const auto& unit = context.peek().as_number().measurement_unit();
+
+    if (!unit)
+    {
+      throw error(error::type::unit, U"Value has no measurement unit.");
+    }
+    context << value::make_string(unit->symbol());
+  }
+
+  static void w_unit_type(class context& context, std::ostream&)
+  {
+    const auto& unit = context.peek().as_number().measurement_unit();
+
+    if (!unit)
+    {
+      throw error(error::type::unit, U"Value has no measurement unit.");
+    }
+    context << value::make_string(to_string(unit->type()));
+  }
+
   static void w_range(class context& context, std::ostream&)
   {
     const auto limit = context.pop().as_number();
@@ -137,6 +164,10 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition number =
     {
+      { U"number:has-unit?", w_has_unit },
+      { U"number:unit", w_unit },
+      { U"number:unit-type", w_unit_type },
+
       { U"number:range", w_range },
       { U"number:clamp", w_clamp },
       { U"number:times", w_times },
