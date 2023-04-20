@@ -81,15 +81,19 @@ namespace laskin
       switch (m_type)
       {
         case type::month:
+          // TODO: Make sure there is no measurement units.
           return make_month(m_value_month + that.m_value_number->to_long());
 
         case type::weekday:
+          // TODO: Make sure there is no measurement units.
           return make_weekday(m_value_weekday + that.m_value_number->to_long());
 
         case type::date:
+          // TODO: Acknowledge measurement units.
           return make_date(*m_value_date + that.m_value_number->to_long());
 
         case type::time:
+          // TODO: Acknowledge measurement units.
           return make_time(*m_value_time + that.m_value_number->to_long());
 
         default:
