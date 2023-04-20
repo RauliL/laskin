@@ -142,6 +142,16 @@ namespace laskin
     type_test(context, value::type::boolean);
   }
 
+  static void w_is_date(class context& context, std::ostream&)
+  {
+    type_test(context, value::type::date);
+  }
+
+  static void w_is_month(class context& context, std::ostream&)
+  {
+    type_test(context, value::type::month);
+  }
+
   static void w_is_number(class context& context, std::ostream&)
   {
     type_test(context, value::type::number);
@@ -157,9 +167,19 @@ namespace laskin
     type_test(context, value::type::string);
   }
 
+  static void w_is_time(class context& context, std::ostream&)
+  {
+    type_test(context, value::type::time);
+  }
+
   static void w_is_quote(class context& context, std::ostream&)
   {
     type_test(context, value::type::quote);
+  }
+
+  static void w_is_weekday(class context& context, std::ostream&)
+  {
+    type_test(context, value::type::weekday);
   }
 
   static void w_clear(class context& context, std::ostream&)
@@ -353,10 +373,14 @@ namespace laskin
 
       // Stack testing.
       { U"boolean?", w_is_boolean },
+      { U"date?", w_is_date },
+      { U"month?", w_is_month },
       { U"number?", w_is_number },
       { U"vector?", w_is_vector },
       { U"string?", w_is_string },
+      { U"time?", w_is_time },
       { U"quote?", w_is_quote },
+      { U"weekday?", w_is_weekday },
 
       // Stack manipulation.
       { U"clear", w_clear },
