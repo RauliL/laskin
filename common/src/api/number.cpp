@@ -57,6 +57,13 @@ namespace laskin
     context << value::make_string(to_string(unit->type()));
   }
 
+  static void w_drop_unit(class context& context, std::ostream&)
+  {
+    const auto value = context.pop().as_number().value();
+
+    context << value::make_number(value);
+  }
+
   static void w_range(class context& context, std::ostream&)
   {
     const auto limit = context.pop().as_number();
@@ -167,6 +174,7 @@ namespace laskin
       { U"number:has-unit?", w_has_unit },
       { U"number:unit", w_unit },
       { U"number:unit-type", w_unit_type },
+      { U"number:drop-unit", w_drop_unit },
 
       { U"number:range", w_range },
       { U"number:clamp", w_clamp },
