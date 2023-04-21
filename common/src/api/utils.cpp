@@ -350,6 +350,33 @@ namespace laskin
     context.dictionary()[id] = value;
   }
 
+  static void w_delete(class context& context, std::ostream&)
+  {
+    const auto id = context.pop().as_string();
+    auto& dictionary = context.dictionary();
+    const auto i = dictionary.find(id);
+
+    if (i != std::end(dictionary))
+    {
+      dictionary.erase(i);
+    } else {
+      throw error(error::type::name, U"Unrecognized symbol: `" + id + U"'");
+    }
+  }
+
+  static void w_symbols(class context& context, std::ostream&)
+  {
+    const auto& dictionary = context.dictionary();
+    std::vector<value> result;
+
+    result.reserve(dictionary.size());
+    for (const auto& entry : dictionary)
+    {
+      result.push_back(value::make_string(entry.first));
+    }
+    context << value::make_vector(result);
+  }
+
   static void w_include(class context& context, std::ostream& out)
   {
     using peelo::unicode::encoding::utf8::decode_validate;
@@ -441,6 +468,8 @@ namespace laskin
       // Dictionary related.
       { U"lookup", w_lookup },
       { U"define", w_define },
+      { U"delete", w_delete },
+      { U"symbols", w_symbols },
 
       // Importing stuff from the file system.
       { U"include", w_include }
