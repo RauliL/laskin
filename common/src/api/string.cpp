@@ -40,6 +40,96 @@ namespace laskin
     );
   }
 
+  /**
+   * Extracts characters from string and returns them in an array of
+   * substrings.
+   */
+  static void w_chars(class context& context, std::ostream&)
+  {
+    const auto str = context.peek().as_string();
+    std::vector<value> result;
+
+    result.reserve(str.length());
+    for (const auto& c : str)
+    {
+      result.push_back(value::make_string(std::u32string(&c, 1)));
+    }
+    context << value::make_vector(result);
+  }
+
+  static void w_runes(class context& context, std::ostream&)
+  {
+    const auto str = context.peek().as_string();
+    std::vector<value> result;
+
+    result.reserve(str.length());
+    for (const auto& c : str)
+    {
+      result.push_back(value::make_number(c));
+    }
+    context << value::make_vector(result);
+  }
+
+  static void w_words(class context& context, std::ostream&)
+  {
+    const auto str = context.peek().as_string();
+    const auto length = str.length();
+    std::u32string::size_type begin = 0;
+    std::u32string::size_type end = 0;
+    std::vector<value> result;
+
+    for (std::u32string::size_type i = 0; i < length; ++i)
+    {
+      if (peelo::unicode::ctype::isspace(str[i]))
+      {
+        if (end - begin > 0)
+        {
+          result.push_back(value::make_string(str.substr(begin, end - begin)));
+        }
+        begin = end = i + 1;
+      } else {
+        ++end;
+      }
+    }
+    if (end - begin > 0)
+    {
+      result.push_back(value::make_string(str.substr(begin, end - begin)));
+    }
+    context << value::make_vector(result);
+  }
+
+  static void w_lines(class context& context, std::ostream&)
+  {
+    const auto str = context.peek().as_string();
+    const auto length = str.length();
+    std::u32string::size_type begin = 0;
+    std::u32string::size_type end = 0;
+    std::vector<value> result;
+
+    for (std::u32string::size_type i = 0; i < length; ++i)
+    {
+      const auto& c = str[i];
+
+      if (i + 1 < length && c == '\r' && str[i + 1] == '\n')
+      {
+        result.push_back(value::make_string(str.substr(begin, end - begin)));
+        begin = end = ++i + 1;
+      }
+      else if (c == '\n' || c == '\r')
+      {
+        result.push_back(value::make_string(str.substr(begin, end - begin)));
+        begin = end = i + 1;
+      } else {
+        ++end;
+      }
+    }
+    if (end - begin > 0)
+    {
+      result.push_back(value::make_string(str.substr(begin, end - begin)));
+    }
+    context << value::make_vector(result);
+  }
+
   static void w_starts_with(class context& context, std::ostream&)
   {
     const auto string = context.pop().as_string();
@@ -512,6 +602,10 @@ namespace laskin
     extern "C" const context::dictionary_definition string =
     {
       { U"string:length", w_length },
+      { U"string:chars", w_chars },
+      { U"string:runes", w_runes },
+      { U"string:words", w_words },
+      { U"string:lines", w_lines },
 
       // Comparison and lookup.
       { U"string:starts-with?", w_starts_with },
