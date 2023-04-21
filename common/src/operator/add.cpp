@@ -52,6 +52,23 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value add_number_to_vector(
+    const std::vector<value>& a,
+    const value& b
+  )
+  {
+    const auto size = a.size();
+    std::vector<value> result;
+
+    result.reserve(size);
+    for (const auto& value : a)
+    {
+      result.push_back(value + b);
+    }
+
+    return value::make_vector(result);
+  }
+
   static value add_string(const std::u32string& a, const std::u32string& b)
   {
     return value::make_string(a + b);
@@ -188,6 +205,9 @@ namespace laskin
 
         case type::time:
           return add_time(*m_value_time, *that.m_value_number);
+
+        case type::vector:
+          return add_number_to_vector(*m_value_vector, that);
 
         default:
           break;

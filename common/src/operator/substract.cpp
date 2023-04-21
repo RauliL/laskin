@@ -53,6 +53,23 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value substract_number_from_vector(
+    const std::vector<value>& a,
+    const value& b
+  )
+  {
+    const auto size = a.size();
+    std::vector<value> result;
+
+    result.reserve(size);
+    for (const auto& value : a)
+    {
+      result.push_back(value - b);
+    }
+
+    return value::make_vector(result);
+  }
+
   static value substract_date(const peelo::chrono::date& a,
                               const peelo::chrono::date& b)
   {
@@ -202,6 +219,9 @@ namespace laskin
 
         case type::time:
           return substract_time(*m_value_time, *that.m_value_number);
+
+        case type::vector:
+          return substract_number_from_vector(*m_value_vector, that);
 
         default:
           break;

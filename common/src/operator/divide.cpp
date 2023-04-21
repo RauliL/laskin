@@ -52,6 +52,22 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value divide_number_from_vector(
+    const std::vector<value>& a,
+    const value& b)
+  {
+    const auto size = a.size();
+    std::vector<value> result;
+
+    result.reserve(size);
+    for (const auto& value : a)
+    {
+      result.push_back(value / b);
+    }
+
+    return value::make_vector(result);
+  }
+
   value value::divide(const value& that) const
   {
     if (that.is(m_type))
@@ -63,6 +79,17 @@ namespace laskin
 
         case type::vector:
           return divide_vector(*m_value_vector, *that.m_value_vector);
+
+        default:
+          break;
+      }
+    }
+    else if (that.is(type::number))
+    {
+      switch (m_type)
+      {
+        case type::vector:
+          return divide_number_from_vector(*m_value_vector, that);
 
         default:
           break;
