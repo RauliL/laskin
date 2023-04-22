@@ -325,6 +325,59 @@ namespace laskin
     context << vector[index];
   }
 
+  static void w_to_time(class context& context, std::ostream&)
+  {
+    const auto vector = context.pop().as_vector();
+    long hour;
+    long minute;
+    long second;
+
+    if (vector.size() != 3)
+    {
+      throw error(error::type::range, U"Time needs three values.");
+    }
+    hour = vector[0].as_number().to_long();
+    minute = vector[1].as_number().to_long();
+    second = vector[2].as_number().to_long();
+    if (!peelo::chrono::time::is_valid(hour, minute, second))
+    {
+      throw error(error::type::range, U"Invalid time.");
+    }
+    context << value::make_time(peelo::chrono::time(hour, minute, second));
+  }
+
+  static void w_to_date(class context& context, std::ostream&)
+  {
+    const auto vector = context.pop().as_vector();
+    long day;
+    peelo::chrono::month month;
+    long year;
+
+    if (vector.size() != 3)
+    {
+      throw error(error::type::range, U"Date needs three values.");
+    }
+    year = vector[0].as_number().to_long();
+    if (vector[1].is(value::type::month))
+    {
+      month = vector[1].as_month();
+    } else {
+      const auto value = vector[1].as_number().to_long();
+
+      if (value < 1 || value > 12)
+      {
+        throw error(error::type::range, U"Given month is out of range.");
+      }
+      month = static_cast<peelo::chrono::month>(value - 1);
+    }
+    day = vector[2].as_number().to_long();
+    if (!peelo::chrono::date::is_valid(year, month, day))
+    {
+      throw error(error::type::range, U"Invalid date.");
+    }
+    context << value::make_date(peelo::chrono::date(year, month, day));
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition vector =
@@ -352,7 +405,12 @@ namespace laskin
       { U"vector:extract", w_extract },
       { U"vector:sort", w_sort },
 
-      { U"vector:@", w_at }
+      // Element access.
+      { U"vector:@", w_at },
+
+      // Conversions.
+      { U"vector:>date", w_to_date },
+      { U"vector:>time", w_to_time }
     };
   }
 }

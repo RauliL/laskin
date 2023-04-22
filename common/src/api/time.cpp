@@ -32,19 +32,6 @@
 
 namespace laskin
 {
-  static void w_time(class context& context, std::ostream&)
-  {
-    const auto second = context.pop().as_number().to_long();
-    const auto minute = context.pop().as_number().to_long();
-    const auto hour = context.pop().as_number().to_long();
-
-    if (!peelo::chrono::time::is_valid(hour, minute, second))
-    {
-      throw error(error::type::range, U"Invalid time.");
-    }
-    context << value::make_time(peelo::chrono::time(hour, minute, second));
-  }
-
   static void w_now(class context& context, std::ostream&)
   {
     const auto now = std::chrono::system_clock::now();
@@ -120,7 +107,6 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition time_api =
     {
-      { U"time", w_time },
       { U"now", w_now },
 
       { U"time:hour", w_hour },

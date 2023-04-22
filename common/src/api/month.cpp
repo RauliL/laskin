@@ -28,17 +28,6 @@
 
 namespace laskin
 {
-  static void w_month(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number().to_long();
-
-    if (value < 1 || value > 12)
-    {
-      throw error(error::type::range, U"Month index out of range.");
-    }
-    context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
-  }
-
   static void w_january(class context& context, std::ostream&)
   {
     context << value::make_month(peelo::chrono::month::jan);
@@ -110,9 +99,6 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition month =
     {
-      // Constructors.
-      { U"month", w_month },
-
       // Constants.
       { U"january", w_january },
       { U"february", w_february },

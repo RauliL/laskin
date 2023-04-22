@@ -28,17 +28,6 @@
 
 namespace laskin
 {
-  static void w_weekday(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number().to_long();
-
-    if (value < 1 || value > 7)
-    {
-      throw error(error::type::range, U"Weekday index out of range.");
-    }
-    context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
-  }
-
   static void w_sunday(class context& context, std::ostream&)
   {
     context << value::make_weekday(peelo::chrono::weekday::sun);
@@ -95,9 +84,6 @@ namespace laskin
   {
     extern "C" const context::dictionary_definition weekday =
     {
-      // Constructor.
-      { U"weekday", w_weekday },
-
       // Constants.
       { U"sunday", w_sunday },
       { U"monday", w_monday },

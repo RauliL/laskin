@@ -167,6 +167,28 @@ namespace laskin
     );
   }
 
+  static void w_to_month(class context& context, std::ostream&)
+  {
+    const auto value = context.pop().as_number().to_long();
+
+    if (value < 1 || value > 12)
+    {
+      throw error(error::type::range, U"Month index out of range.");
+    }
+    context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
+  }
+
+  static void w_to_weekday(class context& context, std::ostream&)
+  {
+    const auto value = context.pop().as_number().to_long();
+
+    if (value < 1 || value > 7)
+    {
+      throw error(error::type::range, U"Weekday index out of range.");
+    }
+    context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition number =
@@ -188,7 +210,11 @@ namespace laskin
       { U"number:sin", w_sin },
       { U"number:tan", w_tan },
       { U"number:deg", w_deg },
-      { U"number:rad", w_rad }
+      { U"number:rad", w_rad },
+
+      // Conversions.
+      { U"number:>month", w_to_month },
+      { U"number:>weekday", w_to_weekday }
     };
   }
 }
