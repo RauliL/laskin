@@ -53,6 +53,26 @@ namespace laskin
     return value::make_vector(result);
   }
 
+  static value substract_record(
+    const std::unordered_map<std::u32string, value>& a,
+    const std::unordered_map<std::u32string, value>& b
+  )
+  {
+    std::unordered_map<std::u32string, value> result(a);
+
+    for (const auto& property : b)
+    {
+      const auto i = result.find(property.first);
+
+      if (i != std::end(result))
+      {
+        result.erase(i);
+      }
+    }
+
+    return value::make_record(result);
+  }
+
   static value substract_number_from_vector(
     const std::vector<value>& a,
     const value& b
@@ -193,6 +213,9 @@ namespace laskin
 
         case type::vector:
           return substract_vector(*m_value_vector, *that.m_value_vector);
+
+        case type::record:
+          return substract_record(*m_value_record, *that.m_value_record);
 
         case type::date:
           return substract_date(*m_value_date, *that.m_value_date);

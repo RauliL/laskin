@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_CONTEXT_HPP_GUARD
-#define LASKIN_CONTEXT_HPP_GUARD
+#pragma once
 
 #include <deque>
 #include <unordered_map>
@@ -127,5 +126,3 @@ namespace laskin
     dictionary_type m_dictionary;
   };
 }
-
-#endif /* !LASKIN_CONTEXT_HPP_GUARD */

@@ -163,6 +163,11 @@ namespace laskin
     type_test(context, value::type::vector);
   }
 
+  static void w_is_record(class context& context, std::ostream&)
+  {
+    type_test(context, value::type::record);
+  }
+
   static void w_is_string(class context& context, std::ostream&)
   {
     type_test(context, value::type::string);
@@ -435,6 +440,7 @@ namespace laskin
       { U"month?", w_is_month },
       { U"number?", w_is_number },
       { U"vector?", w_is_vector },
+      { U"record?", w_is_record },
       { U"string?", w_is_string },
       { U"time?", w_is_time },
       { U"quote?", w_is_quote },

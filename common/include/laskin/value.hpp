@@ -23,10 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_VALUE_HPP_GUARD
-#define LASKIN_VALUE_HPP_GUARD
+#pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include <peelo/chrono/date.hpp>
@@ -51,14 +51,15 @@ namespace laskin
     enum class type
     {
       boolean,
+      date,
+      month,
       number,
       quote,
+      record,
       string,
+      time,
       vector,
-      month,
-      weekday,
-      date,
-      time
+      weekday
     };
 
     /**
@@ -155,6 +156,13 @@ namespace laskin
     static value make_time(const std::u32string& input);
 
     /**
+     * Constructs record value.
+     */
+    static value make_record(
+      const std::unordered_map<std::u32string, value>& properties
+    );
+
+    /**
      * Constructs boolean value of false.
      */
     explicit value();
@@ -214,6 +222,7 @@ namespace laskin
     bool as_boolean() const;
     const number& as_number() const;
     const std::vector<value>& as_vector() const;
+    const std::unordered_map<std::u32string, value>& as_record() const;
     const std::u32string& as_string() const;
     const quote& as_quote() const;
     peelo::chrono::month as_month() const;
@@ -326,11 +335,10 @@ namespace laskin
       peelo::chrono::weekday m_value_weekday;
       peelo::chrono::date* m_value_date;
       peelo::chrono::time* m_value_time;
+      std::unordered_map<std::u32string, value>* m_value_record;
     };
   };
 
   std::ostream& operator<<(std::ostream&, enum value::type);
   std::ostream& operator<<(std::ostream&, const value&);
 }
-
-#endif /* !LASKIN_VALUE_HPP_GUARD */

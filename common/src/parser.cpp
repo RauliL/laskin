@@ -96,6 +96,9 @@ namespace laskin
           case '[':
             return parse_vector_literal();
 
+          case '{':
+            return parse_record_literal();
+
           case '"':
           case '\'':
             return parse_string_literal();
@@ -126,6 +129,9 @@ namespace laskin
 
           case '[':
             return parse_vector_literal();
+
+          case '{':
+            return parse_record_literal();
 
           case '"':
           case '\'':
@@ -253,6 +259,88 @@ namespace laskin
         }
 
         return std::make_shared<node::vector_literal>(elements, line, column);
+      }
+
+      std::shared_ptr<node::record_literal> parse_record_literal()
+      {
+        node::record_literal::container_type properties;
+        int line;
+        int column;
+
+        skip_whitespace();
+
+        line = m_line;
+        column = m_column;
+
+        if (!peek_read('{'))
+        {
+          throw error(
+            error::type::syntax,
+            std::u32string(U"Unexpected ") +
+            (eof() ? U"end of input" : U"input") +
+            U"; Missing record literal.",
+            line,
+            column
+          );
+        }
+
+        skip_whitespace();
+
+        if (!peek_read('}'))
+        {
+          for (;;)
+          {
+            if (eof())
+            {
+              throw error(
+                error::type::syntax,
+                U"Unterminated record literal; Missing `}'",
+                line,
+                column
+              );
+            }
+            else if (peek_read('}'))
+            {
+              break;
+            } else {
+              std::u32string key;
+              std::shared_ptr<node> value;
+
+              key = parse_string_literal()->value().as_string();
+              skip_whitespace();
+              if (!peek_read(':'))
+              {
+                throw error(
+                  error::type::syntax,
+                  U"Missing `:' after key.",
+                  line,
+                  column
+                );
+              }
+              skip_whitespace();
+              value = parse_expression();
+              properties[key] = value;
+              skip_whitespace();
+              if (peek_read(','))
+              {
+                continue;
+              }
+              else if (peek_read('}'))
+              {
+                break;
+              } else {
+                throw error(
+                  error::type::syntax,
+                  U"Unterminated record literal; Missing `}'",
+                  line,
+                  column
+                );
+              }
+            }
+          }
+        }
+
+        return std::make_shared<node::record_literal>(properties, line, column);
       }
 
       std::shared_ptr<node::literal> parse_string_literal()
