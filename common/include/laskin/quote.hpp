@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_QUOTE_HPP_GUARD
-#define LASKIN_QUOTE_HPP_GUARD
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -63,5 +62,3 @@ namespace laskin
     std::variant<callback, node_container> m_container;
   };
 }
-
-#endif /* !LASKIN_QUOTE_HPP_GUARD */

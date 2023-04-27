@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_CHRONO_HPP_GUARD
-#define LASKIN_CHRONO_HPP_GUARD
+#pragma once
 
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
@@ -53,5 +52,3 @@ namespace laskin
    */
   peelo::chrono::time parse_time(const std::u32string&);
 }
-
-#endif /* !LASKIN_CHRONO_HPP_GUARD */

@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_AST_HPP_GUARD
-#define LASKIN_AST_HPP_GUARD
+#pragma once
 
 #include <memory>
 
@@ -40,6 +39,7 @@ namespace laskin
   public:
     class definition;
     class literal;
+    class record_literal;
     class symbol;
     class vector_literal;
 
@@ -95,12 +95,17 @@ namespace laskin
   public:
     explicit literal(const class value& value, int line = 0, int column = 0);
 
+    inline const class value& value() const
+    {
+      return m_value;
+    }
+
     void exec(class context& context, std::ostream& out) const;
-    value eval(class context& context, std::ostream& out) const;
+    class value eval(class context& context, std::ostream& out) const;
     std::u32string to_source() const;
 
   private:
-    const value m_value;
+    const class value m_value;
   };
 
   class node::vector_literal : public node
@@ -120,6 +125,28 @@ namespace laskin
 
   private:
     const container_type m_elements;
+  };
+
+  class node::record_literal : public node
+  {
+  public:
+    using container_type = std::unordered_map<
+      std::u32string,
+      std::shared_ptr<node>
+    >;
+
+    explicit record_literal(
+      const container_type& properties,
+      int line = 0,
+      int column = 0
+    );
+
+    void exec(class context& context, std::ostream& out) const;
+    value eval(class context& context, std::ostream& out) const;
+    std::u32string to_source() const;
+
+  private:
+    const container_type m_properties;
   };
 
   class node::symbol : public node
@@ -157,5 +184,3 @@ namespace laskin
     const std::u32string m_id;
   };
 }
-
-#endif /* !LASKIN_AST_HPP_GUARD */

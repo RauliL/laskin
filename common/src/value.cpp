@@ -25,12 +25,12 @@
  */
 #include <sstream>
 
-#include <peelo/unicode/ctype/isprint.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
+#include "laskin/utils.hpp"
 
 namespace laskin
 {
@@ -80,6 +80,21 @@ namespace laskin
 
     instance.m_type = type::vector;
     instance.m_value_vector = new std::vector<value>(elements);
+
+    return instance;
+  }
+
+  value value::make_record(
+    const std::unordered_map<std::u32string, value>& properties
+  )
+  {
+    class value instance;
+
+    instance.m_type = type::record;
+    instance.m_value_record = new std::unordered_map<
+      std::u32string,
+      value
+    >(properties);
 
     return instance;
   }
@@ -220,6 +235,12 @@ namespace laskin
       case type::time:
         m_value_time = new peelo::chrono::time(*that.m_value_time);
         break;
+
+      case type::record:
+        m_value_record = new std::unordered_map<std::u32string, value>(
+          *that.m_value_record
+        );
+        break;
     }
   }
 
@@ -262,6 +283,10 @@ namespace laskin
 
       case type::time:
         m_value_time = that.m_value_time;
+        break;
+
+      case type::record:
+        m_value_record = that.m_value_record;
         break;
     }
     that.m_type = type::boolean;
@@ -315,6 +340,12 @@ namespace laskin
         case type::time:
           m_value_time = new peelo::chrono::time(*that.m_value_time);
           break;
+
+        case type::record:
+          m_value_record = new std::unordered_map<std::u32string, value>(
+            *that.m_value_record
+          );
+          break;
       }
     }
 
@@ -363,6 +394,10 @@ namespace laskin
         case type::time:
           m_value_time = that.m_value_time;
           break;
+
+        case type::record:
+          m_value_record = that.m_value_record;
+          break;
       }
       that.m_type = type::boolean;
       that.m_value_boolean = false;
@@ -401,6 +436,9 @@ namespace laskin
 
       case type::time:
         return U"time";
+
+      case type::record:
+        return U"record";
     }
 
     return U"unknown";
@@ -432,6 +470,10 @@ namespace laskin
 
       case type::time:
         delete m_value_time;
+        break;
+
+      case type::record:
+        delete m_value_record;
         break;
 
       default:
@@ -485,6 +527,21 @@ namespace laskin
     }
 
     return *m_value_vector;
+  }
+
+  const std::unordered_map<std::u32string, value>& value::as_record() const
+  {
+    if (!is(type::record))
+    {
+      throw error(
+        error::type::type,
+        U"Unexpected " +
+        type_description(m_type) +
+        U"; Was excepting record."
+      );
+    }
+
+    return *m_value_record;
   }
 
   const std::u32string& value::as_string() const
@@ -728,6 +785,29 @@ namespace laskin
     return result;
   }
 
+  static std::u32string record_to_string(
+    const std::unordered_map<std::u32string, value>& properties
+  )
+  {
+    std::u32string result;
+    bool first = true;
+
+    for (const auto& property : properties)
+    {
+      if (first)
+      {
+        first = false;
+      } else {
+        result.append(U", ");
+      }
+      result.append(property.first);
+      result.append(U"=");
+      result.append(property.second.to_string());
+    }
+
+    return result;
+  }
+
   std::u32string value::to_string() const
   {
     switch (m_type)
@@ -758,6 +838,9 @@ namespace laskin
 
       case type::time:
         return time_to_string(*m_value_time);
+
+      case type::record:
+        return record_to_string(*m_value_record);
     }
 
     return U"";
@@ -784,66 +867,27 @@ namespace laskin
     return result;
   }
 
-  static std::u32string string_to_source(const std::u32string& string)
+  static std::u32string record_to_source(
+    const std::unordered_map<std::u32string, value>& properties
+  )
   {
     std::u32string result;
+    bool first = true;
 
-    result.reserve(string.length() + 2);
-    result.append(1, '"');
-
-    for (const auto& c : string)
+    result.append(1, U'{');
+    for (const auto& property : properties)
     {
-      switch (c)
+      if (first)
       {
-        case 010:
-          result.append(1, '\\');
-          result.append(1, 'b');
-          break;
-
-        case 011:
-          result.append(1, '\\');
-          result.append(1, 't');
-          break;
-
-        case 012:
-          result.append(1, '\\');
-          result.append(1, 'n');
-          break;
-
-        case 014:
-          result.append(1, '\\');
-          result.append(1, 'f');
-          break;
-
-        case 015:
-          result.append(1, '\\');
-          result.append(1, 'r');
-          break;
-
-        case '"':
-        case '\\':
-        case '/':
-          result.append(1, '\\');
-          result.append(1, c);
-          break;
-
-        default:
-          if (!peelo::unicode::ctype::isprint(c))
-          {
-            char buffer[7];
-
-            std::snprintf(buffer, 7, "\\u%04x", c);
-            for (const char* p = buffer; *p; ++p)
-            {
-              result.append(1, static_cast<char32_t>(*p));
-            }
-          } else {
-            result.append(1, c);
-          }
+        first = false;
+      } else {
+        result.append(U", ");
       }
+      result.append(utils::escape_string(property.first));
+      result.append(U": ");
+      result.append(property.second.to_source());
     }
-
-    result.append(1, '"');
+    result.append(1, U'}');
 
     return result;
   }
@@ -862,7 +906,7 @@ namespace laskin
         return vector_to_source(*m_value_vector);
 
       case type::string:
-        return string_to_source(*m_value_string);
+        return utils::escape_string(*m_value_string);
 
       case type::quote:
         return m_value_quote->to_source();
@@ -878,6 +922,9 @@ namespace laskin
 
       case type::time:
         return time_to_string(*m_value_time);
+
+      case type::record:
+        return record_to_source(*m_value_record);
     }
 
     return U"";

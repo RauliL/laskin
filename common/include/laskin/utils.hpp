@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_UTILS_HPP_GUARD
-#define LASKIN_UTILS_HPP_GUARD
+#pragma once
 
 #include <peelo/chrono/time.hpp>
 #include <peelo/unicode/ctype/isspace.hpp>
@@ -56,6 +55,6 @@ namespace laskin::utils
   }
 
   std::int64_t time_as_seconds(const peelo::chrono::time& time);
-}
 
-#endif /* !LASKIN_UTILS_HPP_GUARD */
+  std::u32string escape_string(const std::u32string& str);
+}

@@ -15,6 +15,7 @@ SET(
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/month.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/number.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/quote.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/record.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/string.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/time.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/api/utils.cpp

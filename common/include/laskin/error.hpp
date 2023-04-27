@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_ERROR_HPP_GUARD
-#define LASKIN_ERROR_HPP_GUARD
+#pragma once
 
 #include <exception>
 #include <iostream>
@@ -97,5 +96,3 @@ namespace laskin
 
   std::ostream& operator<<(std::ostream&, const error&);
 }
-
-#endif /* !LASKIN_ERROR_HPP_GUARD */

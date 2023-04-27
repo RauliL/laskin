@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode/ctype/isprint.hpp>
+
 #include "laskin/utils.hpp"
 
 namespace laskin::utils
@@ -43,5 +45,69 @@ namespace laskin::utils
     }
 
     return second;
+  }
+
+  std::u32string escape_string(const std::u32string& str)
+  {
+    std::u32string result;
+
+    result.reserve(str.length() + 2);
+    result.append(1, '"');
+
+    for (const auto& c : str)
+    {
+      switch (c)
+      {
+        case 010:
+          result.append(1, '\\');
+          result.append(1, 'b');
+          break;
+
+        case 011:
+          result.append(1, '\\');
+          result.append(1, 't');
+          break;
+
+        case 012:
+          result.append(1, '\\');
+          result.append(1, 'n');
+          break;
+
+        case 014:
+          result.append(1, '\\');
+          result.append(1, 'f');
+          break;
+
+        case 015:
+          result.append(1, '\\');
+          result.append(1, 'r');
+          break;
+
+        case '"':
+        case '\\':
+        case '/':
+          result.append(1, '\\');
+          result.append(1, c);
+          break;
+
+        default:
+          if (!peelo::unicode::ctype::isprint(c))
+          {
+            char buffer[7];
+
+            std::snprintf(buffer, 7, "\\u%04x", c);
+            for (const char* p = buffer; *p; ++p)
+            {
+              result.append(1, static_cast<char32_t>(*p));
+            }
+          } else {
+            result.append(1, c);
+          }
+      }
+    }
+
+    result.append(1, '"');
+
+    return result;
   }
 }

@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_NUMBER_HPP_GUARD
-#define LASKIN_NUMBER_HPP_GUARD
+#pragma once
 
 #include <iostream>
 
@@ -140,5 +139,3 @@ namespace laskin
 
   std::ostream& operator<<(std::ostream&, const number&);
 }
-
-#endif /* !LASKIN_NUMBER_HPP_GUARD */

@@ -27,6 +27,7 @@
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
+#include "laskin/utils.hpp"
 
 namespace laskin
 {
@@ -101,6 +102,60 @@ namespace laskin
       }
     }
     result.append(1, U']');
+
+    return result;
+  }
+
+  node::record_literal::record_literal(
+    const container_type& properties,
+    int line,
+    int column
+  )
+    : node(line, column)
+    , m_properties(properties) {}
+
+  void node::record_literal::exec(
+    class context& context,
+    std::ostream& out
+  ) const
+  {
+    context.data().push_back(eval(context, out));
+  }
+
+  value node::record_literal::eval(
+    class context& context,
+    std::ostream& out
+  ) const
+  {
+    std::unordered_map<std::u32string, value> properties;
+
+    for (const auto& property : m_properties)
+    {
+      properties[property.first] = property.second->eval(context, out);
+    }
+
+    return value::make_record(properties);
+  }
+
+  std::u32string node::record_literal::to_source() const
+  {
+    std::u32string result;
+    bool first = true;
+
+    result.append(1, U'{');
+    for (const auto& property : m_properties)
+    {
+      if (first)
+      {
+        first = false;
+      } else {
+        result.append(U", ");
+      }
+      result.append(utils::escape_string(property.first));
+      result.append(U": ");
+      result.append(property.second->to_source());
+    }
+    result.append(1, U'}');
 
     return result;
   }

@@ -23,8 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LASKIN_UNIT_HPP_GUARD
-#define LASKIN_UNIT_HPP_GUARD
+#pragma once
 
 #include <optional>
 #include <string>
@@ -110,5 +109,3 @@ namespace laskin
 
   std::u32string to_string(enum unit::type);
 }
-
-#endif /* !LASKIN_UNIT_HPP_GUARD */

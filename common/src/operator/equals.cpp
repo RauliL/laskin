@@ -57,6 +57,32 @@ namespace laskin
     return true;
   }
 
+  static bool equals_record(
+    const std::unordered_map<std::u32string, value>& a,
+    const std::unordered_map<std::u32string, value>& b
+  )
+  {
+    if (a.size() != b.size())
+    {
+      return false;
+    }
+    for (const auto& property : a)
+    {
+      const auto i = b.find(property.first);
+
+      if (i == std::end(b))
+      {
+        return false;
+      }
+      else if (!i->second.equals(property.second))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   static bool equals_string(const std::u32string& a, const std::u32string& b)
   {
     return !a.compare(b);
@@ -99,6 +125,9 @@ namespace laskin
 
         case type::vector:
           return equals_vector(*m_value_vector, *that.m_value_vector);
+
+        case type::record:
+          return equals_record(*m_value_record, *that.m_value_record);
 
         case type::string:
           return equals_string(*m_value_string, *that.m_value_string);
