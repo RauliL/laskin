@@ -597,6 +597,20 @@ namespace laskin
     context << value::make_string(std::u32string(&c, 1));
   }
 
+  static void w_to_number(class context& context, std::ostream&)
+  {
+    const auto string = context.pop().as_string();
+
+    if (!number::is_valid(string))
+    {
+      throw error(
+        error::type::range,
+        U"Cannot convert given string into a number."
+      );
+    }
+    context << value::make_number(number::parse(string));
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition string =
@@ -629,7 +643,10 @@ namespace laskin
       { U"string:pad-start", w_pad_start },
       { U"string:pad-end", w_pad_end },
 
-      { U"string:@", w_at }
+      { U"string:@", w_at },
+
+      // Conversions.
+      { U">number", w_to_number }
     };
   }
 }
