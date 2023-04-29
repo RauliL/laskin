@@ -105,46 +105,133 @@ namespace laskin
     }
   }
 
-  static void double_op(class context& context, double (*callback)(double))
+  static void w_exp(class context& context, std::ostream&)
   {
-    const auto value = context.pop().as_number();
-    const auto result = callback(value.to_double());
+    context << value::make_number(context.pop().as_number().exp());
+  }
 
-    if (std::isnan(result))
-    {
-      throw error(error::type::domain);
-    }
-    context << value::make_number(result, value.measurement_unit());
+  static void w_exp2(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().exp2());
+  }
+
+  static void w_expm1(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().expm1());
+  }
+
+  static void w_log(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().log());
+  }
+
+  static void w_log10(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().log10());
+  }
+
+  static void w_log2(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().log2());
+  }
+
+  static void w_log1p(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().log1p());
+  }
+
+  static void w_pow(class context& context, std::ostream&)
+  {
+    const auto a = context.pop().as_number();
+    const auto b = context.pop().as_number();
+
+    context << value::make_number(a.pow(b));
+  }
+
+  static void w_sqrt(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().sqrt());
+  }
+
+  static void w_cbrt(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().cbrt());
+  }
+
+  static void w_hypot(class context& context, std::ostream&)
+  {
+    const auto a = context.pop().as_number();
+    const auto b = context.pop().as_number();
+
+    context << value::make_number(a.hypot(b));
   }
 
   static void w_acos(class context& context, std::ostream&)
   {
-    double_op(context, std::acos);
+    context << value::make_number(context.pop().as_number().acos());
   }
 
   static void w_asin(class context& context, std::ostream&)
   {
-    double_op(context, std::asin);
+    context << value::make_number(context.pop().as_number().asin());
   }
 
   static void w_atan(class context& context, std::ostream&)
   {
-    double_op(context, std::atan);
+    context << value::make_number(context.pop().as_number().atan());
+  }
+
+  static void w_atan2(class context& context, std::ostream&)
+  {
+    const auto a = context.pop().as_number();
+    const auto b = context.pop().as_number();
+
+    context << value::make_number(a.atan2(b));
   }
 
   static void w_cos(class context& context, std::ostream&)
   {
-    double_op(context, std::cos);
+    context << value::make_number(context.pop().as_number().cos());
   }
 
   static void w_sin(class context& context, std::ostream&)
   {
-    double_op(context, std::sin);
+    context << value::make_number(context.pop().as_number().sin());
   }
 
   static void w_tan(class context& context, std::ostream&)
   {
-    double_op(context, std::tan);
+    context << value::make_number(context.pop().as_number().tan());
+  }
+
+  static void w_sinh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().sinh());
+  }
+
+  static void w_cosh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().cosh());
+  }
+
+  static void w_tanh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().tanh());
+  }
+
+  static void w_asinh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().asinh());
+  }
+
+  static void w_acosh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().acosh());
+  }
+
+  static void w_atanh(class context& context, std::ostream&)
+  {
+    context << value::make_number(context.pop().as_number().atanh());
   }
 
   static void w_deg(class context& context, std::ostream&)
@@ -196,15 +283,39 @@ namespace laskin
       { U"number:clamp", w_clamp },
       { U"number:times", w_times },
 
-      // Trigonometry.
+      // Exponential functions.
+      { U"number:exp", w_exp },
+      { U"number:exp2", w_exp2 },
+      { U"number:expm1", w_expm1 },
+      { U"number:log", w_log },
+      { U"number:log10", w_log10 },
+      { U"number:log2", w_log2 },
+      { U"number:log1p", w_log1p },
+
+      // Power functions.
+      { U"number:pow", w_pow },
+      { U"number:sqrt", w_sqrt },
+      { U"number:cbrt", w_cbrt },
+      { U"number:hypot", w_hypot },
+
+      // Trigonometric functions.
       { U"number:acos", w_acos },
       { U"number:asin", w_asin },
       { U"number:atan", w_atan },
+      { U"number:atan2", w_atan2 },
       { U"number:cos", w_cos },
       { U"number:sin", w_sin },
       { U"number:tan", w_tan },
       { U"number:deg", w_deg },
       { U"number:rad", w_rad },
+
+      // Hyperbolic functions.
+      { U"number:sinh", w_sinh },
+      { U"number:cosh", w_cosh },
+      { U"number:tanh", w_tanh },
+      { U"number:asinh", w_asinh },
+      { U"number:acosh", w_acosh },
+      { U"number:atanh", w_atanh },
 
       // Conversions.
       { U"number:>month", w_to_month },

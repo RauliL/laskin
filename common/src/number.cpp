@@ -375,6 +375,224 @@ namespace laskin
     return result;
   }
 
+  number number::exp() const
+  {
+    number result(*this);
+
+    mpfr_exp(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::exp2() const
+  {
+    number result(*this);
+
+    mpfr_exp2(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::expm1() const
+  {
+    number result(*this);
+
+    mpfr_expm1(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::log() const
+  {
+    number result(*this);
+
+    mpfr_log(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::log10() const
+  {
+    number result(*this);
+
+    mpfr_log10(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::log2() const
+  {
+    number result(*this);
+
+    mpfr_log2(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::log1p() const
+  {
+    number result(*this);
+
+    mpfr_log1p(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::pow(const number& exp) const
+  {
+    number result(*this);
+
+    unit_check(*this, exp);
+    mpfr_pow(result.m_value, m_value, exp.m_value, default_rounding);
+
+    return *this;
+  }
+
+  number number::sqrt() const
+  {
+    number result(*this);
+
+    mpfr_sqrt(result.m_value, m_value, default_rounding);
+
+    return *this;
+  }
+
+  number number::cbrt() const
+  {
+    number result(*this);
+
+    mpfr_cbrt(result.m_value, m_value, default_rounding);
+
+    return *this;
+  }
+
+  number number::hypot(const number& that) const
+  {
+    number result(*this);
+
+    mpfr_hypot(result.m_value, m_value, that.m_value, default_rounding);
+
+    return *this;
+  }
+
+  number number::cos() const
+  {
+    number result(*this);
+
+    mpfr_cos(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::sin() const
+  {
+    number result(*this);
+
+    mpfr_sin(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::tan() const
+  {
+    number result(*this);
+
+    mpfr_tan(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::acos() const
+  {
+    number result(*this);
+
+    mpfr_acos(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::asin() const
+  {
+    number result(*this);
+
+    mpfr_asin(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::atan() const
+  {
+    number result(*this);
+
+    mpfr_atan(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::atan2(const number& that) const
+  {
+    number result(*this);
+
+    unit_check(*this, that);
+    mpfr_atan2(result.m_value, m_value, that.m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::sinh() const
+  {
+    number result(*this);
+
+    mpfr_sinh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::cosh() const
+  {
+    number result(*this);
+
+    mpfr_cosh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::tanh() const
+  {
+    number result(*this);
+
+    mpfr_tanh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::asinh() const
+  {
+    number result(*this);
+
+    mpfr_asinh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::acosh() const
+  {
+    number result(*this);
+
+    mpfr_acosh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
+  number number::atanh() const
+  {
+    number result(*this);
+
+    mpfr_atanh(result.m_value, m_value, default_rounding);
+
+    return result;
+  }
+
   std::ostream& number::output(std::ostream& os) const
   {
     const std::ios::fmtflags flags = os.flags();
