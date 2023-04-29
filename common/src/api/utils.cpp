@@ -246,7 +246,9 @@ namespace laskin
 
   static void w_depth(class context& context, std::ostream&)
   {
-    context << value::make_number(context.data().size());
+    context << value::make_number(
+      static_cast<std::int64_t>(context.data().size())
+    );
   }
 
   static void w_to_string(class context& context, std::ostream&)

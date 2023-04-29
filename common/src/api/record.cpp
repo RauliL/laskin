@@ -32,7 +32,7 @@ namespace laskin
   {
     const auto& properties = context.peek().as_record();
 
-    context << value::make_number(properties.size());
+    context << value::make_number(static_cast<std::int64_t>(properties.size()));
   }
 
   static void w_keys(class context& context, std::ostream& out)

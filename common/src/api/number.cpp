@@ -59,9 +59,9 @@ namespace laskin
 
   static void w_drop_unit(class context& context, std::ostream&)
   {
-    const auto value = context.pop().as_number().value();
+    const auto value = context.pop().as_number();
 
-    context << value::make_number(value);
+    context << value::make_number(value.without_unit());
   }
 
   static void w_range(class context& context, std::ostream&)
@@ -94,7 +94,7 @@ namespace laskin
     auto count = context.pop().as_number();
     const auto quote = context.pop().as_quote();
 
-    if (count < number(0))
+    if (count < number())
     {
       count = -count;
     }
@@ -151,20 +151,14 @@ namespace laskin
   {
     const auto value = context.pop().as_number();
 
-    context << value::make_number(
-      value.value() * 180 / M_PI,
-      value.measurement_unit()
-    );
+    context << value::make_number(value * 180 / M_PI);
   }
 
   static void w_rad(class context& context, std::ostream&)
   {
     const auto value = context.pop().as_number();
 
-    context << value::make_number(
-      value.value() * M_PI / 180,
-      value.measurement_unit()
-    );
+    context << value::make_number(value * M_PI / 180L);
   }
 
   static void w_to_month(class context& context, std::ostream&)

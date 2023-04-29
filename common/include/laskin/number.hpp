@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-#include <gmpxx.h>
+#include <mpfr.h>
 
 #include "laskin/unit.hpp"
 
@@ -39,7 +39,7 @@ namespace laskin
   class number
   {
   public:
-    using value_type = mpf_class;
+    using value_type = mpfr_t;
     using unit_type = std::optional<unit>;
 
     /**
@@ -53,11 +53,26 @@ namespace laskin
     static number parse(const std::u32string& input);
 
     /**
-     * Constructs new number from given value and measurement unit.
+     * Constructs number with value of zero and optional measurement unit.
+     */
+    number(const unit_type& measurement_unit = std::nullopt);
+
+    /**
+     * Constructs number from with given integer value and optional measurement
+     * unit.
      */
     number(
-      const value_type& value = value_type(),
-      const unit_type& measurement_unit = unit_type()
+      std::int64_t value,
+      const unit_type& measurement_unit = std::nullopt
+    );
+
+    /**
+     * Constructs number from with given real value and optional measurement
+     * unit.
+     */
+    number(
+      double value,
+      const unit_type& measurement_unit = std::nullopt
     );
 
     /**
@@ -66,9 +81,9 @@ namespace laskin
     number(const number& that);
 
     /**
-     * Moves contents of given number into new one.
+     * Releases all resources allocated by this number instance.
      */
-    number(number&& that);
+    ~number();
 
     /**
      * Returns the numeric value of the number.
@@ -99,20 +114,54 @@ namespace laskin
      */
     double to_double() const;
 
-    number& operator=(const number& that);
-    number& operator=(number&& that);
+    /**
+     * Constructs copy of the number without the measurement unit.
+     */
+    number without_unit() const;
 
-    bool operator==(const number& that) const;
-    bool operator!=(const number& that) const;
-    bool operator<(const number& that) const;
-    bool operator>(const number& that) const;
-    bool operator<=(const number& that) const;
-    bool operator>=(const number& that) const;
+    number& operator=(const number& that);
+
+    int compare(const number& that) const;
+
+    inline bool operator==(const number& that) const
+    {
+      return compare(that) == 0;
+    }
+
+    inline bool operator!=(const number& that) const
+    {
+      return compare(that) != 0;
+    }
+
+    inline bool operator<(const number& that) const
+    {
+      return compare(that) < 0;
+    }
+
+    inline bool operator>(const number& that) const
+    {
+      return compare(that) > 0;
+    }
+
+    inline bool operator<=(const number& that) const
+    {
+      return compare(that) <= 0;
+    }
+
+    inline bool operator>=(const number& that) const
+    {
+      return compare(that) >= 0;
+    }
 
     number operator+(const number& that) const;
     number operator-(const number& that) const;
     number operator*(const number& that) const;
+    number operator*(std::int64_t that) const;
     number operator/(const number& that) const;
+    number operator/(std::int64_t that) const;
+    number operator/(double that) const;
+
+    number& operator+=(std::int64_t that);
 
     number& operator++();
     number& operator--();
@@ -132,10 +181,18 @@ namespace laskin
       return m_value == 0;
     }
 
+    std::ostream& output(std::ostream& os) const;
+
   private:
     value_type m_value;
     unit_type m_measurement_unit;
   };
 
-  std::ostream& operator<<(std::ostream&, const number&);
+  inline std::ostream& operator<<(
+    std::ostream& os,
+    const class number& number
+  )
+  {
+    return number.output(os);
+  }
 }

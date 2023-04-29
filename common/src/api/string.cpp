@@ -36,7 +36,7 @@ namespace laskin
   static void w_length(class context& context, std::ostream&)
   {
     context << value::make_number(
-      mpf_class(context.peek().as_string().length())
+      static_cast<std::int64_t>(context.peek().as_string().length())
     );
   }
 
@@ -65,7 +65,7 @@ namespace laskin
     result.reserve(str.length());
     for (const auto& c : str)
     {
-      result.push_back(value::make_number(c));
+      result.push_back(value::make_number(static_cast<std::int64_t>(c)));
     }
     context << value::make_vector(result);
   }
@@ -228,7 +228,7 @@ namespace laskin
     }
     else if (!substring_length)
     {
-      context << value::make_number(number::value_type(0));
+      context << value::make_number(0);
       return;
     }
 
@@ -257,7 +257,7 @@ namespace laskin
     }
     else if (!substring_length)
     {
-      context << value::make_number(number::value_type(0));
+      context << value::make_number(0);
       return;
     }
 

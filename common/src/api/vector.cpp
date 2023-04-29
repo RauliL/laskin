@@ -45,8 +45,8 @@ namespace laskin
   static void w_length(class context& context, std::ostream&)
   {
     context << value::make_number(
-      mpf_class(context.peek().as_vector().size()
-    ));
+      static_cast<std::int64_t>(context.peek().as_vector().size())
+    );
   }
 
   static void w_max(class context& context, std::ostream&)
@@ -112,10 +112,7 @@ namespace laskin
       {
         sum = sum + vec[i].as_number();
       }
-      context << value::make_number(
-        sum.value() / size,
-        sum.measurement_unit()
-      );
+      context << value::make_number(sum / static_cast<std::int64_t>(size));
       return;
     }
 
