@@ -171,6 +171,38 @@ namespace laskin
 
     number operator-() const;
 
+    // Exponential functions.
+    number exp() const;
+    number exp2() const;
+    number expm1() const;
+    number log() const;
+    number log2() const;
+    number log10() const;
+    number log1p() const;
+
+    // Power functions.
+    number pow(const number& exp) const;
+    number sqrt() const;
+    number cbrt() const;
+    number hypot(const number& that) const;
+
+    // Trigonometric functions.
+    number cos() const;
+    number sin() const;
+    number tan() const;
+    number acos() const;
+    number asin() const;
+    number atan() const;
+    number atan2(const number& that) const;
+
+    // Hyperbolic functions.
+    number sinh() const;
+    number cosh() const;
+    number tanh() const;
+    number asinh() const;
+    number acosh() const;
+    number atanh() const;
+
     inline explicit operator bool() const
     {
       return m_value != 0;
