@@ -24,6 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <functional>
+#include <sstream>
 #include <utility>
 
 #include <peelo/unicode/encoding/utf8.hpp>
@@ -33,9 +34,23 @@
 
 namespace laskin
 {
-  static number::value_type to_base_unit(const number&);
-  template<class Operator>
-  static number binary_op(const number&, const number&);
+  static constexpr mpfr_rnd_t default_rounding = MPFR_RNDN;
+
+  using binary_op_callback = int (*)(
+    mpfr_t,
+    mpfr_srcptr,
+    mpfr_srcptr,
+    mpfr_rnd_t
+  );
+
+  static void to_base_unit(number::value_type, const number&);
+  static void binary_op(
+    const number&,
+    const number&,
+    number::value_type,
+    number::unit_type&,
+    binary_op_callback
+  );
   static void unit_check(const number&, const number&);
 
   bool number::is_valid(const std::u32string& input)
@@ -84,6 +99,7 @@ namespace laskin
     const auto length = input.length();
     std::u32string::size_type start;
     bool dot_seen = false;
+    number result;
 
     if (!length)
     {
@@ -109,141 +125,225 @@ namespace laskin
       }
       else if (!std::isdigit(c))
       {
-        return number(
-          value_type(
-            peelo::unicode::encoding::utf8::encode(input.substr(0, i))
-          ),
-          unit::find_by_symbol(input.substr(i, length - i))
+        mpfr_init_set_str(
+          result.m_value,
+          peelo::unicode::encoding::utf8::encode(input.substr(0, i)).c_str(),
+          10,
+          default_rounding
         );
+        result.m_measurement_unit = unit::find_by_symbol(
+          input.substr(i, length - i)
+        );
+
+        return result;
       }
     }
-
-    return number(
-      value_type(peelo::unicode::encoding::utf8::encode(input)),
-      unit_type()
+    mpfr_init_set_str(
+      result.m_value,
+      peelo::unicode::encoding::utf8::encode(input).c_str(),
+      10,
+      default_rounding
     );
+
+    return result;
   }
 
-  number::number(const value_type& value, const unit_type& measurement_unit)
-    : m_value(value)
-    , m_measurement_unit(measurement_unit) {}
+  number::number(const unit_type& measurement_unit)
+    : m_measurement_unit(measurement_unit)
+  {
+    mpfr_init_set_ui(m_value, 0, default_rounding);
+  }
+
+  number::number(std::int64_t value, const unit_type& measurement_unit)
+    : m_measurement_unit(measurement_unit)
+  {
+    mpfr_init_set_si(m_value, value, default_rounding);
+  }
+
+  number::number(double value, const unit_type& measurement_unit)
+    : m_measurement_unit(measurement_unit)
+  {
+    mpfr_init_set_d(m_value, value, default_rounding);
+  }
 
   number::number(const number& that)
-    : m_value(that.m_value)
-    , m_measurement_unit(that.m_measurement_unit) {}
+    : m_measurement_unit(that.m_measurement_unit)
+  {
+    mpfr_init_set(m_value, that.m_value, default_rounding);
+  }
 
-  number::number(number&& that)
-    : m_value(std::move(that.m_value))
-    , m_measurement_unit(std::move(that.m_measurement_unit)) {}
+  number::~number()
+  {
+    mpfr_clear(m_value);
+  }
 
   long number::to_long() const
   {
-    if (!m_value.fits_slong_p())
+    if (!mpfr_fits_slong_p(m_value, default_rounding))
     {
       throw error(error::type::range, U"Numeric value is too large.");
     }
 
-    return m_value.get_si();
+    return mpfr_get_si(m_value, default_rounding);
   }
 
   double number::to_double() const
   {
-    return m_value.get_d();
+    return mpfr_get_d(m_value, default_rounding);
+  }
+
+  number number::without_unit() const
+  {
+    number result(*this);
+
+    if (result.m_measurement_unit)
+    {
+      result.m_measurement_unit.reset();
+    }
+
+    return result;
   }
 
   number& number::operator=(const number& that)
   {
-    m_value = that.m_value;
+    mpfr_set(m_value, that.m_value, default_rounding);
     m_measurement_unit = that.m_measurement_unit;
 
     return *this;
   }
 
-  number& number::operator=(number&& that)
+  int number::compare(const number& that) const
   {
-    m_value = std::move(that.m_value);
-    m_measurement_unit = std::move(that.m_measurement_unit);
+    value_type a;
+    value_type b;
+    int result;
 
-    return *this;
-  }
-
-  bool number::operator==(const number& that) const
-  {
     unit_check(*this, that);
+    to_base_unit(a, *this);
+    to_base_unit(b, that);
+    result = mpfr_cmp(a, b);
+    mpfr_clear(a);
+    mpfr_clear(b);
 
-    return to_base_unit(*this) == to_base_unit(that);
-  }
-
-  bool number::operator!=(const number& that) const
-  {
-    unit_check(*this, that);
-
-    return to_base_unit(*this) != to_base_unit(that);
-  }
-
-  bool number::operator<(const number& that) const
-  {
-    unit_check(*this, that);
-
-    return to_base_unit(*this) < to_base_unit(that);
-  }
-
-  bool number::operator>(const number& that) const
-  {
-    unit_check(*this, that);
-
-    return to_base_unit(*this) > to_base_unit(that);
-  }
-
-  bool number::operator<=(const number& that) const
-  {
-    unit_check(*this, that);
-
-    return to_base_unit(*this) <= to_base_unit(that);
-  }
-
-  bool number::operator>=(const number& that) const
-  {
-    unit_check(*this, that);
-
-    return to_base_unit(*this) >= to_base_unit(that);
+    return result;
   }
 
   number number::operator+(const number& that) const
   {
-    return binary_op<std::plus<value_type>>(*this, that);
+    number result;
+
+    binary_op(
+      *this,
+      that,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_add
+    );
+
+    return result;
   }
 
   number number::operator-(const number& that) const
   {
-    return binary_op<std::minus<value_type>>(*this, that);
+    number result;
+
+    binary_op(
+      *this,
+      that,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_sub
+    );
+
+    return result;
   }
 
   number number::operator*(const number& that) const
   {
-    return binary_op<std::multiplies<value_type>>(*this, that);
+    number result;
+
+    binary_op(
+      *this,
+      that,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_mul
+    );
+
+    return result;
+  }
+
+  number number::operator*(std::int64_t that) const
+  {
+    number result(m_measurement_unit);
+
+    mpfr_mul_si(result.m_value, m_value, that, default_rounding);
+
+    return result;
   }
 
   number number::operator/(const number& that) const
   {
-    if (that.m_value == 0)
+    number result;
+
+    if (mpfr_cmp_si(that.m_value, 0) == 0)
     {
       throw error(error::type::range, U"Division by zero.");
     }
+    binary_op(
+      *this,
+      that,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_div
+    );
 
-    return binary_op<std::divides<value_type>>(*this, that);
+    return result;
+  }
+
+  number number::operator/(std::int64_t that) const
+  {
+    number result(m_measurement_unit);
+
+    if (that == 0)
+    {
+      throw error(error::type::range, U"Division by zero.");
+    }
+    mpfr_div_si(result.m_value, m_value, that, default_rounding);
+
+    return result;
+  }
+
+  number number::operator/(double that) const
+  {
+    number result(m_measurement_unit);
+
+    if (that == 0)
+    {
+      throw error(error::type::range, U"Division by zero.");
+    }
+    mpfr_div_d(result.m_value, m_value, that, default_rounding);
+
+    return result;
+  }
+
+  number& number::operator+=(std::int64_t that)
+  {
+    mpfr_add_si(m_value, m_value, that, default_rounding);
+
+    return *this;
   }
 
   number& number::operator++()
   {
-    ++m_value;
+    mpfr_add_si(m_value, m_value, 1, default_rounding);
 
     return *this;
   }
 
   number& number::operator--()
   {
-    --m_value;
+    mpfr_sub_si(m_value, m_value, 1, default_rounding);
 
     return *this;
   }
@@ -252,7 +352,7 @@ namespace laskin
   {
     const auto copy(*this);
 
-    ++m_value;
+    mpfr_add_si(m_value, m_value, 1, default_rounding);
 
     return copy;
   }
@@ -261,68 +361,68 @@ namespace laskin
   {
     const auto copy(*this);
 
-    --m_value;
+    mpfr_sub_si(m_value, m_value, 1, default_rounding);
 
     return copy;
   }
 
   number number::operator-() const
   {
-    return number(-m_value);
+    number result(*this);
+
+    mpfr_neg(result.m_value, m_value, default_rounding);
+
+    return result;
   }
 
-  std::ostream& operator<<(std::ostream& out, const number& num)
+  std::ostream& number::output(std::ostream& os) const
   {
-    const auto& value = num.value();
-    ::mp_exp_t exp = 0;
-    auto buffer = ::mpf_get_str(
-      nullptr,
-      &exp,
-      10,
-      0,
-      value.get_mpf_t()
-    );
-    std::string result(buffer);
+    const std::ios::fmtflags flags = os.flags();
+    std::ostringstream format;
+    char* buffer = nullptr;
 
-    if (buffer)
+    if ((flags & std::ios::showpos))
     {
-      std::free(buffer);
+      format << "%+";
+    } else {
+      format << "%";
     }
-    if (result.empty())
+    if (os.precision() > 0)
     {
-      result.assign(1, '0');
-    }
-    if (value < 0)
-    {
-      ++exp;
-    }
-    if (exp > 0)
-    {
-      if (static_cast<std::string::size_type>(exp) >= result.length())
+      format << '.' << os.precision() << "R*";
+      if ((flags & std::ios::floatfield) == std::ios::fixed)
       {
-        const auto size = result.length();
-
-        for (
-          std::string::size_type i = 0;
-          i < static_cast<std::string::size_type>(exp) - size;
-          ++i
-        )
-        {
-          result.append(1, '0');
-        }
+        format << 'f';
+      }
+      else if ((flags & std::ios::floatfield) == std::ios::scientific)
+      {
+        format << 'e';
       } else {
-        result.insert(std::begin(result) + exp, '.');
+        format << 'g';
       }
     } else {
-      result.insert(0, "0.");
+      format << "R*e";
     }
-    if (const auto& unit = num.measurement_unit())
+    if (mpfr_asprintf(
+      &buffer,
+      format.str().c_str(),
+      default_rounding,
+      m_value
+    ) >= 0)
     {
-      result += peelo::unicode::encoding::utf8::encode(unit->symbol());
-    }
-    out << result;
+      std::string result(buffer);
 
-    return out;
+      mpfr_free_str(buffer);
+      if (m_measurement_unit)
+      {
+        result.append(
+          peelo::unicode::encoding::utf8::encode(m_measurement_unit->symbol())
+        );
+      }
+      os << result;
+    }
+
+    return os;
   }
 
   /**
@@ -336,10 +436,10 @@ namespace laskin
     return unit ? unit::base_unit_of(unit->type()) : number::unit_type();
   }
 
-  static number::value_type to_base_unit(const number& num)
+  static void to_base_unit(mpfr_t result, const class number& number)
   {
-    const auto& value = num.value();
-    const auto& unit = num.measurement_unit();
+    const auto& value = number.value();
+    const auto& unit = number.measurement_unit();
 
     if (unit && !unit->is_base_unit())
     {
@@ -347,41 +447,56 @@ namespace laskin
 
       if (multiplier > 0)
       {
-        return value * multiplier;
+        mpfr_init(result);
+        mpfr_mul_si(result, value, multiplier, default_rounding);
+        return;
       }
       else if (multiplier < 0)
       {
-        return value / -multiplier;
+        mpfr_init(result);
+        mpfr_div_si(result, value, -multiplier, default_rounding);
+        return;
       }
     }
 
-    return value;
+    mpfr_init_set(result, value, default_rounding);
   }
 
-  template<class Operator>
-  static number binary_op(const number& a, const number& b)
+  static void binary_op(
+    const number& a,
+    const number& b,
+    number::value_type result,
+    number::unit_type& result_unit,
+    binary_op_callback callback
+  )
   {
     const auto base = base_unit_of(a);
-    const auto base_value_a = to_base_unit(a);
-    const auto base_value_b = to_base_unit(b);
-    number::value_type result;
+    number::value_type base_value_a;
+    number::value_type base_value_b;
 
     unit_check(a, b);
-    result = Operator()(base_value_a, base_value_b);
+    to_base_unit(base_value_a, a);
+    to_base_unit(base_value_b, b);
+    callback(result, base_value_a, base_value_b, default_rounding);
+    mpfr_clear(base_value_a);
+    mpfr_clear(base_value_b);
+
     if (base)
     {
       for (const auto& unit : unit::all_units_of(base->type()))
       {
         const auto multiplier = unit.multiplier();
 
-        if (multiplier > 0 && result >= multiplier)
+        if (multiplier > 0 && mpfr_cmp_si(result, multiplier) >= 0)
         {
-          return number(result / multiplier, unit);
+          mpfr_div_si(result, result, multiplier, default_rounding);
+          result_unit = unit;
+          return;
         }
       }
     }
 
-    return number(result, base);
+    result_unit = base;
   }
 
   static void unit_check(const number& a, const number& b)

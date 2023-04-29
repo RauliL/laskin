@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstring>
 #include <sstream>
 
 #include <peelo/unicode/encoding/utf8.hpp>
@@ -53,8 +54,22 @@ namespace laskin
     return instance;
   }
 
-  value value::make_number(const number::value_type& value,
-                           const number::unit_type& unit)
+  value value::make_number(int value, const number::unit_type& unit)
+  {
+    return make_number(static_cast<std::int64_t>(value), unit);
+  }
+
+  value value::make_number(std::int64_t value, const number::unit_type& unit)
+  {
+    class value instance;
+
+    instance.m_type = type::number;
+    instance.m_value_number = new number(value, unit);
+
+    return instance;
+  }
+
+  value value::make_number(double value, const number::unit_type& unit)
   {
     class value instance;
 

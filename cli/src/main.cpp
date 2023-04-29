@@ -23,7 +23,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstring>
 #include <fstream>
+
 #include <unistd.h>
 
 #include <peelo/unicode/encoding/utf8.hpp>

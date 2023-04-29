@@ -7,7 +7,7 @@ inspired by [Forth], [RPL] and [Plorth].
 
 ## Requirements
 
-- [GNU Multiple Precision Arithmetic Library]
+- [GNU MPFR Library]
 - [CMake]
 - C++17 compatible C++ compiler
 
@@ -40,11 +40,10 @@ $ make
 [forth]: https://en.wikipedia.org/wiki/Forth_%28programming_language%29
 [rpl]: https://en.wikipedia.org/wiki/RPL_(programming_language)
 [plorth]: https://plorth.org
-[gnu multiple precision arithmetic library]: https://gmplib.org/
+[GNU MPFR Library]: https://www.mpfr.org
 [cmake]: https://cmake.org/
 [peelo-chrono]: https://github.com/peelonet/peelo-chrono
 [peelo-prompt]: https://github.com/peelonet/peelo-prompt
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode
 [build-image]: https://github.com/RauliL/laskin/actions/workflows/build.yml/badge.svg
 [build-url]: https://github.com/RauliL/laskin/actions/workflows/build.yml
-

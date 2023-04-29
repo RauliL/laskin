@@ -73,11 +73,27 @@ namespace laskin
     static value make_number(const number& value);
 
     /**
-     * Constructs number value.
+     * Constructs integer number value.
      */
     static value make_number(
-      const number::value_type& value,
-      const number::unit_type& unit = number::unit_type()
+      int value,
+      const number::unit_type& unit = std::nullopt
+    );
+
+    /**
+     * Constructs integer number value.
+     */
+    static value make_number(
+      std::int64_t value,
+      const number::unit_type& unit = std::nullopt
+    );
+
+    /**
+     * Constructs real number value.
+     */
+    static value make_number(
+      double value,
+      const number::unit_type& unit = std::nullopt
     );
 
     /**
