@@ -1,0 +1,8 @@
+#!/usr/bin/env laskin
+
+# Declare function called "hello-world" which pushes an string into the stack
+# and then outputs it.
+( "Hello, World!" . ) -> hello-world
+
+# And invoke it.
+hello-world

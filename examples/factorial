@@ -1,0 +1,10 @@
+#!/usr/bin/env laskin
+
+(
+    dup 0 =
+    ( drop 1 )
+    ( dup 1 - factorial * )
+    if-else
+) -> factorial
+
+( factorial ) [0, 1, 2, 3, 4, 5, 6] map .
