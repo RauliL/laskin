@@ -63,18 +63,6 @@ namespace laskin
     initialize_dictionary(m_dictionary, api::weekday);
   }
 
-  context::context(const context& that)
-    : m_data(that.m_data)
-    , m_dictionary(that.m_dictionary) {}
-
-  context& context::operator=(const context& that)
-  {
-    m_data = that.m_data;
-    m_dictionary = that.m_dictionary;
-
-    return *this;
-  }
-
   const value& context::peek() const
   {
     if (!m_data.empty())

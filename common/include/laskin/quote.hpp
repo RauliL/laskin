@@ -42,14 +42,17 @@ namespace laskin
     static quote parse(
       const std::u32string& source,
       int line = 1,
-      int column = 0
+      int column = 1
     );
 
     explicit quote();
     explicit quote(const callback& cb);
     explicit quote(const node_container& nodes);
-    quote(const quote& that);
-    quote& operator=(const quote& that);
+
+    quote(const quote&) = default;
+    quote(quote&&) = default;
+    quote& operator=(const quote& that) = default;
+    quote& operator=(quote&&) = default;
 
     void call(class context& context, std::ostream& out) const;
 

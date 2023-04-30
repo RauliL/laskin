@@ -74,12 +74,10 @@ namespace laskin
       int multiplier
     );
 
-    /**
-     * Constructs copy of existing measurement unit.
-     */
-    unit(const unit& that);
-
-    unit& operator=(const unit& that);
+    unit(const unit&) = default;
+    unit(unit&&) = default;
+    unit& operator=(const unit& that) = default;
+    unit& operator=(unit&&) = default;
 
     inline enum type type() const
     {
