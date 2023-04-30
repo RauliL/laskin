@@ -16,6 +16,7 @@ ADD_EXECUTABLE(
   laskin-gui
   ${COMMON_SOURCES}
   ${CMAKE_CURRENT_SOURCE_DIR}/src/context.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/dictionary-display.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/line-display.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/line-editor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp

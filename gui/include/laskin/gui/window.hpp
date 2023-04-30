@@ -26,6 +26,7 @@
 #pragma once
 
 #include "laskin/gui/context.hpp"
+#include "laskin/gui/dictionary-display.hpp"
 #include "laskin/gui/line-display.hpp"
 #include "laskin/gui/line-editor.hpp"
 #include "laskin/gui/stack-display.hpp"
@@ -46,6 +47,10 @@ namespace laskin::gui
     void on_error_thrown(const laskin::error& error);
     void on_text_written(const Glib::ustring& text);
     bool on_key_press_event(GdkEventKey* event);
+    void on_word_activated(
+      const Glib::ustring& id,
+      const Glib::ustring& value_source
+    );
 
   private:
     Glib::RefPtr<Context> m_context;
@@ -54,7 +59,9 @@ namespace laskin::gui
     Gtk::Box m_box;
     Gtk::Paned m_paned;
     LineDisplay m_line_display;
+    Gtk::Notebook m_notebook;
     StackDisplay m_stack_display;
+    DictionaryDisplay m_dictionary_display;
     LineEditor m_line_editor;
   };
 }

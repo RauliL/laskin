@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2023, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,48 +25,66 @@
  */
 #pragma once
 
-#include <functional>
-#include <iostream>
-#include <variant>
+#include <gtkmm.h>
 
-#include "laskin/ast.hpp"
+#include "laskin/context.hpp"
 
-namespace laskin
+namespace laskin::gui
 {
-  class quote
+  class DictionaryDisplayColumns : public Gtk::TreeModel::ColumnRecord
   {
   public:
-    using callback = std::function<void(context&, std::ostream&)>;
-    using node_container = std::vector<std::shared_ptr<node>>;
+    explicit DictionaryDisplayColumns();
 
-    static quote parse(
-      const std::u32string& source,
-      int line = 1,
-      int column = 1
-    );
-
-    explicit quote();
-    explicit quote(const callback& cb);
-    explicit quote(const node_container& nodes);
-
-    quote(const quote&) = default;
-    quote(quote&&) = default;
-    quote& operator=(const quote& that) = default;
-    quote& operator=(quote&&) = default;
-
-    inline bool is_native() const
+    inline const Gtk::TreeModelColumn<Glib::ustring>& name_column() const
     {
-      return !std::holds_alternative<node_container>(m_container);
+      return m_name_column;
     }
 
-    void call(class context& context, std::ostream& out) const;
-
-    /**
-     * Converts the quote back into source code.
-     */
-    std::u32string to_source() const;
+    inline const Gtk::TreeModelColumn<Glib::ustring>& value_column() const
+    {
+      return m_value_column;
+    }
 
   private:
-    std::variant<callback, node_container> m_container;
+    Gtk::TreeModelColumn<Glib::ustring> m_name_column;
+    Gtk::TreeModelColumn<Glib::ustring> m_value_column;
+  };
+
+  class DictionaryDisplay : public Gtk::Bin
+  {
+  public:
+    using word_activated_signal = sigc::signal<
+      void,
+      Glib::ustring,
+      Glib::ustring
+    >;
+
+    explicit DictionaryDisplay();
+
+    void update(const context::dictionary_type& dictionary);
+
+    inline word_activated_signal& signal_word_activated()
+    {
+      return m_signal_word_activated;
+    }
+
+    inline const word_activated_signal& signal_word_activated() const
+    {
+      return m_signal_word_activated;
+    }
+
+  protected:
+    void on_row_activated(
+      const Gtk::TreeModel::Path& path,
+      Gtk::TreeViewColumn* column
+    );
+
+  private:
+    Gtk::ScrolledWindow m_scrolled_window;
+    Gtk::TreeView m_tree_view;
+    DictionaryDisplayColumns m_columns;
+    Glib::RefPtr<Gtk::ListStore> m_tree_model;
+    word_activated_signal m_signal_word_activated;
   };
 }
