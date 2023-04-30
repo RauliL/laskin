@@ -1,0 +1,32 @@
+#!/usr/bin/env laskin
+
+# Print numbers from 1 to 10 with `while' loop.
+
+# Push initial value 1.
+1
+
+# Duplicate it because the condition testing eats one value from the stack.
+dup
+
+# This is condition of the `while' loop. It takes one value from the stack and
+# tests whether it's 10 or less than 10.
+( 10 <= )
+
+# And this quote is body of the `while' loop.
+(
+    # Duplicate the number again.
+    dup
+
+    # Output it.
+    .
+
+    # Increment it by one.
+    1 +
+
+    # Duplicate the result because condition is going to eat one value from the
+    # stack again.
+    dup
+)
+
+# Finally invoke the loop itself.
+while
