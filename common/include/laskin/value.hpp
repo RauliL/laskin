@@ -145,9 +145,21 @@ namespace laskin
     static value make_month(peelo::chrono::month month);
 
     /**
+     * Constructs month value from given string which should contain valid name
+     * of a month.
+     */
+    static value make_month(const std::u32string& month);
+
+    /**
      * Constructs weekday value.
      */
     static value make_weekday(peelo::chrono::weekday weekday);
+
+    /**
+     * Constructs weekday value from given string which should contain valid name
+     * of weekday.
+     */
+    static value make_weekday(const std::u32string& weekday);
 
     /**
      * Constructs date value.

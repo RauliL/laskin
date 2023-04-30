@@ -24,12 +24,40 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <climits>
+#include <unordered_map>
 
 #include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
 
 namespace laskin
 {
+  static const std::unordered_map<std::u32string, peelo::chrono::month> month_mapping =
+  {
+      { U"january", peelo::chrono::month::jan },
+      { U"february", peelo::chrono::month::feb },
+      { U"march", peelo::chrono::month::mar },
+      { U"april", peelo::chrono::month::apr },
+      { U"may", peelo::chrono::month::may },
+      { U"june", peelo::chrono::month::jun },
+      { U"july", peelo::chrono::month::jul },
+      { U"august", peelo::chrono::month::aug },
+      { U"september", peelo::chrono::month::sep },
+      { U"october", peelo::chrono::month::oct },
+      { U"november", peelo::chrono::month::nov },
+      { U"december", peelo::chrono::month::dec }
+  };
+
+  static const std::unordered_map<std::u32string, peelo::chrono::weekday> weekday_mapping =
+  {
+    { U"sunday", peelo::chrono::weekday::sun },
+    { U"monday", peelo::chrono::weekday::mon },
+    { U"tuesday", peelo::chrono::weekday::tue },
+    { U"wednesday", peelo::chrono::weekday::wed },
+    { U"thursday", peelo::chrono::weekday::thu },
+    { U"friday", peelo::chrono::weekday::fri },
+    { U"saturday", peelo::chrono::weekday::sat }
+  };
+
   static inline bool is_digits(
     const std::u32string&,
     const std::u32string::size_type,
@@ -67,6 +95,16 @@ namespace laskin
       && is_digits(input, 3, 5)
       && is_digits(input, 6, 8)
     );
+  }
+
+  bool is_month(const std::u32string& input)
+  {
+    return month_mapping.find(input) != std::end(month_mapping);
+  }
+
+  bool is_weekday(const std::u32string& input)
+  {
+    return weekday_mapping.find(input) != std::end(weekday_mapping);
   }
 
   peelo::chrono::date parse_date(const std::u32string& input)
@@ -139,6 +177,30 @@ namespace laskin
     }
 
     return peelo::chrono::time(hour, minute, second);
+  }
+
+  peelo::chrono::month parse_month(const std::u32string& input)
+  {
+    const auto entry = month_mapping.find(input);
+
+    if (entry == std::end(month_mapping))
+    {
+      throw error(error::type::syntax, U"Invalid month.");
+    }
+
+    return entry->second;
+  }
+
+  peelo::chrono::weekday parse_weekday(const std::u32string& input)
+  {
+    const auto entry = weekday_mapping.find(input);
+
+    if (entry == std::end(weekday_mapping))
+    {
+      throw error(error::type::syntax, U"Invalid day of week.");
+    }
+
+    return entry->second;
   }
 
   static bool is_digits(const std::u32string& input,

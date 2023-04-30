@@ -154,6 +154,11 @@ namespace laskin
     return instance;
   }
 
+  value value::make_month(const std::u32string& month)
+  {
+    return make_month(parse_month(month));
+  }
+
   value value::make_weekday(peelo::chrono::weekday weekday)
   {
     value instance;
@@ -162,6 +167,11 @@ namespace laskin
     instance.m_value_weekday = weekday;
 
     return instance;
+  }
+
+  value value::make_weekday(const std::u32string& weekday)
+  {
+    return make_weekday(parse_weekday(weekday));
   }
 
   value value::make_date(const peelo::chrono::date& date)

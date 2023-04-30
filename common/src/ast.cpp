@@ -252,6 +252,14 @@ namespace laskin
     {
       return value::make_time(m_id);
     }
+    else if (is_month(m_id))
+    {
+      return value::make_month(m_id);
+    }
+    else if (is_weekday(m_id))
+    {
+      return value::make_weekday(m_id);
+    }
 
     throw error(
       error::type::name,
