@@ -205,12 +205,12 @@ namespace laskin
 
     inline explicit operator bool() const
     {
-      return m_value != 0;
+      return !mpfr_zero_p(m_value);
     }
 
     inline bool operator!() const
     {
-      return m_value == 0;
+      return mpfr_zero_p(m_value);
     }
 
     std::ostream& output(std::ostream& os) const;
