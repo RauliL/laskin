@@ -35,16 +35,6 @@ namespace laskin
   quote::quote(const node_container& nodes)
     : m_container(nodes) {}
 
-  quote::quote(const quote& that)
-    : m_container(that.m_container) {}
-
-  quote& quote::operator=(const quote& that)
-  {
-    m_container = that.m_container;
-
-    return *this;
-  }
-
   void quote::call(class context& context, std::ostream& out) const
   {
     if (std::holds_alternative<node_container>(m_container))

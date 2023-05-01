@@ -42,8 +42,11 @@ namespace laskin
     >;
 
     explicit context();
-    context(const context& that);
-    context& operator=(const context& that);
+
+    context(const context&) = default;
+    context(context&&) = default;
+    context& operator=(const context& that) = default;
+    context& operator=(context&&) = default;
 
     /**
      * Returns data stack of the context.

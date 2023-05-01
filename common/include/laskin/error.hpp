@@ -52,8 +52,10 @@ namespace laskin
       int column = 0
     );
 
-    error(const error& that);
-    error& operator=(const error& that);
+    error(const error&) = default;
+    error(error&&) = default;
+    error& operator=(const error& that) = default;
+    error& operator=(error&&) = default;
 
     inline enum type type() const
     {

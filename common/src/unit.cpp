@@ -193,20 +193,6 @@ namespace laskin
     , m_symbol(symbol)
     , m_multiplier(multiplier) {}
 
-  unit::unit(const unit& that)
-    : m_type(that.m_type)
-    , m_symbol(that.m_symbol)
-    , m_multiplier(that.m_multiplier) {}
-
-  unit& unit::operator=(const unit& that)
-  {
-    m_type = that.m_type;
-    m_symbol = that.m_symbol;
-    m_multiplier = that.m_multiplier;
-
-    return *this;
-  }
-
   std::u32string to_string(enum unit::type type)
   {
     switch (type)

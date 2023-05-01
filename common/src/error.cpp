@@ -38,22 +38,6 @@ namespace laskin
     , m_line(line)
     , m_column(column) {}
 
-  error::error(const error& that)
-    : m_type(that.m_type)
-    , m_message(that.m_message)
-    , m_line(that.m_line)
-    , m_column(that.m_column) {}
-
-  error& error::operator=(const error& that)
-  {
-    m_type = that.m_type;
-    m_message = that.m_message;
-    m_line = that.m_line;
-    m_column = that.m_column;
-
-    return *this;
-  }
-
   std::u32string error::type_description(enum type type)
   {
     switch (type)

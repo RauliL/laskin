@@ -42,13 +42,18 @@ namespace laskin::gui
     set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
     m_paned.pack1(m_line_display, true, false);
-    m_paned.pack2(m_stack_display, false, false);
+    m_paned.pack2(m_notebook, false, false);
+
+    m_notebook.append_page(m_stack_display, "Stack");
+    m_notebook.append_page(m_dictionary_display, "Dictionary");
 
     m_box.pack_start(m_paned);
     m_box.pack_start(m_line_editor, Gtk::PACK_SHRINK);
 
     add(m_box);
     show_all_children();
+
+    m_dictionary_display.update(m_context->dictionary());
 
     m_line_editor.signal_line_received().connect(sigc::mem_fun(
       this,
@@ -61,6 +66,10 @@ namespace laskin::gui
     m_context->signal_text_written().connect(sigc::mem_fun(
       this,
       &Window::on_text_written
+    ));
+    m_dictionary_display.signal_word_activated().connect(sigc::mem_fun(
+      this,
+      &Window::on_word_activated
     ));
   }
 
@@ -91,6 +100,7 @@ namespace laskin::gui
       m_source.clear();
       m_line_editor.set_stack_depth_count(stack.size());
       m_stack_display.update(stack);
+      m_dictionary_display.update(m_context->dictionary());
     }
   }
 
@@ -117,5 +127,14 @@ namespace laskin::gui
     }
 
     return Gtk::Window::on_key_press_event(event);
+  }
+
+  void Window::on_word_activated(
+    const Glib::ustring& id,
+    const Glib::ustring& value_source
+  )
+  {
+    m_line_editor.set_text(value_source + " -> " + id);
+    m_line_editor.grab_focus();
   }
 }

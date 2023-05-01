@@ -50,6 +50,16 @@ namespace laskin::gui
       return m_context.data();
     }
 
+    inline context::dictionary_type& dictionary()
+    {
+      return m_context.dictionary();
+    }
+
+    inline const context::dictionary_type& dictionary() const
+    {
+      return m_context.dictionary();
+    }
+
     void execute(const Glib::ustring& source_code, int line = 1);
 
     inline error_thrown_signal& signal_error_thrown()
