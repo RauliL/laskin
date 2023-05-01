@@ -723,6 +723,8 @@ namespace laskin
       && c != ']'
       && c != '('
       && c != ')'
+      && c != '{'
+      && c != '}'
       && c != ','
       && peelo::unicode::ctype::isgraph(c);
   }
