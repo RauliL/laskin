@@ -74,6 +74,16 @@ namespace laskin
     context << i->second;
   }
 
+  static void w_set(class context& context, std::ostream& out)
+  {
+    auto properties = context.pop().as_record();
+    const auto key = context.pop().as_string();
+    const auto value = context.pop();
+
+    properties[key] = value;
+    context << value::make_record(properties);
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition record =
@@ -81,7 +91,8 @@ namespace laskin
       { U"record:size", w_size },
       { U"record:keys", w_keys },
       { U"record:values", w_values },
-      { U"record:@", w_at }
+      { U"record:@", w_at },
+      { U"record:@=", w_set }
     };
   }
 }
