@@ -611,6 +611,13 @@ namespace laskin
     context << value::make_number(number::parse(string));
   }
 
+  static void w_to_quote(class context& context, std::ostream&)
+  {
+    const auto source = context.pop().as_string();
+
+    context << value::make_quote(quote::parse(source));
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition string =
@@ -646,7 +653,8 @@ namespace laskin
       { U"string:@", w_at },
 
       // Conversions.
-      { U">number", w_to_number }
+      { U">number", w_to_number },
+      { U">quote", w_to_quote }
     };
   }
 }
