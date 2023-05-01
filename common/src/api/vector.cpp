@@ -322,6 +322,25 @@ namespace laskin
     context << vector[index];
   }
 
+  static void w_set(class context& context, std::ostream&)
+  {
+    auto vector = context.pop().as_vector();
+    const auto size = vector.size();
+    auto index = context.pop().as_number().to_long();
+    const auto value = context.pop();
+
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type::range, U"Vector index out of bounds.");
+    }
+    vector[index] = value;
+    context << value::make_vector(vector);
+  }
+
   static void w_to_time(class context& context, std::ostream&)
   {
     const auto vector = context.pop().as_vector();
@@ -404,6 +423,7 @@ namespace laskin
 
       // Element access.
       { U"vector:@", w_at },
+      { U"vector:@=", w_set },
 
       // Conversions.
       { U"vector:>date", w_to_date },
