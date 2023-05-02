@@ -119,11 +119,24 @@ namespace laskin::gui
 
   bool Window::on_key_press_event(GdkEventKey* event)
   {
-    // Terminate the application when user presses ^Q anywhere inside the
-    // main window.
-    if ((event->state & GDK_CONTROL_MASK) != 0 && event->keyval == GDK_KEY_q)
+    if ((event->state & GDK_CONTROL_MASK) != 0)
     {
-      std::exit(EXIT_SUCCESS);
+      // Terminate the application when user presses ^Q anywhere inside the
+      // main window.
+      if (event->keyval == GDK_KEY_q)
+      {
+        std::exit(EXIT_SUCCESS);
+
+        return true;
+      }
+      // Clear the line buffer when user presses ^L anywhere inside the main
+      // window.
+      else if (event->keyval == GDK_KEY_l)
+      {
+        m_line_display.clear();
+
+        return true;
+      }
     }
 
     return Gtk::Window::on_key_press_event(event);

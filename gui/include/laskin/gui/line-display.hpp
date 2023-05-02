@@ -42,6 +42,7 @@ namespace laskin::gui
     explicit LineDisplay();
 
     void add_line(const Glib::ustring& line, LineType type = LINE_TYPE_OUTPUT);
+    void clear();
     void scroll_to_bottom();
 
   private:

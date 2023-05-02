@@ -46,6 +46,11 @@ namespace laskin::gui
     m_error_tag->property_foreground().set_value("red");
   }
 
+  void LineDisplay::clear()
+  {
+    m_text_buffer->erase(m_text_buffer->begin(), m_text_buffer->end());
+  }
+
   void LineDisplay::add_line(const Glib::ustring& line, LineType type)
   {
     Glib::RefPtr<Gtk::TextTag> tag;
