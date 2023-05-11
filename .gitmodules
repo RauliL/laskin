@@ -7,3 +7,6 @@
 [submodule "ext/peelo-chrono"]
 	path = ext/peelo-chrono
 	url = https://github.com/peelonet/peelo-chrono
+[submodule "ext/ordered-map"]
+	path = ext/ordered-map
+	url = https://github.com/Tessil/ordered-map.git

@@ -26,11 +26,11 @@
 #pragma once
 
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
+#include <tsl/ordered_map.h>
 
 #include "laskin/number.hpp"
 
@@ -187,7 +187,7 @@ namespace laskin
      * Constructs record value.
      */
     static value make_record(
-      const std::unordered_map<std::u32string, value>& properties
+      const tsl::ordered_map<std::u32string, value>& properties
     );
 
     /**
@@ -250,7 +250,7 @@ namespace laskin
     bool as_boolean() const;
     const number& as_number() const;
     const std::vector<value>& as_vector() const;
-    const std::unordered_map<std::u32string, value>& as_record() const;
+    const tsl::ordered_map<std::u32string, value>& as_record() const;
     const std::u32string& as_string() const;
     const quote& as_quote() const;
     peelo::chrono::month as_month() const;
@@ -363,7 +363,7 @@ namespace laskin
       peelo::chrono::weekday m_value_weekday;
       peelo::chrono::date* m_value_date;
       peelo::chrono::time* m_value_time;
-      std::unordered_map<std::u32string, value>* m_value_record;
+      tsl::ordered_map<std::u32string, value>* m_value_record;
     };
   };
 

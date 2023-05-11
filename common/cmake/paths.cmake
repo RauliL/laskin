@@ -32,6 +32,7 @@ SET(
 SET(
   COMMON_INCLUDES
   ${CMAKE_CURRENT_SOURCE_DIR}/../common/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/../ext/ordered-map/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-chrono/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-unicode/include
 )

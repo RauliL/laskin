@@ -77,7 +77,7 @@ namespace laskin
   {
     const auto properties = context.pop().as_record();
     const auto quote = context.pop().as_quote();
-    std::unordered_map<std::u32string, value> new_properties;
+    tsl::ordered_map<std::u32string, value> new_properties;
 
     for (const auto& property : properties)
     {
@@ -98,7 +98,7 @@ namespace laskin
   {
     const auto properties = context.pop().as_record();
     const auto quote = context.pop().as_quote();
-    std::unordered_map<std::u32string, value> new_properties;
+    tsl::ordered_map<std::u32string, value> new_properties;
 
     for (const auto& property : properties)
     {

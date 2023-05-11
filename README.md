@@ -14,6 +14,7 @@ inspired by [Forth], [RPL] and [Plorth].
 Other dependencies already included in the source code repository as Git
 submodules:
 
+- [ordered-map]
 - [peelo-chrono]
 - [peelo-prompt]
 - [peelo-unicode]
@@ -42,6 +43,7 @@ $ make
 [plorth]: https://plorth.org
 [GNU MPFR Library]: https://www.mpfr.org
 [cmake]: https://cmake.org/
+[ordered-map]: https://github.com/Tessil/ordered-map/
 [peelo-chrono]: https://github.com/peelonet/peelo-chrono
 [peelo-prompt]: https://github.com/peelonet/peelo-prompt
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode

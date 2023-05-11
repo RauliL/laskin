@@ -58,8 +58,8 @@ namespace laskin
   }
 
   static bool equals_record(
-    const std::unordered_map<std::u32string, value>& a,
-    const std::unordered_map<std::u32string, value>& b
+    const tsl::ordered_map<std::u32string, value>& a,
+    const tsl::ordered_map<std::u32string, value>& b
   )
   {
     if (a.size() != b.size())
