@@ -28,14 +28,14 @@
 
 namespace laskin
 {
-  static void w_size(class context& context, std::ostream& out)
+  static void w_size(class context& context, std::ostream&)
   {
     const auto& properties = context.peek().as_record();
 
     context << value::make_number(static_cast<std::int64_t>(properties.size()));
   }
 
-  static void w_keys(class context& context, std::ostream& out)
+  static void w_keys(class context& context, std::ostream&)
   {
     const auto& properties = context.peek().as_record();
     std::vector<value> result;
@@ -48,7 +48,7 @@ namespace laskin
     context << value::make_vector(result);
   }
 
-  static void w_values(class context& context, std::ostream& out)
+  static void w_values(class context& context, std::ostream&)
   {
     const auto& properties = context.peek().as_record();
     std::vector<value> result;
@@ -61,7 +61,59 @@ namespace laskin
     context << value::make_vector(result);
   }
 
-  static void w_at(class context& context, std::ostream& out)
+  static void w_for_each(class context& context, std::ostream& out)
+  {
+    const auto properties = context.pop().as_record();
+    const auto quote = context.pop().as_quote();
+
+    for (const auto& property : properties)
+    {
+      context << value::make_string(property.first) << property.second;
+      quote.call(context, out);
+    }
+  }
+
+  static void w_map(class context& context, std::ostream& out)
+  {
+    const auto properties = context.pop().as_record();
+    const auto quote = context.pop().as_quote();
+    std::unordered_map<std::u32string, value> new_properties;
+
+    for (const auto& property : properties)
+    {
+      std::u32string key;
+      class value value;
+
+      context << value::make_string(property.first) << property.second;
+      quote.call(context, out);
+      value = context.pop();
+      key = context.pop().as_string();
+      new_properties[key] = value;
+    }
+
+    context << value::make_record(new_properties);
+  }
+
+  static void w_filter(class context& context, std::ostream& out)
+  {
+    const auto properties = context.pop().as_record();
+    const auto quote = context.pop().as_quote();
+    std::unordered_map<std::u32string, value> new_properties;
+
+    for (const auto& property : properties)
+    {
+      context << value::make_string(property.first) << property.second;
+      quote.call(context, out);
+      if (context.pop().as_boolean())
+      {
+        new_properties[property.first] = property.second;
+      }
+    }
+
+    context << value::make_record(new_properties);
+  }
+
+  static void w_at(class context& context, std::ostream&)
   {
     const auto properties = context.pop().as_record();
     const auto key = context.pop().as_string();
@@ -74,7 +126,7 @@ namespace laskin
     context << i->second;
   }
 
-  static void w_set(class context& context, std::ostream& out)
+  static void w_set(class context& context, std::ostream&)
   {
     auto properties = context.pop().as_record();
     const auto key = context.pop().as_string();
@@ -84,6 +136,25 @@ namespace laskin
     context << value::make_record(properties);
   }
 
+  static void w_to_record(class context& context, std::ostream&)
+  {
+    const auto properties = context.pop().as_record();
+    std::vector<value> values;
+
+    values.reserve(properties.size());
+    for (const auto& property : properties)
+    {
+      std::vector<value> pair;
+
+      pair.reserve(2);
+      pair.push_back(value::make_string(property.first));
+      pair.push_back(property.second);
+      values.push_back(value::make_vector(pair));
+    }
+
+    context << value::make_vector(values);
+  }
+
   namespace api
   {
     extern "C" const context::dictionary_definition record =
@@ -91,8 +162,18 @@ namespace laskin
       { U"record:size", w_size },
       { U"record:keys", w_keys },
       { U"record:values", w_values },
+
+      // Iteration.
+      { U"record:for-each", w_for_each },
+      { U"record:map", w_map },
+      { U"record:filter", w_filter },
+
+      // Element access.
       { U"record:@", w_at },
-      { U"record:@=", w_set }
+      { U"record:@=", w_set },
+
+      // Conversions.
+      { U"record:>vector", w_to_record }
     };
   }
 }
