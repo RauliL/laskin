@@ -130,7 +130,7 @@ namespace laskin
   class node::record_literal : public node
   {
   public:
-    using container_type = std::unordered_map<
+    using container_type = tsl::ordered_map<
       std::u32string,
       std::shared_ptr<node>
     >;

@@ -53,11 +53,11 @@ namespace laskin
   }
 
   static value add_record(
-    const std::unordered_map<std::u32string, value>& a,
-    const std::unordered_map<std::u32string, value>& b
+    const tsl::ordered_map<std::u32string, value>& a,
+    const tsl::ordered_map<std::u32string, value>& b
   )
   {
-    std::unordered_map<std::u32string, value> result(a);
+    tsl::ordered_map<std::u32string, value> result(a);
 
     for (const auto& property : b)
     {

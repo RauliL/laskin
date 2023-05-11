@@ -100,13 +100,13 @@ namespace laskin
   }
 
   value value::make_record(
-    const std::unordered_map<std::u32string, value>& properties
+    const tsl::ordered_map<std::u32string, value>& properties
   )
   {
     class value instance;
 
     instance.m_type = type::record;
-    instance.m_value_record = new std::unordered_map<
+    instance.m_value_record = new tsl::ordered_map<
       std::u32string,
       value
     >(properties);
@@ -262,7 +262,7 @@ namespace laskin
         break;
 
       case type::record:
-        m_value_record = new std::unordered_map<std::u32string, value>(
+        m_value_record = new tsl::ordered_map<std::u32string, value>(
           *that.m_value_record
         );
         break;
@@ -367,7 +367,7 @@ namespace laskin
           break;
 
         case type::record:
-          m_value_record = new std::unordered_map<std::u32string, value>(
+          m_value_record = new tsl::ordered_map<std::u32string, value>(
             *that.m_value_record
           );
           break;
@@ -554,7 +554,7 @@ namespace laskin
     return *m_value_vector;
   }
 
-  const std::unordered_map<std::u32string, value>& value::as_record() const
+  const tsl::ordered_map<std::u32string, value>& value::as_record() const
   {
     if (!is(type::record))
     {
@@ -811,7 +811,7 @@ namespace laskin
   }
 
   static std::u32string record_to_string(
-    const std::unordered_map<std::u32string, value>& properties
+    const tsl::ordered_map<std::u32string, value>& properties
   )
   {
     std::u32string result;
@@ -893,7 +893,7 @@ namespace laskin
   }
 
   static std::u32string record_to_source(
-    const std::unordered_map<std::u32string, value>& properties
+    const tsl::ordered_map<std::u32string, value>& properties
   )
   {
     std::u32string result;

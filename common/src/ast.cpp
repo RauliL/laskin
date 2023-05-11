@@ -127,7 +127,7 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    std::unordered_map<std::u32string, value> properties;
+    tsl::ordered_map<std::u32string, value> properties;
 
     for (const auto& property : m_properties)
     {
