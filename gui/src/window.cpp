@@ -30,8 +30,8 @@
 
 namespace laskin::gui
 {
-  const int Window::DEFAULT_WIDTH = 450;
-  const int Window::DEFAULT_HEIGHT = 250;
+  const int Window::DEFAULT_WIDTH = 500;
+  const int Window::DEFAULT_HEIGHT = 300;
 
   Window::Window(const Glib::RefPtr<Context>& context)
     : m_context(context)
