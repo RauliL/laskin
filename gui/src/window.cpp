@@ -138,6 +138,23 @@ namespace laskin::gui
         return true;
       }
     }
+    else if ((event->state & GDK_MOD1_MASK) != 0)
+    {
+      // Switch to stack view when Mod1+1 is pressed.
+      if (event->keyval == GDK_KEY_1)
+      {
+        m_notebook.set_current_page(0);
+
+        return true;
+      }
+      // Switch to dictionary view when Mod1+2 is pressed.
+      else if (event->keyval == GDK_KEY_2)
+      {
+        m_notebook.set_current_page(1);
+
+        return true;
+      }
+    }
 
     return Gtk::Window::on_key_press_event(event);
   }
