@@ -5,6 +5,8 @@
 _Laskin_ is a reverse polish notation calculator / programming language
 inspired by [Forth], [RPL] and [Plorth].
 
+[Try it in your browser.](https://rauli.dev/laskin-web/)
+
 ## Requirements
 
 - [GNU MPFR Library]
