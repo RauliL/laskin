@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <chrono>
-
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
@@ -32,21 +30,13 @@
 
 namespace laskin
 {
-  static inline peelo::chrono::date get_current_date()
+  static void w_today(class context& context, std::ostream&)
   {
-    const auto now = std::chrono::system_clock::now();
-    const auto ts = std::chrono::system_clock::to_time_t(now);
-    const auto tm = std::localtime(&ts);
-
     try
     {
-      return peelo::chrono::date(
-        tm->tm_year + 1900,
-        static_cast<enum peelo::chrono::month>(tm->tm_mon),
-        tm->tm_mday
-      );
+      context << value::make_date(peelo::chrono::date::today());
     }
-    catch (const std::invalid_argument&)
+    catch (const std::runtime_error&)
     {
       throw laskin::error(
         laskin::error::type::system,
@@ -55,19 +45,34 @@ namespace laskin
     }
   }
 
-  static void w_today(class context& context, std::ostream&)
-  {
-    context << value::make_date(get_current_date());
-  }
-
   static void w_tomorrow(class context& context, std::ostream&)
   {
-    context << value::make_date(get_current_date() + 1);
+    try
+    {
+      context << value::make_date(peelo::chrono::date::tomorrow());
+    }
+    catch (const std::runtime_error&)
+    {
+      throw laskin::error(
+        laskin::error::type::system,
+        U"System clock returned invalid date."
+      );
+    }
   }
 
   static void w_yesterday(class context& context, std::ostream&)
   {
-    context << value::make_date(get_current_date() - 1);
+    try
+    {
+      context << value::make_date(peelo::chrono::date::yesterday());
+    }
+    catch (const std::runtime_error&)
+    {
+      throw laskin::error(
+        laskin::error::type::system,
+        U"System clock returned invalid date."
+      );
+    }
   }
 
   static void w_year(class context& context, std::ostream&)

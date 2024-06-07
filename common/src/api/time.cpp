@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <chrono>
-
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
@@ -34,19 +32,11 @@ namespace laskin
 {
   static void w_now(class context& context, std::ostream&)
   {
-    const auto now = std::chrono::system_clock::now();
-    const auto ts = std::chrono::system_clock::to_time_t(now);
-    const auto tm = std::localtime(&ts);
-
     try
     {
-      context << value::make_time(peelo::chrono::time(
-        tm->tm_hour,
-        tm->tm_min,
-        tm->tm_sec
-      ));
+      context << value::make_time(peelo::chrono::time::now());
     }
-    catch (const std::invalid_argument&)
+    catch (const std::runtime_error&)
     {
       throw error(
         error::type::system,
