@@ -33,7 +33,6 @@ $ sudo apt install build-essential cmake libgmp-dev
 ```bash
 $ git clone https://github.com/RauliL/laskin.git
 $ cd laskin
-$ git submodule update --init
 $ mkdir build
 $ cd build
 $ cmake ..

@@ -303,10 +303,9 @@ namespace laskin
             {
               break;
             } else {
-              std::u32string key;
+              auto key = parse_string_literal()->value.as_string();
               std::shared_ptr<node> value;
 
-              key = parse_string_literal()->value().as_string();
               skip_whitespace();
               if (!peek_read(':'))
               {
@@ -586,7 +585,7 @@ namespace laskin
           const auto symbol = parse_symbol();
 
           return std::make_shared<node::definition>(
-            symbol->id(),
+            symbol->id,
             line,
             column
           );
