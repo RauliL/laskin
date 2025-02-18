@@ -180,6 +180,15 @@ namespace laskin
       return;
     }
 
+    if (const auto& default_callback = context.default_callback())
+    {
+      if (const auto value = default_callback(id))
+      {
+        data.push_back(*value);
+        return;
+      }
+    }
+
     throw error(
       error::type::name,
       U"Unrecognized symbol: `" + id + U"'",

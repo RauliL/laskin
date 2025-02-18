@@ -40,8 +40,13 @@ namespace laskin
     using dictionary_definition = std::initializer_list<
       std::pair<std::u32string, quote::callback>
     >;
+    using dictionary_default_callback = std::function<
+      std::optional<value>(const std::u32string&)
+    >;
 
-    explicit context();
+    explicit context(
+      const dictionary_default_callback& default_callback = nullptr
+    );
 
     context(const context&) = default;
     context(context&&) = default;
@@ -122,10 +127,20 @@ namespace laskin
       return *this;
     }
 
+    /**
+     * Returns function that is called when dictionary item is missing.
+     */
+    inline const dictionary_default_callback& default_callback() const
+    {
+      return m_default_callback;
+    }
+
   private:
     /** Container for stack data. */
     container_type m_data;
     /** Container for definitions. */
     dictionary_type m_dictionary;
+    /** Invoked when dictionary item is missing. */
+    dictionary_default_callback m_default_callback;
   };
 }
