@@ -13,12 +13,10 @@ inspired by [Forth], [RPL] and [Plorth].
 - [CMake]
 - C++17 compatible C++ compiler
 
-Other dependencies already included in the source code repository as Git
-submodules:
+Other dependencies that are handled by [CMake] are:
 
 - [ordered-map]
 - [peelo-chrono]
-- [peelo-prompt]
 - [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
@@ -46,7 +44,6 @@ $ make
 [cmake]: https://cmake.org/
 [ordered-map]: https://github.com/Tessil/ordered-map/
 [peelo-chrono]: https://github.com/peelonet/peelo-chrono
-[peelo-prompt]: https://github.com/peelonet/peelo-prompt
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode
 [build-image]: https://github.com/RauliL/laskin/actions/workflows/build.yml/badge.svg
 [build-url]: https://github.com/RauliL/laskin/actions/workflows/build.yml
