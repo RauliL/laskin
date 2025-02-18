@@ -43,23 +43,19 @@ namespace laskin
     class symbol;
     class vector_literal;
 
-    explicit node(int line = 0, int column = 0);
-    virtual ~node();
+    /** Line number where the AST node was encountered in. */
+    const int line;
+    /** Column number where the AST node was encountered in. */
+    const int column;
+
+    explicit node(int line_ = 0, int column_ = 0)
+      : line(line_)
+      , column(column_) {}
 
     node(const node&) = delete;
     node(node&&) = delete;
     void operator=(const node&) = delete;
     void operator=(node&&) = delete;
-
-    inline int line() const
-    {
-      return m_line;
-    }
-
-    inline int column() const
-    {
-      return m_column;
-    }
 
     /**
      * Executes the AST node as a statement.
@@ -82,52 +78,55 @@ namespace laskin
      * would look like in source code.
      */
     virtual std::u32string to_source() const = 0;
-
-  private:
-    /** Line number where the AST node was encountered in. */
-    const int m_line;
-    /** Column number where the AST node was encountered in. */
-    const int m_column;
   };
 
-  class node::literal : public node
+  class node::literal final : public node
   {
   public:
-    explicit literal(const class value& value, int line = 0, int column = 0);
+    const class value value;
 
-    inline const class value& value() const
-    {
-      return m_value;
-    }
+    explicit literal(
+      const class value& value_,
+      int line = 0,
+      int column = 0
+    )
+      : node(line, column)
+      , value(value_) {}
 
     void exec(class context& context, std::ostream& out) const;
-    class value eval(class context& context, std::ostream& out) const;
-    std::u32string to_source() const;
 
-  private:
-    const class value m_value;
+    inline class value eval(class context& context, std::ostream& out) const
+    {
+      return value;
+    }
+
+    inline std::u32string to_source() const
+    {
+      return value.to_source();
+    }
   };
 
-  class node::vector_literal : public node
+  class node::vector_literal final : public node
   {
   public:
     using container_type = std::vector<std::shared_ptr<node>>;
 
+    const container_type elements;
+
     explicit vector_literal(
-      const container_type& elements,
+      const container_type& elements_,
       int line = 0,
       int column = 0
-    );
+    )
+      : node(line, column)
+      , elements(elements_) {}
 
     void exec(class context& context, std::ostream& out) const;
     value eval(class context& context, std::ostream& out) const;
     std::u32string to_source() const;
-
-  private:
-    const container_type m_elements;
   };
 
-  class node::record_literal : public node
+  class node::record_literal final : public node
   {
   public:
     using container_type = tsl::ordered_map<
@@ -135,52 +134,60 @@ namespace laskin
       std::shared_ptr<node>
     >;
 
+    const container_type properties;
+
     explicit record_literal(
-      const container_type& properties,
+      const container_type& properties_,
       int line = 0,
       int column = 0
-    );
+    )
+      : node(line, column)
+      , properties(properties_) {}
 
     void exec(class context& context, std::ostream& out) const;
     value eval(class context& context, std::ostream& out) const;
     std::u32string to_source() const;
-
-  private:
-    const container_type m_properties;
   };
 
-  class node::symbol : public node
+  class node::symbol final : public node
   {
   public:
-    explicit symbol(const std::u32string& id, int line = 0, int column = 0);
+    const std::u32string id;
 
-    inline const std::u32string& id() const
+    explicit symbol(const std::u32string& id_, int line = 0, int column = 0)
+      : node(line, column)
+      , id(id_) {}
+
+    void exec(class context& context, std::ostream& out) const;
+
+    value eval(class context& context, std::ostream& out) const;
+
+    inline std::u32string to_source() const
     {
-      return m_id;
+      return id;
     }
-
-    void exec(class context& context, std::ostream& out) const;
-    value eval(class context& context, std::ostream& out) const;
-    std::u32string to_source() const;
-
-  private:
-    const std::u32string m_id;
   };
 
-  class node::definition : public node
+  class node::definition final : public node
   {
   public:
+    const std::u32string id;
+
     explicit definition(
-      const std::u32string& id,
+      const std::u32string& id_,
       int line = 0,
       int column = 0
-    );
+    )
+      : node(line, column)
+      , id(id_) {}
 
     void exec(class context& context, std::ostream& out) const;
-    value eval(class context& context, std::ostream& out) const;
-    std::u32string to_source() const;
 
-  private:
-    const std::u32string m_id;
+    value eval(class context& context, std::ostream& out) const;
+
+    inline std::u32string to_source() const
+    {
+      return U"-> " + id;
+    }
   };
 }

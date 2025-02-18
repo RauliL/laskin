@@ -31,36 +31,10 @@
 
 namespace laskin
 {
-  node::node(int line, int column)
-    : m_line(line)
-    , m_column(column) {}
-
-  node::~node() {}
-
-  node::literal::literal(const class value& value, int line, int column)
-    : node(line, column)
-    , m_value(value) {}
-
   void node::literal::exec(class context& context, std::ostream& out) const
   {
-    context.data().push_back(m_value);
+    context.data().push_back(value);
   }
-
-  value node::literal::eval(class context& context, std::ostream& out) const
-  {
-    return m_value;
-  }
-
-  std::u32string node::literal::to_source() const
-  {
-    return m_value.to_source();
-  }
-
-  node::vector_literal::vector_literal(const container_type& elements,
-                                       int line,
-                                       int column)
-    : node(line, column)
-    , m_elements(elements) {}
 
   void node::vector_literal::exec(class context& context,
                                   std::ostream& out) const
@@ -73,8 +47,8 @@ namespace laskin
   {
     std::vector<value> container;
 
-    container.reserve(m_elements.size());
-    for (const auto& element : m_elements)
+    container.reserve(elements.size());
+    for (const auto& element : elements)
     {
       container.push_back(element->eval(context, out));
     }
@@ -84,11 +58,10 @@ namespace laskin
 
   std::u32string node::vector_literal::to_source() const
   {
-    std::u32string result;
+    std::u32string result(1, U'[');
     bool first = true;
 
-    result.append(1, U'[');
-    for (const auto& element : m_elements)
+    for (const auto& element : elements)
     {
       if (first)
       {
@@ -101,18 +74,9 @@ namespace laskin
         result.append(element->to_source());
       }
     }
-    result.append(1, U']');
 
-    return result;
+    return result.append(1, U']');
   }
-
-  node::record_literal::record_literal(
-    const container_type& properties,
-    int line,
-    int column
-  )
-    : node(line, column)
-    , m_properties(properties) {}
 
   void node::record_literal::exec(
     class context& context,
@@ -127,23 +91,25 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    tsl::ordered_map<std::u32string, value> properties;
+    tsl::ordered_map<std::u32string, value> resolved_properties;
 
-    for (const auto& property : m_properties)
+    for (const auto& property : properties)
     {
-      properties[property.first] = property.second->eval(context, out);
+      resolved_properties[property.first] = property.second->eval(
+        context,
+        out
+      );
     }
 
-    return value::make_record(properties);
+    return value::make_record(resolved_properties);
   }
 
   std::u32string node::record_literal::to_source() const
   {
-    std::u32string result;
+    std::u32string result(1, U'{');
     bool first = true;
 
-    result.append(1, U'{');
-    for (const auto& property : m_properties)
+    for (const auto& property : properties)
     {
       if (first)
       {
@@ -151,18 +117,14 @@ namespace laskin
       } else {
         result.append(U", ");
       }
-      result.append(utils::escape_string(property.first));
-      result.append(U": ");
-      result.append(property.second->to_source());
+      result
+        .append(utils::escape_string(property.first))
+        .append(U": ")
+        .append(property.second->to_source());
     }
-    result.append(1, U'}');
 
-    return result;
+    return result.append(1, U'}');
   }
-
-  node::symbol::symbol(const std::u32string& id, int line, int column)
-    : node(line, column)
-    , m_id(id) {}
 
   void node::symbol::exec(class context& context, std::ostream& out) const
   {
@@ -172,7 +134,22 @@ namespace laskin
     if (!data.empty())
     {
       const auto& value = data.back();
-      const auto id = value::type_description(value.type()) + U':' + m_id;
+      const auto type_id = value::type_description(value.type()) + U':' + id;
+      const auto word = dictionary.find(type_id);
+
+      if (word != std::end(dictionary))
+      {
+        if (word->second.is(value::type::quote))
+        {
+          word->second.as_quote().call(context, out);
+        } else {
+          data.push_back(word->second);
+        }
+        return;
+      }
+    }
+
+    {
       const auto word = dictionary.find(id);
 
       if (word != std::end(dictionary))
@@ -187,114 +164,85 @@ namespace laskin
       }
     }
 
+    if (number::is_valid(id))
     {
-      const auto word = dictionary.find(m_id);
-
-      if (word != std::end(dictionary))
-      {
-        if (word->second.is(value::type::quote))
-        {
-          word->second.as_quote().call(context, out);
-        } else {
-          data.push_back(word->second);
-        }
-        return;
-      }
-    }
-
-    if (number::is_valid(m_id))
-    {
-      data.push_back(value::make_number(m_id));
+      data.push_back(value::make_number(id));
       return;
     }
-    else if (is_date(m_id))
+    else if (is_date(id))
     {
-      data.push_back(value::make_date(m_id));
+      data.push_back(value::make_date(id));
       return;
     }
-    else if (is_time(m_id))
+    else if (is_time(id))
     {
-      data.push_back(value::make_time(m_id));
+      data.push_back(value::make_time(id));
       return;
     }
 
     throw error(
       error::type::name,
-      U"Unrecognized symbol: `" + m_id + U"'",
-      line(),
-      column()
+      U"Unrecognized symbol: `" + id + U"'",
+      line,
+      column
     );
   }
 
   value node::symbol::eval(class context& context, std::ostream&) const
   {
-    if (!m_id.compare(U"true"))
+    if (!id.compare(U"true"))
     {
       return value::make_boolean(true);
     }
-    else if (!m_id.compare(U"false"))
+    else if (!id.compare(U"false"))
     {
       return value::make_boolean(false);
     }
-    else if (!m_id.compare(U"drop"))
+    else if (!id.compare(U"drop"))
     {
       return context.pop();
     }
-    else if (number::is_valid(m_id))
+    else if (number::is_valid(id))
     {
-      return value::make_number(m_id);
+      return value::make_number(id);
     }
-    else if (is_date(m_id))
+    else if (is_date(id))
     {
-      return value::make_date(m_id);
+      return value::make_date(id);
     }
-    else if (is_time(m_id))
+    else if (is_time(id))
     {
-      return value::make_time(m_id);
+      return value::make_time(id);
     }
-    else if (is_month(m_id))
+    else if (is_month(id))
     {
-      return value::make_month(m_id);
+      return value::make_month(id);
     }
-    else if (is_weekday(m_id))
+    else if (is_weekday(id))
     {
-      return value::make_weekday(m_id);
+      return value::make_weekday(id);
     }
 
     throw error(
       error::type::name,
-      U"Unable to evaluate `" + m_id + U"' as expression.",
-      line(),
-      column()
+      U"Unable to evaluate `" + id + U"' as expression.",
+      line,
+      column
     );
   }
 
-  std::u32string node::symbol::to_source() const
-  {
-    return m_id;
-  }
-
-  node::definition::definition(const std::u32string& id, int line, int column)
-    : node(line, column)
-    , m_id(id) {}
-
   void node::definition::exec(class context& context, std::ostream&) const
   {
-    context.dictionary()[m_id] = context.pop();
+    context.dictionary()[id] = context.pop();
   }
 
   value node::definition::eval(context&, std::ostream&) const
   {
     throw error(
       error::type::syntax,
-      U"Unable to evaluate definition of `" + m_id + U"' as expression.",
-      line(),
-      column()
+      U"Unable to evaluate definition of `" + id + U"' as expression.",
+      line,
+      column
     );
-  }
-
-  std::u32string node::definition::to_source() const
-  {
-    return U"-> " + m_id;
   }
 }
