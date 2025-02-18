@@ -19,12 +19,6 @@ TARGET_COMPILE_FEATURES(
     cxx_std_17
 )
 
-TARGET_INCLUDE_DIRECTORIES(
-  laskin-cli
-  PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-prompt/include
-)
-
 TARGET_LINK_LIBRARIES(
   laskin-cli
   laskin

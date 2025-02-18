@@ -1,6 +1,37 @@
 PROJECT(laskin)
 
+INCLUDE(FetchContent)
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FindMPFR.cmake)
+
+FetchContent_Declare(
+  ordered-map
+  PeeloUnicode
+  GIT_REPOSITORY
+    https://github.com/Tessil/ordered-map.git
+  GIT_TAG
+    v1.1.0
+)
+FetchContent_Declare(
+  peelo-chrono
+  PeeloUnicode
+  GIT_REPOSITORY
+    https://github.com/peelonet/peelo-chrono.git
+  GIT_TAG
+    0.3.0
+)
+FetchContent_Declare(
+  peelo-unicode
+  PeeloUnicode
+  GIT_REPOSITORY
+    https://github.com/peelonet/peelo-unicode.git
+  GIT_TAG
+    v2.1.0
+)
+FetchContent_MakeAvailable(
+  ordered-map
+  peelo-chrono
+  peelo-unicode
+)
 
 ADD_LIBRARY(
   laskin
@@ -37,13 +68,13 @@ TARGET_INCLUDE_DIRECTORIES(
   laskin
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ext/ordered-map/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-chrono/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ext/peelo-unicode/include
 )
 
 TARGET_LINK_LIBRARIES(
   laskin
+  tsl::ordered_map
+  PeeloChrono
+  PeeloUnicode
   ${MPFR_LIBRARIES}
 )
 

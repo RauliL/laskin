@@ -27,13 +27,14 @@
 #include <cstring>
 #include <stack>
 
-#include <peelo/prompt.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 #include "laskin/utils.hpp"
+
+#include "./linenoise.hpp"
 
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
@@ -49,20 +50,21 @@ namespace laskin::cli
 
   void run_repl(class context& context)
   {
-    peelo::prompt prompt;
     std::u32string source;
 
-    while (auto optional_line = prompt.input(get_prompt(context)))
+    for (;;)
     {
-      const auto& line = optional_line.value();
+      std::string line;
+      const auto quit = linenoise::Readline(get_prompt(context), line);
 
-      if (utils::is_blank(line))
+      if (quit)
       {
-        continue;
+        break;
       }
-      prompt.add_to_history(line);
-      source.append(peelo::unicode::encoding::utf8::decode(line));
-      source.append(1, '\n');
+      linenoise::AddHistory(line.c_str());
+      source
+        .append(peelo::unicode::encoding::utf8::decode(line))
+        .append(1, '\n');
       count_open_braces(open_braces, line);
       if (!open_braces.empty())
       {
