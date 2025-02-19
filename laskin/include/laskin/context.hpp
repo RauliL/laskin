@@ -130,6 +130,14 @@ namespace laskin
     /**
      * Returns function that is called when dictionary item is missing.
      */
+    inline dictionary_default_callback& default_callback()
+    {
+      return m_default_callback;
+    }
+
+    /**
+     * Returns function that is called when dictionary item is missing.
+     */
     inline const dictionary_default_callback& default_callback() const
     {
       return m_default_callback;

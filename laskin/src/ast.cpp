@@ -231,6 +231,13 @@ namespace laskin
     {
       return value::make_weekday(id);
     }
+    else if (const auto& default_callback = context.default_callback())
+    {
+      if (const auto value = default_callback(id))
+      {
+        return *value;
+      }
+    }
 
     throw error(
       error::type::name,
