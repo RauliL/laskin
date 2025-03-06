@@ -261,9 +261,14 @@ namespace laskin
     context << value::make_string(context.pop().to_source());
   }
 
-  static void w_print(class context& context, std::ostream& out)
+  static void w_println(class context& context, std::ostream& out)
   {
     out << context.pop() << std::endl;
+  }
+
+  static void w_print(class context& context, std::ostream& out)
+  {
+    out << context.pop();
   }
 
   static void w_stack_preview(class context& context, std::ostream& out)
@@ -503,7 +508,8 @@ namespace laskin
       { U">source", w_to_source },
 
       // I/O.
-      { U".", w_print },
+      { U".", w_println },
+      { U"..", w_print },
       { U".s", w_stack_preview },
 
       // Program logic.
