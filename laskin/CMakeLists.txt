@@ -9,7 +9,7 @@ FetchContent_Declare(
   GIT_REPOSITORY
     https://github.com/Tessil/ordered-map.git
   GIT_TAG
-    v1.1.0
+    v1.2.0
 )
 FetchContent_Declare(
   peelo-chrono
@@ -17,7 +17,7 @@ FetchContent_Declare(
   GIT_REPOSITORY
     https://github.com/peelonet/peelo-chrono.git
   GIT_TAG
-    0.3.0
+    v0.4.0
 )
 FetchContent_Declare(
   peelo-unicode
@@ -78,11 +78,19 @@ TARGET_LINK_LIBRARIES(
   ${MPFR_LIBRARIES}
 )
 
-TARGET_COMPILE_OPTIONS(
-  laskin
-  PRIVATE
-    -Wall -Werror
-)
+IF(MSVC)
+  TARGET_COMPILE_OPTIONS(
+    laskin
+    PRIVATE
+      /W4 /WX
+  )
+ELSE()
+  TARGET_COMPILE_OPTIONS(
+    laskin
+    PRIVATE
+      -Wall -Werror
+  )
+ENDIF()
 
 TARGET_COMPILE_FEATURES(
   laskin
