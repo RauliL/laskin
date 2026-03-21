@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,86 +27,123 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * now ( -- time )
+ *
+ * Returns current time.
+ */
+BUILTIN_WORD(w_now)
 {
-  static void w_now(class context& context, std::ostream&)
+  try
   {
-    try
-    {
-      context << value::make_time(peelo::chrono::time::now());
-    }
-    catch (const std::runtime_error&)
-    {
-      throw error(
-        error::type::system,
-        U"System clock returned invalid time."
-      );
-    }
+    context << value::make_time(peelo::chrono::time::now());
   }
-
-  static void w_hour(class context& context, std::ostream&)
+  catch (const std::runtime_error&)
   {
-    context << value::make_number(context.peek().as_time().hour());
+    throw error(
+      error::type::system,
+      U"System clock returned invalid time."
+    );
   }
+}
 
-  static void w_minute(class context& context, std::ostream&)
+/**
+ * time:hour ( time -- time number )
+ *
+ * Returns hour of the time.
+ */
+BUILTIN_WORD(w_hour)
+{
+  context << value::make_number(context.peek().as_time().hour());
+}
+
+/**
+ * time:minute ( time -- time number )
+ *
+ * Returns minute of the time.
+ */
+BUILTIN_WORD(w_minute)
+{
+  context << value::make_number(context.peek().as_time().minute());
+}
+
+/**
+ * time:second ( time -- time number )
+ *
+ * Returns seconds of the time.
+ */
+BUILTIN_WORD(w_second)
+{
+  context << value::make_number(context.peek().as_time().second());
+}
+
+/**
+ * time:format ( string time -- string )
+ *
+ * Formats time with strftime().
+ */
+BUILTIN_WORD(w_format)
+{
+  using peelo::unicode::encoding::utf8::encode;
+  using peelo::unicode::encoding::utf8::decode;
+
+  const auto time = context.pop().as_time();
+  const auto format = context.pop().as_string();
+
+  context << value::make_string(decode(time.format(encode(format))));
+}
+
+/**
+ * time:>number ( time -- number )
+ *
+ * Constructs UNIX timestamp from the time.
+ */
+BUILTIN_WORD(w_to_number)
+{
+  const auto time = context.pop().as_time();
+  number result(0L, unit::second);
+
+  result += time.hour() * peelo::chrono::duration::seconds_per_hour;
+  result += time.minute() * peelo::chrono::duration::seconds_per_minute;
+  result += time.second();
+
+  context << value::make_number(result);
+}
+
+/**
+ * time:>vector ( time -- vector )
+ *
+ * Extracts hour, minutes and seconds from the time and returns them as a
+ * vector of number.
+ */
+BUILTIN_WORD(w_to_vector)
+{
+  const auto time = context.pop().as_time();
+
+  context << value::make_vector({
+    value::make_number(time.hour()),
+    value::make_number(time.minute()),
+    value::make_number(time.second())
+  });
+}
+
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition time_api =
   {
-    context << value::make_number(context.peek().as_time().minute());
-  }
+    { U"now", w_now },
 
-  static void w_second(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_time().second());
-  }
+    { U"time:hour", w_hour },
+    { U"time:minute", w_minute },
+    { U"time:second", w_second },
 
-  static void w_format(class context& context, std::ostream&)
-  {
-    using peelo::unicode::encoding::utf8::encode;
-    using peelo::unicode::encoding::utf8::decode;
-    const auto time = context.pop().as_time();
-    const auto format = context.pop().as_string();
+    { U"time:format", w_format },
 
-    context << value::make_string(decode(time.format(encode(format))));
-  }
-
-  static void w_to_number(class context& context, std::ostream&)
-  {
-    const auto time = context.pop().as_time();
-    number result(0L, unit::second);
-
-    result += time.hour() * peelo::chrono::duration::seconds_per_hour;
-    result += time.minute() * peelo::chrono::duration::seconds_per_minute;
-    result += time.second();
-
-    context << value::make_number(result);
-  }
-
-  static void w_to_vector(class context& context, std::ostream&)
-  {
-    const auto time = context.pop().as_time();
-
-    context << value::make_vector({
-      value::make_number(time.hour()),
-      value::make_number(time.minute()),
-      value::make_number(time.second())
-    });
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition time_api =
-    {
-      { U"now", w_now },
-
-      { U"time:hour", w_hour },
-      { U"time:minute", w_minute },
-      { U"time:second", w_second },
-
-      { U"time:format", w_format },
-
-      { U"time:>number", w_to_number },
-      { U"time:>vector", w_to_vector }
-    };
-  }
+    { U"time:>number", w_to_number },
+    { U"time:>vector", w_to_vector }
+  };
 }

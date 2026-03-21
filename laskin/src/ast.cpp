@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,29 @@
 
 namespace laskin
 {
-  void node::literal::exec(class context& context, std::ostream& out) const
+  void
+  node::literal::exec(
+    class context& context,
+    std::ostream&
+  ) const
   {
     context.data().push_back(value);
   }
 
-  void node::vector_literal::exec(class context& context,
-                                  std::ostream& out) const
+  void
+  node::vector_literal::exec(
+    class context& context,
+    std::ostream& out
+  ) const
   {
     context.data().push_back(eval(context, out));
   }
 
-  value node::vector_literal::eval(class context& context,
-                                   std::ostream& out) const
+  value
+  node::vector_literal::eval(
+    class context& context,
+    std::ostream& out
+  ) const
   {
     std::vector<value> container;
 
@@ -56,7 +66,8 @@ namespace laskin
     return value::make_vector(container);
   }
 
-  std::u32string node::vector_literal::to_source() const
+  std::u32string
+  node::vector_literal::to_source() const
   {
     std::u32string result(1, U'[');
     bool first = true;
@@ -78,7 +89,8 @@ namespace laskin
     return result.append(1, U']');
   }
 
-  void node::record_literal::exec(
+  void
+  node::record_literal::exec(
     class context& context,
     std::ostream& out
   ) const
@@ -86,7 +98,8 @@ namespace laskin
     context.data().push_back(eval(context, out));
   }
 
-  value node::record_literal::eval(
+  value
+  node::record_literal::eval(
     class context& context,
     std::ostream& out
   ) const
@@ -104,7 +117,8 @@ namespace laskin
     return value::make_record(resolved_properties);
   }
 
-  std::u32string node::record_literal::to_source() const
+  std::u32string
+  node::record_literal::to_source() const
   {
     std::u32string result(1, U'{');
     bool first = true;
@@ -126,7 +140,11 @@ namespace laskin
     return result.append(1, U'}');
   }
 
-  void node::symbol::exec(class context& context, std::ostream& out) const
+  void
+  node::symbol::exec(
+    class context& context,
+    std::ostream& out
+  ) const
   {
     auto& data = context.data();
     const auto& dictionary = context.dictionary();
@@ -197,7 +215,11 @@ namespace laskin
     );
   }
 
-  value node::symbol::eval(class context& context, std::ostream&) const
+  value
+  node::symbol::eval(
+    class context& context,
+    std::ostream&
+  ) const
   {
     if (!id.compare(U"true"))
     {
@@ -247,12 +269,20 @@ namespace laskin
     );
   }
 
-  void node::definition::exec(class context& context, std::ostream&) const
+  void
+  node::definition::exec(
+    class context& context,
+    std::ostream&
+  ) const
   {
     context.dictionary()[id] = context.pop();
   }
 
-  value node::definition::eval(context&, std::ostream&) const
+  value
+  node::definition::eval(
+    context&,
+    std::ostream&
+  ) const
   {
     throw error(
       error::type::syntax,

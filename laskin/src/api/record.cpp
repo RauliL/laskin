@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,155 +25,206 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * record:size ( record -- record number )
+ *
+ * Returns the number of properties in the quote.
+ */
+BUILTIN_WORD(w_size)
 {
-  static void w_size(class context& context, std::ostream&)
-  {
-    const auto& properties = context.peek().as_record();
+  const auto& properties = context.peek().as_record();
 
-    context << value::make_number(static_cast<std::int64_t>(properties.size()));
+  context << value::make_number(static_cast<std::int64_t>(properties.size()));
+}
+
+/**
+ * record:keys ( record -- record vector )
+ *
+ * Returns all property names of the record in an vector.
+ */
+BUILTIN_WORD(w_keys)
+{
+  const auto& properties = context.peek().as_record();
+  std::vector<value> result;
+
+  result.reserve(properties.size());
+  for (const auto& property : properties)
+  {
+    result.push_back(value::make_string(property.first));
+  }
+  context << value::make_vector(result);
+}
+
+/**
+ * record:values ( record -- record vector )
+ *
+ * Returns all property values of the record in an vector.
+ */
+BUILTIN_WORD(w_values)
+{
+  const auto& properties = context.peek().as_record();
+  std::vector<value> result;
+
+  result.reserve(properties.size());
+  for (const auto& property : properties)
+  {
+    result.push_back(property.second);
+  }
+  context << value::make_vector(result);
+}
+
+/**
+ * record:for-each ( quote record -- )
+ *
+ * Executes quote once for each property (name and value) in the record.
+ */
+BUILTIN_WORD(w_for_each)
+{
+  const auto properties = context.pop().as_record();
+  const auto quote = context.pop().as_quote();
+
+  for (const auto& property : properties)
+  {
+    context << value::make_string(property.first) << property.second;
+    quote.call(context, out);
+  }
+}
+
+/**
+ * record:map ( quote record -- record )
+ *
+ * Constructs an record from results of executing the quote once for each
+ * property (name and value) in the record.
+ */
+BUILTIN_WORD(w_map)
+{
+  const auto properties = context.pop().as_record();
+  const auto quote = context.pop().as_quote();
+  tsl::ordered_map<std::u32string, value> new_properties;
+
+  for (const auto& property : properties)
+  {
+    std::u32string key;
+    class value value;
+
+    context << value::make_string(property.first) << property.second;
+    quote.call(context, out);
+    value = context.pop();
+    key = context.pop().as_string();
+    new_properties[key] = value;
   }
 
-  static void w_keys(class context& context, std::ostream&)
-  {
-    const auto& properties = context.peek().as_record();
-    std::vector<value> result;
+  context << value::make_record(new_properties);
+}
 
-    result.reserve(properties.size());
-    for (const auto& property : properties)
+/**
+ * record:filter ( quote record -- record )
+ *
+ * Constructs an record from properties of the record for which the execution
+ * of the quote (with name and value given) returns true.
+ */
+BUILTIN_WORD(w_filter)
+{
+  const auto properties = context.pop().as_record();
+  const auto quote = context.pop().as_quote();
+  tsl::ordered_map<std::u32string, value> new_properties;
+
+  for (const auto& property : properties)
+  {
+    context << value::make_string(property.first) << property.second;
+    quote.call(context, out);
+    if (context.pop().as_boolean())
     {
-      result.push_back(value::make_string(property.first));
+      new_properties[property.first] = property.second;
     }
-    context << value::make_vector(result);
   }
 
-  static void w_values(class context& context, std::ostream&)
+  context << value::make_record(new_properties);
+}
+
+/**
+ * record:@ ( string record -- any )
+ *
+ * Extracts property from the record.
+ *
+ * Range error will be thrown if no such property exist in the record.
+ */
+BUILTIN_WORD(w_at)
+{
+  const auto properties = context.pop().as_record();
+  const auto key = context.pop().as_string();
+  const auto i = properties.find(key);
+
+  if (i == std::end(properties))
   {
-    const auto& properties = context.peek().as_record();
-    std::vector<value> result;
-
-    result.reserve(properties.size());
-    for (const auto& property : properties)
-    {
-      result.push_back(property.second);
-    }
-    context << value::make_vector(result);
+    throw error(error::type::range, U"Record index out of bounds.");
   }
+  context << i->second;
+}
 
-  static void w_for_each(class context& context, std::ostream& out)
+/**
+ * record:@= ( any string record -- record )
+ *
+ * Constructs new record with new property injected (or old one replaced) to
+ * it.
+ */
+BUILTIN_WORD(w_set)
+{
+  auto properties = context.pop().as_record();
+  const auto key = context.pop().as_string();
+  const auto value = context.pop();
+
+  properties[key] = value;
+  context << value::make_record(properties);
+}
+
+/**
+ * record:>vector ( record -- vector )
+ *
+ * Converts record into vector of key-value pairs made from properties of the
+ * record.
+ */
+BUILTIN_WORD(w_to_vector)
+{
+  const auto properties = context.pop().as_record();
+  std::vector<value> values;
+
+  values.reserve(properties.size());
+  for (const auto& property : properties)
   {
-    const auto properties = context.pop().as_record();
-    const auto quote = context.pop().as_quote();
+    std::vector<value> pair;
 
-    for (const auto& property : properties)
-    {
-      context << value::make_string(property.first) << property.second;
-      quote.call(context, out);
-    }
+    pair.reserve(2);
+    pair.push_back(value::make_string(property.first));
+    pair.push_back(property.second);
+    values.push_back(value::make_vector(pair));
   }
 
-  static void w_map(class context& context, std::ostream& out)
+  context << value::make_vector(values);
+}
+
+namespace api
+{
+  extern "C" const context::dictionary_definition record =
   {
-    const auto properties = context.pop().as_record();
-    const auto quote = context.pop().as_quote();
-    tsl::ordered_map<std::u32string, value> new_properties;
+    { U"record:size", w_size },
+    { U"record:keys", w_keys },
+    { U"record:values", w_values },
 
-    for (const auto& property : properties)
-    {
-      std::u32string key;
-      class value value;
+    // Iteration.
+    { U"record:for-each", w_for_each },
+    { U"record:map", w_map },
+    { U"record:filter", w_filter },
 
-      context << value::make_string(property.first) << property.second;
-      quote.call(context, out);
-      value = context.pop();
-      key = context.pop().as_string();
-      new_properties[key] = value;
-    }
+    // Element access.
+    { U"record:@", w_at },
+    { U"record:@=", w_set },
 
-    context << value::make_record(new_properties);
-  }
-
-  static void w_filter(class context& context, std::ostream& out)
-  {
-    const auto properties = context.pop().as_record();
-    const auto quote = context.pop().as_quote();
-    tsl::ordered_map<std::u32string, value> new_properties;
-
-    for (const auto& property : properties)
-    {
-      context << value::make_string(property.first) << property.second;
-      quote.call(context, out);
-      if (context.pop().as_boolean())
-      {
-        new_properties[property.first] = property.second;
-      }
-    }
-
-    context << value::make_record(new_properties);
-  }
-
-  static void w_at(class context& context, std::ostream&)
-  {
-    const auto properties = context.pop().as_record();
-    const auto key = context.pop().as_string();
-    const auto i = properties.find(key);
-
-    if (i == std::end(properties))
-    {
-      throw error(error::type::range, U"Record index out of bounds.");
-    }
-    context << i->second;
-  }
-
-  static void w_set(class context& context, std::ostream&)
-  {
-    auto properties = context.pop().as_record();
-    const auto key = context.pop().as_string();
-    const auto value = context.pop();
-
-    properties[key] = value;
-    context << value::make_record(properties);
-  }
-
-  static void w_to_record(class context& context, std::ostream&)
-  {
-    const auto properties = context.pop().as_record();
-    std::vector<value> values;
-
-    values.reserve(properties.size());
-    for (const auto& property : properties)
-    {
-      std::vector<value> pair;
-
-      pair.reserve(2);
-      pair.push_back(value::make_string(property.first));
-      pair.push_back(property.second);
-      values.push_back(value::make_vector(pair));
-    }
-
-    context << value::make_vector(values);
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition record =
-    {
-      { U"record:size", w_size },
-      { U"record:keys", w_keys },
-      { U"record:values", w_values },
-
-      // Iteration.
-      { U"record:for-each", w_for_each },
-      { U"record:map", w_map },
-      { U"record:filter", w_filter },
-
-      // Element access.
-      { U"record:@", w_at },
-      { U"record:@=", w_set },
-
-      // Conversions.
-      { U"record:>vector", w_to_record }
-    };
-  }
+    // Conversions.
+    { U"record:>vector", w_to_vector }
+  };
 }

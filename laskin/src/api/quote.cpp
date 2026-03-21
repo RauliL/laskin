@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,69 +24,96 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/context.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * quote:call ( quote -- )
+ *
+ * Executes quote.
+ */
+BUILTIN_WORD(w_call)
 {
-  static void w_call(class context& context, std::ostream& out)
+  context.pop().as_quote().call(context, out);
+}
+
+/**
+ * quote:compose ( quote quote -- quote )
+ *
+ * Constructs quote that calls two quotes.
+ */
+BUILTIN_WORD(w_compose)
+{
+  const auto right = context.pop().as_quote();
+  const auto left = context.pop().as_quote();
+  const auto call = std::make_shared<node::symbol>(U"quote:call");
+
+  context << value::make_quote({
+    std::make_shared<node::literal>(value::make_quote(left)),
+    call,
+    std::make_shared<node::literal>(value::make_quote(right)),
+    call
+  });
+}
+
+/**
+ * quote:curry ( any quote -- quote )
+ *
+ * Constructs quote that curries given value as argument for the quote.
+ */
+BUILTIN_WORD(w_curry)
+{
+  const auto quote = context.pop().as_quote();
+  const auto argument = context.pop();
+
+  context << value::make_quote({
+    std::make_shared<node::literal>(argument),
+    std::make_shared<node::literal>(value::make_quote(quote)),
+    std::make_shared<node::symbol>(U"quote:call")
+  });
+}
+
+/**
+ * quote:negate ( quote -- quote )
+ *
+ * Constructs quote that negates result of given quote.
+ */
+BUILTIN_WORD(w_negate)
+{
+  const auto quote = context.pop().as_quote();
+
+  context << value::make_quote({
+    std::make_shared<node::literal>(value::make_quote(quote)),
+    std::make_shared<node::symbol>(U"quote:call"),
+    std::make_shared<node::symbol>(U"boolean:not")
+  });
+}
+
+/**
+ * quote:dip ( any quote -- any )
+ *
+ * Temporarily hides given value from the stack and calls given quote. Once
+ * the quote has returned from it's execution, hidden value will be placed
+ * back on the stack.
+ */
+BUILTIN_WORD(w_dip)
+{
+  const auto quote = context.pop().as_quote();
+  const auto value = context.pop();
+
+  quote.call(context, out);
+  context << value;
+}
+
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition quote =
   {
-    context.pop().as_quote().call(context, out);
-  }
-
-  static void w_compose(class context& context, std::ostream& out)
-  {
-    const auto right = context.pop().as_quote();
-    const auto left = context.pop().as_quote();
-    const auto call = std::make_shared<node::symbol>(U"quote:call");
-
-    context << value::make_quote({
-      std::make_shared<node::literal>(value::make_quote(left)),
-      call,
-      std::make_shared<node::literal>(value::make_quote(right)),
-      call
-    });
-  }
-
-  static void w_curry(class context& context, std::ostream&)
-  {
-    const auto quote = context.pop().as_quote();
-    const auto argument = context.pop();
-
-    context << value::make_quote({
-      std::make_shared<node::literal>(argument),
-      std::make_shared<node::literal>(value::make_quote(quote)),
-      std::make_shared<node::symbol>(U"quote:call")
-    });
-  }
-
-  static void w_negate(class context& context, std::ostream&)
-  {
-    const auto quote = context.pop().as_quote();
-
-    context << value::make_quote({
-      std::make_shared<node::literal>(value::make_quote(quote)),
-      std::make_shared<node::symbol>(U"quote:call"),
-      std::make_shared<node::symbol>(U"boolean:not")
-    });
-  }
-
-  static void w_dip(class context& context, std::ostream& out)
-  {
-    const auto quote = context.pop().as_quote();
-    const auto value = context.pop();
-
-    quote.call(context, out);
-    context << value;
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition quote =
-    {
-      { U"quote:call", w_call },
-      { U"quote:compose", w_compose },
-      { U"quote:curry", w_curry },
-      { U"quote:negate", w_negate },
-      { U"quote:dip", w_dip }
-    };
-  }
+    { U"quote:call", w_call },
+    { U"quote:compose", w_compose },
+    { U"quote:curry", w_curry },
+    { U"quote:negate", w_negate },
+    { U"quote:dip", w_dip }
+  };
 }

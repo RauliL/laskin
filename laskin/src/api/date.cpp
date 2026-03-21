@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,147 +27,219 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * today ( -- date )
+ *
+ * Returns current date.
+ */
+BUILTIN_WORD(w_today)
 {
-  static void w_today(class context& context, std::ostream&)
+  try
   {
-    try
-    {
-      context << value::make_date(peelo::chrono::date::today());
-    }
-    catch (const std::runtime_error&)
-    {
-      throw laskin::error(
-        laskin::error::type::system,
-        U"System clock returned invalid date."
-      );
-    }
+    context << value::make_date(peelo::chrono::date::today());
   }
-
-  static void w_tomorrow(class context& context, std::ostream&)
+  catch (const std::runtime_error&)
   {
-    try
-    {
-      context << value::make_date(peelo::chrono::date::tomorrow());
-    }
-    catch (const std::runtime_error&)
-    {
-      throw laskin::error(
-        laskin::error::type::system,
-        U"System clock returned invalid date."
-      );
-    }
-  }
-
-  static void w_yesterday(class context& context, std::ostream&)
-  {
-    try
-    {
-      context << value::make_date(peelo::chrono::date::yesterday());
-    }
-    catch (const std::runtime_error&)
-    {
-      throw laskin::error(
-        laskin::error::type::system,
-        U"System clock returned invalid date."
-      );
-    }
-  }
-
-  static void w_year(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_date().year());
-  }
-
-  static void w_month(class context& context, std::ostream&)
-  {
-    context << value::make_month(context.peek().as_date().month());
-  }
-
-  static void w_day(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_date().day());
-  }
-
-  static void w_weekday(class context& context, std::ostream&)
-  {
-    context << value::make_weekday(context.peek().as_date().day_of_week());
-  }
-
-  static void w_day_of_year(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_date().day_of_year());
-  }
-
-  static void w_days_in_month(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_date().days_in_month());
-  }
-
-  static void w_days_in_year(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.peek().as_date().days_in_year());
-  }
-
-  static void w_is_leap_year(class context& context, std::ostream&)
-  {
-    context << value::make_boolean(context.peek().as_date().is_leap_year());
-  }
-
-  static void w_format(class context& context, std::ostream&)
-  {
-    using peelo::unicode::encoding::utf8::encode;
-    using peelo::unicode::encoding::utf8::decode;
-    const auto time = context.pop().as_date();
-    const auto format = context.pop().as_string();
-
-    context << value::make_string(decode(time.format(encode(format))));
-  }
-
-  static void w_to_number(class context& context, std::ostream&)
-  {
-    context << value::make_number(
-      context.pop().as_date().timestamp(),
-      unit::second
+    throw laskin::error(
+      laskin::error::type::system,
+      U"System clock returned invalid date."
     );
   }
+}
 
-  static void w_to_vector(class context& context, std::ostream&)
+/**
+ * tomorrow ( -- date )
+ *
+ * Returns tomorrow's date.
+ */
+BUILTIN_WORD(w_tomorrow)
+{
+  try
   {
-    const auto date = context.pop().as_date();
-    const auto year = date.year();
-    const auto month = date.month();
-    const auto day = date.day();
-
-    context << value::make_vector({
-      value::make_number(year),
-      value::make_month(month),
-      value::make_number(day)
-    });
+    context << value::make_date(peelo::chrono::date::tomorrow());
   }
-
-  namespace api
+  catch (const std::runtime_error&)
   {
-    extern "C" const context::dictionary_definition date =
-    {
-      { U"today", w_today },
-      { U"tomorrow", w_tomorrow },
-      { U"yesterday", w_yesterday },
-
-      { U"date:year", w_year },
-      { U"date:month", w_month },
-      { U"date:day", w_day },
-      { U"date:weekday", w_weekday },
-      { U"date:day-of-year", w_day_of_year },
-      { U"date:days-in-month", w_days_in_month },
-      { U"date:days-in-year", w_days_in_year },
-      { U"date:leap-year?", w_is_leap_year },
-
-      { U"date:format", w_format },
-
-      { U"date:>number", w_to_number },
-      { U"date:>vector", w_to_vector }
-    };
+    throw laskin::error(
+      laskin::error::type::system,
+      U"System clock returned invalid date."
+    );
   }
+}
+
+/**
+ * yesterday ( -- date )
+ *
+ * Returns yesterday's date.
+ */
+BUILTIN_WORD(w_yesterday)
+{
+  try
+  {
+    context << value::make_date(peelo::chrono::date::yesterday());
+  }
+  catch (const std::runtime_error&)
+  {
+    throw laskin::error(
+      laskin::error::type::system,
+      U"System clock returned invalid date."
+    );
+  }
+}
+
+/**
+ * date:year ( date -- date number )
+ *
+ * Extracts year from the date.
+ */
+BUILTIN_WORD(w_year)
+{
+  context << value::make_number(context.peek().as_date().year());
+}
+
+/**
+ * date:month ( date -- date month )
+ *
+ * Extracts month from the date.
+ */
+BUILTIN_WORD(w_month)
+{
+  context << value::make_month(context.peek().as_date().month());
+}
+
+/**
+ * date:day ( date -- date number )
+ *
+ * Extracts day of the month from the date.
+ */
+BUILTIN_WORD(w_day)
+{
+  context << value::make_number(context.peek().as_date().day());
+}
+
+/**
+ * date:weekday ( date -- date weekday )
+ *
+ * Extracts day of the week from the date.
+ */
+BUILTIN_WORD(w_weekday)
+{
+  context << value::make_weekday(context.peek().as_date().day_of_week());
+}
+
+/**
+ * date:day-of-year ( date -- date number )
+ *
+ * Extracts day of the year from the date.
+ */
+BUILTIN_WORD(w_day_of_year)
+{
+  context << value::make_number(context.peek().as_date().day_of_year());
+}
+
+/**
+ * date:days-in-month ( date -- date number )
+ *
+ * Determines how many days there are in the month of the date.
+ */
+BUILTIN_WORD(w_days_in_month)
+{
+  context << value::make_number(context.peek().as_date().days_in_month());
+}
+
+/**
+ * date:days-in-year ( date -- date number )
+ *
+ * Determines how many days there are in the year of the date.
+ */
+BUILTIN_WORD(w_days_in_year)
+{
+  context << value::make_number(context.peek().as_date().days_in_year());
+}
+
+/**
+ * date:leap-year? ( date -- date boolean )
+ *
+ * Tests whether given date occurs on leap year.
+ */
+BUILTIN_WORD(w_is_leap_year)
+{
+  context << value::make_boolean(context.peek().as_date().is_leap_year());
+}
+
+/**
+ * date:format ( string date -- string )
+ *
+ * Formats date with strftime().
+ */
+BUILTIN_WORD(w_format)
+{
+  using peelo::unicode::encoding::utf8::encode;
+  using peelo::unicode::encoding::utf8::decode;
+
+  const auto time = context.pop().as_date();
+  const auto format = context.pop().as_string();
+
+  context << value::make_string(decode(time.format(encode(format))));
+}
+
+/**
+ * date:>number ( date -- number )
+ *
+ * Converts date into UNIX timestamp.
+ */
+BUILTIN_WORD(w_to_number)
+{
+  context << value::make_number(
+    context.pop().as_date().timestamp(),
+    unit::second
+  );
+}
+
+/**
+ * date:>vector ( date -- vector )
+ *
+ * Extracts year, month and day of month from the date and returns them
+ * inside an vector.
+ */
+BUILTIN_WORD(w_to_vector)
+{
+  const auto date = context.pop().as_date();
+  const auto year = date.year();
+  const auto month = date.month();
+  const auto day = date.day();
+
+  context << value::make_vector({
+    value::make_number(year),
+    value::make_month(month),
+    value::make_number(day)
+  });
+}
+
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition date =
+  {
+    { U"today", w_today },
+    { U"tomorrow", w_tomorrow },
+    { U"yesterday", w_yesterday },
+
+    { U"date:year", w_year },
+    { U"date:month", w_month },
+    { U"date:day", w_day },
+    { U"date:weekday", w_weekday },
+    { U"date:day-of-year", w_day_of_year },
+    { U"date:days-in-month", w_days_in_month },
+    { U"date:days-in-year", w_days_in_year },
+    { U"date:leap-year?", w_is_leap_year },
+
+    { U"date:format", w_format },
+
+    { U"date:>number", w_to_number },
+    { U"date:>vector", w_to_vector }
+  };
 }

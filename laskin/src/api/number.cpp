@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,299 +27,359 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * number:has-unit? ( number -- number boolean )
+ *
+ * Tests whether number has measurement unit.
+ */
+BUILTIN_WORD(w_has_unit)
 {
-  static void w_has_unit(class context& context, std::ostream&)
+  context << value::make_boolean(bool(context.peek().as_number().measurement_unit()));
+}
+
+/**
+ * number:unit ( number -- number string )
+ *
+ * Returns symbol of the measurement unit that the number has. For example
+ * kilometer would be "km", minutes "min" and so on.
+ *
+ * Unit error will be thrown if the number does not have measurement unit.
+ */
+BUILTIN_WORD(w_unit)
+{
+  const auto& unit = context.peek().as_number().measurement_unit();
+
+  if (!unit)
   {
-    context << value::make_boolean(bool(context.peek().as_number().measurement_unit()));
+    throw error(error::type::unit, U"Value has no measurement unit.");
   }
+  context << value::make_string(unit->symbol());
+}
 
-  static void w_unit(class context& context, std::ostream&)
+/**
+ * number:unit-type ( number -- number string )
+ *
+ * Returns textual description of the measurement unit type that the number
+ * has. For example kilometer would return "length", kilogram would return
+ * "weight" and minutes would return "time".
+ *
+ * Unit error will be thrown if the number does not have measurement unit.
+ */
+BUILTIN_WORD(w_unit_type)
+{
+  const auto& unit = context.peek().as_number().measurement_unit();
+
+  if (!unit)
   {
-    const auto& unit = context.peek().as_number().measurement_unit();
-
-    if (!unit)
-    {
-      throw error(error::type::unit, U"Value has no measurement unit.");
-    }
-    context << value::make_string(unit->symbol());
+    throw error(error::type::unit, U"Value has no measurement unit.");
   }
+  context << value::make_string(to_string(unit->type()));
+}
 
-  static void w_unit_type(class context& context, std::ostream&)
+/**
+ * number:drop-unit ( number -- number )
+ *
+ * Removes the measurement unit from the number, if it has one.
+ */
+BUILTIN_WORD(w_drop_unit)
+{
+  const auto value = context.pop().as_number();
+
+  context << value::make_number(value.without_unit());
+}
+
+/**
+ * number:range ( number number -- vector )
+ *
+ * Constructs an vector of numbers within between the given minimum and
+ * maximum boundaries. For example `1 3 range` would return vector containing
+ * numbers 1 and 2.
+ */
+BUILTIN_WORD(w_range)
+{
+  const auto limit = context.pop().as_number();
+  auto current = context.pop().as_number();
+  std::vector<value> result;
+
+  while (current < limit)
   {
-    const auto& unit = context.peek().as_number().measurement_unit();
-
-    if (!unit)
-    {
-      throw error(error::type::unit, U"Value has no measurement unit.");
-    }
-    context << value::make_string(to_string(unit->type()));
+    result.push_back(value::make_number(current));
+    ++current;
   }
+  context << value::make_vector(result);
+}
 
-  static void w_drop_unit(class context& context, std::ostream&)
+/**
+ * number:clamp ( number number number -- number )
+ *
+ * Ensures that number is between given minimum and maximum boundaries.
+ */
+BUILTIN_WORD(w_clamp)
+{
+  const auto value = context.pop().as_number();
+  const auto max = context.pop().as_number();
+  const auto min = context.pop().as_number();
+
+  context.push(value::make_number(
+    value > max ? max : value < min ? min : value
+  ));
+}
+
+/**
+ * number:times ( quote number -- )
+ *
+ * Executes quote given number of times.
+ */
+BUILTIN_WORD(w_times)
+{
+  auto count = context.pop().as_number();
+  const auto quote = context.pop().as_quote();
+
+  if (count < number())
   {
-    const auto value = context.pop().as_number();
-
-    context << value::make_number(value.without_unit());
+    count = -count;
   }
-
-  static void w_range(class context& context, std::ostream&)
+  while (count)
   {
-    const auto limit = context.pop().as_number();
-    auto current = context.pop().as_number();
-    std::vector<value> result;
-
-    while (current < limit)
-    {
-      result.push_back(value::make_number(current));
-      ++current;
-    }
-    context << value::make_vector(result);
+    --count;
+    quote.call(context, out);
   }
+}
 
-  static void w_clamp(class context& context, std::ostream&)
+BUILTIN_WORD(w_exp)
+{
+  context << value::make_number(context.pop().as_number().exp());
+}
+
+BUILTIN_WORD(w_exp2)
+{
+  context << value::make_number(context.pop().as_number().exp2());
+}
+
+BUILTIN_WORD(w_expm1)
+{
+  context << value::make_number(context.pop().as_number().expm1());
+}
+
+BUILTIN_WORD(w_log)
+{
+  context << value::make_number(context.pop().as_number().log());
+}
+
+BUILTIN_WORD(w_log10)
+{
+  context << value::make_number(context.pop().as_number().log10());
+}
+
+BUILTIN_WORD(w_log2)
+{
+  context << value::make_number(context.pop().as_number().log2());
+}
+
+BUILTIN_WORD(w_log1p)
+{
+  context << value::make_number(context.pop().as_number().log1p());
+}
+
+BUILTIN_WORD(w_pow)
+{
+  const auto a = context.pop().as_number();
+  const auto b = context.pop().as_number();
+
+  context << value::make_number(a.pow(b));
+}
+
+BUILTIN_WORD(w_sqrt)
+{
+  context << value::make_number(context.pop().as_number().sqrt());
+}
+
+BUILTIN_WORD(w_cbrt)
+{
+  context << value::make_number(context.pop().as_number().cbrt());
+}
+
+BUILTIN_WORD(w_hypot)
+{
+  const auto a = context.pop().as_number();
+  const auto b = context.pop().as_number();
+
+  context << value::make_number(a.hypot(b));
+}
+
+BUILTIN_WORD(w_acos)
+{
+  context << value::make_number(context.pop().as_number().acos());
+}
+
+BUILTIN_WORD(w_asin)
+{
+  context << value::make_number(context.pop().as_number().asin());
+}
+
+BUILTIN_WORD(w_atan)
+{
+  context << value::make_number(context.pop().as_number().atan());
+}
+
+BUILTIN_WORD(w_atan2)
+{
+  const auto a = context.pop().as_number();
+  const auto b = context.pop().as_number();
+
+  context << value::make_number(a.atan2(b));
+}
+
+BUILTIN_WORD(w_cos)
+{
+  context << value::make_number(context.pop().as_number().cos());
+}
+
+BUILTIN_WORD(w_sin)
+{
+  context << value::make_number(context.pop().as_number().sin());
+}
+
+BUILTIN_WORD(w_tan)
+{
+  context << value::make_number(context.pop().as_number().tan());
+}
+
+BUILTIN_WORD(w_sinh)
+{
+  context << value::make_number(context.pop().as_number().sinh());
+}
+
+BUILTIN_WORD(w_cosh)
+{
+  context << value::make_number(context.pop().as_number().cosh());
+}
+
+BUILTIN_WORD(w_tanh)
+{
+  context << value::make_number(context.pop().as_number().tanh());
+}
+
+BUILTIN_WORD(w_asinh)
+{
+  context << value::make_number(context.pop().as_number().asinh());
+}
+
+BUILTIN_WORD(w_acosh)
+{
+  context << value::make_number(context.pop().as_number().acosh());
+}
+
+BUILTIN_WORD(w_atanh)
+{
+  context << value::make_number(context.pop().as_number().atanh());
+}
+
+BUILTIN_WORD(w_deg)
+{
+  const auto value = context.pop().as_number();
+
+  context << value::make_number(value * 180 / M_PI);
+}
+
+BUILTIN_WORD(w_rad)
+{
+  const auto value = context.pop().as_number();
+
+  context << value::make_number(value * M_PI / 180L);
+}
+
+/**
+ * number:>month ( number -- month )
+ *
+ * Converts number into a month assuming that January is 1 and December is 12
+ * and so on.
+ *
+ * Range error will be thrown if the number is out of range.
+ */
+BUILTIN_WORD(w_to_month)
+{
+  const auto value = context.pop().as_number().to_long();
+
+  if (value < 1 || value > 12)
   {
-    const auto value = context.pop().as_number();
-    const auto max = context.pop().as_number();
-    const auto min = context.pop().as_number();
-
-    context.push(value::make_number(
-      value > max ? max : value < min ? min : value
-    ));
+    throw error(error::type::range, U"Month index out of range.");
   }
+  context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
+}
 
-  static void w_times(class context& context, std::ostream& out)
+/**
+ * number:>weekday ( number -- weekday )
+ *
+ * Converts number into day of week assuming that Sunday is 1 and Saturday is
+ * 7 and so on.
+ *
+ * Range error will be thrown if the number is out of range.
+ */
+BUILTIN_WORD(w_to_weekday)
+{
+  const auto value = context.pop().as_number().to_long();
+
+  if (value < 1 || value > 7)
   {
-    auto count = context.pop().as_number();
-    const auto quote = context.pop().as_quote();
-
-    if (count < number())
-    {
-      count = -count;
-    }
-    while (count)
-    {
-      --count;
-      quote.call(context, out);
-    }
+    throw error(error::type::range, U"Weekday index out of range.");
   }
+  context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
+}
 
-  static void w_exp(class context& context, std::ostream&)
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition number =
   {
-    context << value::make_number(context.pop().as_number().exp());
-  }
+    { U"number:has-unit?", w_has_unit },
+    { U"number:unit", w_unit },
+    { U"number:unit-type", w_unit_type },
+    { U"number:drop-unit", w_drop_unit },
 
-  static void w_exp2(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().exp2());
-  }
+    { U"number:range", w_range },
+    { U"number:clamp", w_clamp },
+    { U"number:times", w_times },
 
-  static void w_expm1(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().expm1());
-  }
+    // Exponential functions.
+    { U"number:exp", w_exp },
+    { U"number:exp2", w_exp2 },
+    { U"number:expm1", w_expm1 },
+    { U"number:log", w_log },
+    { U"number:log10", w_log10 },
+    { U"number:log2", w_log2 },
+    { U"number:log1p", w_log1p },
 
-  static void w_log(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().log());
-  }
+    // Power functions.
+    { U"number:pow", w_pow },
+    { U"number:sqrt", w_sqrt },
+    { U"number:cbrt", w_cbrt },
+    { U"number:hypot", w_hypot },
 
-  static void w_log10(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().log10());
-  }
+    // Trigonometric functions.
+    { U"number:acos", w_acos },
+    { U"number:asin", w_asin },
+    { U"number:atan", w_atan },
+    { U"number:atan2", w_atan2 },
+    { U"number:cos", w_cos },
+    { U"number:sin", w_sin },
+    { U"number:tan", w_tan },
+    { U"number:deg", w_deg },
+    { U"number:rad", w_rad },
 
-  static void w_log2(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().log2());
-  }
+    // Hyperbolic functions.
+    { U"number:sinh", w_sinh },
+    { U"number:cosh", w_cosh },
+    { U"number:tanh", w_tanh },
+    { U"number:asinh", w_asinh },
+    { U"number:acosh", w_acosh },
+    { U"number:atanh", w_atanh },
 
-  static void w_log1p(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().log1p());
-  }
-
-  static void w_pow(class context& context, std::ostream&)
-  {
-    const auto a = context.pop().as_number();
-    const auto b = context.pop().as_number();
-
-    context << value::make_number(a.pow(b));
-  }
-
-  static void w_sqrt(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().sqrt());
-  }
-
-  static void w_cbrt(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().cbrt());
-  }
-
-  static void w_hypot(class context& context, std::ostream&)
-  {
-    const auto a = context.pop().as_number();
-    const auto b = context.pop().as_number();
-
-    context << value::make_number(a.hypot(b));
-  }
-
-  static void w_acos(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().acos());
-  }
-
-  static void w_asin(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().asin());
-  }
-
-  static void w_atan(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().atan());
-  }
-
-  static void w_atan2(class context& context, std::ostream&)
-  {
-    const auto a = context.pop().as_number();
-    const auto b = context.pop().as_number();
-
-    context << value::make_number(a.atan2(b));
-  }
-
-  static void w_cos(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().cos());
-  }
-
-  static void w_sin(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().sin());
-  }
-
-  static void w_tan(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().tan());
-  }
-
-  static void w_sinh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().sinh());
-  }
-
-  static void w_cosh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().cosh());
-  }
-
-  static void w_tanh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().tanh());
-  }
-
-  static void w_asinh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().asinh());
-  }
-
-  static void w_acosh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().acosh());
-  }
-
-  static void w_atanh(class context& context, std::ostream&)
-  {
-    context << value::make_number(context.pop().as_number().atanh());
-  }
-
-  static void w_deg(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number();
-
-    context << value::make_number(value * 180 / M_PI);
-  }
-
-  static void w_rad(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number();
-
-    context << value::make_number(value * M_PI / 180L);
-  }
-
-  static void w_to_month(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number().to_long();
-
-    if (value < 1 || value > 12)
-    {
-      throw error(error::type::range, U"Month index out of range.");
-    }
-    context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
-  }
-
-  static void w_to_weekday(class context& context, std::ostream&)
-  {
-    const auto value = context.pop().as_number().to_long();
-
-    if (value < 1 || value > 7)
-    {
-      throw error(error::type::range, U"Weekday index out of range.");
-    }
-    context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition number =
-    {
-      { U"number:has-unit?", w_has_unit },
-      { U"number:unit", w_unit },
-      { U"number:unit-type", w_unit_type },
-      { U"number:drop-unit", w_drop_unit },
-
-      { U"number:range", w_range },
-      { U"number:clamp", w_clamp },
-      { U"number:times", w_times },
-
-      // Exponential functions.
-      { U"number:exp", w_exp },
-      { U"number:exp2", w_exp2 },
-      { U"number:expm1", w_expm1 },
-      { U"number:log", w_log },
-      { U"number:log10", w_log10 },
-      { U"number:log2", w_log2 },
-      { U"number:log1p", w_log1p },
-
-      // Power functions.
-      { U"number:pow", w_pow },
-      { U"number:sqrt", w_sqrt },
-      { U"number:cbrt", w_cbrt },
-      { U"number:hypot", w_hypot },
-
-      // Trigonometric functions.
-      { U"number:acos", w_acos },
-      { U"number:asin", w_asin },
-      { U"number:atan", w_atan },
-      { U"number:atan2", w_atan2 },
-      { U"number:cos", w_cos },
-      { U"number:sin", w_sin },
-      { U"number:tan", w_tan },
-      { U"number:deg", w_deg },
-      { U"number:rad", w_rad },
-
-      // Hyperbolic functions.
-      { U"number:sinh", w_sinh },
-      { U"number:cosh", w_cosh },
-      { U"number:tanh", w_tanh },
-      { U"number:asinh", w_asinh },
-      { U"number:acosh", w_acosh },
-      { U"number:atanh", w_atanh },
-
-      // Conversions.
-      { U"number:>month", w_to_month },
-      { U"number:>weekday", w_to_weekday }
-    };
-  }
+    // Conversions.
+    { U"number:>month", w_to_month },
+    { U"number:>weekday", w_to_weekday }
+  };
 }

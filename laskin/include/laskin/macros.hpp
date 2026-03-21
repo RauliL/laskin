@@ -23,67 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/quote.hpp"
+#pragma once
 
-namespace laskin
-{
-  quote::quote() {}
-
-  quote::quote(const callback& cb)
-    : m_container(cb) {}
-
-  quote::quote(const node_container& nodes)
-    : m_container(nodes) {}
-
-  void
-  quote::call(
-    class context& context,
-    std::ostream& out
-  ) const
-  {
-    if (std::holds_alternative<node_container>(m_container))
-    {
-      for (const auto& node : std::get<node_container>(m_container))
-      {
-        if (node)
-        {
-          node->exec(context, out);
-        }
-      }
-    }
-    else if (std::holds_alternative<callback>(m_container))
-    {
-      std::get<callback>(m_container)(context, out);
-    }
-  }
-
-  std::u32string
-  quote::to_source() const
-  {
-    if (std::holds_alternative<node_container>(m_container))
-    {
-      std::u32string result;
-      bool first = true;
-
-      result.append(1, U'(');
-      for (const auto& node : std::get<node_container>(m_container))
-      {
-        if (first)
-        {
-          first = false;
-        } else {
-          result.append(1, U' ');
-        }
-        if (node)
-        {
-          result.append(node->to_source());
-        }
-      }
-      result.append(1, U')');
-
-      return result;
-    }
-
-    return U"(\"native quote\")";
-  }
-}
+#define BUILTIN_WORD(x) \
+  static void x( \
+    class context& context, \
+    std::ostream& out \
+  )

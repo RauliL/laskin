@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,46 +24,66 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/context.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * boolean:not ( boolean -- boolean )
+ *
+ * Performs negation on the given boolean value.
+ */
+BUILTIN_WORD(w_not)
 {
-  static void w_not(class context& context, std::ostream&)
+  context.push(value::make_boolean(!context.pop().as_boolean()));
+}
+
+/**
+ * boolean:and ( boolean boolean -- boolean )
+ *
+ * Performs logical and on the given boolean values.
+ */
+BUILTIN_WORD(w_and)
+{
+  const auto b = context.pop().as_boolean();
+  const auto a = context.pop().as_boolean();
+
+  context.push(value::make_boolean(a && b));
+}
+
+/**
+ * boolean:or ( boolean boolean -- boolean )
+ *
+ * Performs logical or on the given boolean values.
+ */
+BUILTIN_WORD(w_or)
+{
+  const auto b = context.pop().as_boolean();
+  const auto a = context.pop().as_boolean();
+
+  context.push(value::make_boolean(a || b));
+}
+
+/**
+ * boolean:xor ( boolean boolean -- boolean )
+ *
+ * Performs exclusive or on the given boolean values.
+ */
+BUILTIN_WORD(w_xor)
+{
+  const auto b = context.pop().as_boolean();
+  const auto a = context.pop().as_boolean();
+
+  context.push(value::make_boolean(a != b && (a || b)));
+}
+
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition boolean =
   {
-    context.push(value::make_boolean(!context.pop().as_boolean()));
-  }
-
-  static void w_and(class context& context, std::ostream&)
-  {
-    const auto b = context.pop().as_boolean();
-    const auto a = context.pop().as_boolean();
-
-    context.push(value::make_boolean(a && b));
-  }
-
-  static void w_or(class context& context, std::ostream&)
-  {
-    const auto b = context.pop().as_boolean();
-    const auto a = context.pop().as_boolean();
-
-    context.push(value::make_boolean(a || b));
-  }
-
-  static void w_xor(class context& context, std::ostream&)
-  {
-    const auto b = context.pop().as_boolean();
-    const auto a = context.pop().as_boolean();
-
-    context.push(value::make_boolean(a != b && (a || b)));
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition boolean =
-    {
-      { U"boolean:not", w_not },
-      { U"boolean:and", w_and },
-      { U"boolean:or", w_or },
-      { U"boolean:xor", w_xor }
-    };
-  }
+    { U"boolean:not", w_not },
+    { U"boolean:and", w_and },
+    { U"boolean:or", w_or },
+    { U"boolean:xor", w_xor }
+  };
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,10 @@ namespace laskin
   class quote
   {
   public:
-    using callback = std::function<void(context&, std::ostream&)>;
+    using callback = std::function<void(
+      context&,
+      std::ostream&
+    )>;
     using node_container = std::vector<std::shared_ptr<node>>;
 
     static quote parse(

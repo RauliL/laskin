@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,96 +25,161 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * january ( -- month )
+ *
+ * Returns January.
+ */
+BUILTIN_WORD(w_january)
 {
-  static void w_january(class context& context, std::ostream&)
+  context << value::make_month(peelo::chrono::month::jan);
+}
+
+/**
+ * february ( -- month )
+ *
+ * Returns February.
+ */
+BUILTIN_WORD(w_february)
+{
+  context << value::make_month(peelo::chrono::month::feb);
+}
+
+/**
+ * march ( -- month )
+ *
+ * Return March.
+ */
+BUILTIN_WORD(w_march)
+{
+  context << value::make_month(peelo::chrono::month::mar);
+}
+
+/**
+ * april ( -- month )
+ *
+ * Returns April.
+ */
+BUILTIN_WORD(w_april)
+{
+  context << value::make_month(peelo::chrono::month::apr);
+}
+
+/**
+ * may ( -- month )
+ *
+ * Returns May.
+ */
+BUILTIN_WORD(w_may)
+{
+  context << value::make_month(peelo::chrono::month::may);
+}
+
+/**
+ * june ( -- month )
+ *
+ * Returns June.
+ */
+BUILTIN_WORD(w_june)
+{
+  context << value::make_month(peelo::chrono::month::jun);
+}
+
+/**
+ * july ( -- month )
+ *
+ * Returns July.
+ */
+BUILTIN_WORD(w_july)
+{
+  context << value::make_month(peelo::chrono::month::jul);
+}
+
+/**
+ * august ( -- month )
+ *
+ * Returns August.
+ */
+BUILTIN_WORD(w_august)
+{
+  context << value::make_month(peelo::chrono::month::aug);
+}
+
+/**
+ * september ( -- month )
+ *
+ * Returns September.
+ */
+BUILTIN_WORD(w_september)
+{
+  context << value::make_month(peelo::chrono::month::sep);
+}
+
+/**
+ * october ( -- month )
+ *
+ * Returns October.
+ */
+BUILTIN_WORD(w_october)
+{
+  context << value::make_month(peelo::chrono::month::oct);
+}
+
+/**
+ * november ( -- month )
+ *
+ * Returns November.
+ */
+BUILTIN_WORD(w_november)
+{
+  context << value::make_month(peelo::chrono::month::nov);
+}
+
+/**
+ * december ( -- month )
+ *
+ * Returns December.
+ */
+BUILTIN_WORD(w_december)
+{
+  context << value::make_month(peelo::chrono::month::dec);
+}
+
+/**
+ * month:>number ( month -- number )
+ *
+ * Converts month into a number. January is 1, December 12 and so on.
+ */
+BUILTIN_WORD(w_to_number)
+{
+  const auto value = static_cast<int>(context.pop().as_month()) + 1;
+
+  context << value::make_number(value);
+}
+
+namespace api
+{
+  extern "C" const context::dictionary_definition month =
   {
-    context << value::make_month(peelo::chrono::month::jan);
-  }
+    // Constants.
+    { U"january", w_january },
+    { U"february", w_february },
+    { U"march", w_march },
+    { U"april", w_april },
+    { U"may", w_may },
+    { U"june", w_june },
+    { U"july", w_july },
+    { U"august", w_august },
+    { U"september", w_september },
+    { U"october", w_october },
+    { U"november", w_november },
+    { U"december", w_december },
 
-  static void w_february(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::feb);
-  }
-
-  static void w_march(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::mar);
-  }
-
-  static void w_april(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::apr);
-  }
-
-  static void w_may(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::may);
-  }
-
-  static void w_june(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::jun);
-  }
-
-  static void w_july(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::jul);
-  }
-
-  static void w_august(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::aug);
-  }
-
-  static void w_september(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::sep);
-  }
-
-  static void w_october(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::oct);
-  }
-
-  static void w_november(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::nov);
-  }
-
-  static void w_december(class context& context, std::ostream&)
-  {
-    context << value::make_month(peelo::chrono::month::dec);
-  }
-
-  static void w_to_number(class context& context, std::ostream&)
-  {
-    const auto value = static_cast<int>(context.pop().as_month()) + 1;
-
-    context << value::make_number(value);
-  }
-
-  namespace api
-  {
-    extern "C" const context::dictionary_definition month =
-    {
-      // Constants.
-      { U"january", w_january },
-      { U"february", w_february },
-      { U"march", w_march },
-      { U"april", w_april },
-      { U"may", w_may },
-      { U"june", w_june },
-      { U"july", w_july },
-      { U"august", w_august },
-      { U"september", w_september },
-      { U"october", w_october },
-      { U"november", w_november },
-      { U"december", w_december },
-
-      // Conversions.
-      { U"month:>number", w_to_number }
-    };
-  }
+    // Conversions.
+    { U"month:>number", w_to_number }
+  };
 }

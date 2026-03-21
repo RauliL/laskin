@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,18 +60,24 @@ namespace laskin
     /**
      * Executes the AST node as a statement.
      *
-     * \param context
-     * \param out
+     * \param context Program context to use for execution.
+     * \param out Output stream for I/O.
      */
-    virtual void exec(class context& context, std::ostream& out) const = 0;
+    virtual void exec(
+      class context& context,
+      std::ostream& out
+    ) const = 0;
 
     /**
      * Evaluates the AST node as an expression.
      *
-     * \param context
-     * \param out
+     * \param context Program context to use for evaluation.
+     * \param out Output stream for I/O.
      */
-    virtual value eval(class context& context, std::ostream& out) const = 0;
+    virtual value eval(
+      class context& context,
+      std::ostream& out
+    ) const = 0;
 
     /**
      * Constructs the most appropriate representation of what this AST node
@@ -93,14 +99,20 @@ namespace laskin
       : node(line, column)
       , value(value_) {}
 
-    void exec(class context& context, std::ostream& out) const;
+    void exec(
+      class context& context,
+      std::ostream& out
+    ) const override;
 
-    inline class value eval(class context& context, std::ostream& out) const
+    inline class value eval(
+      class context& context,
+      std::ostream& out
+    ) const override
     {
       return value;
     }
 
-    inline std::u32string to_source() const
+    inline std::u32string to_source() const override
     {
       return value.to_source();
     }
@@ -121,9 +133,17 @@ namespace laskin
       : node(line, column)
       , elements(elements_) {}
 
-    void exec(class context& context, std::ostream& out) const;
-    value eval(class context& context, std::ostream& out) const;
-    std::u32string to_source() const;
+    void exec(
+      class context& context,
+      std::ostream& out
+    ) const override;
+
+    value eval(
+      class context& context,
+      std::ostream& out
+    ) const override;
+
+    std::u32string to_source() const override;
   };
 
   class node::record_literal final : public node
@@ -144,9 +164,17 @@ namespace laskin
       : node(line, column)
       , properties(properties_) {}
 
-    void exec(class context& context, std::ostream& out) const;
-    value eval(class context& context, std::ostream& out) const;
-    std::u32string to_source() const;
+    void exec(
+      class context& context,
+      std::ostream& out
+    ) const override;
+
+    value eval(
+      class context& context,
+      std::ostream& out
+    ) const override;
+
+    std::u32string to_source() const override;
   };
 
   class node::symbol final : public node
@@ -158,11 +186,17 @@ namespace laskin
       : node(line, column)
       , id(id_) {}
 
-    void exec(class context& context, std::ostream& out) const;
+    void exec(
+      class context& context,
+      std::ostream& out
+    ) const override;
 
-    value eval(class context& context, std::ostream& out) const;
+    value eval(
+      class context& context,
+      std::ostream& out
+    ) const override;
 
-    inline std::u32string to_source() const
+    inline std::u32string to_source() const override
     {
       return id;
     }
@@ -181,11 +215,17 @@ namespace laskin
       : node(line, column)
       , id(id_) {}
 
-    void exec(class context& context, std::ostream& out) const;
+    void exec(
+      class context& context,
+      std::ostream& out
+    ) const override;
 
-    value eval(class context& context, std::ostream& out) const;
+    value eval(
+      class context& context,
+      std::ostream& out
+    ) const override;
 
-    inline std::u32string to_source() const
+    inline std::u32string to_source() const override
     {
       return U"-> " + id;
     }

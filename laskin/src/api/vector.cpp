@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,409 +25,543 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
-namespace laskin
+using namespace laskin;
+
+/**
+ * vector ( number -- vector )
+ *
+ * Constructs vector from given number of values extracted from the stack.
+ */
+BUILTIN_WORD(w_vector)
 {
-  static void w_vector(class context& context, std::ostream&)
+  const auto size = context.pop().as_number();
+  std::vector<value> elements;
+
+  elements.reserve(size.to_long());
+  for (number i; i < size; ++i)
   {
-    const auto size = context.pop().as_number();
-    std::vector<value> elements;
-
-    elements.reserve(size.to_long());
-    for (number i; i < size; ++i)
-    {
-      elements.push_back(context.pop());
-    }
-
-    context << value::make_vector(elements.rbegin(), elements.rend());
+    elements.push_back(context.pop());
   }
 
-  static void w_length(class context& context, std::ostream&)
+  context << value::make_vector(elements.rbegin(), elements.rend());
+}
+
+/**
+ * vector:length ( vector -- vector number )
+ *
+ * Returns the number of elements in the vector.
+ */
+BUILTIN_WORD(w_length)
+{
+  context << value::make_number(
+    static_cast<std::int64_t>(context.peek().as_vector().size())
+  );
+}
+
+/**
+ * vector:max ( vector -- any )
+ *
+ * Returns the maximum value contained in the vector.
+ *
+ * Range error is thrown if the vector is empty.
+ */
+BUILTIN_WORD(w_max)
+{
+  const auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+
+  if (size > 0)
   {
-    context << value::make_number(
-      static_cast<std::int64_t>(context.peek().as_vector().size())
-    );
-  }
+    auto largest = vec[0];
 
-  static void w_max(class context& context, std::ostream&)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-
-    if (size > 0)
-    {
-      auto largest = vec[0];
-
-      for (std::vector<value>::size_type i = 1; i < size; ++i)
-      {
-        const auto& candidate = vec[i];
-
-        if (candidate > largest)
-        {
-          largest = candidate;
-        }
-      }
-      context << largest;
-      return;
-    }
-
-    throw error(error::type::range, U"Vector is empty.");
-  }
-
-  static void w_min(class context& context, std::ostream&)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-
-    if (size > 0)
-    {
-      auto smallest = vec[0];
-
-      for (std::vector<value>::size_type i = 1; i < size; ++i)
-      {
-        const auto& candidate = vec[i];
-
-        if (candidate < smallest)
-        {
-          smallest = candidate;
-        }
-      }
-      context << smallest;
-      return;
-    }
-
-    throw error(error::type::range, U"Vector is empty.");
-  }
-
-  static void w_mean(class context& context, std::ostream&)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-
-    if (size > 0)
-    {
-      auto sum = vec[0].as_number();
-
-      for (std::vector<value>::size_type i = 1; i < size; ++i)
-      {
-        sum = sum + vec[i].as_number();
-      }
-      context << value::make_number(sum / static_cast<std::int64_t>(size));
-      return;
-    }
-
-    throw error(error::type::range, U"Vector is empty.");
-  }
-
-  static void w_sum(class context& context, std::ostream&)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-
-    if (size > 0)
-    {
-      auto sum = vec[0].as_number();
-
-      for (std::vector<value>::size_type i = 1; i < size; ++i)
-      {
-        sum = sum + vec[i].as_number();
-      }
-      context << value::make_number(sum);
-      return;
-    }
-
-    throw error(error::type::range, U"Vector is empty.");
-  }
-
-  static void w_for_each(class context& context, std::ostream& out)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto quote = context.pop().as_quote();
-
-    for (const auto& value : vec)
-    {
-      context.push(value);
-      quote.call(context, out);
-    }
-  }
-
-  static void w_map(class context& context, std::ostream& out)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto quote = context.pop().as_quote();
-    std::vector<value> result;
-
-    result.reserve(vec.size());
-    for (const auto& value : vec)
-    {
-      context.push(value);
-      quote.call(context, out);
-      result.push_back(context.pop());
-    }
-    context.push(value::make_vector(result));
-  }
-
-  static void w_filter(class context& context, std::ostream& out)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto quote = context.pop().as_quote();
-    std::vector<value> result;
-
-    for (const auto& value : vec)
-    {
-      context.push(value);
-      quote.call(context, out);
-      if (context.pop().as_boolean())
-      {
-        result.push_back(value);
-      }
-    }
-    context.push(value::make_vector(result));
-  }
-
-  static void w_reduce(class context& context, std::ostream& out)
-  {
-    const auto vec = context.pop().as_vector();
-    const auto quote = context.pop().as_quote();
-    const auto size = vec.size();
-    value result;
-
-    if (!size)
-    {
-      throw error(error::type::range, U"Cannot reduce empty vector.");
-    }
-    result = vec[0];
     for (std::vector<value>::size_type i = 1; i < size; ++i)
     {
-      context << result << vec[i];
-      quote.call(context, out);
-      context >> result;
-    }
-    context << result;
-  }
+      const auto& candidate = vec[i];
 
-  static void w_prepend(class context& context, std::ostream&)
-  {
-    auto vec = context.pop().as_vector();
-    const auto value = context.pop();
-
-    vec.insert(std::begin(vec), 1, value);
-    context << value::make_vector(vec);
-  }
-
-  static void w_append(class context& context, std::ostream&)
-  {
-    auto vec = context.pop().as_vector();
-    const auto value = context.pop();
-
-    vec.push_back(value);
-    context << value::make_vector(vec);
-  }
-
-  static void w_insert(class context& context, std::ostream&)
-  {
-    auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-    const auto value = context.pop();
-    auto index = context.pop().as_number().to_long();
-
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    vec.insert(std::begin(vec) + index, 1, value);
-    context << value::make_vector(vec);
-  }
-
-  static void w_reverse(class context& context, std::ostream&)
-  {
-    const auto vector = context.pop().as_vector();
-
-    context << value::make_vector(vector.rbegin(), vector.rend());
-  }
-
-  static void w_extract(class context& context, std::ostream&)
-  {
-    const auto vector = context.pop().as_vector();
-
-    for (const auto& value : vector)
-    {
-      context << value;
-    }
-  }
-
-  static std::vector<value>::size_type partition(
-    std::vector<value>& vector,
-    std::vector<value>::size_type low,
-    std::vector<value>::size_type high
-  )
-  {
-    const auto& pivot = vector[high];
-    auto i = low - 1;
-
-    for (std::vector<value>::size_type j = low; j <= high - 1; ++j)
-    {
-      if (vector[j] < pivot)
+      if (candidate > largest)
       {
-        ++i;
-        std::swap(vector[i], vector[j]);
+        largest = candidate;
       }
     }
-    std::swap(vector[i + 1], vector[high]);
-
-    return i + 1;
+    context << largest;
+    return;
   }
 
-  static void quicksort(
-    std::vector<value>& vector,
-    std::vector<value>::size_type low,
-    std::vector<value>::size_type high
-  )
+  throw error(error::type::range, U"Vector is empty.");
+}
+
+/**
+ * vector:min ( vector -- any )
+ *
+ * Returns the minimum value contained in the vector.
+ *
+ * Range error is thrown if the vector is empty.
+ */
+BUILTIN_WORD(w_min)
+{
+  const auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+
+  if (size > 0)
   {
-    if (low < high)
+    auto smallest = vec[0];
+
+    for (std::vector<value>::size_type i = 1; i < size; ++i)
     {
-      const auto pi = partition(vector, low, high);
+      const auto& candidate = vec[i];
 
-      quicksort(vector, low, pi - 1);
-      quicksort(vector, pi + 1, high);
-    }
-  }
-
-  static void w_sort(class context& context, std::ostream&)
-  {
-    auto vector = context.pop().as_vector();
-
-    quicksort(vector, 0, vector.size() - 1);
-    context << value::make_vector(vector);
-  }
-
-  static void w_at(class context& context, std::ostream&)
-  {
-    const auto vector = context.pop().as_vector();
-    const auto size = vector.size();
-    auto index = context.pop().as_number().to_long();
-
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    context << vector[index];
-  }
-
-  static void w_set(class context& context, std::ostream&)
-  {
-    auto vector = context.pop().as_vector();
-    const auto size = vector.size();
-    auto index = context.pop().as_number().to_long();
-    const auto value = context.pop();
-
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    vector[index] = value;
-    context << value::make_vector(vector);
-  }
-
-  static void w_to_time(class context& context, std::ostream&)
-  {
-    const auto vector = context.pop().as_vector();
-    long hour;
-    long minute;
-    long second;
-
-    if (vector.size() != 3)
-    {
-      throw error(error::type::range, U"Time needs three values.");
-    }
-    hour = vector[0].as_number().to_long();
-    minute = vector[1].as_number().to_long();
-    second = vector[2].as_number().to_long();
-    if (!peelo::chrono::time::is_valid(hour, minute, second))
-    {
-      throw error(error::type::range, U"Invalid time.");
-    }
-    context << value::make_time(peelo::chrono::time(hour, minute, second));
-  }
-
-  static void w_to_date(class context& context, std::ostream&)
-  {
-    const auto vector = context.pop().as_vector();
-    long day;
-    peelo::chrono::month month;
-    long year;
-
-    if (vector.size() != 3)
-    {
-      throw error(error::type::range, U"Date needs three values.");
-    }
-    year = vector[0].as_number().to_long();
-    if (vector[1].is(value::type::month))
-    {
-      month = vector[1].as_month();
-    } else {
-      const auto value = vector[1].as_number().to_long();
-
-      if (value < 1 || value > 12)
+      if (candidate < smallest)
       {
-        throw error(error::type::range, U"Given month is out of range.");
+        smallest = candidate;
       }
-      month = static_cast<peelo::chrono::month>(value - 1);
     }
-    day = vector[2].as_number().to_long();
-    if (!peelo::chrono::date::is_valid(year, month, day))
-    {
-      throw error(error::type::range, U"Invalid date.");
-    }
-    context << value::make_date(peelo::chrono::date(year, month, day));
+    context << smallest;
+    return;
   }
 
-  namespace api
+  throw error(error::type::range, U"Vector is empty.");
+}
+
+/**
+ * vector:mean ( vector -- any )
+ *
+ * Returns the mean value contained in the vector.
+ *
+ * Range error is thrown if the vector is empty.
+ */
+BUILTIN_WORD(w_mean)
+{
+  const auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+
+  if (size > 0)
   {
-    extern "C" const context::dictionary_definition vector =
+    auto sum = vec[0].as_number();
+
+    for (std::vector<value>::size_type i = 1; i < size; ++i)
     {
-      { U"vector", w_vector },
-
-      { U"vector:length", w_length },
-
-      { U"vector:max", w_max },
-      { U"vector:min", w_min },
-      { U"vector:mean", w_mean },
-      { U"vector:sum", w_sum },
-
-      // Iteration.
-      { U"vector:for-each", w_for_each },
-      { U"vector:map", w_map },
-      { U"vector:filter", w_filter },
-      { U"vector:reduce", w_reduce },
-
-      // Modifications.
-      { U"vector:prepend", w_prepend },
-      { U"vector:append", w_append },
-      { U"vector:insert", w_insert },
-      { U"vector:reverse", w_reverse },
-      { U"vector:extract", w_extract },
-      { U"vector:sort", w_sort },
-
-      // Element access.
-      { U"vector:@", w_at },
-      { U"vector:@=", w_set },
-
-      // Conversions.
-      { U"vector:>date", w_to_date },
-      { U"vector:>time", w_to_time }
-    };
+      sum = sum + vec[i].as_number();
+    }
+    context << value::make_number(sum / static_cast<std::int64_t>(size));
+    return;
   }
+
+  throw error(error::type::range, U"Vector is empty.");
+}
+
+/**
+ * vector:sum ( vector -- any )
+ *
+ * Sums all values inside the vector together.
+ *
+ * Range error is thrown if the vector is empty.
+ */
+BUILTIN_WORD(w_sum)
+{
+  const auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+
+  if (size > 0)
+  {
+    auto sum = vec[0].as_number();
+
+    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    {
+      sum = sum + vec[i].as_number();
+    }
+    context << value::make_number(sum);
+    return;
+  }
+
+  throw error(error::type::range, U"Vector is empty.");
+}
+
+/**
+ * vector:for-each ( quote vector -- )
+ *
+ * Executes quote once for each value in the vector.
+ */
+BUILTIN_WORD(w_for_each)
+{
+  const auto vec = context.pop().as_vector();
+  const auto quote = context.pop().as_quote();
+
+  for (const auto& value : vec)
+  {
+    context.push(value);
+    quote.call(context, out);
+  }
+}
+
+/**
+ * vector:map ( quote vector -- vector )
+ *
+ * Constructs new vector from results of what executing the given quote once
+ * for every value in the vector will return.
+ */
+BUILTIN_WORD(w_map)
+{
+  const auto vec = context.pop().as_vector();
+  const auto quote = context.pop().as_quote();
+  std::vector<value> result;
+
+  result.reserve(vec.size());
+  for (const auto& value : vec)
+  {
+    context.push(value);
+    quote.call(context, out);
+    result.push_back(context.pop());
+  }
+  context.push(value::make_vector(result));
+}
+
+/**
+ * vector:filter ( quote vector -- vector )
+ *
+ * Constructs new vector by filtering the existing one by executing the quote
+ * once for every value in the vector, leaving out those for which the quote
+ * returns false.
+ */
+BUILTIN_WORD(w_filter)
+{
+  const auto vec = context.pop().as_vector();
+  const auto quote = context.pop().as_quote();
+  std::vector<value> result;
+
+  for (const auto& value : vec)
+  {
+    context.push(value);
+    quote.call(context, out);
+    if (context.pop().as_boolean())
+    {
+      result.push_back(value);
+    }
+  }
+  context.push(value::make_vector(result));
+}
+
+/**
+ * vector:reduce ( quote vector -- any )
+ *
+ * Performs reduce operation on the vector by calling the quote once for
+ * every other value in the vector except the first one.
+ *
+ * Range error will be thrown if the vector is empty.
+ */
+BUILTIN_WORD(w_reduce)
+{
+  const auto vec = context.pop().as_vector();
+  const auto quote = context.pop().as_quote();
+  const auto size = vec.size();
+  value result;
+
+  if (!size)
+  {
+    throw error(error::type::range, U"Cannot reduce empty vector.");
+  }
+  result = vec[0];
+  for (std::vector<value>::size_type i = 1; i < size; ++i)
+  {
+    context << result << vec[i];
+    quote.call(context, out);
+    context >> result;
+  }
+  context << result;
+}
+
+/**
+ * vector:prepend ( any vector -- vector )
+ *
+ * Constructs new vector from the one given with the new value prepended into
+ * it.
+ */
+BUILTIN_WORD(w_prepend)
+{
+  auto vec = context.pop().as_vector();
+  const auto value = context.pop();
+
+  vec.insert(std::begin(vec), 1, value);
+  context << value::make_vector(vec);
+}
+
+/**
+ * vector:append ( any vector -- vector )
+ *
+ * Constructs new vector from the one given with the new value appended into
+ * it.
+ */
+BUILTIN_WORD(w_append)
+{
+  auto vec = context.pop().as_vector();
+  const auto value = context.pop();
+
+  vec.push_back(value);
+  context << value::make_vector(vec);
+}
+
+/**
+ * vector:insert ( any number vector -- vector )
+ *
+ * Inserts new value at the given index. Negative indices are supported.
+ *
+ * Throws range error if given index is out of bounds.
+ */
+BUILTIN_WORD(w_insert)
+{
+  auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+  const auto value = context.pop();
+  auto index = context.pop().as_number().to_long();
+
+  if (index < 0)
+  {
+    index += size;
+  }
+  if (!size || index < 0 || index >= static_cast<long>(size))
+  {
+    throw error(error::type::range, U"Vector index out of bounds.");
+  }
+  vec.insert(std::begin(vec) + index, 1, value);
+  context << value::make_vector(vec);
+}
+
+/**
+ * vector:reverse ( vector -- vector )
+ *
+ * Returns reversed copy of the vector.
+ */
+BUILTIN_WORD(w_reverse)
+{
+  const auto vector = context.pop().as_vector();
+
+  context << value::make_vector(vector.rbegin(), vector.rend());
+}
+
+/**
+ * vector:extract ( vector -- any... )
+ *
+ * Pushes all values inside the vector onto the stack.
+ */
+BUILTIN_WORD(w_extract)
+{
+  const auto vector = context.pop().as_vector();
+
+  for (const auto& value : vector)
+  {
+    context << value;
+  }
+}
+
+static std::vector<value>::size_type
+partition(
+  std::vector<value>& vector,
+  std::vector<value>::size_type low,
+  std::vector<value>::size_type high
+)
+{
+  const auto& pivot = vector[high];
+  auto i = low - 1;
+
+  for (std::vector<value>::size_type j = low; j <= high - 1; ++j)
+  {
+    if (vector[j] < pivot)
+    {
+      ++i;
+      std::swap(vector[i], vector[j]);
+    }
+  }
+  std::swap(vector[i + 1], vector[high]);
+
+  return i + 1;
+}
+
+static void
+quicksort(
+  std::vector<value>& vector,
+  std::vector<value>::size_type low,
+  std::vector<value>::size_type high
+)
+{
+  if (low < high)
+  {
+    const auto pi = partition(vector, low, high);
+
+    quicksort(vector, low, pi - 1);
+    quicksort(vector, pi + 1, high);
+  }
+}
+
+/**
+ * vector:sort ( vector -- vector )
+ *
+ * Performs quicksort on the vector.
+ */
+BUILTIN_WORD(w_sort)
+{
+  auto vector = context.pop().as_vector();
+
+  quicksort(vector, 0, vector.size() - 1);
+  context << value::make_vector(vector);
+}
+
+/**
+ * vector:@ ( number vector -- any )
+ *
+ * Extracts an value from given index from the vector. Negative indices are
+ * supported.
+ *
+ * Range error will be thrown if given index is out of bounds.
+ */
+BUILTIN_WORD(w_at)
+{
+  const auto vector = context.pop().as_vector();
+  const auto size = vector.size();
+  auto index = context.pop().as_number().to_long();
+
+  if (index < 0)
+  {
+    index += size;
+  }
+  if (!size || index < 0 || index >= static_cast<long>(size))
+  {
+    throw error(error::type::range, U"Vector index out of bounds.");
+  }
+  context << vector[index];
+}
+
+/**
+ * vector:@= ( any number vector -- vector )
+ *
+ * Constructs new vector by replacing value in the existing one on given
+ * index. Negative indices are supported.
+ *
+ * Range error will be thrown if given index is out of bounds.
+ */
+BUILTIN_WORD(w_set)
+{
+  auto vector = context.pop().as_vector();
+  const auto size = vector.size();
+  auto index = context.pop().as_number().to_long();
+  const auto value = context.pop();
+
+  if (index < 0)
+  {
+    index += size;
+  }
+  if (!size || index < 0 || index >= static_cast<long>(size))
+  {
+    throw error(error::type::range, U"Vector index out of bounds.");
+  }
+  vector[index] = value;
+  context << value::make_vector(vector);
+}
+
+/**
+ * vector:>time ( vector -- time )
+ *
+ * Assumes that the vector contains time data (hour, minute, second) and
+ * constructs a time value from it.
+ *
+ * Range error will be thrown if the values inside the vector cannot be used
+ * to construct a time.
+ */
+BUILTIN_WORD(w_to_time)
+{
+  const auto vector = context.pop().as_vector();
+  long hour;
+  long minute;
+  long second;
+
+  if (vector.size() != 3)
+  {
+    throw error(error::type::range, U"Time needs three values.");
+  }
+  hour = vector[0].as_number().to_long();
+  minute = vector[1].as_number().to_long();
+  second = vector[2].as_number().to_long();
+  if (!peelo::chrono::time::is_valid(hour, minute, second))
+  {
+    throw error(error::type::range, U"Invalid time.");
+  }
+  context << value::make_time(peelo::chrono::time(hour, minute, second));
+}
+
+/**
+ * vector:>date ( vector -- date )
+ *
+ * Assumes that the vector contains date data (year, month, day of month) and
+ * constructs an date from it.
+ *
+ * Range error will be thrown if the values inside the vector cannot be used
+ * to construct a date.
+ */
+BUILTIN_WORD(w_to_date)
+{
+  const auto vector = context.pop().as_vector();
+  long day;
+  peelo::chrono::month month;
+  long year;
+
+  if (vector.size() != 3)
+  {
+    throw error(error::type::range, U"Date needs three values.");
+  }
+  year = vector[0].as_number().to_long();
+  if (vector[1].is(value::type::month))
+  {
+    month = vector[1].as_month();
+  } else {
+    const auto value = vector[1].as_number().to_long();
+
+    if (value < 1 || value > 12)
+    {
+      throw error(error::type::range, U"Given month is out of range.");
+    }
+    month = static_cast<peelo::chrono::month>(value - 1);
+  }
+  day = vector[2].as_number().to_long();
+  if (!peelo::chrono::date::is_valid(year, month, day))
+  {
+    throw error(error::type::range, U"Invalid date.");
+  }
+  context << value::make_date(peelo::chrono::date(year, month, day));
+}
+
+namespace laskin::api
+{
+  extern "C" const context::dictionary_definition vector =
+  {
+    { U"vector", w_vector },
+
+    { U"vector:length", w_length },
+
+    { U"vector:max", w_max },
+    { U"vector:min", w_min },
+    { U"vector:mean", w_mean },
+    { U"vector:sum", w_sum },
+
+    // Iteration.
+    { U"vector:for-each", w_for_each },
+    { U"vector:map", w_map },
+    { U"vector:filter", w_filter },
+    { U"vector:reduce", w_reduce },
+
+    // Modifications.
+    { U"vector:prepend", w_prepend },
+    { U"vector:append", w_append },
+    { U"vector:insert", w_insert },
+    { U"vector:reverse", w_reverse },
+    { U"vector:extract", w_extract },
+    { U"vector:sort", w_sort },
+
+    // Element access.
+    { U"vector:@", w_at },
+    { U"vector:@=", w_set },
+
+    // Conversions.
+    { U"vector:>date", w_to_date },
+    { U"vector:>time", w_to_time }
+  };
 }
