@@ -48,39 +48,41 @@ namespace laskin
     extern "C" const context::dictionary_definition weekday;
   }
 
-  context::context(const dictionary_default_callback& default_callback)
-    : m_default_callback(default_callback)
+  context::context(const dictionary_default_callback& default_callback_)
+    : default_callback(default_callback_)
   {
-    initialize_dictionary(m_dictionary, api::utils);
-    initialize_dictionary(m_dictionary, api::boolean);
-    initialize_dictionary(m_dictionary, api::date);
-    initialize_dictionary(m_dictionary, api::month);
-    initialize_dictionary(m_dictionary, api::number);
-    initialize_dictionary(m_dictionary, api::quote);
-    initialize_dictionary(m_dictionary, api::record);
-    initialize_dictionary(m_dictionary, api::string);
-    initialize_dictionary(m_dictionary, api::time_api);
-    initialize_dictionary(m_dictionary, api::vector);
-    initialize_dictionary(m_dictionary, api::weekday);
+    initialize_dictionary(dictionary, api::utils);
+    initialize_dictionary(dictionary, api::boolean);
+    initialize_dictionary(dictionary, api::date);
+    initialize_dictionary(dictionary, api::month);
+    initialize_dictionary(dictionary, api::number);
+    initialize_dictionary(dictionary, api::quote);
+    initialize_dictionary(dictionary, api::record);
+    initialize_dictionary(dictionary, api::string);
+    initialize_dictionary(dictionary, api::time_api);
+    initialize_dictionary(dictionary, api::vector);
+    initialize_dictionary(dictionary, api::weekday);
   }
 
-  const value& context::peek() const
+  const value&
+  context::peek() const
   {
-    if (!m_data.empty())
+    if (!data.empty())
     {
-      return m_data.back();
+      return data.back();
     }
 
     throw error(error::type::range, U"Stack underflow.");
   }
 
-  value context::pop()
+  value
+  context::pop()
   {
-    if (!m_data.empty())
+    if (!data.empty())
     {
-      const auto value = m_data.back();
+      const auto value = data.back();
 
-      m_data.pop_back();
+      data.pop_back();
 
       return value;
     }
@@ -88,18 +90,23 @@ namespace laskin
     throw error(error::type::range, U"Stack underflow.");
   }
 
-  void context::push(const class value& value)
+  void
+  context::push(const class value& value)
   {
-    m_data.push_back(value);
+    data.push_back(value);
   }
 
-  void context::clear()
+  void
+  context::clear()
   {
-    m_data.clear();
+    data.clear();
   }
 
-  static void initialize_dictionary(context::dictionary_type& dictionary,
-                              const context::dictionary_definition& definition)
+  static void
+  initialize_dictionary(
+    context::dictionary_type& dictionary,
+    const context::dictionary_definition& definition
+  )
   {
     for (const auto& word : definition)
     {

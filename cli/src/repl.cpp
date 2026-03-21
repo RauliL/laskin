@@ -101,7 +101,7 @@ namespace laskin::cli
       BUFSIZ,
       "laskin:%03d:%ld%c ",
       ++line_counter,
-      context.data().size(),
+      context.data.size(),
       open_braces.empty() ? '>' : '*'
     );
 

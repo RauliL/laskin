@@ -44,6 +44,13 @@ namespace laskin
       std::optional<value>(const std::u32string&)
     >;
 
+    /** Container for stack data. */
+    container_type data;
+    /** Container for dictionary definitions. */
+    dictionary_type dictionary;
+    /** Invoked when dictionary item is missing. */
+    dictionary_default_callback default_callback;
+
     explicit context(
       const dictionary_default_callback& default_callback = nullptr
     );
@@ -52,38 +59,6 @@ namespace laskin
     context(context&&) = default;
     context& operator=(const context& that) = default;
     context& operator=(context&&) = default;
-
-    /**
-     * Returns data stack of the context.
-     */
-    inline container_type& data()
-    {
-      return m_data;
-    }
-
-    /**
-     * Returns data stack of the context.
-     */
-    inline const container_type& data() const
-    {
-      return m_data;
-    }
-
-    /**
-     * Returns dictionary of the context.
-     */
-    inline dictionary_type& dictionary()
-    {
-      return m_dictionary;
-    }
-
-    /**
-     * Returns dictionary of the context.
-     */
-    inline const dictionary_type& dictionary() const
-    {
-      return m_dictionary;
-    }
 
     /**
      * Returns the topmost value from the stack. If the stack is empty, range
@@ -126,29 +101,5 @@ namespace laskin
 
       return *this;
     }
-
-    /**
-     * Returns function that is called when dictionary item is missing.
-     */
-    inline dictionary_default_callback& default_callback()
-    {
-      return m_default_callback;
-    }
-
-    /**
-     * Returns function that is called when dictionary item is missing.
-     */
-    inline const dictionary_default_callback& default_callback() const
-    {
-      return m_default_callback;
-    }
-
-  private:
-    /** Container for stack data. */
-    container_type m_data;
-    /** Container for definitions. */
-    dictionary_type m_dictionary;
-    /** Invoked when dictionary item is missing. */
-    dictionary_default_callback m_default_callback;
   };
 }

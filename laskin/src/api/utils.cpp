@@ -416,7 +416,7 @@ BUILTIN_WORD(w_tuck)
 BUILTIN_WORD(w_depth)
 {
   context << value::make_number(
-    static_cast<std::int64_t>(context.data().size())
+    static_cast<std::int64_t>(context.data.size())
   );
 }
 
@@ -470,7 +470,7 @@ BUILTIN_WORD(w_print)
  */
 BUILTIN_WORD(w_stack_preview)
 {
-  const auto& data = context.data();
+  const auto& data = context.data;
   const auto size = data.size();
 
   if (!size)
@@ -627,7 +627,7 @@ BUILTIN_WORD(w_try_else)
  */
 BUILTIN_WORD(w_lookup)
 {
-  const auto& dictionary = context.dictionary();
+  const auto& dictionary = context.dictionary;
   const auto id = context.pop().as_string();
   const auto word = dictionary.find(id);
 
@@ -651,7 +651,7 @@ BUILTIN_WORD(w_define)
   const auto id = context.pop().as_string();
   const auto value = context.pop();
 
-  context.dictionary()[id] = value;
+  context.dictionary[id] = value;
 }
 
 /**
@@ -664,7 +664,7 @@ BUILTIN_WORD(w_define)
 BUILTIN_WORD(w_delete)
 {
   const auto id = context.pop().as_string();
-  auto& dictionary = context.dictionary();
+  auto& dictionary = context.dictionary;
   const auto i = dictionary.find(id);
 
   if (i != std::end(dictionary))
@@ -682,7 +682,7 @@ BUILTIN_WORD(w_delete)
  */
 BUILTIN_WORD(w_symbols)
 {
-  const auto& dictionary = context.dictionary();
+  const auto& dictionary = context.dictionary;
   std::vector<value> result;
 
   result.reserve(dictionary.size());

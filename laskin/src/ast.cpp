@@ -37,7 +37,7 @@ namespace laskin
     std::ostream&
   ) const
   {
-    context.data().push_back(value);
+    context.data.push_back(value);
   }
 
   void
@@ -46,7 +46,7 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    context.data().push_back(eval(context, out));
+    context.data.push_back(eval(context, out));
   }
 
   value
@@ -95,7 +95,7 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    context.data().push_back(eval(context, out));
+    context.data.push_back(eval(context, out));
   }
 
   value
@@ -146,8 +146,8 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    auto& data = context.data();
-    const auto& dictionary = context.dictionary();
+    auto& data = context.data;
+    const auto& dictionary = context.dictionary;
 
     if (!data.empty())
     {
@@ -198,9 +198,9 @@ namespace laskin
       return;
     }
 
-    if (const auto& default_callback = context.default_callback())
+    if (context.default_callback)
     {
-      if (const auto value = default_callback(id))
+      if (const auto value = context.default_callback(id))
       {
         data.push_back(*value);
         return;
@@ -253,9 +253,9 @@ namespace laskin
     {
       return value::make_weekday(id);
     }
-    else if (const auto& default_callback = context.default_callback())
+    else if (context.default_callback)
     {
-      if (const auto value = default_callback(id))
+      if (const auto value = context.default_callback(id))
       {
         return *value;
       }
@@ -275,7 +275,7 @@ namespace laskin
     std::ostream&
   ) const
   {
-    context.dictionary()[id] = context.pop();
+    context.dictionary[id] = context.pop();
   }
 
   value
