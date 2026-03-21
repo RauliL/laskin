@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,45 +29,52 @@
 
 namespace laskin
 {
-  error::error(enum type type,
-               const std::u32string& message,
-               int line,
-               int column)
+  error::error(
+    enum type type,
+    const std::u32string& message,
+    int line,
+    int column
+  )
     : m_type(type)
     , m_message(peelo::unicode::encoding::utf8::encode(message))
     , m_line(line)
     , m_column(column) {}
 
-  std::u32string error::type_description(enum type type)
+  std::u32string
+  error::type_description(enum type type)
   {
     switch (type)
     {
-    case type::syntax:
-      return U"Syntax error";
+      case type::syntax:
+        return U"Syntax error";
 
-    case type::type:
-      return U"Type error";
+      case type::type:
+        return U"Type error";
 
-    case type::unit:
-      return U"Unit error";
+      case type::unit:
+        return U"Unit error";
 
-    case type::range:
-      return U"Range error";
+      case type::range:
+        return U"Range error";
 
-    case type::domain:
-      return U"Domain error";
+      case type::domain:
+        return U"Domain error";
 
-    case type::name:
-      return U"Name error";
+      case type::name:
+        return U"Name error";
 
-    case type::system:
-      return U"System error";
+      case type::system:
+        return U"System error";
+
+      case type::exit:
+        return U"Program exit";
     }
 
     return U"Unknown error"; // Just to keep GCC happy.
   }
 
-  std::ostream& operator<<(std::ostream& out, const class error& error)
+  std::ostream&
+  operator<<(std::ostream& out, const class error& error)
   {
     const auto line = error.line();
     const auto& message = error.message();

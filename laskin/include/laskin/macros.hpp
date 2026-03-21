@@ -25,6 +25,8 @@
  */
 #pragma once
 
+#define LASKIN_VERSION "3.0.0"
+
 #define BUILTIN_WORD(x) \
   static void x( \
     class context& context, \

@@ -494,12 +494,10 @@ BUILTIN_WORD(w_stack_preview)
  * quit ( -- )
  *
  * Terminates the interpreter.
- *
- * TODO: Add possiblity to disable this feature somehow.
  */
 BUILTIN_WORD(w_quit)
 {
-  std::exit(EXIT_SUCCESS);
+  throw error(error::type::exit, U"Program exit");
 }
 
 /**
@@ -577,6 +575,11 @@ BUILTIN_WORD(w_try)
   }
   catch (const error& e)
   {
+    // Allow program exit to be passed through.
+    if (e.is(error::type::exit))
+    {
+      throw e;
+    }
     context.push(value::make_string(decode(e.message())));
     catch_quote.call(context, out);
   }
@@ -602,6 +605,11 @@ BUILTIN_WORD(w_try_else)
   }
   catch (const error& e)
   {
+    // Allow program exit to be passed through.
+    if (e.is(error::type::exit))
+    {
+      throw e;
+    }
     context.push(value::make_string(decode(e.message())));
     catch_quote.call(context, out);
     return;

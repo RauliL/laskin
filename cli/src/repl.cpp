@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,8 @@ namespace laskin::cli
   static const char* get_prompt(context&);
   static void count_open_braces(std::stack<char>&, const std::string&);
 
-  void run_repl(class context& context)
+  void
+  run_repl(class context& context)
   {
     std::u32string source;
 
@@ -79,13 +80,19 @@ namespace laskin::cli
       }
       catch (const laskin::error& error)
       {
-        std::cout << error << std::endl;
+        if (error.is(laskin::error::type::exit))
+        {
+          std::exit(EXIT_FAILURE);
+        } else {
+          std::cout << error << std::endl;
+        }
       }
       source.clear();
     }
   }
 
-  static const char* get_prompt(class context& context)
+  static const char*
+  get_prompt(class context& context)
   {
     static char buffer[BUFSIZ];
 
@@ -101,8 +108,11 @@ namespace laskin::cli
     return buffer;
   }
 
-  static void count_open_braces(std::stack<char>& open_braces,
-                                const std::string& line)
+  static void
+  count_open_braces(
+    std::stack<char>& open_braces,
+    const std::string& line
+  )
   {
     const auto length = line.length();
 

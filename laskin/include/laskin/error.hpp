@@ -36,13 +36,14 @@ namespace laskin
   public:
     enum class type
     {
+      domain,
+      exit,
+      name,
+      range,
       syntax,
+      system,
       type,
       unit,
-      range,
-      domain,
-      name,
-      system
     };
 
     explicit error(

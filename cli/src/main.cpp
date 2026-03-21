@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 #include "laskin/quote.hpp"
 
 static std::string programfile;
@@ -46,7 +47,20 @@ static void run_file(laskin::context&, std::istream&);
 static void parse_args(int, char**);
 static void print_usage(std::ostream&, const char*);
 
-int main(int argc, char** argv)
+static void
+handle_error(const laskin::error& error)
+{
+  if (error.is(laskin::error::type::exit))
+  {
+    std::exit(EXIT_SUCCESS);
+  } else {
+    std::cerr << error << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
+}
+
+int
+main(int argc, char** argv)
 {
   laskin::context context;
 
@@ -62,8 +76,7 @@ int main(int argc, char** argv)
       }
       catch (const laskin::error& error)
       {
-        std::cerr << error << std::endl;
-        std::exit(EXIT_FAILURE);
+        handle_error(error);
       }
     }
   }
@@ -92,7 +105,8 @@ int main(int argc, char** argv)
   return EXIT_SUCCESS;
 }
 
-static void run_file(laskin::context& context, std::istream& input)
+static void
+run_file(laskin::context& context, std::istream& input)
 {
   const auto source = peelo::unicode::encoding::utf8::decode(
     std::string(
@@ -107,12 +121,12 @@ static void run_file(laskin::context& context, std::istream& input)
   }
   catch (const laskin::error& error)
   {
-    std::cerr << error << std::endl;
-    std::exit(EXIT_FAILURE);
+    handle_error(error);
   }
 }
 
-static void parse_args(int argc, char** argv)
+static void
+parse_args(int argc, char** argv)
 {
   int offset = 1;
 
@@ -142,7 +156,7 @@ static void parse_args(int argc, char** argv)
       }
       else if (!std::strcmp(arg, "--version"))
       {
-        std::cerr << "Laskin 2.0.0" << std::endl;
+        std::cerr << "Laskin " << LASKIN_VERSION << std::endl;
         std::exit(EXIT_SUCCESS);
       } else {
         std::cerr << "Unrecognized switch: " << arg << std::endl;
@@ -197,7 +211,8 @@ static void parse_args(int argc, char** argv)
   }
 }
 
-static void print_usage(std::ostream& output, const char* executable_name)
+static void
+print_usage(std::ostream& output, const char* executable_name)
 {
   output << std::endl
          << "Usage: "
