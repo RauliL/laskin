@@ -48,8 +48,12 @@ namespace laskin
     extern "C" const context::dictionary_definition weekday;
   }
 
-  context::context(const dictionary_default_callback& default_callback_)
+  context::context(
+    const dictionary_default_callback& default_callback_,
+    bool allow_include_
+  )
     : default_callback(default_callback_)
+    , allow_include(allow_include_)
   {
     initialize_dictionary(dictionary, api::utils);
     initialize_dictionary(dictionary, api::boolean);

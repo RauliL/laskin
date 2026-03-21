@@ -698,38 +698,45 @@ BUILTIN_WORD(w_symbols)
  *
  * Searches for the file system for a while which path is given as string and
  * executes it as Laskin program.
- *
- * TODO: Add option to disable this feature somehow.
  */
 BUILTIN_WORD(w_include)
 {
   using peelo::unicode::encoding::utf8::decode_validate;
 
   const auto path = context.pop().as_string();
-  std::ifstream input(peelo::unicode::encoding::utf8::encode(path));
-  std::string raw_source;
-  std::u32string source;
 
-  if (!input.good())
+  if (context.allow_include)
   {
+    std::ifstream input(peelo::unicode::encoding::utf8::encode(path));
+    std::string raw_source;
+    std::u32string source;
+
+    if (!input.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to open file `" + path + U"' for reading."
+      );
+    }
+    raw_source = std::string(
+      std::istreambuf_iterator<char>(input),
+      std::istreambuf_iterator<char>()
+    );
+    input.close();
+    if (!decode_validate(raw_source, source))
+    {
+      throw error(
+        error::type::system,
+        U"Unable to decode contents of the file with UTF-8 character encoding."
+      );
+    }
+    quote::parse(source).call(context, out);
+  } else {
     throw error(
       error::type::system,
-      U"Unable to open file `" + path + U"' for reading."
+      U"Using include has been disabled on this context."
     );
   }
-  raw_source = std::string(
-    std::istreambuf_iterator<char>(input),
-    std::istreambuf_iterator<char>()
-  );
-  input.close();
-  if (!decode_validate(raw_source, source))
-  {
-    throw error(
-      error::type::system,
-      U"Unable to decode contents of the file with UTF-8 character encoding."
-    );
-  }
-  quote::parse(source).call(context, out);
 }
 
 namespace laskin::api

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,12 @@ namespace laskin
     dictionary_type dictionary;
     /** Invoked when dictionary item is missing. */
     dictionary_default_callback default_callback;
+    /** Whether include word should be allowed or not. */
+    bool allow_include;
 
     explicit context(
-      const dictionary_default_callback& default_callback = nullptr
+      const dictionary_default_callback& default_callback_ = nullptr,
+      bool allow_include_ = true
     );
 
     context(const context&) = default;
