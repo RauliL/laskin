@@ -106,6 +106,86 @@ namespace laskin
     data.clear();
   }
 
+  context&
+  context::operator<<(const class value& value)
+  {
+    push(value);
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(bool value)
+  {
+    push(value::make_boolean(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const number& value)
+  {
+    push(value::make_number(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(double value)
+  {
+    push(value::make_number(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(int value)
+  {
+    push(value::make_number(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const std::u32string& value)
+  {
+    push(value::make_string(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const quote& value)
+  {
+    push(value::make_quote(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const value::vector_container& elements)
+  {
+    push(value::make_vector(elements));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const value::record_container& properties)
+  {
+    push(value::make_record(properties));
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(class value& value)
+  {
+    value = pop();
+
+    return *this;
+  }
+
   static void
   initialize_dictionary(
     context::dictionary_type& dictionary,

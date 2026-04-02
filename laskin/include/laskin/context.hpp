@@ -88,21 +88,51 @@ namespace laskin
     /**
      * Pushes given value onto the stack.
      */
-    inline context& operator<<(const class value& value)
-    {
-      push(value);
+    context& operator<<(const class value& value);
 
-      return *this;
-    }
+    /**
+     * Pushes given boolean value onto the stack.
+     */
+    context& operator<<(bool value);
+
+    /**
+     * Pushes given numeric value onto the stack.
+     */
+    context& operator<<(const number& value);
+
+    /**
+     * Pushes given numeric value onto the stack.
+     */
+    context& operator<<(double value);
+
+    /**
+     * Pushes given numeric value onto the stack.
+     */
+    context& operator<<(int value);
+
+    /**
+     * Pushes given string onto the stack.
+     */
+    context& operator<<(const std::u32string& value);
+
+    /**
+     * Pushes given quote onto the stack.
+     */
+    context& operator<<(const quote& value);
+
+    /**
+     * Pushes given vector onto the stack.
+     */
+    context& operator<<(const value::vector_container& elements);
+
+    /**
+     * Pushes given record onto the stack.
+     */
+    context& operator<<(const value::record_container& properties);
 
     /**
      * Pops value from the stack and places it into given slot.
      */
-    inline context& operator>>(class value& value)
-    {
-      value = pop();
-
-      return *this;
-    }
+    context& operator>>(class value& value);
   };
 }

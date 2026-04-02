@@ -35,7 +35,7 @@ using namespace laskin;
  */
 BUILTIN_WORD(w_not)
 {
-  context.push(value::make_boolean(!context.pop().as_boolean()));
+  context << !context.pop().as_boolean();
 }
 
 /**
@@ -48,7 +48,7 @@ BUILTIN_WORD(w_and)
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();
 
-  context.push(value::make_boolean(a && b));
+  context << (a && b);
 }
 
 /**
@@ -61,7 +61,7 @@ BUILTIN_WORD(w_or)
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();
 
-  context.push(value::make_boolean(a || b));
+  context << (a || b);
 }
 
 /**
@@ -74,7 +74,7 @@ BUILTIN_WORD(w_xor)
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();
 
-  context.push(value::make_boolean(a != b && (a || b)));
+  context << (a != b && (a || b));
 }
 
 namespace laskin::api

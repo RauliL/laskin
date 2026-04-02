@@ -45,6 +45,9 @@ namespace laskin
   class value
   {
   public:
+    using vector_container = std::vector<value>;
+    using record_container = tsl::ordered_map<std::u32string, value>;
+
     /**
      * Enumeration of different supported value types.
      */
@@ -104,7 +107,7 @@ namespace laskin
     /**
      * Constructs vector value.
      */
-    static value make_vector(const std::vector<value>& elements);
+    static value make_vector(const vector_container& elements);
 
     /**
      * Constructs vector value from given iterator.
@@ -112,7 +115,7 @@ namespace laskin
     template<class InputIt>
     static value make_vector(InputIt first, InputIt last)
     {
-      return make_vector(std::vector<value>(first, last));
+      return make_vector(vector_container(first, last));
     }
 
     /**
@@ -186,9 +189,7 @@ namespace laskin
     /**
      * Constructs record value.
      */
-    static value make_record(
-      const tsl::ordered_map<std::u32string, value>& properties
-    );
+    static value make_record(const record_container& properties);
 
     /**
      * Constructs boolean value of false.

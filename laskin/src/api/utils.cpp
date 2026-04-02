@@ -41,7 +41,7 @@ using namespace laskin;
  */
 BUILTIN_WORD(w_true)
 {
-  context << value::make_boolean(true);
+  context << true;
 }
 
 /**
@@ -51,7 +51,7 @@ BUILTIN_WORD(w_true)
  */
 BUILTIN_WORD(w_false)
 {
-  context << value::make_boolean(false);
+  context << false;
 }
 
 /**
@@ -61,7 +61,7 @@ BUILTIN_WORD(w_false)
  */
 BUILTIN_WORD(w_pi)
 {
-  context << value::make_number(M_PI);
+  context << M_PI;
 }
 
 /**
@@ -71,7 +71,7 @@ BUILTIN_WORD(w_pi)
  */
 BUILTIN_WORD(w_e)
 {
-  context << value::make_number(M_E);
+  context << M_E;
 }
 
 /**
@@ -84,7 +84,7 @@ BUILTIN_WORD(w_eq)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a == b);
+  context << (a == b);
 }
 
 /**
@@ -97,7 +97,7 @@ BUILTIN_WORD(w_ne)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a != b);
+  context << (a != b);
 }
 
 /**
@@ -110,7 +110,7 @@ BUILTIN_WORD(w_gt)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a > b);
+  context << (a > b);
 }
 
 /**
@@ -123,7 +123,7 @@ BUILTIN_WORD(w_lt)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a < b);
+  context << (a < b);
 }
 
 /**
@@ -136,7 +136,7 @@ BUILTIN_WORD(w_gte)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a >= b);
+  context << (a >= b);
 }
 
 /**
@@ -149,7 +149,7 @@ BUILTIN_WORD(w_lte)
   const auto b = context.pop();
   const auto a = context.pop();
 
-  context << value::make_boolean(a <= b);
+  context << (a <= b);
 }
 
 /**
@@ -207,7 +207,7 @@ BUILTIN_WORD(w_div)
 static inline void
 type_test(class context& context, enum value::type type)
 {
-  context << value::make_boolean(context.peek().is(type));
+  context << context.peek().is(type);
 }
 
 /**
@@ -427,7 +427,7 @@ BUILTIN_WORD(w_depth)
  */
 BUILTIN_WORD(w_to_string)
 {
-  context << value::make_string(context.pop().to_string());
+  context << context.pop().to_string();
 }
 
 /**
@@ -437,7 +437,7 @@ BUILTIN_WORD(w_to_string)
  */
 BUILTIN_WORD(w_to_source)
 {
-  context << value::make_string(context.pop().to_source());
+  context << context.pop().to_source();
 }
 
 /**
@@ -580,7 +580,7 @@ BUILTIN_WORD(w_try)
     {
       throw e;
     }
-    context.push(value::make_string(decode(e.message())));
+    context << decode(e.message());
     catch_quote.call(context, out);
   }
 }
@@ -610,7 +610,7 @@ BUILTIN_WORD(w_try_else)
     {
       throw e;
     }
-    context.push(value::make_string(decode(e.message())));
+    context << decode(e.message());
     catch_quote.call(context, out);
     return;
   }
@@ -690,7 +690,7 @@ BUILTIN_WORD(w_symbols)
   {
     result.push_back(value::make_string(entry.first));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**

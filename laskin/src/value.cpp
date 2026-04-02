@@ -89,27 +89,22 @@ namespace laskin
     return instance;
   }
 
-  value value::make_vector(const std::vector<value>& elements)
+  value value::make_vector(const vector_container& elements)
   {
     class value instance;
 
     instance.m_type = type::vector;
-    instance.m_value_vector = new std::vector<value>(elements);
+    instance.m_value_vector = new vector_container(elements);
 
     return instance;
   }
 
-  value value::make_record(
-    const tsl::ordered_map<std::u32string, value>& properties
-  )
+  value value::make_record(const record_container& properties)
   {
     class value instance;
 
     instance.m_type = type::record;
-    instance.m_value_record = new tsl::ordered_map<
-      std::u32string,
-      value
-    >(properties);
+    instance.m_value_record = new record_container(properties);
 
     return instance;
   }

@@ -108,7 +108,7 @@ BUILTIN_WORD(w_is_weekend)
 {
   const auto weekday = context.peek().as_weekday();
 
-  context << value::make_boolean(
+  context << (
     weekday == peelo::chrono::weekday::sat
     || weekday == peelo::chrono::weekday::sun
   );
@@ -123,7 +123,7 @@ BUILTIN_WORD(w_to_number)
 {
   const auto value = static_cast<int>(context.pop().as_weekday()) + 1;
 
-  context << value::make_number(value);
+  context << value;
 }
 
 namespace laskin::api

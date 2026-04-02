@@ -58,7 +58,7 @@ BUILTIN_WORD(w_now)
  */
 BUILTIN_WORD(w_hour)
 {
-  context << value::make_number(context.peek().as_time().hour());
+  context << context.peek().as_time().hour();
 }
 
 /**
@@ -68,7 +68,7 @@ BUILTIN_WORD(w_hour)
  */
 BUILTIN_WORD(w_minute)
 {
-  context << value::make_number(context.peek().as_time().minute());
+  context << context.peek().as_time().minute();
 }
 
 /**
@@ -78,7 +78,7 @@ BUILTIN_WORD(w_minute)
  */
 BUILTIN_WORD(w_second)
 {
-  context << value::make_number(context.peek().as_time().second());
+  context << context.peek().as_time().second();
 }
 
 /**
@@ -94,7 +94,7 @@ BUILTIN_WORD(w_format)
   const auto time = context.pop().as_time();
   const auto format = context.pop().as_string();
 
-  context << value::make_string(decode(time.format(encode(format))));
+  context << decode(time.format(encode(format)));
 }
 
 /**
@@ -111,7 +111,7 @@ BUILTIN_WORD(w_to_number)
   result += time.minute() * peelo::chrono::duration::seconds_per_minute;
   result += time.second();
 
-  context << value::make_number(result);
+  context << result;
 }
 
 /**
