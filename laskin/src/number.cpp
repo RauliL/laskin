@@ -618,54 +618,30 @@ namespace laskin
     return result;
   }
 
-  std::ostream& number::output(std::ostream& os) const
+  std::string number::to_string() const
   {
-    const std::ios::fmtflags flags = os.flags();
-    std::ostringstream format;
-    char* buffer = nullptr;
+    using peelo::unicode::encoding::utf8::encode;
 
-    if ((flags & std::ios::showpos))
-    {
-      format << "%+";
-    } else {
-      format << "%";
-    }
-    if (os.precision() > 0)
-    {
-      format << '.' << os.precision() << "R*";
-      if ((flags & std::ios::floatfield) == std::ios::fixed)
-      {
-        format << 'f';
-      }
-      else if ((flags & std::ios::floatfield) == std::ios::scientific)
-      {
-        format << 'e';
-      } else {
-        format << 'g';
-      }
-    } else {
-      format << "R*e";
-    }
-    if (mpfr_asprintf(
+    std::string result;
+    char* buffer = nullptr;
+    const auto length = mpfr_asprintf(
       &buffer,
-      format.str().c_str(),
+      "%.10R*g",
       default_rounding,
       m_value
-    ) >= 0)
-    {
-      std::string result(buffer);
+    );
 
+    if (length >= 0)
+    {
+      result.append(buffer, length);
       mpfr_free_str(buffer);
       if (m_measurement_unit)
       {
-        result.append(
-          peelo::unicode::encoding::utf8::encode(m_measurement_unit->symbol())
-        );
+        result.append(encode(m_measurement_unit->symbol()));
       }
-      os << result;
     }
 
-    return os;
+    return result;
   }
 
   /**

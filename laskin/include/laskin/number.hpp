@@ -25,8 +25,6 @@
  */
 #pragma once
 
-#include <iostream>
-
 #include <mpfr.h>
 
 #include "laskin/unit.hpp"
@@ -218,18 +216,10 @@ namespace laskin
       return result;
     }
 
-    std::ostream& output(std::ostream& os) const;
+    std::string to_string() const;
 
   private:
     value_type m_value;
     unit_type m_measurement_unit;
   };
-
-  inline std::ostream& operator<<(
-    std::ostream& os,
-    const class number& number
-  )
-  {
-    return number.output(os);
-  }
 }
