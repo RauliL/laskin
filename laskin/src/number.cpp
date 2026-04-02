@@ -44,15 +44,24 @@ namespace laskin
     mpfr_rnd_t
   );
 
-  static void to_base_unit(number::value_type, const number&);
+  static void to_base_unit(
+    number::value_type,
+    const number::value_type,
+    const number::unit_type&
+  );
   static void binary_op(
-    const number&,
-    const number&,
+    const number::value_type,
+    const number::unit_type&,
+    const number::value_type,
+    const number::unit_type&,
     number::value_type,
     number::unit_type&,
     binary_op_callback
   );
-  static void unit_check(const number&, const number&);
+  static void unit_check(
+    const number::unit_type&,
+    const number::unit_type&
+  );
 
   bool number::is_valid(const std::u32string& input)
   {
@@ -219,9 +228,9 @@ namespace laskin
     value_type b;
     int result;
 
-    unit_check(*this, that);
-    to_base_unit(a, *this);
-    to_base_unit(b, that);
+    unit_check(this->m_measurement_unit, that.m_measurement_unit);
+    to_base_unit(a, m_value, m_measurement_unit);
+    to_base_unit(b, that.m_value, that.m_measurement_unit);
     result = mpfr_cmp(a, b);
     mpfr_clear(a);
     mpfr_clear(b);
@@ -234,8 +243,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_add
@@ -249,8 +260,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_sub
@@ -264,8 +277,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_mul
@@ -292,8 +307,10 @@ namespace laskin
       throw error(error::type::range, U"Division by zero.");
     }
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_div
@@ -443,7 +460,7 @@ namespace laskin
   {
     number result(*this);
 
-    unit_check(*this, exp);
+    unit_check(this->m_measurement_unit, exp.m_measurement_unit);
     mpfr_pow(result.m_value, m_value, exp.m_value, default_rounding);
 
     return *this;
@@ -534,7 +551,7 @@ namespace laskin
   {
     number result(*this);
 
-    unit_check(*this, that);
+    unit_check(m_measurement_unit, that.m_measurement_unit);
     mpfr_atan2(result.m_value, m_value, that.m_value, default_rounding);
 
     return result;
@@ -655,11 +672,13 @@ namespace laskin
     return unit ? unit::base_unit_of(unit->type()) : number::unit_type();
   }
 
-  static void to_base_unit(mpfr_t result, const class number& number)
+  static void
+  to_base_unit(
+    number::value_type result,
+    const number::value_type value,
+    const number::unit_type& unit
+  )
   {
-    const auto& value = number.value();
-    const auto& unit = number.measurement_unit();
-
     if (unit && !unit->is_base_unit())
     {
       const auto multiplier = unit->multiplier();
@@ -682,20 +701,22 @@ namespace laskin
   }
 
   static void binary_op(
-    const number& a,
-    const number& b,
+    const number::value_type a_value,
+    const number::unit_type& a_unit,
+    const number::value_type b_value,
+    const number::unit_type& b_unit,
     number::value_type result,
     number::unit_type& result_unit,
     binary_op_callback callback
   )
   {
-    const auto base = base_unit_of(a);
+    const auto base = base_unit_of(a_unit);
     number::value_type base_value_a;
     number::value_type base_value_b;
 
-    unit_check(a, b);
-    to_base_unit(base_value_a, a);
-    to_base_unit(base_value_b, b);
+    unit_check(a_unit, b_unit);
+    to_base_unit(base_value_a, a_value, a_unit);
+    to_base_unit(base_value_b, b_value, b_unit);
     callback(result, base_value_a, base_value_b, default_rounding);
     mpfr_clear(base_value_a);
     mpfr_clear(base_value_b);
@@ -718,15 +739,16 @@ namespace laskin
     result_unit = base;
   }
 
-  static void unit_check(const number& a, const number& b)
+  static void
+  unit_check(
+    const number::unit_type& a,
+    const number::unit_type& b
+  )
   {
-    const auto& unit_a = a.measurement_unit();
-    const auto& unit_b = b.measurement_unit();
-
-    if (unit_a && unit_b)
+    if (a && b)
     {
-      const auto type_a = unit_a->type();
-      const auto type_b = unit_b->type();
+      const auto type_a = a->type();
+      const auto type_b = b->type();
 
       if (type_a != type_b)
       {
@@ -740,12 +762,12 @@ namespace laskin
         );
       }
     }
-    else if (unit_b)
+    else if (b)
     {
       throw error(
         error::type::unit,
         U"Cannot compare number without an unit against number which has " +
-        to_string(unit_b->type()) +
+        to_string(b->type()) +
         U" as measurement unit."
       );
     }

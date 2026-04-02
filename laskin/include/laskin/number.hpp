@@ -86,14 +86,6 @@ namespace laskin
     ~number();
 
     /**
-     * Returns the numeric value of the number.
-     */
-    inline const value_type& value() const
-    {
-      return m_value;
-    }
-
-    /**
      * Returns the optional measurement unit of the number, or empty value if
      * the number doesn't have one.
      */
