@@ -91,6 +91,26 @@ BUILTIN_WORD(w_drop_unit)
 }
 
 /**
+ * number:inf? ( number -- number boolean )
+ *
+ * Tests whether number represents infinity.
+ */
+BUILTIN_WORD(w_is_inf)
+{
+  context << value::make_boolean(context.peek().as_number().is_inf());
+}
+
+/**
+ * number:nan? ( number -- number boolean )
+ *
+ * Tests whether number represents NaN.
+ */
+BUILTIN_WORD(w_is_nan)
+{
+  context << value::make_boolean(context.peek().as_number().is_nan());
+}
+
+/**
  * number:range ( number number -- vector )
  *
  * Constructs an vector of numbers within between the given minimum and
@@ -335,6 +355,9 @@ namespace laskin::api
     { U"number:unit", w_unit },
     { U"number:unit-type", w_unit_type },
     { U"number:drop-unit", w_drop_unit },
+
+    { U"number:inf?", w_is_inf },
+    { U"number:nan?", w_is_nan },
 
     { U"number:range", w_range },
     { U"number:clamp", w_clamp },

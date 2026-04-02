@@ -93,6 +93,22 @@ namespace laskin
     }
 
     /**
+     * Tests whether number represents infinity.
+     */
+    inline bool is_inf() const
+    {
+      return mpfr_inf_p(m_value);
+    }
+
+    /**
+     * Tests whether number represents NaN.
+     */
+    inline bool is_nan() const
+    {
+      return mpfr_nan_p(m_value);
+    }
+
+    /**
      * Converts number into C++ long integer, or throws an exception if the
      * number is too large for that data type.
      */
