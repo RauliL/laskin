@@ -105,7 +105,7 @@ BUILTIN_WORD(w_format)
 BUILTIN_WORD(w_to_number)
 {
   const auto time = context.pop().as_time();
-  number result(0L, unit::second);
+  number result(0.0, unit::second);
 
   result += time.hour() * peelo::chrono::duration::seconds_per_hour;
   result += time.minute() * peelo::chrono::duration::seconds_per_minute;
