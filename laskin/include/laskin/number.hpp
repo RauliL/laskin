@@ -196,12 +196,26 @@ namespace laskin
 
     inline explicit operator bool() const
     {
-      return !mpfr_zero_p(m_value);
+      const auto result = mpfr_sgn(m_value) != 0;
+
+      if (mpfr_erangeflag_p())
+      {
+        mpfr_clear_erangeflag();
+      }
+
+      return result;
     }
 
     inline bool operator!() const
     {
-      return mpfr_zero_p(m_value);
+      const auto result = mpfr_sgn(m_value) == 0;
+
+      if (mpfr_erangeflag_p())
+      {
+        mpfr_clear_erangeflag();
+      }
+
+      return result;
     }
 
     std::ostream& output(std::ostream& os) const;
