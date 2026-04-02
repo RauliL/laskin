@@ -338,10 +338,6 @@ namespace laskin
   {
     number result;
 
-    if (mpfr_cmp_si(that.m_value, 0) == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
     binary_op(
       m_value,
       m_measurement_unit,
@@ -359,10 +355,6 @@ namespace laskin
   {
     number result(m_measurement_unit);
 
-    if (that == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
     mpfr_div_d(result.m_value, m_value, that, default_rounding);
 
     return result;
