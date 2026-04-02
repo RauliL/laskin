@@ -17,7 +17,7 @@ FetchContent_Declare(
   GIT_REPOSITORY
     https://github.com/peelonet/peelo-chrono.git
   GIT_TAG
-    v0.4.0
+    v1.0.0
 )
 FetchContent_Declare(
   peelo-unicode
