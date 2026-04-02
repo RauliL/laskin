@@ -299,7 +299,7 @@ BUILTIN_WORD(w_rad)
  */
 BUILTIN_WORD(w_to_month)
 {
-  const auto value = context.pop().as_number().to_long();
+  const auto value = long(context.pop().as_number());
 
   if (value < 1 || value > 12)
   {
@@ -318,7 +318,7 @@ BUILTIN_WORD(w_to_month)
  */
 BUILTIN_WORD(w_to_weekday)
 {
-  const auto value = context.pop().as_number().to_long();
+  const auto value = long(context.pop().as_number());
 
   if (value < 1 || value > 7)
   {

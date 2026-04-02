@@ -98,13 +98,13 @@ namespace laskin
      * Converts number into C++ long integer, or throws an exception if the
      * number is too large for that data type.
      */
-    long to_long() const;
+    explicit operator long() const;
 
     /**
      * Converts number into C++ double precision, or throws an exception if the
      * number is too large for that data type.
      */
-    double to_double() const;
+    explicit operator double() const;
 
     /**
      * Constructs copy of the number without the measurement unit.

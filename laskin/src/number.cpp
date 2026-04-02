@@ -187,19 +187,39 @@ namespace laskin
     mpfr_clear(m_value);
   }
 
-  long number::to_long() const
+  static void
+  size_check()
   {
-    if (!mpfr_fits_slong_p(m_value, default_rounding))
+    if (mpfr_underflow_p())
     {
+      mpfr_clear_underflow();
+
+      throw error(error::type::range, U"Numeric value is too small.");
+    }
+    if (mpfr_overflow_p())
+    {
+      mpfr_clear_overflow();
+
       throw error(error::type::range, U"Numeric value is too large.");
     }
-
-    return mpfr_get_si(m_value, default_rounding);
   }
 
-  double number::to_double() const
+  number::operator long() const
   {
-    return mpfr_get_d(m_value, default_rounding);
+    const auto result = mpfr_get_si(m_value, default_rounding);
+
+    size_check();
+
+    return result;
+  }
+
+  number::operator double() const
+  {
+    const auto result = mpfr_get_d(m_value, default_rounding);
+
+    size_check();
+
+    return result;
   }
 
   number number::without_unit() const
