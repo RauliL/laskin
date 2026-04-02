@@ -309,11 +309,11 @@ namespace laskin
     return result;
   }
 
-  number number::operator*(std::int64_t that) const
+  number number::operator*(double that) const
   {
     number result(m_measurement_unit);
 
-    mpfr_mul_si(result.m_value, m_value, that, default_rounding);
+    mpfr_mul_d(result.m_value, m_value, that, default_rounding);
 
     return result;
   }
@@ -339,19 +339,6 @@ namespace laskin
     return result;
   }
 
-  number number::operator/(std::int64_t that) const
-  {
-    number result(m_measurement_unit);
-
-    if (that == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
-    mpfr_div_si(result.m_value, m_value, that, default_rounding);
-
-    return result;
-  }
-
   number number::operator/(double that) const
   {
     number result(m_measurement_unit);
@@ -365,9 +352,9 @@ namespace laskin
     return result;
   }
 
-  number& number::operator+=(std::int64_t that)
+  number& number::operator+=(double that)
   {
-    mpfr_add_si(m_value, m_value, that, default_rounding);
+    mpfr_add_d(m_value, m_value, that, default_rounding);
 
     return *this;
   }

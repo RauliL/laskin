@@ -148,12 +148,11 @@ namespace laskin
     number operator+(const number& that) const;
     number operator-(const number& that) const;
     number operator*(const number& that) const;
-    number operator*(std::int64_t that) const;
+    number operator*(double that) const;
     number operator/(const number& that) const;
-    number operator/(std::int64_t that) const;
     number operator/(double that) const;
 
-    number& operator+=(std::int64_t that);
+    number& operator+=(double that);
 
     number& operator++();
     number& operator--();
