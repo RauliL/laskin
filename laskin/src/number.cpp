@@ -244,16 +244,22 @@ namespace laskin
 
   int number::compare(const number& that) const
   {
-    value_type a;
-    value_type b;
     int result;
 
     unit_check(this->m_measurement_unit, that.m_measurement_unit);
-    to_base_unit(a, m_value, m_measurement_unit);
-    to_base_unit(b, that.m_value, that.m_measurement_unit);
-    result = mpfr_cmp(a, b);
-    mpfr_clear(a);
-    mpfr_clear(b);
+    if (m_measurement_unit)
+    {
+      number::value_type a;
+      number::value_type b;
+
+      to_base_unit(a, m_value, m_measurement_unit);
+      to_base_unit(b, that.m_value, that.m_measurement_unit);
+      result = mpfr_cmp(a, b);
+      mpfr_clear(a);
+      mpfr_clear(b);
+    } else {
+      result = mpfr_cmp(m_value, that.m_value);
+    }
 
     return result;
   }
@@ -644,17 +650,6 @@ namespace laskin
     return result;
   }
 
-  /**
-   * Determines base unit of the given number, if the given number has a
-   * measurement unit.
-   */
-  static number::unit_type base_unit_of(const number& num)
-  {
-    const auto& unit = num.measurement_unit();
-
-    return unit ? unit::base_unit_of(unit->type()) : number::unit_type();
-  }
-
   static void
   to_base_unit(
     number::value_type result,
@@ -693,20 +688,19 @@ namespace laskin
     binary_op_callback callback
   )
   {
-    const auto base = base_unit_of(a_unit);
-    number::value_type base_value_a;
-    number::value_type base_value_b;
-
     unit_check(a_unit, b_unit);
-    to_base_unit(base_value_a, a_value, a_unit);
-    to_base_unit(base_value_b, b_value, b_unit);
-    callback(result, base_value_a, base_value_b, default_rounding);
-    mpfr_clear(base_value_a);
-    mpfr_clear(base_value_b);
-
-    if (base)
+    if (a_unit)
     {
-      for (const auto& unit : unit::all_units_of(base->type()))
+      const auto base = unit::base_unit_of(a_unit->type());
+      number::value_type base_value_a;
+      number::value_type base_value_b;
+
+      to_base_unit(base_value_a, a_value, a_unit);
+      to_base_unit(base_value_b, b_value, b_unit);
+      callback(result, base_value_a, base_value_b, default_rounding);
+      mpfr_clear(base_value_a);
+      mpfr_clear(base_value_b);
+      for (const auto& unit : unit::all_units_of(base.type()))
       {
         const auto multiplier = unit.multiplier();
 
@@ -717,9 +711,10 @@ namespace laskin
           return;
         }
       }
+      result_unit = base;
+    } else {
+      callback(result, a_value, b_value, default_rounding);
     }
-
-    result_unit = base;
   }
 
   static void
