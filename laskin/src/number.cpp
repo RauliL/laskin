@@ -37,22 +37,41 @@ namespace laskin
 {
   static constexpr mpfr_rnd_t default_rounding = MPFR_RNDN;
 
-  using binary_op_callback = int (*)(
+  using binary_op_callback = int(*)(
     mpfr_t,
     mpfr_srcptr,
     mpfr_srcptr,
     mpfr_rnd_t
   );
+  using unary_op_callback = int(*)(
+    mpfr_t,
+    mpfr_srcptr,
+    mpfr_rnd_t
+  );
 
-  static void to_base_unit(number::value_type, const number&);
+  static void to_base_unit(
+    number::value_type,
+    const number::value_type,
+    const number::unit_type&
+  );
   static void binary_op(
-    const number&,
-    const number&,
+    const number::value_type,
+    const number::unit_type&,
+    const number::value_type,
+    const number::unit_type&,
     number::value_type,
     number::unit_type&,
     binary_op_callback
   );
-  static void unit_check(const number&, const number&);
+  static void unary_op(
+    number::value_type,
+    number::unit_type&,
+    unary_op_callback
+  );
+  static void unit_check(
+    const number::unit_type&,
+    const number::unit_type&
+  );
 
   bool number::is_valid(const std::u32string& input)
   {
@@ -178,19 +197,39 @@ namespace laskin
     mpfr_clear(m_value);
   }
 
-  long number::to_long() const
+  static void
+  size_check()
   {
-    if (!mpfr_fits_slong_p(m_value, default_rounding))
+    if (mpfr_underflow_p())
     {
+      mpfr_clear_underflow();
+
+      throw error(error::type::range, U"Numeric value is too small.");
+    }
+    if (mpfr_overflow_p())
+    {
+      mpfr_clear_overflow();
+
       throw error(error::type::range, U"Numeric value is too large.");
     }
-
-    return mpfr_get_si(m_value, default_rounding);
   }
 
-  double number::to_double() const
+  number::operator long() const
   {
-    return mpfr_get_d(m_value, default_rounding);
+    const auto result = mpfr_get_si(m_value, default_rounding);
+
+    size_check();
+
+    return result;
+  }
+
+  number::operator double() const
+  {
+    const auto result = mpfr_get_d(m_value, default_rounding);
+
+    size_check();
+
+    return result;
   }
 
   number number::without_unit() const
@@ -215,16 +254,22 @@ namespace laskin
 
   int number::compare(const number& that) const
   {
-    value_type a;
-    value_type b;
     int result;
 
-    unit_check(*this, that);
-    to_base_unit(a, *this);
-    to_base_unit(b, that);
-    result = mpfr_cmp(a, b);
-    mpfr_clear(a);
-    mpfr_clear(b);
+    unit_check(this->m_measurement_unit, that.m_measurement_unit);
+    if (m_measurement_unit)
+    {
+      number::value_type a;
+      number::value_type b;
+
+      to_base_unit(a, m_value, m_measurement_unit);
+      to_base_unit(b, that.m_value, that.m_measurement_unit);
+      result = mpfr_cmp(a, b);
+      mpfr_clear(a);
+      mpfr_clear(b);
+    } else {
+      result = mpfr_cmp(m_value, that.m_value);
+    }
 
     return result;
   }
@@ -234,8 +279,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_add
@@ -249,8 +296,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_sub
@@ -264,8 +313,10 @@ namespace laskin
     number result;
 
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_mul
@@ -274,11 +325,11 @@ namespace laskin
     return result;
   }
 
-  number number::operator*(std::int64_t that) const
+  number number::operator*(double that) const
   {
     number result(m_measurement_unit);
 
-    mpfr_mul_si(result.m_value, m_value, that, default_rounding);
+    mpfr_mul_d(result.m_value, m_value, that, default_rounding);
 
     return result;
   }
@@ -287,13 +338,11 @@ namespace laskin
   {
     number result;
 
-    if (mpfr_cmp_si(that.m_value, 0) == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
     binary_op(
-      *this,
-      that,
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
       result.m_value,
       result.m_measurement_unit,
       mpfr_div
@@ -302,35 +351,18 @@ namespace laskin
     return result;
   }
 
-  number number::operator/(std::int64_t that) const
-  {
-    number result(m_measurement_unit);
-
-    if (that == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
-    mpfr_div_si(result.m_value, m_value, that, default_rounding);
-
-    return result;
-  }
-
   number number::operator/(double that) const
   {
     number result(m_measurement_unit);
 
-    if (that == 0)
-    {
-      throw error(error::type::range, U"Division by zero.");
-    }
     mpfr_div_d(result.m_value, m_value, that, default_rounding);
 
     return result;
   }
 
-  number& number::operator+=(std::int64_t that)
+  number& number::operator+=(double that)
   {
-    mpfr_add_si(m_value, m_value, that, default_rounding);
+    mpfr_add_d(m_value, m_value, that, default_rounding);
 
     return *this;
   }
@@ -371,7 +403,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_neg(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_neg);
 
     return result;
   }
@@ -380,7 +412,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_exp(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_exp);
 
     return result;
   }
@@ -389,7 +421,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_exp2(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_exp2);
 
     return result;
   }
@@ -398,7 +430,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_expm1(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_expm1);
 
     return result;
   }
@@ -407,7 +439,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_log(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_log);
 
     return result;
   }
@@ -416,7 +448,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_log10(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_log10);
 
     return result;
   }
@@ -425,7 +457,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_log2(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_log2);
 
     return result;
   }
@@ -434,17 +466,24 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_log1p(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_log1p);
 
     return result;
   }
 
   number number::pow(const number& exp) const
   {
-    number result(*this);
+    number result;
 
-    unit_check(*this, exp);
-    mpfr_pow(result.m_value, m_value, exp.m_value, default_rounding);
+    binary_op(
+      m_value,
+      m_measurement_unit,
+      exp.m_value,
+      exp.m_measurement_unit,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_pow
+    );
 
     return *this;
   }
@@ -453,7 +492,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_sqrt(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_sqrt);
 
     return *this;
   }
@@ -462,16 +501,24 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_cbrt(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_cbrt);
 
     return *this;
   }
 
   number number::hypot(const number& that) const
   {
-    number result(*this);
+    number result;
 
-    mpfr_hypot(result.m_value, m_value, that.m_value, default_rounding);
+    binary_op(
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_hypot
+    );
 
     return *this;
   }
@@ -480,7 +527,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_cos(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_cos);
 
     return result;
   }
@@ -489,7 +536,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_sin(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_sin);
 
     return result;
   }
@@ -498,7 +545,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_tan(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_tan);
 
     return result;
   }
@@ -507,7 +554,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_acos(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_acos);
 
     return result;
   }
@@ -516,7 +563,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_asin(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_asin);
 
     return result;
   }
@@ -525,17 +572,24 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_atan(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_atan);
 
     return result;
   }
 
   number number::atan2(const number& that) const
   {
-    number result(*this);
+    number result;
 
-    unit_check(*this, that);
-    mpfr_atan2(result.m_value, m_value, that.m_value, default_rounding);
+    binary_op(
+      m_value,
+      m_measurement_unit,
+      that.m_value,
+      that.m_measurement_unit,
+      result.m_value,
+      result.m_measurement_unit,
+      mpfr_atan2
+    );
 
     return result;
   }
@@ -544,7 +598,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_sinh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_sinh);
 
     return result;
   }
@@ -553,7 +607,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_cosh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_cosh);
 
     return result;
   }
@@ -562,7 +616,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_tanh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_tanh);
 
     return result;
   }
@@ -571,7 +625,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_asinh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_asinh);
 
     return result;
   }
@@ -580,7 +634,7 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_acosh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_acosh);
 
     return result;
   }
@@ -589,77 +643,44 @@ namespace laskin
   {
     number result(*this);
 
-    mpfr_atanh(result.m_value, m_value, default_rounding);
+    unary_op(result.m_value, result.m_measurement_unit, mpfr_atanh);
 
     return result;
   }
 
-  std::ostream& number::output(std::ostream& os) const
+  std::string number::to_string() const
   {
-    const std::ios::fmtflags flags = os.flags();
-    std::ostringstream format;
-    char* buffer = nullptr;
+    using peelo::unicode::encoding::utf8::encode;
 
-    if ((flags & std::ios::showpos))
-    {
-      format << "%+";
-    } else {
-      format << "%";
-    }
-    if (os.precision() > 0)
-    {
-      format << '.' << os.precision() << "R*";
-      if ((flags & std::ios::floatfield) == std::ios::fixed)
-      {
-        format << 'f';
-      }
-      else if ((flags & std::ios::floatfield) == std::ios::scientific)
-      {
-        format << 'e';
-      } else {
-        format << 'g';
-      }
-    } else {
-      format << "R*e";
-    }
-    if (mpfr_asprintf(
+    std::string result;
+    char* buffer = nullptr;
+    const auto length = mpfr_asprintf(
       &buffer,
-      format.str().c_str(),
+      "%.10R*g",
       default_rounding,
       m_value
-    ) >= 0)
-    {
-      std::string result(buffer);
+    );
 
+    if (length >= 0)
+    {
+      result.append(buffer, length);
       mpfr_free_str(buffer);
       if (m_measurement_unit)
       {
-        result.append(
-          peelo::unicode::encoding::utf8::encode(m_measurement_unit->symbol())
-        );
+        result.append(encode(m_measurement_unit->symbol()));
       }
-      os << result;
     }
 
-    return os;
+    return result;
   }
 
-  /**
-   * Determines base unit of the given number, if the given number has a
-   * measurement unit.
-   */
-  static number::unit_type base_unit_of(const number& num)
+  static void
+  to_base_unit(
+    number::value_type result,
+    const number::value_type value,
+    const number::unit_type& unit
+  )
   {
-    const auto& unit = num.measurement_unit();
-
-    return unit ? unit::base_unit_of(unit->type()) : number::unit_type();
-  }
-
-  static void to_base_unit(mpfr_t result, const class number& number)
-  {
-    const auto& value = number.value();
-    const auto& unit = number.measurement_unit();
-
     if (unit && !unit->is_base_unit())
     {
       const auto multiplier = unit->multiplier();
@@ -681,52 +702,81 @@ namespace laskin
     mpfr_init_set(result, value, default_rounding);
   }
 
-  static void binary_op(
-    const number& a,
-    const number& b,
+  static void
+  normalize_unit(
+    number::value_type result_value,
+    number::unit_type& result_unit
+  )
+  {
+    const auto base = unit::base_unit_of(result_unit->type());
+
+    for (const auto& unit : unit::all_units_of(base.type()))
+    {
+      const auto multiplier = unit.multiplier();
+
+      if (multiplier > 0 && mpfr_cmp_si(result_value, multiplier) >= 0)
+      {
+        mpfr_div_si(result_value, result_value, multiplier, default_rounding);
+        result_unit = unit;
+        return;
+      }
+    }
+    result_unit = base;
+  }
+
+  static void
+  binary_op(
+    const number::value_type a_value,
+    const number::unit_type& a_unit,
+    const number::value_type b_value,
+    const number::unit_type& b_unit,
     number::value_type result,
     number::unit_type& result_unit,
     binary_op_callback callback
   )
   {
-    const auto base = base_unit_of(a);
-    number::value_type base_value_a;
-    number::value_type base_value_b;
-
-    unit_check(a, b);
-    to_base_unit(base_value_a, a);
-    to_base_unit(base_value_b, b);
-    callback(result, base_value_a, base_value_b, default_rounding);
-    mpfr_clear(base_value_a);
-    mpfr_clear(base_value_b);
-
-    if (base)
+    unit_check(a_unit, b_unit);
+    if (a_unit)
     {
-      for (const auto& unit : unit::all_units_of(base->type()))
-      {
-        const auto multiplier = unit.multiplier();
+      const auto base = unit::base_unit_of(a_unit->type());
+      number::value_type base_value_a;
+      number::value_type base_value_b;
 
-        if (multiplier > 0 && mpfr_cmp_si(result, multiplier) >= 0)
-        {
-          mpfr_div_si(result, result, multiplier, default_rounding);
-          result_unit = unit;
-          return;
-        }
-      }
+      to_base_unit(base_value_a, a_value, a_unit);
+      to_base_unit(base_value_b, b_value, b_unit);
+      callback(result, base_value_a, base_value_b, default_rounding);
+      mpfr_clear(base_value_a);
+      mpfr_clear(base_value_b);
+      normalize_unit(result, result_unit);
+    } else {
+      callback(result, a_value, b_value, default_rounding);
     }
-
-    result_unit = base;
   }
 
-  static void unit_check(const number& a, const number& b)
+  static void
+  unary_op(
+    number::value_type result,
+    number::unit_type& result_unit,
+    unary_op_callback callback
+  )
   {
-    const auto& unit_a = a.measurement_unit();
-    const auto& unit_b = b.measurement_unit();
-
-    if (unit_a && unit_b)
+    callback(result, result, default_rounding);
+    if (result_unit)
     {
-      const auto type_a = unit_a->type();
-      const auto type_b = unit_b->type();
+      normalize_unit(result, result_unit);
+    }
+  }
+
+  static void
+  unit_check(
+    const number::unit_type& a,
+    const number::unit_type& b
+  )
+  {
+    if (a && b)
+    {
+      const auto type_a = a->type();
+      const auto type_b = b->type();
 
       if (type_a != type_b)
       {
@@ -740,12 +790,12 @@ namespace laskin
         );
       }
     }
-    else if (unit_b)
+    else if (b)
     {
       throw error(
         error::type::unit,
         U"Cannot compare number without an unit against number which has " +
-        to_string(unit_b->type()) +
+        to_string(b->type()) +
         U" as measurement unit."
       );
     }

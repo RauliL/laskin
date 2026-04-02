@@ -116,7 +116,7 @@ namespace laskin
         U"Cannot substract number to month."
       );
     } else {
-      delta = b.to_long();
+      delta = long(b);
     }
 
     return value::make_month(a - delta);
@@ -130,7 +130,7 @@ namespace laskin
     {
       if (!unit->symbol().compare(U"d"))
       {
-        delta = b.to_long();
+        delta = long(b);
       } else {
         throw error(
           error::type::type,
@@ -138,7 +138,7 @@ namespace laskin
         );
       }
     } else {
-      delta = b.to_long();
+      delta = long(b);
     }
 
     return value::make_weekday(a - delta);
@@ -152,7 +152,7 @@ namespace laskin
     {
       if (!unit->symbol().compare(U"d"))
       {
-        delta = b.to_long();
+        delta = long(b);
       } else {
         throw error(
           error::type::type,
@@ -160,7 +160,7 @@ namespace laskin
         );
       }
     } else {
-      delta = b.to_long();
+      delta = long(b);
     }
 
     return value::make_date(a - delta);
@@ -176,19 +176,19 @@ namespace laskin
 
       if (!symbol.compare(U"s"))
       {
-        delta = b.to_long();
+        delta = long(b);
       }
       else if (!symbol.compare(U"min"))
       {
-        delta = b.to_long() * peelo::chrono::duration::minutes_per_hour;
+        delta = long(b) * peelo::chrono::duration::minutes_per_hour;
       }
       else if (!symbol.compare(U"h"))
       {
-        delta = b.to_long() * peelo::chrono::duration::seconds_per_hour;
+        delta = long(b) * peelo::chrono::duration::seconds_per_hour;
       }
       else if (!symbol.compare(U"d"))
       {
-        delta = b.to_long() * peelo::chrono::duration::seconds_per_day;
+        delta = long(b) * peelo::chrono::duration::seconds_per_day;
       } else {
         throw error(
           error::type::type,
@@ -196,7 +196,7 @@ namespace laskin
         );
       }
     } else {
-      delta = b.to_long();
+      delta = long(b);
     }
 
     return value::make_time(a - delta);

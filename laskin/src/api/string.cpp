@@ -487,8 +487,8 @@ BUILTIN_WORD(w_substring)
 {
   const auto string = context.pop().as_string();
   const auto length = string.length();
-  auto begin = context.pop().as_number().to_long();
-  auto end = context.pop().as_number().to_long();
+  auto begin = long(context.pop().as_number());
+  auto end = long(context.pop().as_number());
 
   if (begin < 0)
   {
@@ -577,7 +577,7 @@ BUILTIN_WORD(w_split)
 BUILTIN_WORD(w_repeat)
 {
   const auto string = context.pop().as_string();
-  auto count = context.pop().as_number().to_long();
+  auto count = long(context.pop().as_number());
   std::u32string result;
 
   result.reserve(string.length() * count);
@@ -638,7 +638,7 @@ BUILTIN_WORD(w_pad_start)
 {
   const auto string = context.pop().as_string();
   auto pad_string = context.pop().as_string();
-  auto target_length = context.pop().as_number().to_long();
+  auto target_length = long(context.pop().as_number());
   const auto string_length = string.length();
   const auto pad_string_length = pad_string.length();
 
@@ -673,7 +673,7 @@ BUILTIN_WORD(w_pad_end)
 {
   const auto string = context.pop().as_string();
   auto pad_string = context.pop().as_string();
-  auto target_length = context.pop().as_number().to_long();
+  auto target_length = long(context.pop().as_number());
   const auto string_length = string.length();
   const auto pad_string_length = pad_string.length();
 
@@ -710,7 +710,7 @@ BUILTIN_WORD(w_at)
 {
   const auto string = context.pop().as_string();
   const auto length = string.length();
-  auto index = context.pop().as_number().to_long();
+  auto index = long(context.pop().as_number());
   char32_t c;
 
   if (index < 0)

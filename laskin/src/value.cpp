@@ -656,11 +656,9 @@ namespace laskin
 
   static std::u32string number_to_string(const number& value)
   {
-    std::stringstream ss;
+    using peelo::unicode::encoding::utf8::decode;
 
-    ss << value;
-
-    return peelo::unicode::encoding::utf8::decode(ss.str());
+    return decode(value.to_string());
   }
 
   static std::u32string vector_to_string(const std::vector<value>& elements)

@@ -25,8 +25,6 @@
  */
 #pragma once
 
-#include <iostream>
-
 #include <mpfr.h>
 
 #include "laskin/unit.hpp"
@@ -86,14 +84,6 @@ namespace laskin
     ~number();
 
     /**
-     * Returns the numeric value of the number.
-     */
-    inline const value_type& value() const
-    {
-      return m_value;
-    }
-
-    /**
      * Returns the optional measurement unit of the number, or empty value if
      * the number doesn't have one.
      */
@@ -103,16 +93,32 @@ namespace laskin
     }
 
     /**
+     * Tests whether number represents infinity.
+     */
+    inline bool is_inf() const
+    {
+      return mpfr_inf_p(m_value);
+    }
+
+    /**
+     * Tests whether number represents NaN.
+     */
+    inline bool is_nan() const
+    {
+      return mpfr_nan_p(m_value);
+    }
+
+    /**
      * Converts number into C++ long integer, or throws an exception if the
      * number is too large for that data type.
      */
-    long to_long() const;
+    explicit operator long() const;
 
     /**
      * Converts number into C++ double precision, or throws an exception if the
      * number is too large for that data type.
      */
-    double to_double() const;
+    explicit operator double() const;
 
     /**
      * Constructs copy of the number without the measurement unit.
@@ -156,12 +162,11 @@ namespace laskin
     number operator+(const number& that) const;
     number operator-(const number& that) const;
     number operator*(const number& that) const;
-    number operator*(std::int64_t that) const;
+    number operator*(double that) const;
     number operator/(const number& that) const;
-    number operator/(std::int64_t that) const;
     number operator/(double that) const;
 
-    number& operator+=(std::int64_t that);
+    number& operator+=(double that);
 
     number& operator++();
     number& operator--();
@@ -205,26 +210,32 @@ namespace laskin
 
     inline explicit operator bool() const
     {
-      return !mpfr_zero_p(m_value);
+      const auto result = mpfr_sgn(m_value) != 0;
+
+      if (mpfr_erangeflag_p())
+      {
+        mpfr_clear_erangeflag();
+      }
+
+      return result;
     }
 
     inline bool operator!() const
     {
-      return mpfr_zero_p(m_value);
+      const auto result = mpfr_sgn(m_value) == 0;
+
+      if (mpfr_erangeflag_p())
+      {
+        mpfr_clear_erangeflag();
+      }
+
+      return result;
     }
 
-    std::ostream& output(std::ostream& os) const;
+    std::string to_string() const;
 
   private:
     value_type m_value;
     unit_type m_measurement_unit;
   };
-
-  inline std::ostream& operator<<(
-    std::ostream& os,
-    const class number& number
-  )
-  {
-    return number.output(os);
-  }
 }

@@ -39,7 +39,7 @@ BUILTIN_WORD(w_vector)
   const auto size = context.pop().as_number();
   std::vector<value> elements;
 
-  elements.reserve(size.to_long());
+  elements.reserve(long(size));
   for (number i; i < size; ++i)
   {
     elements.push_back(context.pop());
@@ -313,7 +313,7 @@ BUILTIN_WORD(w_insert)
   auto vec = context.pop().as_vector();
   const auto size = vec.size();
   const auto value = context.pop();
-  auto index = context.pop().as_number().to_long();
+  auto index = long(context.pop().as_number());
 
   if (index < 0)
   {
@@ -418,7 +418,7 @@ BUILTIN_WORD(w_at)
 {
   const auto vector = context.pop().as_vector();
   const auto size = vector.size();
-  auto index = context.pop().as_number().to_long();
+  auto index = long(context.pop().as_number());
 
   if (index < 0)
   {
@@ -443,7 +443,7 @@ BUILTIN_WORD(w_set)
 {
   auto vector = context.pop().as_vector();
   const auto size = vector.size();
-  auto index = context.pop().as_number().to_long();
+  auto index = long(context.pop().as_number());
   const auto value = context.pop();
 
   if (index < 0)
@@ -478,9 +478,9 @@ BUILTIN_WORD(w_to_time)
   {
     throw error(error::type::range, U"Time needs three values.");
   }
-  hour = vector[0].as_number().to_long();
-  minute = vector[1].as_number().to_long();
-  second = vector[2].as_number().to_long();
+  hour = long(vector[0].as_number());
+  minute = long(vector[1].as_number());
+  second = long(vector[2].as_number());
   if (!peelo::chrono::time::is_valid(hour, minute, second))
   {
     throw error(error::type::range, U"Invalid time.");
@@ -508,12 +508,12 @@ BUILTIN_WORD(w_to_date)
   {
     throw error(error::type::range, U"Date needs three values.");
   }
-  year = vector[0].as_number().to_long();
+  year = long(vector[0].as_number());
   if (vector[1].is(value::type::month))
   {
     month = vector[1].as_month();
   } else {
-    const auto value = vector[1].as_number().to_long();
+    const auto value = long(vector[1].as_number());
 
     if (value < 1 || value > 12)
     {
@@ -521,7 +521,7 @@ BUILTIN_WORD(w_to_date)
     }
     month = static_cast<peelo::chrono::month>(value - 1);
   }
-  day = vector[2].as_number().to_long();
+  day = long(vector[2].as_number());
   if (!peelo::chrono::date::is_valid(year, month, day))
   {
     throw error(error::type::range, U"Invalid date.");
