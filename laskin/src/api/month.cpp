@@ -158,7 +158,7 @@ BUILTIN_WORD(w_to_number)
 {
   const auto value = static_cast<int>(context.pop().as_month()) + 1;
 
-  context << value::make_number(value);
+  context << value;
 }
 
 namespace api

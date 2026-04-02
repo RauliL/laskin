@@ -144,7 +144,7 @@ BUILTIN_WORD(w_mean)
     {
       sum = sum + vec[i].as_number();
     }
-    context << value::make_number(sum / static_cast<std::int64_t>(size));
+    context << (sum / static_cast<std::int64_t>(size));
     return;
   }
 
@@ -171,7 +171,7 @@ BUILTIN_WORD(w_sum)
     {
       sum = sum + vec[i].as_number();
     }
-    context << value::make_number(sum);
+    context << sum;
     return;
   }
 
@@ -214,7 +214,7 @@ BUILTIN_WORD(w_map)
     quote.call(context, out);
     result.push_back(context.pop());
   }
-  context.push(value::make_vector(result));
+  context << result;
 }
 
 /**
@@ -239,7 +239,7 @@ BUILTIN_WORD(w_filter)
       result.push_back(value);
     }
   }
-  context.push(value::make_vector(result));
+  context << result;
 }
 
 /**
@@ -283,7 +283,7 @@ BUILTIN_WORD(w_prepend)
   const auto value = context.pop();
 
   vec.insert(std::begin(vec), 1, value);
-  context << value::make_vector(vec);
+  context << vec;
 }
 
 /**
@@ -298,7 +298,7 @@ BUILTIN_WORD(w_append)
   const auto value = context.pop();
 
   vec.push_back(value);
-  context << value::make_vector(vec);
+  context << vec;
 }
 
 /**
@@ -324,7 +324,7 @@ BUILTIN_WORD(w_insert)
     throw error(error::type::range, U"Vector index out of bounds.");
   }
   vec.insert(std::begin(vec) + index, 1, value);
-  context << value::make_vector(vec);
+  context << vec;
 }
 
 /**
@@ -403,7 +403,7 @@ BUILTIN_WORD(w_sort)
   auto vector = context.pop().as_vector();
 
   quicksort(vector, 0, vector.size() - 1);
-  context << value::make_vector(vector);
+  context << vector;
 }
 
 /**
@@ -455,7 +455,7 @@ BUILTIN_WORD(w_set)
     throw error(error::type::range, U"Vector index out of bounds.");
   }
   vector[index] = value;
-  context << value::make_vector(vector);
+  context << vector;
 }
 
 /**

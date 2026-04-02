@@ -38,7 +38,7 @@ using namespace laskin;
  */
 BUILTIN_WORD(w_has_unit)
 {
-  context << value::make_boolean(bool(context.peek().as_number().measurement_unit()));
+  context << bool(context.peek().as_number().measurement_unit());
 }
 
 /**
@@ -57,7 +57,7 @@ BUILTIN_WORD(w_unit)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << value::make_string(unit->symbol());
+  context << unit->symbol();
 }
 
 /**
@@ -77,7 +77,7 @@ BUILTIN_WORD(w_unit_type)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << value::make_string(to_string(unit->type()));
+  context << to_string(unit->type());
 }
 
 /**
@@ -87,9 +87,7 @@ BUILTIN_WORD(w_unit_type)
  */
 BUILTIN_WORD(w_drop_unit)
 {
-  const auto value = context.pop().as_number();
-
-  context << value::make_number(value.without_unit());
+  context << context.pop().as_number().without_unit();
 }
 
 /**
@@ -110,7 +108,7 @@ BUILTIN_WORD(w_range)
     result.push_back(value::make_number(current));
     ++current;
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -124,9 +122,7 @@ BUILTIN_WORD(w_clamp)
   const auto max = context.pop().as_number();
   const auto min = context.pop().as_number();
 
-  context.push(value::make_number(
-    value > max ? max : value < min ? min : value
-  ));
+  context << (value > max ? max : value < min ? min : value);
 }
 
 /**
@@ -152,37 +148,37 @@ BUILTIN_WORD(w_times)
 
 BUILTIN_WORD(w_exp)
 {
-  context << value::make_number(context.pop().as_number().exp());
+  context << context.pop().as_number().exp();
 }
 
 BUILTIN_WORD(w_exp2)
 {
-  context << value::make_number(context.pop().as_number().exp2());
+  context << context.pop().as_number().exp2();
 }
 
 BUILTIN_WORD(w_expm1)
 {
-  context << value::make_number(context.pop().as_number().expm1());
+  context << context.pop().as_number().expm1();
 }
 
 BUILTIN_WORD(w_log)
 {
-  context << value::make_number(context.pop().as_number().log());
+  context << context.pop().as_number().log();
 }
 
 BUILTIN_WORD(w_log10)
 {
-  context << value::make_number(context.pop().as_number().log10());
+  context << context.pop().as_number().log10();
 }
 
 BUILTIN_WORD(w_log2)
 {
-  context << value::make_number(context.pop().as_number().log2());
+  context << context.pop().as_number().log2();
 }
 
 BUILTIN_WORD(w_log1p)
 {
-  context << value::make_number(context.pop().as_number().log1p());
+  context << context.pop().as_number().log1p();
 }
 
 BUILTIN_WORD(w_pow)
@@ -190,17 +186,17 @@ BUILTIN_WORD(w_pow)
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
 
-  context << value::make_number(a.pow(b));
+  context << a.pow(b);
 }
 
 BUILTIN_WORD(w_sqrt)
 {
-  context << value::make_number(context.pop().as_number().sqrt());
+  context << context.pop().as_number().sqrt();
 }
 
 BUILTIN_WORD(w_cbrt)
 {
-  context << value::make_number(context.pop().as_number().cbrt());
+  context << context.pop().as_number().cbrt();
 }
 
 BUILTIN_WORD(w_hypot)
@@ -208,22 +204,22 @@ BUILTIN_WORD(w_hypot)
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
 
-  context << value::make_number(a.hypot(b));
+  context << a.hypot(b);
 }
 
 BUILTIN_WORD(w_acos)
 {
-  context << value::make_number(context.pop().as_number().acos());
+  context << context.pop().as_number().acos();
 }
 
 BUILTIN_WORD(w_asin)
 {
-  context << value::make_number(context.pop().as_number().asin());
+  context << context.pop().as_number().asin();
 }
 
 BUILTIN_WORD(w_atan)
 {
-  context << value::make_number(context.pop().as_number().atan());
+  context << context.pop().as_number().atan();
 }
 
 BUILTIN_WORD(w_atan2)
@@ -231,66 +227,66 @@ BUILTIN_WORD(w_atan2)
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
 
-  context << value::make_number(a.atan2(b));
+  context << a.atan2(b);
 }
 
 BUILTIN_WORD(w_cos)
 {
-  context << value::make_number(context.pop().as_number().cos());
+  context << context.pop().as_number().cos();
 }
 
 BUILTIN_WORD(w_sin)
 {
-  context << value::make_number(context.pop().as_number().sin());
+  context << context.pop().as_number().sin();
 }
 
 BUILTIN_WORD(w_tan)
 {
-  context << value::make_number(context.pop().as_number().tan());
+  context << context.pop().as_number().tan();
 }
 
 BUILTIN_WORD(w_sinh)
 {
-  context << value::make_number(context.pop().as_number().sinh());
+  context << context.pop().as_number().sinh();
 }
 
 BUILTIN_WORD(w_cosh)
 {
-  context << value::make_number(context.pop().as_number().cosh());
+  context << context.pop().as_number().cosh();
 }
 
 BUILTIN_WORD(w_tanh)
 {
-  context << value::make_number(context.pop().as_number().tanh());
+  context << context.pop().as_number().tanh();
 }
 
 BUILTIN_WORD(w_asinh)
 {
-  context << value::make_number(context.pop().as_number().asinh());
+  context << context.pop().as_number().asinh();
 }
 
 BUILTIN_WORD(w_acosh)
 {
-  context << value::make_number(context.pop().as_number().acosh());
+  context << context.pop().as_number().acosh();
 }
 
 BUILTIN_WORD(w_atanh)
 {
-  context << value::make_number(context.pop().as_number().atanh());
+  context << context.pop().as_number().atanh();
 }
 
 BUILTIN_WORD(w_deg)
 {
   const auto value = context.pop().as_number();
 
-  context << value::make_number(value * 180 / M_PI);
+  context << (value * 180 / M_PI);
 }
 
 BUILTIN_WORD(w_rad)
 {
   const auto value = context.pop().as_number();
 
-  context << value::make_number(value * M_PI / 180L);
+  context << (value * M_PI / 180L);
 }
 
 /**

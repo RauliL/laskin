@@ -62,7 +62,7 @@ BUILTIN_WORD(w_chars)
   {
     result.push_back(value::make_string(std::u32string(&c, 1)));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -81,7 +81,7 @@ BUILTIN_WORD(w_runes)
   {
     result.push_back(value::make_number(static_cast<std::int64_t>(c)));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -115,7 +115,7 @@ BUILTIN_WORD(w_words)
   {
     result.push_back(value::make_string(str.substr(begin, end - begin)));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -152,7 +152,7 @@ BUILTIN_WORD(w_lines)
   {
     result.push_back(value::make_string(str.substr(begin, end - begin)));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -169,12 +169,12 @@ BUILTIN_WORD(w_starts_with)
 
   if (substring_length > string_length)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
   else if (!substring_length)
   {
-    context << value::make_boolean(true);
+    context << true;
     return;
   }
 
@@ -182,12 +182,12 @@ BUILTIN_WORD(w_starts_with)
   {
     if (string[i] != substring[i])
     {
-      context << value::make_boolean(false);
+      context << false;
       return;
     }
   }
 
-  context << value::make_boolean(true);
+  context << true;
 }
 
 /**
@@ -204,12 +204,12 @@ BUILTIN_WORD(w_ends_with)
 
   if (substring_length > string_length)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
   else if (!substring_length)
   {
-    context << value::make_boolean(true);
+    context << true;
     return;
   }
 
@@ -217,12 +217,12 @@ BUILTIN_WORD(w_ends_with)
   {
     if (string[string_length - substring_length + i] != substring[i])
     {
-      context << value::make_boolean(false);
+      context << false;
       return;
     }
   }
 
-  context << value::make_boolean(true);
+  context << true;
 }
 
 /**
@@ -240,17 +240,17 @@ BUILTIN_WORD(w_includes)
 
   if (substring_length > string_length)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
   else if (!substring_length)
   {
-    context << value::make_boolean(true);
+    context << true;
     return;
   }
 
   position = string.find(substring);
-  context << value::make_boolean(position != std::u32string::npos);
+  context << (position != std::u32string::npos);
 }
 
 /**
@@ -269,19 +269,19 @@ BUILTIN_WORD(w_index_of)
 
   if (substring_length > string_length)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
   else if (!substring_length)
   {
-    context << value::make_number(0);
+    context << 0;
     return;
   }
 
   position = string.find(substring);
   if (position == std::u32string::npos)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
 
@@ -304,19 +304,19 @@ BUILTIN_WORD(w_last_index_of)
 
   if (substring_length > string_length)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
   else if (!substring_length)
   {
-    context << value::make_number(0);
+    context << 0;
     return;
   }
 
   position = string.rfind(substring);
   if (position == std::u32string::npos)
   {
-    context << value::make_boolean(false);
+    context << false;
     return;
   }
 
@@ -344,7 +344,7 @@ convert_string(class context& context, char32_t (*callback)(char32_t))
   {
     c = callback(c);
   }
-  context << value::make_string(string);
+  context << string;
 }
 
 /**
@@ -415,9 +415,9 @@ BUILTIN_WORD(w_trim)
 
   if (i != 0 || j != length)
   {
-    context << value::make_string(string.substr(i, j - i));
+    context << string.substr(i, j - i);
   } else {
-    context << value::make_string(string);
+    context << string;
   }
 }
 
@@ -442,9 +442,9 @@ BUILTIN_WORD(w_trim_start)
 
   if (i != 0)
   {
-    context << value::make_string(string.substr(i, length - i));
+    context << string.substr(i, length - i);
   } else {
-    context << value::make_string(string);
+    context << string;
   }
 }
 
@@ -469,9 +469,9 @@ BUILTIN_WORD(w_trim_end)
 
   if (i != length)
   {
-    context << value::make_string(string.substr(0, i));
+    context << string.substr(0, i);
   } else {
-    context << value::make_string(string);
+    context << string;
   }
 }
 
@@ -506,7 +506,7 @@ BUILTIN_WORD(w_substring)
     throw error(error::type::range, U"String index out of bounds.");
   }
 
-  context << value::make_string(string.substr(begin, end - begin + 1));
+  context << string.substr(begin, end - begin + 1);
 }
 
 /**
@@ -566,7 +566,7 @@ BUILTIN_WORD(w_split)
     }
   }
 
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -586,7 +586,7 @@ BUILTIN_WORD(w_repeat)
     result.append(string);
     --count;
   }
-  context << value::make_string(result);
+  context << result;
 }
 
 /**
@@ -625,7 +625,7 @@ BUILTIN_WORD(w_replace)
     result.append(1, string[i]);
   }
 
-  context << value::make_string(result);
+  context << result;
 }
 
 /**
@@ -644,7 +644,7 @@ BUILTIN_WORD(w_pad_start)
 
   if (static_cast<long>(string_length) >= target_length)
   {
-    context << value::make_string(string);
+    context << string;
     return;
   }
 
@@ -660,9 +660,7 @@ BUILTIN_WORD(w_pad_start)
     }
   }
 
-  context << value::make_string(
-    pad_string.substr(0, target_length) + string
-  );
+  context << (pad_string.substr(0, target_length) + string);
 }
 
 /**
@@ -681,7 +679,7 @@ BUILTIN_WORD(w_pad_end)
 
   if (static_cast<long>(string_length) >= target_length)
   {
-    context << value::make_string(string);
+    context << string;
     return;
   }
 
@@ -697,9 +695,7 @@ BUILTIN_WORD(w_pad_end)
     }
   }
 
-  context << value::make_string(
-    string + pad_string.substr(0, target_length)
-  );
+  context << (string + pad_string.substr(0, target_length));
 }
 
 /**
@@ -726,7 +722,7 @@ BUILTIN_WORD(w_at)
     throw error(error::type::range, U"String index out of bounds.");
   }
   c = string[index];
-  context << value::make_string(std::u32string(&c, 1));
+  context << std::u32string(&c, 1);
 }
 
 /**
@@ -747,7 +743,7 @@ BUILTIN_WORD(w_to_number)
       U"Cannot convert given string into a number."
     );
   }
-  context << value::make_number(number::parse(string));
+  context << number::parse(string);
 }
 
 /**
@@ -759,7 +755,7 @@ BUILTIN_WORD(w_to_quote)
 {
   const auto source = context.pop().as_string();
 
-  context << value::make_quote(quote::parse(source));
+  context << quote::parse(source);
 }
 
 namespace laskin::api

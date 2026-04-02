@@ -98,7 +98,7 @@ BUILTIN_WORD(w_yesterday)
  */
 BUILTIN_WORD(w_year)
 {
-  context << value::make_number(context.peek().as_date().year());
+  context << context.peek().as_date().year();
 }
 
 /**
@@ -118,7 +118,7 @@ BUILTIN_WORD(w_month)
  */
 BUILTIN_WORD(w_day)
 {
-  context << value::make_number(context.peek().as_date().day());
+  context << context.peek().as_date().day();
 }
 
 /**
@@ -138,7 +138,7 @@ BUILTIN_WORD(w_weekday)
  */
 BUILTIN_WORD(w_day_of_year)
 {
-  context << value::make_number(context.peek().as_date().day_of_year());
+  context << context.peek().as_date().day_of_year();
 }
 
 /**
@@ -148,7 +148,7 @@ BUILTIN_WORD(w_day_of_year)
  */
 BUILTIN_WORD(w_days_in_month)
 {
-  context << value::make_number(context.peek().as_date().days_in_month());
+  context << context.peek().as_date().days_in_month();
 }
 
 /**
@@ -158,7 +158,7 @@ BUILTIN_WORD(w_days_in_month)
  */
 BUILTIN_WORD(w_days_in_year)
 {
-  context << value::make_number(context.peek().as_date().days_in_year());
+  context << context.peek().as_date().days_in_year();
 }
 
 /**
@@ -168,7 +168,7 @@ BUILTIN_WORD(w_days_in_year)
  */
 BUILTIN_WORD(w_is_leap_year)
 {
-  context << value::make_boolean(context.peek().as_date().is_leap_year());
+  context << context.peek().as_date().is_leap_year();
 }
 
 /**
@@ -184,7 +184,7 @@ BUILTIN_WORD(w_format)
   const auto time = context.pop().as_date();
   const auto format = context.pop().as_string();
 
-  context << value::make_string(decode(time.format(encode(format))));
+  context << decode(time.format(encode(format)));
 }
 
 /**

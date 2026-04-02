@@ -56,7 +56,7 @@ BUILTIN_WORD(w_keys)
   {
     result.push_back(value::make_string(property.first));
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -74,7 +74,7 @@ BUILTIN_WORD(w_values)
   {
     result.push_back(property.second);
   }
-  context << value::make_vector(result);
+  context << result;
 }
 
 /**
@@ -89,7 +89,7 @@ BUILTIN_WORD(w_for_each)
 
   for (const auto& property : properties)
   {
-    context << value::make_string(property.first) << property.second;
+    context << property.first << property.second;
     quote.call(context, out);
   }
 }
@@ -111,14 +111,14 @@ BUILTIN_WORD(w_map)
     std::u32string key;
     class value value;
 
-    context << value::make_string(property.first) << property.second;
+    context << property.first << property.second;
     quote.call(context, out);
     value = context.pop();
     key = context.pop().as_string();
     new_properties[key] = value;
   }
 
-  context << value::make_record(new_properties);
+  context << new_properties;
 }
 
 /**
@@ -135,7 +135,7 @@ BUILTIN_WORD(w_filter)
 
   for (const auto& property : properties)
   {
-    context << value::make_string(property.first) << property.second;
+    context << property.first << property.second;
     quote.call(context, out);
     if (context.pop().as_boolean())
     {
@@ -143,7 +143,7 @@ BUILTIN_WORD(w_filter)
     }
   }
 
-  context << value::make_record(new_properties);
+  context << new_properties;
 }
 
 /**
@@ -179,7 +179,7 @@ BUILTIN_WORD(w_set)
   const auto value = context.pop();
 
   properties[key] = value;
-  context << value::make_record(properties);
+  context << properties;
 }
 
 /**
@@ -204,7 +204,7 @@ BUILTIN_WORD(w_to_vector)
     values.push_back(value::make_vector(pair));
   }
 
-  context << value::make_vector(values);
+  context << values;
 }
 
 namespace api
