@@ -46,7 +46,6 @@ ADD_LIBRARY(
   ./src/number.cpp
   ./src/parser.cpp
   ./src/quote.cpp
-  ./src/unit.cpp
   ./src/utils.cpp
   ./src/value.cpp
   ./src/api/boolean.cpp
