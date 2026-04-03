@@ -17,7 +17,7 @@ Other dependencies that are handled by [CMake] are:
 
 - [ordered-map]
 - [peelo-chrono]
-- [peelo--number]
+- [peelo-number]
 - [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
