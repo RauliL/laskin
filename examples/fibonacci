@@ -8,5 +8,4 @@
     ) if
 ) -> fib
 
-0 -> counter
-( counter 20 <= ) ( counter fib . counter 1 + -> counter ) while
+( fib . ) 0 21 range for-each
