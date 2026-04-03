@@ -307,6 +307,11 @@ namespace laskin
      */
     value divide(const value& that) const;
 
+    /**
+     * Performs modulo operation.
+     */
+    value modulo(const value& that) const;
+
     inline bool operator==(const value& that) const
     {
       return equals(that);
@@ -375,6 +380,16 @@ namespace laskin
     inline value& operator/=(const value& that)
     {
       return assign(divide(that));
+    }
+
+    inline value operator%(const value& that) const
+    {
+      return modulo(that);
+    }
+
+    inline value& operator%=(const value& that)
+    {
+      return assign(modulo(that));
     }
 
   private:

@@ -29,13 +29,13 @@
 namespace laskin
 {
   static inline value
-  divide_number(const peelo::number& a, const peelo::number& b)
+  modulo_number(const peelo::number& a, const peelo::number& b)
   {
-    return value::make_number(a / b);
+    return value::make_number(a % b);
   }
 
   static value
-  divide_vector(
+  modulo_vector(
     const value::vector_container& a,
     const value::vector_container& b
   )
@@ -49,14 +49,14 @@ namespace laskin
     }
     for (value::vector_container::size_type i = 0; i < size; ++i)
     {
-      result[i] /= b[i];
+      result[i] %= b[i];
     }
 
     return value::make_vector(result);
   }
 
   static value
-  divide_number_from_vector(
+  modulo_number_from_vector(
     const value::vector_container& a,
     const value& b)
   {
@@ -65,24 +65,24 @@ namespace laskin
 
     for (value::vector_container::size_type i = 0; i < size; ++i)
     {
-      result[i] /= b;
+      result[i] %= b;
     }
 
     return value::make_vector(result);
   }
 
   value
-  value::divide(const value& that) const
+  value::modulo(const value& that) const
   {
     if (that.is(m_type))
     {
       switch (m_type)
       {
         case type::number:
-          return divide_number(*m_value_number, *that.m_value_number);
+          return modulo_number(*m_value_number, *that.m_value_number);
 
         case type::vector:
-          return divide_vector(*m_value_vector, *that.m_value_vector);
+          return modulo_vector(*m_value_vector, *that.m_value_vector);
 
         default:
           break;
@@ -93,7 +93,7 @@ namespace laskin
       switch (m_type)
       {
         case type::vector:
-          return divide_number_from_vector(*m_value_vector, that);
+          return modulo_number_from_vector(*m_value_vector, that);
 
         default:
           break;
@@ -102,7 +102,7 @@ namespace laskin
 
     throw error(
       error::type::type,
-      U"Cannot divide " +
+      U"Cannot modulo " +
       type_description(m_type) +
       U" with " +
       type_description(that.m_type)

@@ -64,6 +64,7 @@ ADD_LIBRARY(
   ./src/operator/compare.cpp
   ./src/operator/divide.cpp
   ./src/operator/equals.cpp
+  ./src/operator/modulo.cpp
   ./src/operator/multiply.cpp
   ./src/operator/substract.cpp
 )
