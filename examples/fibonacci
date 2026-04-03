@@ -1,9 +1,12 @@
 #!/usr/bin/env laskin
 
 (
-    dup 1 >=
-    ( dup 1 - fib swap 2 - fib + )
-    if
+    dup 0 <> (
+        dup 1 <> (
+            dup 1 - fib swap 2 - fib +
+        ) if
+    ) if
 ) -> fib
 
-10 fib .
+0 -> counter
+( counter 20 <= ) ( counter fib . counter 1 + -> counter ) while
