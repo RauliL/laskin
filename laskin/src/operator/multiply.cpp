@@ -62,7 +62,7 @@ namespace laskin
   )
   {
     const auto size = a.size();
-    std::vector<value> result;
+    value::vector_container result;
 
     result.reserve(size);
     for (const auto& value : a)

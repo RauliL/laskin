@@ -692,7 +692,7 @@ BUILTIN_WORD(w_delete)
 BUILTIN_WORD(w_symbols)
 {
   const auto& dictionary = context.dictionary;
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(dictionary.size());
   for (const auto& entry : dictionary)

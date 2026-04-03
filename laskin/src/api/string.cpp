@@ -57,7 +57,7 @@ BUILTIN_WORD(w_length)
 BUILTIN_WORD(w_chars)
 {
   const auto str = context.peek().as_string();
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(str.length());
   for (const auto& c : str)
@@ -76,7 +76,7 @@ BUILTIN_WORD(w_chars)
 BUILTIN_WORD(w_runes)
 {
   const auto str = context.peek().as_string();
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(str.length());
   for (const auto& c : str)
@@ -98,7 +98,7 @@ BUILTIN_WORD(w_words)
   const auto length = str.length();
   std::u32string::size_type begin = 0;
   std::u32string::size_type end = 0;
-  std::vector<value> result;
+  value::vector_container result;
 
   for (std::u32string::size_type i = 0; i < length; ++i)
   {
@@ -131,7 +131,7 @@ BUILTIN_WORD(w_lines)
   const auto length = str.length();
   std::u32string::size_type begin = 0;
   std::u32string::size_type end = 0;
-  std::vector<value> result;
+  value::vector_container result;
 
   for (std::u32string::size_type i = 0; i < length; ++i)
   {
@@ -535,7 +535,7 @@ BUILTIN_WORD(w_split)
   const auto pattern = context.pop().as_string();
   const auto string_length = string.length();
   const auto pattern_length = pattern.length();
-  std::vector<value> result;
+  value::vector_container result;
 
   if (pattern_length)
   {

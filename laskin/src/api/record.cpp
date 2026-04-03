@@ -49,7 +49,7 @@ BUILTIN_WORD(w_size)
 BUILTIN_WORD(w_keys)
 {
   const auto& properties = context.peek().as_record();
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(properties.size());
   for (const auto& property : properties)
@@ -67,7 +67,7 @@ BUILTIN_WORD(w_keys)
 BUILTIN_WORD(w_values)
 {
   const auto& properties = context.peek().as_record();
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(properties.size());
   for (const auto& property : properties)
@@ -104,7 +104,7 @@ BUILTIN_WORD(w_map)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
-  tsl::ordered_map<std::u32string, value> new_properties;
+  value::record_container new_properties;
 
   for (const auto& property : properties)
   {
@@ -131,7 +131,7 @@ BUILTIN_WORD(w_filter)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
-  tsl::ordered_map<std::u32string, value> new_properties;
+  value::record_container new_properties;
 
   for (const auto& property : properties)
   {
@@ -191,12 +191,12 @@ BUILTIN_WORD(w_set)
 BUILTIN_WORD(w_to_vector)
 {
   const auto properties = context.pop().as_record();
-  std::vector<value> values;
+  value::vector_container values;
 
   values.reserve(properties.size());
   for (const auto& property : properties)
   {
-    std::vector<value> pair;
+    value::vector_container pair;
 
     pair.reserve(2);
     pair.push_back(value::make_string(property.first));

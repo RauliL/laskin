@@ -49,7 +49,7 @@ namespace laskin
       throw error(error::type::range, U"Vector length mismatch.");
     }
     result.reserve(size);
-    for (std::vector<value>::size_type i = 0; i < size; ++i)
+    for (value::vector_container::size_type i = 0; i < size; ++i)
     {
       result[i] -= b[i];
     }

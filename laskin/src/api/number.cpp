@@ -121,7 +121,7 @@ BUILTIN_WORD(w_range)
 {
   const auto limit = context.pop().as_number();
   auto current = context.pop().as_number();
-  std::vector<value> result;
+  value::vector_container result;
 
   while (current < limit)
   {

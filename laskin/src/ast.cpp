@@ -56,7 +56,7 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    std::vector<value> container;
+    value::vector_container container;
 
     container.reserve(elements.size());
     for (const auto& element : elements)
@@ -105,7 +105,7 @@ namespace laskin
     std::ostream& out
   ) const
   {
-    tsl::ordered_map<std::u32string, value> resolved_properties;
+    value::record_container resolved_properties;
 
     for (const auto& property : properties)
     {

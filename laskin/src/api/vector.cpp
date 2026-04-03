@@ -37,7 +37,7 @@ using namespace laskin;
 BUILTIN_WORD(w_vector)
 {
   const auto size = context.pop().as_number();
-  std::vector<value> elements;
+  value::vector_container elements;
 
   try
   {
@@ -87,7 +87,7 @@ BUILTIN_WORD(w_max)
   {
     auto largest = vec[0];
 
-    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    for (value::vector_container::size_type i = 1; i < size; ++i)
     {
       const auto& candidate = vec[i];
 
@@ -119,7 +119,7 @@ BUILTIN_WORD(w_min)
   {
     auto smallest = vec[0];
 
-    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    for (value::vector_container::size_type i = 1; i < size; ++i)
     {
       const auto& candidate = vec[i];
 
@@ -151,7 +151,7 @@ BUILTIN_WORD(w_mean)
   {
     auto sum = vec[0].as_number();
 
-    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    for (value::vector_container::size_type i = 1; i < size; ++i)
     {
       sum = sum + vec[i].as_number();
     }
@@ -178,7 +178,7 @@ BUILTIN_WORD(w_sum)
   {
     auto sum = vec[0].as_number();
 
-    for (std::vector<value>::size_type i = 1; i < size; ++i)
+    for (value::vector_container::size_type i = 1; i < size; ++i)
     {
       sum = sum + vec[i].as_number();
     }
@@ -216,7 +216,7 @@ BUILTIN_WORD(w_map)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
-  std::vector<value> result;
+  value::vector_container result;
 
   result.reserve(vec.size());
   for (const auto& value : vec)
@@ -239,7 +239,7 @@ BUILTIN_WORD(w_filter)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
-  std::vector<value> result;
+  value::vector_container result;
 
   for (const auto& value : vec)
   {
@@ -273,7 +273,7 @@ BUILTIN_WORD(w_reduce)
     throw error(error::type::range, U"Cannot reduce empty vector.");
   }
   result = vec[0];
-  for (std::vector<value>::size_type i = 1; i < size; ++i)
+  for (value::vector_container::size_type i = 1; i < size; ++i)
   {
     context << result << vec[i];
     quote.call(context, out);
@@ -376,17 +376,17 @@ BUILTIN_WORD(w_extract)
   }
 }
 
-static std::vector<value>::size_type
+static value::vector_container::size_type
 partition(
-  std::vector<value>& vector,
-  std::vector<value>::size_type low,
-  std::vector<value>::size_type high
+  value::vector_container& vector,
+  value::vector_container::size_type low,
+  value::vector_container::size_type high
 )
 {
   const auto& pivot = vector[high];
   auto i = low - 1;
 
-  for (std::vector<value>::size_type j = low; j <= high - 1; ++j)
+  for (value::vector_container::size_type j = low; j <= high - 1; ++j)
   {
     if (vector[j] < pivot)
     {
@@ -401,9 +401,9 @@ partition(
 
 static void
 quicksort(
-  std::vector<value>& vector,
-  std::vector<value>::size_type low,
-  std::vector<value>::size_type high
+  value::vector_container& vector,
+  value::vector_container::size_type low,
+  value::vector_container::size_type high
 )
 {
   if (low < high)

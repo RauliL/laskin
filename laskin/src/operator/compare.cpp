@@ -50,7 +50,7 @@ namespace laskin
     const auto size_b = b.size();
     const auto min_size = std::min(size_a, size_b);
 
-    for (std::vector<value>::size_type i = 0; i < min_size; ++i)
+    for (value::vector_container::size_type i = 0; i < min_size; ++i)
     {
       const auto cmp = a[i].compare(b[i]);
 
