@@ -27,10 +27,12 @@
 #include <peelo/unicode/ctype/isupper.hpp>
 #include <peelo/unicode/ctype/tolower.hpp>
 #include <peelo/unicode/ctype/toupper.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/macros.hpp"
+#include "laskin/number.hpp"
 
 using namespace laskin;
 
@@ -734,16 +736,18 @@ BUILTIN_WORD(w_at)
  */
 BUILTIN_WORD(w_to_number)
 {
+  using peelo::unicode::encoding::utf8::encode;
+
   const auto string = context.pop().as_string();
 
-  if (!number::is_valid(string))
+  if (!is_number(string))
   {
     throw error(
       error::type::range,
       U"Cannot convert given string into a number."
     );
   }
-  context << number::parse(string);
+  context << peelo::number::parse(encode(string));
 }
 
 /**

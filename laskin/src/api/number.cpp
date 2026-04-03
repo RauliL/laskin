@@ -57,7 +57,7 @@ BUILTIN_WORD(w_unit)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << unit->symbol();
+  context << unit->symbol;
 }
 
 /**
@@ -77,7 +77,7 @@ BUILTIN_WORD(w_unit_type)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << to_string(unit->type());
+  context << peelo::to_string(unit->type);
 }
 
 /**
@@ -87,7 +87,7 @@ BUILTIN_WORD(w_unit_type)
  */
 BUILTIN_WORD(w_drop_unit)
 {
-  context << context.pop().as_number().without_unit();
+  context << context.pop().as_number().without_measurement_unit();
 }
 
 /**
@@ -155,7 +155,7 @@ BUILTIN_WORD(w_times)
   auto count = context.pop().as_number();
   const auto quote = context.pop().as_quote();
 
-  if (count < number())
+  if (count < peelo::number())
   {
     count = -count;
   }

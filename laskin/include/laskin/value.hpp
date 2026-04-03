@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,8 @@
 
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
+#include <peelo/number.hpp>
 #include <tsl/ordered_map.h>
-
-#include "laskin/number.hpp"
 
 namespace laskin
 {
@@ -73,14 +72,14 @@ namespace laskin
     /**
      * Constructs number value.
      */
-    static value make_number(const number& value);
+    static value make_number(const peelo::number& value);
 
     /**
      * Constructs integer number value.
      */
     static value make_number(
       int value,
-      const number::unit_type& unit = std::nullopt
+      const peelo::number::unit_type& unit = std::nullopt
     );
 
     /**
@@ -88,7 +87,7 @@ namespace laskin
      */
     static value make_number(
       std::int64_t value,
-      const number::unit_type& unit = std::nullopt
+      const peelo::number::unit_type& unit = std::nullopt
     );
 
     /**
@@ -96,7 +95,7 @@ namespace laskin
      */
     static value make_number(
       double value,
-      const number::unit_type& unit = std::nullopt
+      const peelo::number::unit_type& unit = std::nullopt
     );
 
     /**
@@ -215,7 +214,15 @@ namespace laskin
     /**
      * Copies contents of another value into this one.
      */
-    value& operator=(const value& that);
+    value& assign(const value& that);
+
+    /**
+     * Copies contents of another value into this one.
+     */
+    inline value& operator=(const value& that)
+    {
+      return assign(that);
+    }
 
     /**
      * Moves contents of another value into this one.
@@ -249,9 +256,9 @@ namespace laskin
     void reset();
 
     bool as_boolean() const;
-    const number& as_number() const;
-    const std::vector<value>& as_vector() const;
-    const tsl::ordered_map<std::u32string, value>& as_record() const;
+    const peelo::number& as_number() const;
+    const vector_container& as_vector() const;
+    const record_container& as_record() const;
     const std::u32string& as_string() const;
     const quote& as_quote() const;
     peelo::chrono::month as_month() const;
@@ -335,9 +342,19 @@ namespace laskin
       return add(that);
     }
 
+    inline value& operator+=(const value& that)
+    {
+      return assign(add(that));
+    }
+
     inline value operator-(const value& that) const
     {
       return substract(that);
+    }
+
+    inline value& operator-=(const value& that)
+    {
+      return assign(substract(that));
     }
 
     inline value operator*(const value& that) const
@@ -345,9 +362,19 @@ namespace laskin
       return multiply(that);
     }
 
+    inline value& operator*=(const value& that)
+    {
+      return assign(multiply(that));
+    }
+
     inline value operator/(const value& that) const
     {
       return divide(that);
+    }
+
+    inline value& operator/=(const value& that)
+    {
+      return assign(divide(that));
     }
 
   private:
@@ -356,15 +383,15 @@ namespace laskin
     union
     {
       bool m_value_boolean;
-      number* m_value_number;
-      std::vector<value>* m_value_vector;
+      peelo::number* m_value_number;
+      vector_container* m_value_vector;
       std::u32string* m_value_string;
       quote* m_value_quote;
       peelo::chrono::month m_value_month;
       peelo::chrono::weekday m_value_weekday;
       peelo::chrono::date* m_value_date;
       peelo::chrono::time* m_value_time;
-      tsl::ordered_map<std::u32string, value>* m_value_record;
+      record_container* m_value_record;
     };
   };
 

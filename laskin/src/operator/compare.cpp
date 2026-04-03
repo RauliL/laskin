@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,18 +28,23 @@
 
 namespace laskin
 {
-  static int compare_number(const number& a, const number& b)
-  {
-    return a > b ? 1 : a < b ? -1 : 0;
-  }
-
-  static int compare_string(const std::u32string& a, const std::u32string& b)
+  static inline int
+  compare_number(const peelo::number& a, const peelo::number& b)
   {
     return a.compare(b);
   }
 
-  static int compare_vector(const std::vector<value>& a,
-                            const std::vector<value>& b)
+  static inline int
+  compare_string(const std::u32string& a, const std::u32string& b)
+  {
+    return a.compare(b);
+  }
+
+  static int
+  compare_vector(
+    const value::vector_container& a,
+    const value::vector_container& b
+  )
   {
     const auto size_a = a.size();
     const auto size_b = b.size();
@@ -58,30 +63,32 @@ namespace laskin
     return size_a > size_b ? 1 : size_a < size_b ? -1 : 0;
   }
 
-  static int compare_month(peelo::chrono::month a, peelo::chrono::month b)
+  static inline int
+  compare_month(peelo::chrono::month a, peelo::chrono::month b)
   {
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
-  static int compare_weekday(peelo::chrono::weekday a,
-                             peelo::chrono::weekday b)
+  static inline int
+  compare_weekday(peelo::chrono::weekday a, peelo::chrono::weekday b)
   {
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
-  static int compare_date(const peelo::chrono::date& a,
-                          const peelo::chrono::date& b)
+  static inline int
+  compare_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
   {
     return a.compare(b);
   }
 
-  static int compare_time(const peelo::chrono::time& a,
-                          const peelo::chrono::time& b)
+  static inline int
+  compare_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
   {
     return a.compare(b);
   }
 
-  int value::compare(const value& that) const
+  int
+  value::compare(const value& that) const
   {
     if (that.is(m_type))
     {

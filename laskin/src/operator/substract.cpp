@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,20 @@
 
 namespace laskin
 {
-  static value substract_number(const number& a, const number& b)
+  static inline value
+  substract_number(const peelo::number& a, const peelo::number& b)
   {
     return value::make_number(a - b);
   }
 
-  static value substract_vector(const std::vector<value>& a,
-                                const std::vector<value>& b)
+  static value
+  substract_vector(
+    const value::vector_container& a,
+    const value::vector_container& b
+  )
   {
     const auto size = a.size();
-    std::vector<value> result;
+    value::vector_container result(a);
 
     if (size != b.size())
     {
@@ -47,18 +51,19 @@ namespace laskin
     result.reserve(size);
     for (std::vector<value>::size_type i = 0; i < size; ++i)
     {
-      result.push_back(a[i] - b[i]);
+      result[i] -= b[i];
     }
 
     return value::make_vector(result);
   }
 
-  static value substract_record(
-    const tsl::ordered_map<std::u32string, value>& a,
-    const tsl::ordered_map<std::u32string, value>& b
+  static value
+  substract_record(
+    const value::record_container& a,
+    const value::record_container& b
   )
   {
-    tsl::ordered_map<std::u32string, value> result(a);
+    value::record_container result(a);
 
     for (const auto& property : b)
     {
@@ -73,39 +78,40 @@ namespace laskin
     return value::make_record(result);
   }
 
-  static value substract_number_from_vector(
-    const std::vector<value>& a,
+  static value
+  substract_number_from_vector(
+    const value::vector_container& a,
     const value& b
   )
   {
     const auto size = a.size();
-    std::vector<value> result;
+    value::vector_container result(a);
 
-    result.reserve(size);
-    for (const auto& value : a)
+    for (value::vector_container::size_type i = 0; i < size; ++i)
     {
-      result.push_back(value - b);
+      result[i] -= b;
     }
 
     return value::make_vector(result);
   }
 
-  static value substract_date(const peelo::chrono::date& a,
-                              const peelo::chrono::date& b)
+  static inline value
+  substract_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
   {
-    return value::make_number((a - b).days(), unit::day);
+    return value::make_number((a - b).days(), peelo::number::unit::day);
   }
 
-  static value substract_time(const peelo::chrono::time& a,
-                              const peelo::chrono::time& b)
+  static inline value
+  substract_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
   {
     return value::make_number(
       utils::time_as_seconds(a) - utils::time_as_seconds(b),
-      unit::second
+      peelo::number::unit::second
     );
   }
 
-  static value substract_month(peelo::chrono::month a, const number& b)
+  static value
+  substract_month(peelo::chrono::month a, const peelo::number& b)
   {
     long delta;
 
@@ -122,13 +128,14 @@ namespace laskin
     return value::make_month(a - delta);
   }
 
-  static value substract_weekday(peelo::chrono::weekday a, const number& b)
+  static value
+  substract_weekday(peelo::chrono::weekday a, const peelo::number& b)
   {
     long delta;
 
     if (const auto& unit = b.measurement_unit())
     {
-      if (!unit->symbol().compare(U"d"))
+      if (!unit->symbol.compare("d"))
       {
         delta = long(b);
       } else {
@@ -144,13 +151,14 @@ namespace laskin
     return value::make_weekday(a - delta);
   }
 
-  static value substract_date(const peelo::chrono::date& a, const number& b)
+  static value
+  substract_date(const peelo::chrono::date& a, const peelo::number& b)
   {
     long delta;
 
     if (const auto& unit = b.measurement_unit())
     {
-      if (!unit->symbol().compare(U"d"))
+      if (!unit->symbol.compare("d"))
       {
         delta = long(b);
       } else {
@@ -166,27 +174,26 @@ namespace laskin
     return value::make_date(a - delta);
   }
 
-  static value substract_time(const peelo::chrono::time& a, const number& b)
+  static value
+  substract_time(const peelo::chrono::time& a, const peelo::number& b)
   {
     long delta;
 
     if (const auto& unit = b.measurement_unit())
     {
-      const auto& symbol = unit->symbol();
-
-      if (!symbol.compare(U"s"))
+      if (!unit->symbol.compare("s"))
       {
         delta = long(b);
       }
-      else if (!symbol.compare(U"min"))
+      else if (!unit->symbol.compare("min"))
       {
         delta = long(b) * peelo::chrono::duration::minutes_per_hour;
       }
-      else if (!symbol.compare(U"h"))
+      else if (!unit->symbol.compare("h"))
       {
         delta = long(b) * peelo::chrono::duration::seconds_per_hour;
       }
-      else if (!symbol.compare(U"d"))
+      else if (!unit->symbol.compare("d"))
       {
         delta = long(b) * peelo::chrono::duration::seconds_per_day;
       } else {
@@ -202,7 +209,8 @@ namespace laskin
     return value::make_time(a - delta);
   }
 
-  value value::substract(const value& that) const
+  value
+  value::substract(const value& that) const
   {
     if (that.is(m_type))
     {

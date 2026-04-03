@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,32 +28,36 @@
 
 namespace laskin
 {
-  static value multiply_number(const number& a, const number& b)
+  static inline value
+  multiply_number(const peelo::number& a, const peelo::number& b)
   {
     return value::make_number(a * b);
   }
 
-  static value multiply_vector(const std::vector<value>& a,
-                               const std::vector<value>& b)
+  static value
+  multiply_vector(
+    const value::vector_container& a,
+    const value::vector_container& b
+  )
   {
     const auto size = a.size();
-    std::vector<value> result;
+    value::vector_container result(a);
 
     if (size != b.size())
     {
       throw error(error::type::range, U"Vector length mismatch.");
     }
-    result.reserve(size);
-    for (std::vector<value>::size_type i = 0; i < size; ++i)
+    for (value::vector_container::size_type i = 0; i < size; ++i)
     {
-      result.push_back(a[i] * b[i]);
+      result[i] *= b[i];
     }
 
     return value::make_vector(result);
   }
 
-  static value multiply_number_with_vector(
-    const std::vector<value>& a,
+  static value
+  multiply_number_with_vector(
+    const value::vector_container& a,
     const value& b
   )
   {
@@ -69,7 +73,8 @@ namespace laskin
     return value::make_vector(result);
   }
 
-  value value::multiply(const value& that) const
+  value
+  value::multiply(const value& that) const
   {
     if (that.is(m_type))
     {

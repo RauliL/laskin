@@ -26,6 +26,7 @@
 #include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/number.hpp"
 #include "laskin/quote.hpp"
 #include "laskin/utils.hpp"
 
@@ -182,7 +183,7 @@ namespace laskin
       }
     }
 
-    if (number::is_valid(id))
+    if (is_number(id))
     {
       data.push_back(value::make_number(id));
       return;
@@ -233,7 +234,7 @@ namespace laskin
     {
       return context.pop();
     }
-    else if (number::is_valid(id))
+    else if (is_number(id))
     {
       return value::make_number(id);
     }

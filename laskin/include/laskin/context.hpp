@@ -98,7 +98,7 @@ namespace laskin
     /**
      * Pushes given numeric value onto the stack.
      */
-    context& operator<<(const number& value);
+    context& operator<<(const peelo::number& value);
 
     /**
      * Pushes given numeric value onto the stack.
@@ -114,6 +114,12 @@ namespace laskin
      * Pushes given string onto the stack.
      */
     context& operator<<(const std::u32string& value);
+
+    /**
+     * Pushes given string onto the stack. The string is expected to be UTF-8
+     * encoded.
+     */
+    context& operator<<(const std::string& value);
 
     /**
      * Pushes given quote onto the stack.

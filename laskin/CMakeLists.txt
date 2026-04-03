@@ -1,11 +1,9 @@
 PROJECT(laskin)
 
 INCLUDE(FetchContent)
-INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FindMPFR.cmake)
 
 FetchContent_Declare(
   ordered-map
-  PeeloUnicode
   GIT_REPOSITORY
     https://github.com/Tessil/ordered-map.git
   GIT_TAG
@@ -13,15 +11,20 @@ FetchContent_Declare(
 )
 FetchContent_Declare(
   peelo-chrono
-  PeeloUnicode
   GIT_REPOSITORY
     https://github.com/peelonet/peelo-chrono.git
   GIT_TAG
     v1.0.0
 )
 FetchContent_Declare(
+  peelo-number
+  GIT_REPOSITORY
+    https://github.com/peelonet/peelo-number.git
+  GIT_TAG
+    v1.0.0
+)
+FetchContent_Declare(
   peelo-unicode
-  PeeloUnicode
   GIT_REPOSITORY
     https://github.com/peelonet/peelo-unicode.git
   GIT_TAG
@@ -30,6 +33,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(
   ordered-map
   peelo-chrono
+  peelo-number
   peelo-unicode
 )
 
@@ -75,6 +79,7 @@ TARGET_LINK_LIBRARIES(
   laskin
   tsl::ordered_map
   PeeloChrono
+  PeeloNumber
   PeeloUnicode
   ${MPFR_LIBRARIES}
 )

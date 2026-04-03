@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode/encoding/utf8.hpp>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -123,7 +125,7 @@ namespace laskin
   }
 
   context&
-  context::operator<<(const number& value)
+  context::operator<<(const peelo::number& value)
   {
     push(value::make_number(value));
 
@@ -150,6 +152,16 @@ namespace laskin
   context::operator<<(const std::u32string& value)
   {
     push(value::make_string(value));
+
+    return *this;
+  }
+
+  context&
+  context::operator<<(const std::string& value)
+  {
+    using peelo::unicode::encoding::utf8::decode;
+
+    push(value::make_string(decode(value)));
 
     return *this;
   }

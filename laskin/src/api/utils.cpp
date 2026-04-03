@@ -564,8 +564,6 @@ BUILTIN_WORD(w_while)
  */
 BUILTIN_WORD(w_try)
 {
-  using peelo::unicode::encoding::utf8::decode;
-
   const auto quote = context.pop().as_quote();
   const auto catch_quote = context.pop().as_quote();
 
@@ -580,7 +578,7 @@ BUILTIN_WORD(w_try)
     {
       throw e;
     }
-    context << decode(e.message());
+    context << e.message();
     catch_quote.call(context, out);
   }
 }
@@ -593,8 +591,6 @@ BUILTIN_WORD(w_try)
  */
 BUILTIN_WORD(w_try_else)
 {
-  using peelo::unicode::encoding::utf8::decode;
-
   const auto quote = context.pop().as_quote();
   const auto catch_quote = context.pop().as_quote();
   const auto else_quote = context.pop().as_quote();
@@ -610,7 +606,7 @@ BUILTIN_WORD(w_try_else)
     {
       throw e;
     }
-    context << decode(e.message());
+    context << e.message();
     catch_quote.call(context, out);
     return;
   }

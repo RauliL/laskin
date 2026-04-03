@@ -40,7 +40,7 @@ BUILTIN_WORD(w_vector)
   std::vector<value> elements;
 
   elements.reserve(long(size));
-  for (number i; i < size; ++i)
+  for (peelo::number i; i < size; ++i)
   {
     elements.push_back(context.pop());
   }
