@@ -37,6 +37,15 @@ namespace laskin
   class node
   {
   public:
+    enum class type
+    {
+      definition,
+      literal,
+      record_literal,
+      symbol,
+      vector_literal,
+    };
+
     class definition;
     class literal;
     class record_literal;
@@ -56,6 +65,11 @@ namespace laskin
     node(node&&) = delete;
     void operator=(const node&) = delete;
     void operator=(node&&) = delete;
+
+    /**
+     * Returns type of the AST node.
+     */
+    virtual enum type type() const = 0;
 
     /**
      * Executes the AST node as a statement.
@@ -80,6 +94,22 @@ namespace laskin
     ) const = 0;
 
     /**
+     * Tests whether two AST nodes are equal.
+     */
+    static inline bool equals(
+      const std::shared_ptr<node>& a,
+      const std::shared_ptr<node>& b
+    )
+    {
+      return a ? a->equals(b) : !b;
+    }
+
+    /**
+     * Tests whether node is equal with another node.
+     */
+    virtual bool equals(const std::shared_ptr<node>& that) const = 0;
+
+    /**
      * Constructs the most appropriate representation of what this AST node
      * would look like in source code.
      */
@@ -99,6 +129,11 @@ namespace laskin
       : node(line, column)
       , value(value_) {}
 
+    inline enum type type() const override
+    {
+      return type::literal;
+    }
+
     void exec(
       class context& context,
       std::ostream& out
@@ -111,6 +146,8 @@ namespace laskin
     {
       return value;
     }
+
+    bool equals(const std::shared_ptr<node>& that) const override;
 
     inline std::u32string to_source() const override
     {
@@ -133,6 +170,11 @@ namespace laskin
       : node(line, column)
       , elements(elements_) {}
 
+    inline enum type type() const override
+    {
+      return type::vector_literal;
+    }
+
     void exec(
       class context& context,
       std::ostream& out
@@ -142,6 +184,8 @@ namespace laskin
       class context& context,
       std::ostream& out
     ) const override;
+
+    bool equals(const std::shared_ptr<node>& that) const override;
 
     std::u32string to_source() const override;
   };
@@ -164,6 +208,11 @@ namespace laskin
       : node(line, column)
       , properties(properties_) {}
 
+    inline enum type type() const override
+    {
+      return type::record_literal;
+    }
+
     void exec(
       class context& context,
       std::ostream& out
@@ -173,6 +222,8 @@ namespace laskin
       class context& context,
       std::ostream& out
     ) const override;
+
+    bool equals(const std::shared_ptr<node>& that) const override;
 
     std::u32string to_source() const override;
   };
@@ -186,6 +237,11 @@ namespace laskin
       : node(line, column)
       , id(id_) {}
 
+    inline enum type type() const override
+    {
+      return type::symbol;
+    }
+
     void exec(
       class context& context,
       std::ostream& out
@@ -195,6 +251,8 @@ namespace laskin
       class context& context,
       std::ostream& out
     ) const override;
+
+    bool equals(const std::shared_ptr<node>& that) const override;
 
     inline std::u32string to_source() const override
     {
@@ -215,6 +273,11 @@ namespace laskin
       : node(line, column)
       , id(id_) {}
 
+    inline enum type type() const override
+    {
+      return type::definition;
+    }
+
     void exec(
       class context& context,
       std::ostream& out
@@ -224,6 +287,8 @@ namespace laskin
       class context& context,
       std::ostream& out
     ) const override;
+
+    bool equals(const std::shared_ptr<node>& that) const override;
 
     inline std::u32string to_source() const override
     {

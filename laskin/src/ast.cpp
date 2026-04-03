@@ -41,6 +41,17 @@ namespace laskin
     context.data.push_back(value);
   }
 
+  bool
+  node::literal::equals(const std::shared_ptr<node>& that) const
+  {
+    if (that && that->type() == type::literal)
+    {
+      return value == std::static_pointer_cast<literal>(that)->value;
+    }
+
+    return false;
+  }
+
   void
   node::vector_literal::exec(
     class context& context,
@@ -65,6 +76,32 @@ namespace laskin
     }
 
     return value::make_vector(container);
+  }
+
+  bool
+  node::vector_literal::equals(const std::shared_ptr<node>& that) const
+  {
+    if (that && that->type() == type::vector_literal)
+    {
+      const auto t = std::static_pointer_cast<vector_literal>(that);
+      const auto size = elements.size();
+
+      if (t->elements.size() != size)
+      {
+        return false;
+      }
+      for (container_type::size_type i = 0; i < size; ++i)
+      {
+        if (!node::equals(elements[i], t->elements[i]))
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   std::u32string
@@ -116,6 +153,36 @@ namespace laskin
     }
 
     return value::make_record(resolved_properties);
+  }
+
+  bool
+  node::record_literal::equals(const std::shared_ptr<node>& that) const
+  {
+    if (that && that->type() == type::record_literal)
+    {
+      const auto t = std::static_pointer_cast<record_literal>(that);
+
+      if (properties.size() != t->properties.size())
+      {
+        return false;
+      }
+      for (const auto& property : properties)
+      {
+        const auto it = t->properties.find(property.first);
+
+        if (
+          it == std::end(t->properties) ||
+          !node::equals(property.second, it->second)
+        )
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    return false;
   }
 
   std::u32string
@@ -270,6 +337,17 @@ namespace laskin
     );
   }
 
+  bool
+  node::symbol::equals(const std::shared_ptr<node>& that) const
+  {
+    if (that && that->type() == type::symbol)
+    {
+      return id == std::static_pointer_cast<symbol>(that)->id;
+    }
+
+    return false;
+  }
+
   void
   node::definition::exec(
     class context& context,
@@ -291,5 +369,16 @@ namespace laskin
       line,
       column
     );
+  }
+
+  bool
+  node::definition::equals(const std::shared_ptr<node>& that) const
+  {
+    if (that && that->type() == type::definition)
+    {
+      return id == std::static_pointer_cast<definition>(that)->id;
+    }
+
+    return false;
   }
 }

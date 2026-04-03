@@ -64,6 +64,18 @@ namespace laskin
 
     void call(class context& context, std::ostream& out) const;
 
+    bool equals(const quote& that) const;
+
+    inline bool operator==(const quote& that) const
+    {
+      return equals(that);
+    }
+
+    inline bool operator!=(const quote& that) const
+    {
+      return !equals(that);
+    }
+
     /**
      * Converts the quote back into source code.
      */

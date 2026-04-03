@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/quote.hpp"
 #include "laskin/value.hpp"
 
 namespace laskin
@@ -119,6 +120,12 @@ namespace laskin
     return a == b;
   }
 
+  static inline bool
+  equals_quote(const quote& a, const quote& b)
+  {
+    return a == b;
+  }
+
   bool
   value::equals(const value& that) const
   {
@@ -153,7 +160,8 @@ namespace laskin
         case type::time:
           return equals_time(*m_value_time, *that.m_value_time);
 
-        // TODO: Quote equality test.
+        case type::quote:
+          return equals_quote(*m_value_quote, *that.m_value_quote);
 
         default:
           break;
