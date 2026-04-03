@@ -196,7 +196,7 @@ BUILTIN_WORD(w_to_number)
 {
   context << value::make_number(
     context.pop().as_date().timestamp(),
-    unit::second
+    peelo::number::unit::second
   );
 }
 

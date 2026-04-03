@@ -42,22 +42,22 @@ namespace laskin::gui
 
     inline context::container_type& stack()
     {
-      return m_context.data();
+      return m_context.data;
     }
 
     inline const context::container_type& stack() const
     {
-      return m_context.data();
+      return m_context.data;
     }
 
     inline context::dictionary_type& dictionary()
     {
-      return m_context.dictionary();
+      return m_context.dictionary;
     }
 
     inline const context::dictionary_type& dictionary() const
     {
-      return m_context.dictionary();
+      return m_context.dictionary;
     }
 
     void execute(const Glib::ustring& source_code, int line = 1);

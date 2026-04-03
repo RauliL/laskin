@@ -57,7 +57,7 @@ BUILTIN_WORD(w_unit)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << unit->symbol();
+  context << unit->symbol;
 }
 
 /**
@@ -77,7 +77,7 @@ BUILTIN_WORD(w_unit_type)
   {
     throw error(error::type::unit, U"Value has no measurement unit.");
   }
-  context << to_string(unit->type());
+  context << peelo::to_string(unit->type);
 }
 
 /**
@@ -87,7 +87,7 @@ BUILTIN_WORD(w_unit_type)
  */
 BUILTIN_WORD(w_drop_unit)
 {
-  context << context.pop().as_number().without_unit();
+  context << context.pop().as_number().without_measurement_unit();
 }
 
 /**
@@ -155,7 +155,7 @@ BUILTIN_WORD(w_times)
   auto count = context.pop().as_number();
   const auto quote = context.pop().as_quote();
 
-  if (count < number())
+  if (count < peelo::number())
   {
     count = -count;
   }
@@ -319,13 +319,24 @@ BUILTIN_WORD(w_rad)
  */
 BUILTIN_WORD(w_to_month)
 {
-  const auto value = long(context.pop().as_number());
-
-  if (value < 1 || value > 12)
+  try
   {
-    throw error(error::type::range, U"Month index out of range.");
+    const auto value = long(context.pop().as_number());
+
+    if (value < 1 || value > 12)
+    {
+      throw error(error::type::range, U"Month index out of range.");
+    }
+    context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
   }
-  context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -338,13 +349,24 @@ BUILTIN_WORD(w_to_month)
  */
 BUILTIN_WORD(w_to_weekday)
 {
-  const auto value = long(context.pop().as_number());
-
-  if (value < 1 || value > 7)
+  try
   {
-    throw error(error::type::range, U"Weekday index out of range.");
+    const auto value = long(context.pop().as_number());
+
+    if (value < 1 || value > 7)
+    {
+      throw error(error::type::range, U"Weekday index out of range.");
+    }
+    context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
   }
-  context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 namespace laskin::api

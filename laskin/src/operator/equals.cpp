@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,18 +27,23 @@
 
 namespace laskin
 {
-  static bool equals_boolean(bool a, bool b)
+  static inline bool
+  equals_boolean(bool a, bool b)
   {
     return a == b;
   }
 
-  static bool equals_number(const number& a, const number& b)
+  static inline bool
+  equals_number(const peelo::number& a, const peelo::number& b)
   {
     return a == b;
   }
 
-  static bool equals_vector(const std::vector<value>& a,
-                            const std::vector<value>& b)
+  static bool
+  equals_vector(
+    const value::vector_container& a,
+    const value::vector_container& b
+  )
   {
     const auto size = a.size();
 
@@ -46,7 +51,7 @@ namespace laskin
     {
       return false;
     }
-    for (std::vector<value>::size_type i = 0; i < size; ++i)
+    for (value::vector_container::size_type i = 0; i < size; ++i)
     {
       if (a[i] != b[i])
       {
@@ -57,9 +62,10 @@ namespace laskin
     return true;
   }
 
-  static bool equals_record(
-    const tsl::ordered_map<std::u32string, value>& a,
-    const tsl::ordered_map<std::u32string, value>& b
+  static bool
+  equals_record(
+    const value::record_container& a,
+    const value::record_container& b
   )
   {
     if (a.size() != b.size())
@@ -83,35 +89,38 @@ namespace laskin
     return true;
   }
 
-  static bool equals_string(const std::u32string& a, const std::u32string& b)
+  static inline bool
+  equals_string(const std::u32string& a, const std::u32string& b)
   {
     return !a.compare(b);
   }
 
-  static bool equals_month(peelo::chrono::month a, peelo::chrono::month b)
+  static inline bool
+  equals_month(peelo::chrono::month a, peelo::chrono::month b)
   {
     return a == b;
   }
 
-  static bool equals_weekday(peelo::chrono::weekday a,
-                             peelo::chrono::weekday b)
+  static inline bool
+  equals_weekday(peelo::chrono::weekday a, peelo::chrono::weekday b)
   {
     return a == b;
   }
 
-  static bool equals_date(const peelo::chrono::date& a,
-                          const peelo::chrono::date& b)
+  static inline bool
+  equals_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
   {
     return a == b;
   }
 
-  static bool equals_time(const peelo::chrono::time& a,
-                          const peelo::chrono::time& b)
+  static inline bool
+  equals_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
   {
     return a == b;
   }
 
-  bool value::equals(const value& that) const
+  bool
+  value::equals(const value& that) const
   {
     if (that.is(m_type))
     {

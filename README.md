@@ -17,6 +17,7 @@ Other dependencies that are handled by [CMake] are:
 
 - [ordered-map]
 - [peelo-chrono]
+- [peelo--number]
 - [peelo-unicode]
 
 On Ubuntu, requirements for the compilation of this software can be installed
@@ -44,6 +45,7 @@ $ make
 [cmake]: https://cmake.org/
 [ordered-map]: https://github.com/Tessil/ordered-map/
 [peelo-chrono]: https://github.com/peelonet/peelo-chrono
+[peelo-number]: https://github.com/peelonet/peelo-number
 [peelo-unicode]: https://github.com/peelonet/peelo-unicode
 [build-image]: https://github.com/RauliL/laskin/actions/workflows/build.yml/badge.svg
 [build-url]: https://github.com/RauliL/laskin/actions/workflows/build.yml

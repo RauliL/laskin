@@ -27,10 +27,12 @@
 #include <peelo/unicode/ctype/isupper.hpp>
 #include <peelo/unicode/ctype/tolower.hpp>
 #include <peelo/unicode/ctype/toupper.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/macros.hpp"
+#include "laskin/number.hpp"
 
 using namespace laskin;
 
@@ -485,28 +487,40 @@ BUILTIN_WORD(w_trim_end)
  */
 BUILTIN_WORD(w_substring)
 {
-  const auto string = context.pop().as_string();
-  const auto length = string.length();
-  auto begin = long(context.pop().as_number());
-  auto end = long(context.pop().as_number());
-
-  if (begin < 0)
+  try
   {
-    begin += length;
-  }
-  if (end < 0)
-  {
-    end += length;
-  }
+    const auto string = context.pop().as_string();
+    const auto length = string.length();
+    auto begin = long(context.pop().as_number());
+    auto end = long(context.pop().as_number());
 
-  if ((begin < 0 || begin >= static_cast<std::int64_t>(length)) ||
-      (end < 0 || end >= static_cast<std::int64_t>(length)) ||
-      end < begin)
-  {
-    throw error(error::type::range, U"String index out of bounds.");
-  }
+    if (begin < 0)
+    {
+      begin += length;
+    }
+    if (end < 0)
+    {
+      end += length;
+    }
 
-  context << string.substr(begin, end - begin + 1);
+    if (
+      (begin < 0 || begin >= static_cast<std::int64_t>(length)) ||
+        (end < 0 || end >= static_cast<std::int64_t>(length)) ||
+        end < begin)
+    {
+      throw error(error::type::range, U"String index out of bounds.");
+    }
+
+    context << string.substr(begin, end - begin + 1);
+  }
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -576,17 +590,28 @@ BUILTIN_WORD(w_split)
  */
 BUILTIN_WORD(w_repeat)
 {
-  const auto string = context.pop().as_string();
-  auto count = long(context.pop().as_number());
-  std::u32string result;
-
-  result.reserve(string.length() * count);
-  while (count > 0)
+  try
   {
-    result.append(string);
-    --count;
+    const auto string = context.pop().as_string();
+    auto count = long(context.pop().as_number());
+    std::u32string result;
+
+    result.reserve(string.length() * count);
+    while (count > 0)
+    {
+      result.append(string);
+      --count;
+    }
+    context << result;
   }
-  context << result;
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -636,31 +661,42 @@ BUILTIN_WORD(w_replace)
  */
 BUILTIN_WORD(w_pad_start)
 {
-  const auto string = context.pop().as_string();
-  auto pad_string = context.pop().as_string();
-  auto target_length = long(context.pop().as_number());
-  const auto string_length = string.length();
-  const auto pad_string_length = pad_string.length();
-
-  if (static_cast<long>(string_length) >= target_length)
+  try
   {
-    context << string;
-    return;
-  }
+    const auto string = context.pop().as_string();
+    auto pad_string = context.pop().as_string();
+    auto target_length = long(context.pop().as_number());
+    const auto string_length = string.length();
+    const auto pad_string_length = pad_string.length();
 
-  target_length -= string_length;
-  if (target_length > static_cast<long>(pad_string_length))
-  {
-    const auto original_pad_string = pad_string;
-    auto count = target_length / pad_string_length;
-
-    while (count-- > 0)
+    if (static_cast<long>(string_length) >= target_length)
     {
-      pad_string += original_pad_string;
+      context << string;
+      return;
     }
-  }
 
-  context << (pad_string.substr(0, target_length) + string);
+    target_length -= string_length;
+    if (target_length > static_cast<long>(pad_string_length))
+    {
+      const auto original_pad_string = pad_string;
+      auto count = target_length / pad_string_length;
+
+      while (count-- > 0)
+      {
+        pad_string += original_pad_string;
+      }
+    }
+
+    context << (pad_string.substr(0, target_length) + string);
+  }
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -671,31 +707,42 @@ BUILTIN_WORD(w_pad_start)
  */
 BUILTIN_WORD(w_pad_end)
 {
-  const auto string = context.pop().as_string();
-  auto pad_string = context.pop().as_string();
-  auto target_length = long(context.pop().as_number());
-  const auto string_length = string.length();
-  const auto pad_string_length = pad_string.length();
-
-  if (static_cast<long>(string_length) >= target_length)
+  try
   {
-    context << string;
-    return;
-  }
+    const auto string = context.pop().as_string();
+    auto pad_string = context.pop().as_string();
+    auto target_length = long(context.pop().as_number());
+    const auto string_length = string.length();
+    const auto pad_string_length = pad_string.length();
 
-  target_length -= string_length;
-  if (target_length > static_cast<long>(pad_string_length))
-  {
-    const auto original_pad_string = pad_string;
-    auto count = target_length / pad_string_length;
-
-    while (count-- > 0)
+    if (static_cast<long>(string_length) >= target_length)
     {
-      pad_string += original_pad_string;
+      context << string;
+      return;
     }
-  }
 
-  context << (string + pad_string.substr(0, target_length));
+    target_length -= string_length;
+    if (target_length > static_cast<long>(pad_string_length))
+    {
+      const auto original_pad_string = pad_string;
+      auto count = target_length / pad_string_length;
+
+      while (count-- > 0)
+      {
+        pad_string += original_pad_string;
+      }
+    }
+
+    context << (string + pad_string.substr(0, target_length));
+  }
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -708,21 +755,32 @@ BUILTIN_WORD(w_pad_end)
  */
 BUILTIN_WORD(w_at)
 {
-  const auto string = context.pop().as_string();
-  const auto length = string.length();
-  auto index = long(context.pop().as_number());
-  char32_t c;
+  try
+  {
+    const auto string = context.pop().as_string();
+    const auto length = string.length();
+    auto index = long(context.pop().as_number());
+    char32_t c;
 
-  if (index < 0)
-  {
-    index += length;
+    if (index < 0)
+    {
+      index += length;
+    }
+    if (!length || index < 0 || index >= static_cast<long>(length))
+    {
+      throw error(error::type::range, U"String index out of bounds.");
+    }
+    c = string[index];
+    context << std::u32string(&c, 1);
   }
-  if (!length || index < 0 || index >= static_cast<long>(length))
+  catch (const std::underflow_error&)
   {
-    throw error(error::type::range, U"String index out of bounds.");
+    throw error(error::type::range, U"Numeric underflow.");
   }
-  c = string[index];
-  context << std::u32string(&c, 1);
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -734,16 +792,18 @@ BUILTIN_WORD(w_at)
  */
 BUILTIN_WORD(w_to_number)
 {
+  using peelo::unicode::encoding::utf8::encode;
+
   const auto string = context.pop().as_string();
 
-  if (!number::is_valid(string))
+  if (!is_number(string))
   {
     throw error(
       error::type::range,
       U"Cannot convert given string into a number."
     );
   }
-  context << number::parse(string);
+  context << peelo::number::parse(encode(string));
 }
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,8 @@
 
 namespace laskin
 {
-  value value::make_boolean(bool value)
+  value
+  value::make_boolean(bool value)
   {
     class value instance;
 
@@ -44,52 +45,71 @@ namespace laskin
     return instance;
   }
 
-  value value::make_number(const number& value)
+  value
+  value::make_number(const peelo::number& value)
   {
     class value instance;
 
     instance.m_type = type::number;
-    instance.m_value_number = new number(value);
+    instance.m_value_number = new peelo::number(value);
 
     return instance;
   }
 
-  value value::make_number(int value, const number::unit_type& unit)
+  value
+  value::make_number(
+    int value,
+    const peelo::number::unit_type& unit
+  )
   {
     return make_number(static_cast<std::int64_t>(value), unit);
   }
 
-  value value::make_number(std::int64_t value, const number::unit_type& unit)
+  value
+  value::make_number(
+    std::int64_t value,
+    const peelo::number::unit_type& unit
+  )
   {
     class value instance;
 
     instance.m_type = type::number;
-    instance.m_value_number = new number(value, unit);
+    instance.m_value_number = new peelo::number(value, unit);
 
     return instance;
   }
 
-  value value::make_number(double value, const number::unit_type& unit)
+  value
+  value::make_number(
+    double value,
+    const peelo::number::unit_type& unit
+  )
   {
     class value instance;
 
     instance.m_type = type::number;
-    instance.m_value_number = new number(value, unit);
+    instance.m_value_number = new peelo::number(value, unit);
 
     return instance;
   }
 
-  value value::make_number(const std::u32string& input)
+  value
+  value::make_number(const std::u32string& input)
   {
+    using peelo::unicode::encoding::utf8::encode;
+
     class value instance;
 
     instance.m_type = type::number;
-    instance.m_value_number = new number(number::parse(input));
+    instance.m_value_number = new peelo::number(
+      peelo::number::parse(encode(input))
+    );
 
     return instance;
   }
 
-  value value::make_vector(const vector_container& elements)
+  value
+  value::make_vector(const vector_container& elements)
   {
     class value instance;
 
@@ -99,7 +119,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_record(const record_container& properties)
+  value
+  value::make_record(const record_container& properties)
   {
     class value instance;
 
@@ -109,7 +130,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_string(const std::u32string& string)
+  value
+  value::make_string(const std::u32string& string)
   {
     value instance;
 
@@ -119,7 +141,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_quote(const class quote& quote)
+  value
+  value::make_quote(const class quote& quote)
   {
     class value instance;
 
@@ -129,7 +152,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_quote(const quote::node_container& nodes)
+  value
+  value::make_quote(const quote::node_container& nodes)
   {
     class value instance;
 
@@ -139,7 +163,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_month(peelo::chrono::month month)
+  value
+  value::make_month(peelo::chrono::month month)
   {
     value instance;
 
@@ -149,12 +174,14 @@ namespace laskin
     return instance;
   }
 
-  value value::make_month(const std::u32string& month)
+  value
+  value::make_month(const std::u32string& month)
   {
     return make_month(parse_month(month));
   }
 
-  value value::make_weekday(peelo::chrono::weekday weekday)
+  value
+  value::make_weekday(peelo::chrono::weekday weekday)
   {
     value instance;
 
@@ -164,12 +191,14 @@ namespace laskin
     return instance;
   }
 
-  value value::make_weekday(const std::u32string& weekday)
+  value
+  value::make_weekday(const std::u32string& weekday)
   {
     return make_weekday(parse_weekday(weekday));
   }
 
-  value value::make_date(const peelo::chrono::date& date)
+  value
+  value::make_date(const peelo::chrono::date& date)
   {
     value instance;
 
@@ -179,7 +208,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_date(const std::u32string& input)
+  value
+  value::make_date(const std::u32string& input)
   {
     const auto date = parse_date(input);
     value instance;
@@ -190,7 +220,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_time(const peelo::chrono::time& time)
+  value
+  value::make_time(const peelo::chrono::time& time)
   {
     value instance;
 
@@ -200,7 +231,8 @@ namespace laskin
     return instance;
   }
 
-  value value::make_time(const std::u32string& input)
+  value
+  value::make_time(const std::u32string& input)
   {
     const auto time = parse_time(input);
     value instance;
@@ -225,11 +257,11 @@ namespace laskin
         break;
 
       case type::number:
-        m_value_number = new number(*that.m_value_number);
+        m_value_number = new peelo::number(*that.m_value_number);
         break;
 
       case type::vector:
-        m_value_vector = new std::vector<value>(*that.m_value_vector);
+        m_value_vector = new vector_container(*that.m_value_vector);
         break;
 
       case type::string:
@@ -257,9 +289,7 @@ namespace laskin
         break;
 
       case type::record:
-        m_value_record = new tsl::ordered_map<std::u32string, value>(
-          *that.m_value_record
-        );
+        m_value_record = new record_container(*that.m_value_record);
         break;
     }
   }
@@ -318,7 +348,8 @@ namespace laskin
     reset();
   }
 
-  value& value::operator=(const value& that)
+  value&
+  value::assign(const value& that)
   {
     if (this != &that)
     {
@@ -330,11 +361,11 @@ namespace laskin
           break;
 
         case type::number:
-          m_value_number = new number(*that.m_value_number);
+          m_value_number = new peelo::number(*that.m_value_number);
           break;
 
         case type::vector:
-          m_value_vector = new std::vector<value>(*that.m_value_vector);
+          m_value_vector = new vector_container(*that.m_value_vector);
           break;
 
         case type::string:
@@ -362,9 +393,7 @@ namespace laskin
           break;
 
         case type::record:
-          m_value_record = new tsl::ordered_map<std::u32string, value>(
-            *that.m_value_record
-          );
+          m_value_record = new record_container(*that.m_value_record);
           break;
       }
     }
@@ -372,7 +401,8 @@ namespace laskin
     return *this;
   }
 
-  value& value::operator=(value&& that)
+  value&
+  value::operator=(value&& that)
   {
     if (this != &that)
     {
@@ -426,7 +456,8 @@ namespace laskin
     return *this;
   }
 
-  std::u32string value::type_description(enum type type)
+  std::u32string
+  value::type_description(enum type type)
   {
     switch (type)
     {
@@ -464,7 +495,8 @@ namespace laskin
     return U"unknown";
   }
 
-  void value::reset()
+  void
+  value::reset()
   {
     switch (m_type)
     {
@@ -504,7 +536,8 @@ namespace laskin
     m_value_boolean = false;
   }
 
-  bool value::as_boolean() const
+  bool
+  value::as_boolean() const
   {
     if (!is(type::boolean))
     {
@@ -519,7 +552,8 @@ namespace laskin
     return m_value_boolean;
   }
 
-  const number& value::as_number() const
+  const peelo::number&
+  value::as_number() const
   {
     if (!is(type::number))
     {
@@ -534,7 +568,8 @@ namespace laskin
     return *m_value_number;
   }
 
-  const std::vector<value>& value::as_vector() const
+  const value::vector_container&
+  value::as_vector() const
   {
     if (!is(type::vector))
     {
@@ -549,7 +584,8 @@ namespace laskin
     return *m_value_vector;
   }
 
-  const tsl::ordered_map<std::u32string, value>& value::as_record() const
+  const value::record_container&
+  value::as_record() const
   {
     if (!is(type::record))
     {
@@ -564,7 +600,8 @@ namespace laskin
     return *m_value_record;
   }
 
-  const std::u32string& value::as_string() const
+  const std::u32string&
+  value::as_string() const
   {
     if (!is(type::string))
     {
@@ -579,7 +616,8 @@ namespace laskin
     return *m_value_string;
   }
 
-  const quote& value::as_quote() const
+  const quote&
+  value::as_quote() const
   {
     if (!is(type::quote))
     {
@@ -594,7 +632,8 @@ namespace laskin
     return *m_value_quote;
   }
 
-  peelo::chrono::month value::as_month() const
+  peelo::chrono::month
+  value::as_month() const
   {
     if (!is(type::month))
     {
@@ -609,7 +648,8 @@ namespace laskin
     return m_value_month;
   }
 
-  peelo::chrono::weekday value::as_weekday() const
+  peelo::chrono::weekday
+  value::as_weekday() const
   {
     if (!is(type::weekday))
     {
@@ -624,7 +664,8 @@ namespace laskin
     return m_value_weekday;
   }
 
-  const peelo::chrono::date& value::as_date() const
+  const peelo::chrono::date&
+  value::as_date() const
   {
     if (!is(type::date))
     {
@@ -639,7 +680,8 @@ namespace laskin
     return *m_value_date;
   }
 
-  const peelo::chrono::time& value::as_time() const
+  const peelo::chrono::time&
+  value::as_time() const
   {
     if (!is(type::time))
     {
@@ -654,14 +696,16 @@ namespace laskin
     return *m_value_time;
   }
 
-  static std::u32string number_to_string(const number& value)
+  static std::u32string
+  number_to_string(const peelo::number& value)
   {
     using peelo::unicode::encoding::utf8::decode;
 
     return decode(value.to_string());
   }
 
-  static std::u32string vector_to_string(const std::vector<value>& elements)
+  static std::u32string
+  vector_to_string(const value::vector_container& elements)
   {
     std::u32string result;
     bool first = true;
@@ -680,7 +724,8 @@ namespace laskin
     return result;
   }
 
-  static std::u32string month_to_string(peelo::chrono::month month)
+  static std::u32string
+  month_to_string(peelo::chrono::month month)
   {
     switch (month)
     {
@@ -724,7 +769,8 @@ namespace laskin
     return U"unknown";
   }
 
-  static std::u32string weekday_to_string(peelo::chrono::weekday weekday)
+  static std::u32string
+  weekday_to_string(peelo::chrono::weekday weekday)
   {
     switch (weekday)
     {
@@ -753,7 +799,8 @@ namespace laskin
     return U"unknown";
   }
 
-  static std::u32string date_to_string(const peelo::chrono::date& date)
+  static std::u32string
+  date_to_string(const peelo::chrono::date& date)
   {
     const auto year = date.year();
     const auto month = date.month();
@@ -778,7 +825,8 @@ namespace laskin
     return result;
   }
 
-  static std::u32string time_to_string(const peelo::chrono::time& time)
+  static std::u32string
+  time_to_string(const peelo::chrono::time& time)
   {
     const auto hour = time.hour();
     const auto minute = time.minute();
@@ -803,9 +851,8 @@ namespace laskin
     return result;
   }
 
-  static std::u32string record_to_string(
-    const tsl::ordered_map<std::u32string, value>& properties
-  )
+  static std::u32string
+  record_to_string(const value::record_container& properties)
   {
     std::u32string result;
     bool first = true;
@@ -826,7 +873,8 @@ namespace laskin
     return result;
   }
 
-  std::u32string value::to_string() const
+  std::u32string
+  value::to_string() const
   {
     switch (m_type)
     {
@@ -864,7 +912,8 @@ namespace laskin
     return U"";
   }
 
-  static std::u32string vector_to_source(const std::vector<value>& elements)
+  static std::u32string
+  vector_to_source(const value::vector_container& elements)
   {
     std::u32string result;
     bool first = true;
@@ -885,9 +934,8 @@ namespace laskin
     return result;
   }
 
-  static std::u32string record_to_source(
-    const tsl::ordered_map<std::u32string, value>& properties
-  )
+  static std::u32string
+  record_to_source(const value::record_container& properties)
   {
     std::u32string result;
     bool first = true;
@@ -910,7 +958,8 @@ namespace laskin
     return result;
   }
 
-  std::u32string value::to_source() const
+  std::u32string
+  value::to_source() const
   {
     switch (m_type)
     {
@@ -948,18 +997,22 @@ namespace laskin
     return U"";
   }
 
-  std::ostream& operator<<(std::ostream& out, enum value::type type)
+  std::ostream&
+  operator<<(std::ostream& out, enum value::type type)
   {
-    out << peelo::unicode::encoding::utf8::encode(
-      value::type_description(type)
-    );
+    using peelo::unicode::encoding::utf8::encode;
+
+    out << encode(value::type_description(type));
 
     return out;
   }
 
-  std::ostream& operator<<(std::ostream& out, const class value& value)
+  std::ostream&
+  operator<<(std::ostream& out, const class value& value)
   {
-    out << peelo::unicode::encoding::utf8::encode(value.to_string());
+    using peelo::unicode::encoding::utf8::encode;
+
+    out << encode(value.to_string());
 
     return out;
   }

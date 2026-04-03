@@ -89,12 +89,11 @@ BUILTIN_WORD(w_second)
 BUILTIN_WORD(w_format)
 {
   using peelo::unicode::encoding::utf8::encode;
-  using peelo::unicode::encoding::utf8::decode;
 
   const auto time = context.pop().as_time();
   const auto format = context.pop().as_string();
 
-  context << decode(time.format(encode(format)));
+  context << time.format(encode(format));
 }
 
 /**
@@ -105,7 +104,7 @@ BUILTIN_WORD(w_format)
 BUILTIN_WORD(w_to_number)
 {
   const auto time = context.pop().as_time();
-  number result(0.0, unit::second);
+  peelo::number result(0.0, peelo::number::unit::second);
 
   result += time.hour() * peelo::chrono::duration::seconds_per_hour;
   result += time.minute() * peelo::chrono::duration::seconds_per_minute;
