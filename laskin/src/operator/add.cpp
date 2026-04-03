@@ -197,48 +197,59 @@ namespace laskin
   value
   value::add(const value& that) const
   {
-    if (that.is(m_type))
+    try
     {
-      switch (m_type)
+      if (that.is(m_type))
       {
-        case type::number:
-          return add_number(*m_value_number, *that.m_value_number);
+        switch (m_type)
+        {
+          case type::number:
+            return add_number(*m_value_number, *that.m_value_number);
 
-        case type::vector:
-          return add_vector(*m_value_vector, *that.m_value_vector);
+          case type::vector:
+            return add_vector(*m_value_vector, *that.m_value_vector);
 
-        case type::record:
-          return add_record(*m_value_record, *that.m_value_record);
+          case type::record:
+            return add_record(*m_value_record, *that.m_value_record);
 
-        case type::string:
-          return add_string(*m_value_string, *that.m_value_string);
+          case type::string:
+            return add_string(*m_value_string, *that.m_value_string);
 
-        default:
-          break;
+          default:
+            break;
+        }
+      }
+      else if (that.is(type::number))
+      {
+        switch (m_type)
+        {
+          case type::month:
+            return add_month(m_value_month, *that.m_value_number);
+
+          case type::weekday:
+            return add_weekday(m_value_weekday, *that.m_value_number);
+
+          case type::date:
+            return add_date(*m_value_date, *that.m_value_number);
+
+          case type::time:
+            return add_time(*m_value_time, *that.m_value_number);
+
+          case type::vector:
+            return add_number_to_vector(*m_value_vector, that);
+
+          default:
+            break;
+        }
       }
     }
-    else if (that.is(type::number))
+    catch (const std::underflow_error&)
     {
-      switch (m_type)
-      {
-        case type::month:
-          return add_month(m_value_month, *that.m_value_number);
-
-        case type::weekday:
-          return add_weekday(m_value_weekday, *that.m_value_number);
-
-        case type::date:
-          return add_date(*m_value_date, *that.m_value_number);
-
-        case type::time:
-          return add_time(*m_value_time, *that.m_value_number);
-
-        case type::vector:
-          return add_number_to_vector(*m_value_vector, that);
-
-        default:
-          break;
-      }
+      throw error(error::type::range, U"Numeric underflow.");
+    }
+    catch (const std::overflow_error&)
+    {
+      throw error(error::type::range, U"Numeric overflow.");
     }
 
     throw error(

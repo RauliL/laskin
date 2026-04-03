@@ -39,7 +39,18 @@ BUILTIN_WORD(w_vector)
   const auto size = context.pop().as_number();
   std::vector<value> elements;
 
-  elements.reserve(long(size));
+  try
+  {
+    elements.reserve(long(size));
+  }
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
   for (peelo::number i; i < size; ++i)
   {
     elements.push_back(context.pop());
@@ -310,21 +321,32 @@ BUILTIN_WORD(w_append)
  */
 BUILTIN_WORD(w_insert)
 {
-  auto vec = context.pop().as_vector();
-  const auto size = vec.size();
-  const auto value = context.pop();
-  auto index = long(context.pop().as_number());
+  try
+  {
+    auto vec = context.pop().as_vector();
+    const auto size = vec.size();
+    const auto value = context.pop();
+    auto index = long(context.pop().as_number());
 
-  if (index < 0)
-  {
-    index += size;
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type::range, U"Vector index out of bounds.");
+    }
+    vec.insert(std::begin(vec) + index, 1, value);
+    context << vec;
   }
-  if (!size || index < 0 || index >= static_cast<long>(size))
+  catch (const std::underflow_error&)
   {
-    throw error(error::type::range, U"Vector index out of bounds.");
+    throw error(error::type::range, U"Numeric underflow.");
   }
-  vec.insert(std::begin(vec) + index, 1, value);
-  context << vec;
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -416,19 +438,30 @@ BUILTIN_WORD(w_sort)
  */
 BUILTIN_WORD(w_at)
 {
-  const auto vector = context.pop().as_vector();
-  const auto size = vector.size();
-  auto index = long(context.pop().as_number());
+  try
+  {
+    const auto vector = context.pop().as_vector();
+    const auto size = vector.size();
+    auto index = long(context.pop().as_number());
 
-  if (index < 0)
-  {
-    index += size;
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type::range, U"Vector index out of bounds.");
+    }
+    context << vector[index];
   }
-  if (!size || index < 0 || index >= static_cast<long>(size))
+  catch (const std::underflow_error&)
   {
-    throw error(error::type::range, U"Vector index out of bounds.");
+    throw error(error::type::range, U"Numeric underflow.");
   }
-  context << vector[index];
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -441,21 +474,32 @@ BUILTIN_WORD(w_at)
  */
 BUILTIN_WORD(w_set)
 {
-  auto vector = context.pop().as_vector();
-  const auto size = vector.size();
-  auto index = long(context.pop().as_number());
-  const auto value = context.pop();
+  try
+  {
+    auto vector = context.pop().as_vector();
+    const auto size = vector.size();
+    auto index = long(context.pop().as_number());
+    const auto value = context.pop();
 
-  if (index < 0)
-  {
-    index += size;
+    if (index < 0)
+    {
+      index += size;
+    }
+    if (!size || index < 0 || index >= static_cast<long>(size))
+    {
+      throw error(error::type::range, U"Vector index out of bounds.");
+    }
+    vector[index] = value;
+    context << vector;
   }
-  if (!size || index < 0 || index >= static_cast<long>(size))
+  catch (const std::underflow_error&)
   {
-    throw error(error::type::range, U"Vector index out of bounds.");
+    throw error(error::type::range, U"Numeric underflow.");
   }
-  vector[index] = value;
-  context << vector;
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 /**
@@ -478,9 +522,20 @@ BUILTIN_WORD(w_to_time)
   {
     throw error(error::type::range, U"Time needs three values.");
   }
-  hour = long(vector[0].as_number());
-  minute = long(vector[1].as_number());
-  second = long(vector[2].as_number());
+  try
+  {
+    hour = long(vector[0].as_number());
+    minute = long(vector[1].as_number());
+    second = long(vector[2].as_number());
+  }
+  catch (const std::underflow_error&)
+  {
+    throw error(error::type::range, U"Numeric underflow.");
+  }
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
   if (!peelo::chrono::time::is_valid(hour, minute, second))
   {
     throw error(error::type::range, U"Invalid time.");
@@ -499,34 +554,45 @@ BUILTIN_WORD(w_to_time)
  */
 BUILTIN_WORD(w_to_date)
 {
-  const auto vector = context.pop().as_vector();
-  long day;
-  peelo::chrono::month month;
-  long year;
-
-  if (vector.size() != 3)
+  try
   {
-    throw error(error::type::range, U"Date needs three values.");
-  }
-  year = long(vector[0].as_number());
-  if (vector[1].is(value::type::month))
-  {
-    month = vector[1].as_month();
-  } else {
-    const auto value = long(vector[1].as_number());
+    const auto vector = context.pop().as_vector();
+    long day;
+    peelo::chrono::month month;
+    long year;
 
-    if (value < 1 || value > 12)
+    if (vector.size() != 3)
     {
-      throw error(error::type::range, U"Given month is out of range.");
+      throw error(error::type::range, U"Date needs three values.");
     }
-    month = static_cast<peelo::chrono::month>(value - 1);
+    year = long(vector[0].as_number());
+    if (vector[1].is(value::type::month))
+    {
+      month = vector[1].as_month();
+    } else {
+      const auto value = long(vector[1].as_number());
+
+      if (value < 1 || value > 12)
+      {
+        throw error(error::type::range, U"Given month is out of range.");
+      }
+      month = static_cast<peelo::chrono::month>(value - 1);
+    }
+    day = long(vector[2].as_number());
+    if (!peelo::chrono::date::is_valid(year, month, day))
+    {
+      throw error(error::type::range, U"Invalid date.");
+    }
+    context << value::make_date(peelo::chrono::date(year, month, day));
   }
-  day = long(vector[2].as_number());
-  if (!peelo::chrono::date::is_valid(year, month, day))
+  catch (const std::underflow_error&)
   {
-    throw error(error::type::range, U"Invalid date.");
+    throw error(error::type::range, U"Numeric underflow.");
   }
-  context << value::make_date(peelo::chrono::date(year, month, day));
+  catch (const std::overflow_error&)
+  {
+    throw error(error::type::range, U"Numeric overflow.");
+  }
 }
 
 namespace laskin::api
