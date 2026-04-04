@@ -223,11 +223,11 @@ namespace laskin
     }
     catch (const std::underflow_error&)
     {
-      // TODO
+      throw error(error::type::range, U"Numeric value too small.");
     }
     catch (const std::overflow_error&)
     {
-      // TODO
+      throw error(error::type::range, U"Numeric value too large.");
     }
 
     return *this;
