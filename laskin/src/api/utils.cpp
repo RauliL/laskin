@@ -55,26 +55,6 @@ BUILTIN_WORD(w_false)
 }
 
 /**
- * pi ( -- number )
- *
- * Returns value of pi.
- */
-BUILTIN_WORD(w_pi)
-{
-  context << M_PI;
-}
-
-/**
- * e ( -- number )
- *
- * Returns Euler's number.
- */
-BUILTIN_WORD(w_e)
-{
-  context << M_E;
-}
-
-/**
  * = ( any any -- boolean )
  *
  * Tests whether the given values are equal.
@@ -765,8 +745,6 @@ namespace laskin::api
     // Constants.
     { U"true", w_true },
     { U"false", w_false },
-    { U"pi", w_pi },
-    { U"e", w_e },
 
     // Common operators.
     { U"=", w_eq },
