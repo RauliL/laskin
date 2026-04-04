@@ -79,7 +79,7 @@ namespace laskin
      */
     virtual void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const = 0;
 
     /**
@@ -90,7 +90,7 @@ namespace laskin
      */
     virtual value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const = 0;
 
     /**
@@ -136,12 +136,12 @@ namespace laskin
 
     void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     inline class value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override
     {
       return value;
@@ -177,12 +177,12 @@ namespace laskin
 
     void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     bool equals(const std::shared_ptr<node>& that) const override;
@@ -215,12 +215,12 @@ namespace laskin
 
     void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     bool equals(const std::shared_ptr<node>& that) const override;
@@ -244,12 +244,12 @@ namespace laskin
 
     void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     bool equals(const std::shared_ptr<node>& that) const override;
@@ -280,12 +280,12 @@ namespace laskin
 
     void exec(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     value eval(
       class context& context,
-      std::ostream& out
+      std::ostream* out
     ) const override;
 
     bool equals(const std::shared_ptr<node>& that) const override;

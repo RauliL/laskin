@@ -72,7 +72,7 @@ main(int argc, char** argv)
     {
       try
       {
-        laskin::quote::parse(source).call(context, std::cout);
+        laskin::quote::parse(source).call(context, &std::cout);
       }
       catch (const laskin::error& error)
       {
@@ -117,7 +117,7 @@ run_file(laskin::context& context, std::istream& input)
 
   try
   {
-    laskin::quote::parse(source).call(context, std::cout);
+    laskin::quote::parse(source).call(context, &std::cout);
   }
   catch (const laskin::error& error)
   {

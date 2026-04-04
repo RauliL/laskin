@@ -461,7 +461,10 @@ BUILTIN_WORD(w_to_source)
  */
 BUILTIN_WORD(w_println)
 {
-  out << context.pop() << std::endl;
+  if (out)
+  {
+    *out << context.pop() << std::endl;
+  }
 }
 
 /**
@@ -472,7 +475,10 @@ BUILTIN_WORD(w_println)
  */
 BUILTIN_WORD(w_print)
 {
-  out << context.pop();
+  if (out)
+  {
+    *out << context.pop();
+  }
 }
 
 /**
@@ -486,16 +492,20 @@ BUILTIN_WORD(w_stack_preview)
   const auto& data = context.data;
   const auto size = data.size();
 
+  if (!out)
+  {
+    return;
+  }
   if (!size)
   {
-    out << "Stack is empty." << std::endl;
+    *out << "Stack is empty." << std::endl;
     return;
   }
   for (std::deque<value>::size_type i = 0; i < size && i < 10; ++i)
   {
     const auto& value = data[size - i - 1];
 
-    out
+    *out
       << (size - i)
       << ": "
       << peelo::unicode::encoding::utf8::encode(value.to_source())

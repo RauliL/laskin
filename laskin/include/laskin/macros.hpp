@@ -30,5 +30,5 @@
 #define BUILTIN_WORD(x) \
   static void x( \
     class context& context, \
-    std::ostream& out \
+    std::ostream* out \
   )

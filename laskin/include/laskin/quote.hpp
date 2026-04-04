@@ -38,7 +38,7 @@ namespace laskin
   public:
     using callback = std::function<void(
       context&,
-      std::ostream&
+      std::ostream*
     )>;
     using node_container = std::vector<std::shared_ptr<node>>;
 
@@ -62,7 +62,7 @@ namespace laskin
       return !std::holds_alternative<node_container>(m_container);
     }
 
-    void call(class context& context, std::ostream& out) const;
+    void call(class context& context, std::ostream* out) const;
 
     bool equals(const quote& that) const;
 

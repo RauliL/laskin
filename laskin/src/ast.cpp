@@ -35,7 +35,7 @@ namespace laskin
   void
   node::literal::exec(
     class context& context,
-    std::ostream&
+    std::ostream*
   ) const
   {
     context.data.push_back(value);
@@ -55,7 +55,7 @@ namespace laskin
   void
   node::vector_literal::exec(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     context.data.push_back(eval(context, out));
@@ -64,7 +64,7 @@ namespace laskin
   value
   node::vector_literal::eval(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     value::vector_container container;
@@ -130,7 +130,7 @@ namespace laskin
   void
   node::record_literal::exec(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     context.data.push_back(eval(context, out));
@@ -139,7 +139,7 @@ namespace laskin
   value
   node::record_literal::eval(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     value::record_container resolved_properties;
@@ -211,7 +211,7 @@ namespace laskin
   void
   node::symbol::exec(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     auto& data = context.data;
@@ -286,7 +286,7 @@ namespace laskin
   value
   node::symbol::eval(
     class context& context,
-    std::ostream&
+    std::ostream*
   ) const
   {
     if (!id.compare(U"true"))
@@ -351,7 +351,7 @@ namespace laskin
   void
   node::definition::exec(
     class context& context,
-    std::ostream&
+    std::ostream*
   ) const
   {
     context.dictionary[id] = context.pop();
@@ -360,7 +360,7 @@ namespace laskin
   value
   node::definition::eval(
     context&,
-    std::ostream&
+    std::ostream*
   ) const
   {
     throw error(

@@ -38,7 +38,7 @@ namespace laskin
   void
   quote::call(
     class context& context,
-    std::ostream& out
+    std::ostream* out
   ) const
   {
     if (std::holds_alternative<node_container>(m_container))

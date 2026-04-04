@@ -76,7 +76,7 @@ namespace laskin::cli
         laskin::quote::parse(
           source,
           line_counter
-        ).call(context, std::cout);
+        ).call(context, &std::cout);
       }
       catch (const laskin::error& error)
       {

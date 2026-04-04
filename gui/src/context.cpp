@@ -43,7 +43,7 @@ namespace laskin::gui
       quote::parse(
         utils::string_convert<std::u32string, Glib::ustring>(source_code),
         line
-      ).call(m_context, buffer);
+      ).call(m_context, &buffer);
     }
     catch (const error& e)
     {
