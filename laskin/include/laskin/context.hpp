@@ -140,5 +140,46 @@ namespace laskin
      * Pops value from the stack and places it into given slot.
      */
     context& operator>>(class value& value);
+
+    /**
+     * Pops boolean value from the stack and places it into given slot.
+     */
+    context& operator>>(bool& value);
+
+    /**
+     * Pops numeric value from the stack and places it into given slot.
+     */
+    context& operator>>(peelo::number& value);
+
+    /**
+     * Pops numeric value from the stack and places it into given slot.
+     */
+    context& operator>>(double& value);
+
+    /**
+     * Pops string from the stack and places it into given slot.
+     */
+    context& operator>>(std::u32string& value);
+
+    /**
+     * Pops string from the stack and places it into given slot after encoding
+     * it with UTF-8 encoding.
+     */
+    context& operator>>(std::string& value);
+
+    /**
+     * Pops quote from the stack and places it into given slot.
+     */
+    context& operator>>(quote& value);
+
+    /**
+     * Pops vector from the stack and places it into given slot.
+     */
+    context& operator>>(value::vector_container& elements);
+
+    /**
+     * Pops record from the stack and places it into given slot.
+     */
+    context& operator>>(value::record_container& properties);
   };
 }

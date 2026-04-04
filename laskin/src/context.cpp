@@ -198,6 +198,83 @@ namespace laskin
     return *this;
   }
 
+  context&
+  context::operator>>(bool& value)
+  {
+    value = pop().as_boolean();
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(peelo::number& value)
+  {
+    value = pop().as_number();
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(double& value)
+  {
+    try
+    {
+      value = double(pop().as_number());
+    }
+    catch (const std::underflow_error&)
+    {
+      // TODO
+    }
+    catch (const std::overflow_error&)
+    {
+      // TODO
+    }
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(std::u32string& value)
+  {
+    value = pop().as_string();
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(std::string& value)
+  {
+    using peelo::unicode::encoding::utf8::encode;
+
+    value = encode(pop().as_string());
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(quote& value)
+  {
+    value = pop().as_quote();
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(value::vector_container& elements)
+  {
+    elements = pop().as_vector();
+
+    return *this;
+  }
+
+  context&
+  context::operator>>(value::record_container& properties)
+  {
+    properties = pop().as_record();
+
+    return *this;
+  }
+
   static void
   initialize_dictionary(
     context::dictionary_type& dictionary,
