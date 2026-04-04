@@ -60,35 +60,47 @@ namespace laskin
   bool
   quote::equals(const quote& that) const
   {
-    if (
-      std::holds_alternative<node_container>(m_container) &&
-      std::holds_alternative<node_container>(that.m_container)
-    )
+    if (std::holds_alternative<node_container>(m_container))
     {
       const auto& a = std::get<node_container>(m_container);
-      const auto& b = std::get<node_container>(that.m_container);
-      const auto size = a.size();
 
-      if (b.size() != size)
+      if (std::holds_alternative<node_container>(that.m_container))
       {
-        return false;
-      }
-      for (node_container::size_type i = 0; i < size; ++i)
-      {
-        if (!node::equals(a[i], b[i]))
+        const auto& b = std::get<node_container>(that.m_container);
+        const auto size = a.size();
+
+        if (b.size() != size)
         {
           return false;
         }
+        for (node_container::size_type i = 0; i < size; ++i)
+        {
+          if (!node::equals(a[i], b[i]))
+          {
+            return false;
+          }
+        }
+
+        return true;
+      }
+      else if (!std::holds_alternative<callback>(that.m_container))
+      {
+        return a.empty();
       }
 
-      return true;
+      return false;
     }
-    // It's almost impossible to test equality between two `std::function`
-    // instances. While some clever hacks to retrieve the memory address
-    // exist, I could not get them working reliably. For native quotes the
-    // result will always be `false` until I find working solution. Sorry.
-
-    return false;
+    else if (std::holds_alternative<callback>(m_container))
+    {
+      // It's almost impossible to test equality between two `std::function`
+      // instances. While some clever hacks to retrieve the memory address
+      // exist, I could not get them working reliably. For native quotes the
+      // result will always be `false` until I find working solution. Sorry.
+      return false;
+    } else {
+      return !std::holds_alternative<node_container>(that.m_container) &&
+        !std::holds_alternative<callback>(that.m_container);
+    }
   }
 
   std::u32string
@@ -117,7 +129,11 @@ namespace laskin
 
       return result;
     }
+    else if (std::holds_alternative<callback>(m_container))
+    {
+      return U"(\"native quote\")";
+    }
 
-    return U"(\"native quote\")";
+    return U"()";
   }
 }

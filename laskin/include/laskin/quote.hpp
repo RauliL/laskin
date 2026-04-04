@@ -33,6 +33,10 @@
 
 namespace laskin
 {
+  /**
+   * Quote is collection of code or an C++ function callback that can be
+   * executed with execution context. Basically an function.
+   */
   class quote
   {
   public:
@@ -48,8 +52,19 @@ namespace laskin
       int column = 1
     );
 
+    /**
+     * Constructs empty quote that does nothing.
+     */
     explicit quote();
+
+    /**
+     * Constructs native quote from given function callback.
+     */
     explicit quote(const callback& cb);
+
+    /**
+     * Constructs scripted quote from given AST nodes.
+     */
     explicit quote(const node_container& nodes);
 
     quote(const quote&) = default;
@@ -57,12 +72,19 @@ namespace laskin
     quote& operator=(const quote& that) = default;
     quote& operator=(quote&&) = default;
 
+    /**
+     * Tests whether the quote is a native quote instead of scripted one.
+     */
     inline bool is_native() const
     {
       return !std::holds_alternative<node_container>(m_container);
     }
 
-    void call(class context& context, std::ostream* out) const;
+    /**
+     * Executes the quote with given execution context and optional output
+     * stream.
+     */
+    void call(class context& context, std::ostream* out = nullptr) const;
 
     bool equals(const quote& that) const;
 
