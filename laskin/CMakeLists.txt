@@ -21,7 +21,7 @@ FetchContent_Declare(
   GIT_REPOSITORY
     https://github.com/peelonet/peelo-number.git
   GIT_TAG
-    v1.0.0
+    v2.0.0
 )
 FetchContent_Declare(
   peelo-unicode
@@ -43,7 +43,6 @@ ADD_LIBRARY(
   ./src/chrono.cpp
   ./src/context.cpp
   ./src/error.cpp
-  ./src/number.cpp
   ./src/parser.cpp
   ./src/quote.cpp
   ./src/utils.cpp

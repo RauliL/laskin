@@ -32,7 +32,6 @@
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/macros.hpp"
-#include "laskin/number.hpp"
 
 using namespace laskin;
 
@@ -792,18 +791,19 @@ BUILTIN_WORD(w_at)
  */
 BUILTIN_WORD(w_to_number)
 {
-  using peelo::unicode::encoding::utf8::encode;
-
   const auto string = context.pop().as_string();
 
-  if (!is_number(string))
+  try
+  {
+    context << peelo::number::parse(string);
+  }
+  catch (const std::invalid_argument&)
   {
     throw error(
       error::type::range,
       U"Cannot convert given string into a number."
     );
   }
-  context << peelo::number::parse(encode(string));
 }
 
 /**

@@ -96,14 +96,17 @@ namespace laskin
   value
   value::make_number(const std::u32string& input)
   {
-    using peelo::unicode::encoding::utf8::encode;
+    value instance;
 
-    class value instance;
-
-    instance.m_type = type::number;
-    instance.m_value_number = new peelo::number(
-      peelo::number::parse(encode(input))
-    );
+    try
+    {
+      instance.m_value_number = new peelo::number(peelo::number::parse(input));
+      instance.m_type = type::number;
+    }
+    catch (const std::invalid_argument&)
+    {
+      throw error(error::type::range, U"Input does not contain valid number.");
+    }
 
     return instance;
   }
@@ -697,14 +700,6 @@ namespace laskin
   }
 
   static std::u32string
-  number_to_string(const peelo::number& value)
-  {
-    using peelo::unicode::encoding::utf8::decode;
-
-    return decode(value.to_string());
-  }
-
-  static std::u32string
   vector_to_string(const value::vector_container& elements)
   {
     std::u32string result;
@@ -882,7 +877,7 @@ namespace laskin
         return m_value_boolean ? U"true" : U"false";
 
       case type::number:
-        return number_to_string(*m_value_number);
+        return m_value_number->to_u32string();
 
       case type::vector:
         return vector_to_string(*m_value_vector);
@@ -967,7 +962,7 @@ namespace laskin
         return m_value_boolean ? U"true" : U"false";
 
       case type::number:
-        return number_to_string(*m_value_number);
+        return m_value_number->to_u32string();
 
       case type::vector:
         return vector_to_source(*m_value_vector);
