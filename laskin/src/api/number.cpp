@@ -32,6 +32,56 @@
 using namespace laskin;
 
 /**
+ * pi ( -- number )
+ *
+ * Returns value of pi.
+ */
+BUILTIN_WORD(w_pi)
+{
+  context << M_PI;
+}
+
+/**
+ * e ( -- number )
+ *
+ * Returns Euler's number.
+ */
+BUILTIN_WORD(w_e)
+{
+  context << M_E;
+}
+
+/**
+ * inf ( -- number )
+ *
+ * Returns infinity.
+ */
+BUILTIN_WORD(w_inf)
+{
+  context << peelo::number::inf();
+}
+
+/**
+ * -inf ( -- number )
+ *
+ * Returns negative infinity.
+ */
+BUILTIN_WORD(w_neg_inf)
+{
+  context << -peelo::number::inf();
+}
+
+/**
+ * nan ( -- number )
+ *
+ * Returns not a number.
+ */
+BUILTIN_WORD(w_nan)
+{
+  context << peelo::number::nan();
+}
+
+/**
  * number:has-unit? ( number -- number boolean )
  *
  * Tests whether number has measurement unit.
@@ -373,6 +423,13 @@ namespace laskin::api
 {
   extern "C" const context::dictionary_definition number =
   {
+    // Constants.
+    { U"pi", w_pi },
+    { U"e", w_e },
+    { U"inf", w_inf },
+    { U"-inf", w_neg_inf },
+    { U"nan", w_nan },
+
     { U"number:has-unit?", w_has_unit },
     { U"number:unit", w_unit },
     { U"number:unit-type", w_unit_type },

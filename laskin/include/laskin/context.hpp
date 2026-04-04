@@ -181,5 +181,22 @@ namespace laskin
      * Pops record from the stack and places it into given slot.
      */
     context& operator>>(value::record_container& properties);
+
+    /**
+     * Returns `false` if the data stack is empty, `true` otherwise.
+     */
+    inline explicit operator bool() const noexcept
+    {
+      return !data.empty();
+    }
+
+    /**
+     * Negates boolean conversion. Returns `true` if the data stack is empty,
+     * `false` otherwise.
+     */
+    inline bool operator!() const noexcept
+    {
+      return data.empty();
+    }
   };
 }
