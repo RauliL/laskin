@@ -23,9 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cmath>
-#include <fstream>
-
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
@@ -33,26 +30,6 @@
 #include "laskin/macros.hpp"
 
 using namespace laskin;
-
-/**
- * true ( -- boolean )
- *
- * Returns boolean value of true.
- */
-BUILTIN_WORD(w_true)
-{
-  context << true;
-}
-
-/**
- * false ( -- boolean )
- *
- * Returns boolean value of false.
- */
-BUILTIN_WORD(w_false)
-{
-  context << false;
-}
 
 /**
  * = ( any any -- boolean )
@@ -700,52 +677,17 @@ BUILTIN_WORD(w_symbols)
  */
 BUILTIN_WORD(w_include)
 {
-  using peelo::unicode::encoding::utf8::decode_validate;
+  using peelo::unicode::encoding::utf8::encode;
 
   const auto path = context.pop().as_string();
 
-  if (context.allow_include)
-  {
-    std::ifstream input(peelo::unicode::encoding::utf8::encode(path));
-    std::string raw_source;
-    std::u32string source;
-
-    if (!input.good())
-    {
-      throw error(
-        error::type::system,
-        U"Unable to open file `" + path + U"' for reading."
-      );
-    }
-    raw_source = std::string(
-      std::istreambuf_iterator<char>(input),
-      std::istreambuf_iterator<char>()
-    );
-    input.close();
-    if (!decode_validate(raw_source, source))
-    {
-      throw error(
-        error::type::system,
-        U"Unable to decode contents of the file with UTF-8 character encoding."
-      );
-    }
-    quote::parse(source).call(context, out);
-  } else {
-    throw error(
-      error::type::system,
-      U"Using include has been disabled on this context."
-    );
-  }
+  context.include(encode(path));
 }
 
 namespace laskin::api
 {
   extern "C" const context::dictionary_definition utils =
   {
-    // Constants.
-    { U"true", w_true },
-    { U"false", w_false },
-
     // Common operators.
     { U"=", w_eq },
     { U"<>", w_ne },

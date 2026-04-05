@@ -43,86 +43,55 @@ namespace laskin::cli
   void run_repl(context&);
 }
 
-static void run_file(laskin::context&, std::istream&);
 static void parse_args(int, char**);
 static void print_usage(std::ostream&, const char*);
-
-static void
-handle_error(const laskin::error& error)
-{
-  if (error.is(laskin::error::type::exit))
-  {
-    std::exit(EXIT_SUCCESS);
-  } else {
-    std::cerr << error << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-}
 
 int
 main(int argc, char** argv)
 {
+  using peelo::unicode::encoding::utf8::decode;
+
   laskin::context context;
 
   parse_args(argc, argv);
 
-  if (!inline_scripts.empty())
-  {
-    for (const auto& source : inline_scripts)
-    {
-      try
-      {
-        laskin::quote::parse(source).call(context, &std::cout);
-      }
-      catch (const laskin::error& error)
-      {
-        handle_error(error);
-      }
-    }
-  }
-  else if (!programfile.empty())
-  {
-    std::ifstream input(programfile, std::ios_base::in);
-
-    if (!input.good())
-    {
-      std::cerr << argv[0]
-                << ": Unable to open file `"
-                << programfile
-                << "' for reading."
-                << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
-    run_file(context, input);
-  }
-  else if (isatty(fileno(stdin)))
-  {
-    laskin::cli::run_repl(context);
-  } else {
-    run_file(context, std::cin);
-  }
-
-  return EXIT_SUCCESS;
-}
-
-static void
-run_file(laskin::context& context, std::istream& input)
-{
-  const auto source = peelo::unicode::encoding::utf8::decode(
-    std::string(
-      std::istreambuf_iterator<char>(input),
-      std::istreambuf_iterator<char>()
-    )
-  );
-
   try
   {
-    laskin::quote::parse(source).call(context, &std::cout);
+    if (!inline_scripts.empty())
+    {
+      for (const auto& source : inline_scripts)
+      {
+        context.run(source, &std::cout, "<arg>");
+      }
+    }
+    else if (!programfile.empty())
+    {
+      context.include(programfile, &std::cout);
+    }
+    else if (isatty(fileno(stdin)))
+    {
+      laskin::cli::run_repl(context);
+    } else {
+      const std::string source(
+        std::istreambuf_iterator<char>(std::cin),
+        std::istreambuf_iterator<char>()
+      );
+
+      context.run(source, &std::cout, "<stdin>");
+    }
   }
   catch (const laskin::error& error)
   {
-    handle_error(error);
+    if (error.is(laskin::error::type::exit))
+    {
+      std::exit(EXIT_SUCCESS);
+    } else {
+      std::cerr << error << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
   }
+
+  return EXIT_SUCCESS;
 }
 
 static void

@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <fstream>
+
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
@@ -68,6 +70,75 @@ namespace laskin
     initialize_dictionary(dictionary, api::time_api);
     initialize_dictionary(dictionary, api::vector);
     initialize_dictionary(dictionary, api::weekday);
+  }
+
+  void
+  context::run(
+    const std::u32string& source,
+    std::ostream* out,
+    const std::optional<std::filesystem::path>& path,
+    int line,
+    int column
+  )
+  {
+    quote::parse(source, path, line, column).call(*this, out);
+  }
+
+  void
+  context::run(
+    const std::string& source,
+    std::ostream* out,
+    const std::optional<std::filesystem::path>& path,
+    int line,
+    int column
+  )
+  {
+    using peelo::unicode::encoding::utf8::decode_validate;
+
+    std::u32string decoded_source;
+
+    if (!decode_validate(source, decoded_source))
+    {
+      throw error(
+        error::type::system,
+        U"Unable to decode contents of the file with UTF-8 character "
+        U"encoding",
+        std::make_optional<position>({ path, line, column })
+      );
+    }
+    run(decoded_source, out, path, line, column);
+  }
+
+  void
+  context::include(const std::filesystem::path& path, std::ostream* out)
+  {
+    using peelo::unicode::encoding::utf8::decode;
+    using peelo::unicode::encoding::utf8::decode_validate;
+
+    if (allow_include)
+    {
+      std::ifstream in(path);
+      std::string source;
+
+      if (!in.good())
+      {
+        throw error(
+          error::type::system,
+          U"Unable to open file `" + decode(path) + U"' for reading."
+        );
+      }
+      source.assign(
+        std::istreambuf_iterator<char>(in),
+        std::istreambuf_iterator<char>()
+      );
+      in.close();
+      run(source, out, path);
+    } else {
+      throw error(
+        error::type::system,
+        U"Using include has been disabled in this context."
+      );
+    }
   }
 
   const value&

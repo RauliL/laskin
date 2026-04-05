@@ -29,6 +29,26 @@
 using namespace laskin;
 
 /**
+ * true ( -- boolean )
+ *
+ * Returns boolean value of true.
+ */
+BUILTIN_WORD(w_true)
+{
+  context << true;
+}
+
+/**
+ * false ( -- boolean )
+ *
+ * Returns boolean value of false.
+ */
+BUILTIN_WORD(w_false)
+{
+  context << false;
+}
+
+/**
  * boolean:not ( boolean -- boolean )
  *
  * Performs negation on the given boolean value.
@@ -81,6 +101,10 @@ namespace laskin::api
 {
   extern "C" const context::dictionary_definition boolean =
   {
+    // Constants.
+    { U"true", w_true },
+    { U"false", w_false },
+
     { U"boolean:not", w_not },
     { U"boolean:and", w_and },
     { U"boolean:or", w_or },

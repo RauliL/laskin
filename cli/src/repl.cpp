@@ -73,10 +73,7 @@ namespace laskin::cli
       }
       try
       {
-        laskin::quote::parse(
-          source,
-          line_counter
-        ).call(context, &std::cout);
+        context.run(source, &std::cout, "<repl>", line_counter);
       }
       catch (const laskin::error& error)
       {

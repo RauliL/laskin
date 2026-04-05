@@ -64,6 +64,37 @@ namespace laskin
     context& operator=(context&&) = default;
 
     /**
+     * Evaluates given source code as program.
+     */
+    void run(
+      const std::u32string& source,
+      std::ostream* out = nullptr,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
+      int line = 1,
+      int column = 0
+    );
+
+    /**
+     * Evaluates given source code as program. The input is expected to encoded
+     * with UTF-8 character encoding.
+     */
+    void run(
+      const std::string& source,
+      std::ostream* out = nullptr,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
+      int line = 1,
+      int column = 0
+    );
+
+    /**
+     * Includes and executes given program file.
+     */
+    void include(
+      const std::filesystem::path& path,
+      std::ostream* out = nullptr
+    );
+
+    /**
      * Returns the topmost value from the stack. If the stack is empty, range
      * error will be thrown.
      */
