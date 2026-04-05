@@ -40,7 +40,7 @@ namespace laskin
     std::u32string::const_iterator end;
   };
 
-  static std::shared_ptr<node> parse(struct state&);
+  static std::shared_ptr<node> parse(struct state&, bool);
 
   static inline bool
   issymbol(char32_t c)
@@ -366,7 +366,7 @@ namespace laskin
         {
           break;
         }
-        elements.push_back(parse(state));
+        elements.push_back(parse(state, false));
         skip_whitespace(state);
         if (peek_read(state, U','))
         {
@@ -439,7 +439,7 @@ namespace laskin
             );
           }
           skip_whitespace(state);
-          value = parse(state);
+          value = parse(state, false);
           properties[key] = value;
           skip_whitespace(state);
           if (peek_read(state, U','))
@@ -502,7 +502,7 @@ namespace laskin
         {
           break;
         }
-        nodes.push_back(parse(state));
+        nodes.push_back(parse(state, true));
         skip_whitespace(state);
       }
     }
@@ -536,7 +536,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node>
-  parse_symbol(struct state& state)
+  parse_symbol(struct state& state, bool allow_definition)
   {
     std::u32string id;
     struct position position;
@@ -547,6 +547,15 @@ namespace laskin
     {
       const auto symbol = parse_symbol_string(state);
 
+      if (!allow_definition)
+      {
+        throw error(
+          error::type::syntax,
+          U"Definitions are not allowed in this context.",
+          position
+        );
+      }
+
       return std::make_shared<node::definition>(symbol, position);
     }
 
@@ -554,7 +563,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node>
-  parse(struct state& state)
+  parse(struct state& state, bool allow_definition)
   {
     skip_whitespace(state);
 
@@ -583,29 +592,8 @@ namespace laskin
         return parse_string_literal(state);
 
       default:
-        return parse_symbol(state);
+        return parse_symbol(state, allow_definition);
     }
-  }
-
-  /**
-   * Parses top level script into sequence of AST nodes.
-   */
-  static quote::node_container
-  parse_script(struct state& state)
-  {
-    quote::node_container nodes;
-
-    for (;;)
-    {
-      skip_whitespace(state);
-      if (eof(state))
-      {
-        break;
-      }
-      nodes.push_back(parse(state));
-    }
-
-    return nodes;
   }
 
   quote
@@ -624,7 +612,18 @@ namespace laskin
       std::begin(source),
       std::end(source),
     };
+    quote::node_container nodes;
 
-    return quote(parse_script(state));
+    for (;;)
+    {
+      skip_whitespace(state);
+      if (eof(state))
+      {
+        break;
+      }
+      nodes.push_back(laskin::parse(state, true));
+    }
+
+    return quote(nodes);
   }
 }
