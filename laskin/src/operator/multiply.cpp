@@ -76,30 +76,37 @@ namespace laskin
   value
   value::multiply(const value& that) const
   {
-    if (that.is(m_type))
+    try
     {
-      switch (m_type)
+      if (that.is(m_type))
       {
-        case type::number:
-          return multiply_number(*m_value_number, *that.m_value_number);
+        switch (m_type)
+        {
+          case type::number:
+            return multiply_number(*m_value_number, *that.m_value_number);
 
-        case type::vector:
-          return multiply_vector(*m_value_vector, *that.m_value_vector);
+          case type::vector:
+            return multiply_vector(*m_value_vector, *that.m_value_vector);
 
-        default:
-          break;
+          default:
+            break;
+        }
+      }
+      else if (that.is(type::number))
+      {
+        switch (m_type)
+        {
+          case type::vector:
+            return multiply_number_with_vector(*m_value_vector, that);
+
+          default:
+            break;
+        }
       }
     }
-    else if (that.is(type::number))
+    catch (const peelo::number::unit_error& e)
     {
-      switch (m_type)
-      {
-        case type::vector:
-          return multiply_number_with_vector(*m_value_vector, that);
-
-        default:
-          break;
-      }
+      throw error(error::type::unit, e.what());
     }
 
     throw error(

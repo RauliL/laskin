@@ -50,11 +50,20 @@ namespace laskin
     std::string message;
     std::optional<struct position> position;
 
-    explicit error(
+    error(
       enum type type_,
-      const std::u32string& message = std::u32string(),
+      const std::u32string& message_ = std::u32string(),
       const std::optional<struct position>& position_ = std::nullopt
     );
+
+    error(
+      enum type type_,
+      const std::string& message_ = std::string(),
+      const std::optional<struct position>& position_ = std::nullopt
+    )
+      : type(type_)
+      , message(message_)
+      , position(position_) {}
 
     error(const error&) = default;
     error(error&&) = default;

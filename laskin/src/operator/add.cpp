@@ -251,6 +251,10 @@ namespace laskin
     {
       throw error(error::type::range, U"Numeric overflow.");
     }
+    catch (const peelo::number::unit_error& e)
+    {
+      throw error(error::type::unit, e.what());
+    }
 
     throw error(
       error::type::type,

@@ -90,34 +90,41 @@ namespace laskin
   int
   value::compare(const value& that) const
   {
-    if (that.is(m_type))
+    try
     {
-      switch (m_type)
+      if (that.is(m_type))
       {
-        case type::number:
-          return compare_number(*m_value_number, *that.m_value_number);
+        switch (m_type)
+        {
+          case type::number:
+            return compare_number(*m_value_number, *that.m_value_number);
 
-        case type::string:
-          return compare_string(*m_value_string, *that.m_value_string);
+          case type::string:
+            return compare_string(*m_value_string, *that.m_value_string);
 
-        case type::vector:
-          return compare_vector(*m_value_vector, *that.m_value_vector);
+          case type::vector:
+            return compare_vector(*m_value_vector, *that.m_value_vector);
 
-        case type::month:
-          return compare_month(m_value_month, that.m_value_month);
+          case type::month:
+            return compare_month(m_value_month, that.m_value_month);
 
-        case type::weekday:
-          return compare_weekday(m_value_weekday, that.m_value_weekday);
+          case type::weekday:
+            return compare_weekday(m_value_weekday, that.m_value_weekday);
 
-        case type::date:
-          return compare_date(*m_value_date, *that.m_value_date);
+          case type::date:
+            return compare_date(*m_value_date, *that.m_value_date);
 
-        case type::time:
-          return compare_time(*m_value_time, *that.m_value_time);
+          case type::time:
+            return compare_time(*m_value_time, *that.m_value_time);
 
-        default:
-          break;
+          default:
+            break;
+        }
       }
+    }
+    catch (const peelo::number::unit_error& e)
+    {
+      throw error(error::type::unit, e.what());
     }
 
     throw error(
