@@ -95,6 +95,28 @@ namespace laskin
     );
 
     /**
+     * Performs an dictionary lookup on the context or throws `error` instance
+     * if the given identifier/symbol cannot be found from the dictionary or
+     * does not contain number, date or time data.
+     */
+    void lookup(
+      const std::u32string& id,
+      std::ostream* out = nullptr,
+      const std::optional<struct position>& position = std::nullopt
+    );
+
+    /**
+     * Evaluates given identifier/symbol as expression. No dictionary lookup
+     * will be done but certain constants such as `true`, `false` and such are
+     * converted into values as well as symbols containing number, date or time
+     * data.
+     */
+    value eval(
+      const std::u32string& id,
+      const std::optional<struct position>& position = std::nullopt
+   );
+
+    /**
      * Returns the topmost value from the stack. If the stack is empty, range
      * error will be thrown.
      */

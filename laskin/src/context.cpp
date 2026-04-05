@@ -27,6 +27,7 @@
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
+#include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -139,6 +140,141 @@ namespace laskin
         U"Using include has been disabled in this context."
       );
     }
+  }
+
+  void
+  context::lookup(
+    const std::u32string& id,
+    std::ostream* out,
+    const std::optional<struct position>& position
+  )
+  {
+    if (!data.empty())
+    {
+      const auto& value = data.back();
+      const auto type_id = value::type_description(value.type()) + U':' + id;
+      const auto word = dictionary.find(type_id);
+
+      if (word != std::end(dictionary))
+      {
+        if (word->second.is(value::type::quote))
+        {
+          word->second.as_quote().call(*this, out);
+        } else {
+          data.push_back(word->second);
+        }
+        return;
+      }
+    }
+
+    {
+      const auto word = dictionary.find(id);
+
+      if (word != std::end(dictionary))
+      {
+        if (word->second.is(value::type::quote))
+        {
+          word->second.as_quote().call(*this, out);
+        } else {
+          data.push_back(word->second);
+        }
+        return;
+      }
+    }
+
+    if (peelo::number::is_valid(id))
+    {
+      data.push_back(value::make_number(id));
+      return;
+    }
+
+    if (is_date(id))
+    {
+      data.push_back(value::make_date(id));
+      return;
+    }
+
+    if (is_time(id))
+    {
+      data.push_back(value::make_time(id));
+      return;
+    }
+
+    if (default_callback)
+    {
+      if (const auto value = default_callback(id))
+      {
+        data.push_back(*value);
+        return;
+      }
+    }
+
+    throw error(
+      error::type::name,
+      U"Unrecognized symbol: `" + id + U"'",
+      position
+    );
+  }
+
+  value
+  context::eval(
+    const std::u32string& id,
+    const std::optional<struct position>& position
+  )
+  {
+    if (id == U"true")
+    {
+      return value::make_boolean(true);
+    }
+
+    if (id == U"false")
+    {
+      return value::make_boolean(false);
+    }
+
+    if (id == U"drop")
+    {
+      return pop();
+    }
+
+    if (peelo::number::is_valid(id))
+    {
+      return value::make_number(id);
+    }
+
+    if (is_date(id))
+    {
+      return value::make_date(id);
+    }
+
+    if (is_time(id))
+    {
+      return value::make_time(id);
+    }
+
+    if (is_month(id))
+    {
+      return value::make_month(id);
+    }
+
+    if (is_weekday(id))
+    {
+      return value::make_weekday(id);
+    }
+
+    if (default_callback)
+    {
+      if (const auto value = default_callback(id))
+      {
+        return *value;
+      }
+    }
+
+    throw error(
+      error::type::name,
+      U"Unable to evaluate `" + id + U"' as expression.",
+      position
+    );
   }
 
   const value&

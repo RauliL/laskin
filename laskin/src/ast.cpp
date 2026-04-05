@@ -23,10 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/quote.hpp"
 #include "laskin/utils.hpp"
 
 namespace laskin
@@ -213,72 +211,7 @@ namespace laskin
     std::ostream* out
   ) const
   {
-    auto& data = context.data;
-    const auto& dictionary = context.dictionary;
-
-    if (!data.empty())
-    {
-      const auto& value = data.back();
-      const auto type_id = value::type_description(value.type()) + U':' + id;
-      const auto word = dictionary.find(type_id);
-
-      if (word != std::end(dictionary))
-      {
-        if (word->second.is(value::type::quote))
-        {
-          word->second.as_quote().call(context, out);
-        } else {
-          data.push_back(word->second);
-        }
-        return;
-      }
-    }
-
-    {
-      const auto word = dictionary.find(id);
-
-      if (word != std::end(dictionary))
-      {
-        if (word->second.is(value::type::quote))
-        {
-          word->second.as_quote().call(context, out);
-        } else {
-          data.push_back(word->second);
-        }
-        return;
-      }
-    }
-
-    if (peelo::number::is_valid(id))
-    {
-      data.push_back(value::make_number(id));
-      return;
-    }
-    else if (is_date(id))
-    {
-      data.push_back(value::make_date(id));
-      return;
-    }
-    else if (is_time(id))
-    {
-      data.push_back(value::make_time(id));
-      return;
-    }
-
-    if (context.default_callback)
-    {
-      if (const auto value = context.default_callback(id))
-      {
-        data.push_back(*value);
-        return;
-      }
-    }
-
-    throw error(
-      error::type::name,
-      U"Unrecognized symbol: `" + id + U"'",
-      position
-    );
+    context.lookup(id, out, position);
   }
 
   value
@@ -287,51 +220,7 @@ namespace laskin
     std::ostream*
   ) const
   {
-    if (!id.compare(U"true"))
-    {
-      return value::make_boolean(true);
-    }
-    else if (!id.compare(U"false"))
-    {
-      return value::make_boolean(false);
-    }
-    else if (!id.compare(U"drop"))
-    {
-      return context.pop();
-    }
-    else if (peelo::number::is_valid(id))
-    {
-      return value::make_number(id);
-    }
-    else if (is_date(id))
-    {
-      return value::make_date(id);
-    }
-    else if (is_time(id))
-    {
-      return value::make_time(id);
-    }
-    else if (is_month(id))
-    {
-      return value::make_month(id);
-    }
-    else if (is_weekday(id))
-    {
-      return value::make_weekday(id);
-    }
-    else if (context.default_callback)
-    {
-      if (const auto value = context.default_callback(id))
-      {
-        return *value;
-      }
-    }
-
-    throw error(
-      error::type::name,
-      U"Unable to evaluate `" + id + U"' as expression.",
-      position
-    );
+    return context.eval(id, position);
   }
 
   bool
