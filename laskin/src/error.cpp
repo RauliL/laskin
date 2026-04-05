@@ -84,12 +84,12 @@ namespace laskin
   {
     if (error.position)
     {
-      os << *error.position << ':';
+      os << *error.position << ": ";
     }
     os << error.type;
     if (!error.message.empty())
     {
-      os << ':' << error.message;
+      os << ": " << error.message;
     }
 
     return os;
