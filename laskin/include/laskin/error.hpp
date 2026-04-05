@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,8 @@
 #pragma once
 
 #include <exception>
-#include <iostream>
-#include <string>
+
+#include "laskin/position.hpp"
 
 namespace laskin
 {
@@ -46,11 +46,14 @@ namespace laskin
       unit,
     };
 
+    enum type type;
+    std::string message;
+    std::optional<struct position> position;
+
     explicit error(
-      enum type type,
+      enum type type_,
       const std::u32string& message = std::u32string(),
-      int line = 0,
-      int column = 0
+      const std::optional<struct position>& position_ = std::nullopt
     );
 
     error(const error&) = default;
@@ -58,44 +61,18 @@ namespace laskin
     error& operator=(const error& that) = default;
     error& operator=(error&&) = default;
 
-    inline enum type type() const
+    inline bool is(enum type t) const
     {
-      return m_type;
-    }
-
-    inline bool is(enum type type) const
-    {
-      return m_type == type;
-    }
-
-    inline const std::string& message() const
-    {
-      return m_message;
+      return type == t;
     }
 
     inline const char* what() const noexcept
     {
-      return m_message.c_str();
+      return message.c_str();
     }
-
-    inline int line() const
-    {
-      return m_line;
-    }
-
-    inline int column() const
-    {
-      return m_column;
-    }
-
-    static std::u32string type_description(enum type type);
-
-  private:
-    enum type m_type;
-    std::string m_message;
-    int m_line;
-    int m_column;
   };
+
+  std::ostream& operator<<(std::ostream&, enum error::type);
 
   std::ostream& operator<<(std::ostream&, const error&);
 }

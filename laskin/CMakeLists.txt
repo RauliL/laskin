@@ -44,6 +44,7 @@ ADD_LIBRARY(
   ./src/context.cpp
   ./src/error.cpp
   ./src/parser.cpp
+  ./src/position.cpp
   ./src/quote.cpp
   ./src/utils.cpp
   ./src/value.cpp

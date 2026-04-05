@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,698 +33,598 @@
 
 namespace laskin
 {
-  static inline bool issymbol(char32_t);
-
-  namespace
+  struct state
   {
-    class parser
+    struct position position;
+    std::u32string::const_iterator pos;
+    std::u32string::const_iterator end;
+  };
+
+  static std::shared_ptr<node> parse(struct state&);
+
+  static inline bool
+  issymbol(char32_t c)
+  {
+    return c != U'['
+      && c != U']'
+      && c != U'('
+      && c != U')'
+      && c != U'{'
+      && c != U'}'
+      && c != U','
+      && peelo::unicode::ctype::isgraph(c);
+  }
+
+  /**
+   * Returns true if there are no more characters to be read from the source
+   * code.
+   */
+  inline bool
+  eof(const struct state& state)
+  {
+    return state.pos >= state.end;
+  }
+
+  /**
+   * Advances to next character in the source code and returns the current one.
+   */
+  static char32_t
+  read(struct state& state)
+  {
+    const auto result = *state.pos++;
+
+    if (result == '\n')
     {
-    public:
-      explicit parser(const std::u32string& source,
-                      int line,
-                      int column)
-        : m_pos(std::begin(source))
-        , m_end(std::end(source))
-        , m_line(line)
-        , m_column(column) {}
+      ++state.position.line;
+      state.position.column = 1;
+    } else {
+      ++state.position.column;
+    }
 
-      parser(const parser&) = delete;
-      parser(parser&&) = delete;
-      void operator=(const parser&) = delete;
-      void operator=(parser&&) = delete;
+    return result;
+  }
 
-      /**
-       * Parsers top level script into sequence of AST nodes.
-       */
-      std::vector<std::shared_ptr<node>> parse_script()
+  /**
+   * Returns next character from the source code without advancing any further.
+   */
+  static inline char32_t
+  peek(struct state& state)
+  {
+    return *state.pos;
+  }
+
+  /**
+   * Returns `true` if the next character from the source code matches with the
+   * one given as argument.
+   */
+  static inline bool
+  peek(struct state& state, char32_t expected)
+  {
+    return !eof(state) && peek(state) == expected;
+  }
+
+  /**
+   * Returns `true` if the next character from the source code matches with the
+   * given callback function.
+   */
+  static inline bool
+  peek(struct state& state, bool (*callback)(char32_t))
+  {
+    return !eof(state) && callback(peek(state));
+  }
+
+  /**
+   * Returns `true` and advances to next character in source code if current
+   * one equals with one given as argument.
+   */
+  static inline bool
+  peek_read(struct state& state, char32_t expected)
+  {
+    if (peek(state, expected))
+    {
+      read(state);
+
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Skips whitespace and comments from the source code.
+   */
+  static void
+  skip_whitespace(struct state& state)
+  {
+    using peelo::unicode::ctype::isspace;
+
+    while (!eof(state))
+    {
+      // Skip line comments.
+      if (peek_read(state, U'#'))
       {
-        std::vector<std::shared_ptr<node>> nodes;
-
-        for (;;)
+        while (!eof(state))
         {
-          skip_whitespace();
-          if (eof())
+          if (peek_read(state, U'\n') || peek_read(state, U'\r'))
           {
             break;
-          }
-          nodes.push_back(parse_statement());
-        }
-
-        return nodes;
-      }
-
-    private:
-      std::shared_ptr<node> parse_statement()
-      {
-        skip_whitespace();
-
-        if (eof())
-        {
-          throw error(
-            error::type::syntax,
-            U"Unexpected end of input; Missing statement.",
-            m_line,
-            m_column
-          );
-        }
-
-        switch (peek())
-        {
-          case '(':
-            return parse_quote_literal();
-
-          case '[':
-            return parse_vector_literal();
-
-          case '{':
-            return parse_record_literal();
-
-          case '"':
-          case '\'':
-            return parse_string_literal();
-
-          default:
-            return parse_statement_symbol();
-        }
-      }
-
-      std::shared_ptr<node> parse_expression()
-      {
-        skip_whitespace();
-
-        if (eof())
-        {
-          throw error(
-            error::type::syntax,
-            U"Unexpected end of input; Missing expression.",
-            m_line,
-            m_column
-          );
-        }
-
-        switch (peek())
-        {
-          case '(':
-            return parse_quote_literal();
-
-          case '[':
-            return parse_vector_literal();
-
-          case '{':
-            return parse_record_literal();
-
-          case '"':
-          case '\'':
-            return parse_string_literal();
-
-          default:
-            return parse_symbol();
-        }
-      }
-
-      std::shared_ptr<node::literal> parse_quote_literal()
-      {
-        quote::node_container nodes;
-        int line;
-        int column;
-
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (!peek_read('('))
-        {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing quote literal.",
-            line,
-            column
-          );
-        }
-
-        skip_whitespace();
-
-        if (!peek_read(')'))
-        {
-          for (;;)
-          {
-            if (eof())
-            {
-              throw error(
-                error::type::syntax,
-                U"Unterminated quote literal; Missing `)'",
-                line,
-                column
-              );
-            }
-            else if (peek_read(')'))
-            {
-              break;
-            }
-            nodes.push_back(parse_statement());
-            skip_whitespace();
+          } else {
+            read(state);
           }
         }
-
-        return std::make_shared<node::literal>(
-          value::make_quote(quote(nodes)),
-          line,
-          column
-        );
       }
-
-      std::shared_ptr<node::vector_literal> parse_vector_literal()
+      else if (!peek(state, isspace))
       {
-        node::vector_literal::container_type elements;
-        int line;
-        int column;
-
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (!peek_read('['))
-        {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing vector literal.",
-            line,
-            column
-          );
-        }
-
-        skip_whitespace();
-
-        if (!peek_read(']'))
-        {
-          for (;;)
-          {
-            if (eof())
-            {
-              throw error(
-                error::type::syntax,
-                U"Unterminated vector literal; Missing `]'",
-                line,
-                column
-              );
-            }
-            else if (peek_read(']'))
-            {
-              break;
-            }
-            elements.push_back(parse_expression());
-            skip_whitespace();
-            if (peek_read(','))
-            {
-              continue;
-            }
-            else if (peek_read(']'))
-            {
-              break;
-            } else {
-              throw error(
-                error::type::syntax,
-                U"Unterminated vector literal; Missing `]'",
-                line,
-                column
-              );
-            }
-          }
-        }
-
-        return std::make_shared<node::vector_literal>(elements, line, column);
+        return;
+      } else {
+        read(state);
       }
+    }
+  }
 
-      std::shared_ptr<node::record_literal> parse_record_literal()
+  static void
+  parse_escape_sequence(struct state& state, std::u32string& buffer)
+  {
+    const auto position = state.position;
+
+    if (eof(state))
+    {
+      throw error(
+        error::type::syntax,
+        U"Unexpected end of input; Missing escape sequence.",
+        position
+      );
+    }
+
+    switch (read(state))
+    {
+      case U'b':
+        buffer.push_back(010);
+        break;
+
+      case U't':
+        buffer.push_back(011);
+        break;
+
+      case U'n':
+        buffer.push_back(012);
+        break;
+
+      case U'f':
+        buffer.push_back(014);
+        break;
+
+      case U'r':
+        buffer.push_back(015);
+        break;
+
+      case U'"':
+      case U'\'':
+      case U'\\':
+      case U'/':
+        buffer.push_back(*(state.pos - 1));
+        break;
+
+      case U'u':
       {
-        node::record_literal::container_type properties;
-        int line;
-        int column;
+        char32_t result = 0;
 
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (!peek_read('{'))
+        for (int i = 0; i < 4; ++i)
         {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing record literal.",
-            line,
-            column
-          );
-        }
-
-        skip_whitespace();
-
-        if (!peek_read('}'))
-        {
-          for (;;)
-          {
-            if (eof())
-            {
-              throw error(
-                error::type::syntax,
-                U"Unterminated record literal; Missing `}'",
-                line,
-                column
-              );
-            }
-            else if (peek_read('}'))
-            {
-              break;
-            } else {
-              auto key = parse_string_literal()->value.as_string();
-              std::shared_ptr<node> value;
-
-              skip_whitespace();
-              if (!peek_read(':'))
-              {
-                throw error(
-                  error::type::syntax,
-                  U"Missing `:' after key.",
-                  line,
-                  column
-                );
-              }
-              skip_whitespace();
-              value = parse_expression();
-              properties[key] = value;
-              skip_whitespace();
-              if (peek_read(','))
-              {
-                continue;
-              }
-              else if (peek_read('}'))
-              {
-                break;
-              } else {
-                throw error(
-                  error::type::syntax,
-                  U"Unterminated record literal; Missing `}'",
-                  line,
-                  column
-                );
-              }
-            }
-          }
-        }
-
-        return std::make_shared<node::record_literal>(properties, line, column);
-      }
-
-      std::shared_ptr<node::literal> parse_string_literal()
-      {
-        std::u32string buffer;
-        char32_t separator;
-        int line;
-        int column;
-
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (peek_read('"'))
-        {
-          separator = '"';
-        }
-        else if (peek_read('\''))
-        {
-          separator = '\'';
-        } else {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing string literal.",
-            line,
-            column
-          );
-        }
-
-        for (;;)
-        {
-          if (eof())
+          if (eof(state))
           {
             throw error(
               error::type::syntax,
-              std::u32string(U"Unterminated string literal: Missing `") +
-              separator +
-              U"'",
-              line,
-              column
+              U"Unterminated escape sequence.",
+              position
             );
           }
-          else if (peek_read(separator))
+          else if (!peelo::unicode::ctype::isxdigit(peek(state)))
+          {
+            throw error(
+              error::type::syntax,
+              U"Illegal Unicode hex escape sequence.",
+              position
+            );
+          }
+
+          if (peek(state) >= 'A' && peek(state) <= 'F')
+          {
+            result = result * 16 + (read(state) - 'A' + 10);
+          }
+          else if (peek(state) >= 'a' && peek(state) <= 'f')
+          {
+            result = result * 16 + (read(state) - 'a' + 10);
+          } else {
+            result = result * 16 + (read(state) - '0');
+          }
+        }
+
+        if (!peelo::unicode::ctype::isvalid(result))
+        {
+          throw error(
+            error::type::syntax,
+            U"Illegal Unicode hex escape sequence.",
+            position
+          );
+        }
+
+        buffer.push_back(result);
+        break;
+      }
+
+      default:
+        throw error(
+          error::type::syntax,
+          U"Illegal escape sequence in string literal.",
+          position
+        );
+    }
+  }
+
+  static std::u32string
+  parse_string(struct state& state)
+  {
+    struct position position;
+    std::u32string buffer;
+    char32_t separator;
+
+    skip_whitespace(state);
+    position = state.position;
+
+    if (peek_read(state, U'"'))
+    {
+      separator = U'"';
+    }
+    else if (peek_read(state, U'\''))
+    {
+      separator = U'\'';
+    } else {
+      throw error(
+        error::type::syntax,
+        std::u32string(U"Unexpected ") +
+        (eof(state) ? U"end of input" : U"input") +
+        U"; Missing string literal.",
+        position
+      );
+    }
+
+    for (;;)
+    {
+      if (eof(state))
+      {
+        throw error(
+          error::type::syntax,
+          std::u32string(U"Unterminated string literal; Missing `") +
+          separator +
+          U"'.",
+          position
+        );
+      }
+      else if (peek_read(state, separator))
+      {
+        break;
+      }
+      else if (peek_read(state, U'\\'))
+      {
+        parse_escape_sequence(state, buffer);
+      } else {
+        buffer.push_back(read(state));
+      }
+    }
+
+    return buffer;
+  }
+
+  static inline std::shared_ptr<node::literal>
+  parse_string_literal(struct state& state)
+  {
+    const auto position = state.position;
+    const auto value = parse_string(state);
+
+    return std::make_shared<node::literal>(
+      value::make_string(value),
+      position
+    );
+  }
+
+  static std::shared_ptr<node::vector_literal>
+  parse_vector_literal(struct state& state)
+  {
+    node::vector_literal::container_type elements;
+    struct position position;
+
+    skip_whitespace(state);
+    position = state.position;
+
+    if (!peek_read(state, U'['))
+    {
+      throw error(
+        error::type::syntax,
+        std::u32string(U"Unexpected ") +
+        (eof(state) ? U"end of input" : U"input") +
+        U"; Missing vector literal.",
+        position
+      );
+    }
+
+    skip_whitespace(state);
+
+    if (!peek_read(state, U']'))
+    {
+      for (;;)
+      {
+        if (eof(state))
+        {
+          throw error(
+            error::type::syntax,
+            U"Unterminated vector literal; Missing `]'.",
+            position
+          );
+        }
+        else if (peek_read(state, U']'))
+        {
+          break;
+        }
+        elements.push_back(parse(state));
+        skip_whitespace(state);
+        if (peek_read(state, U','))
+        {
+          continue;
+        }
+        else if (peek_read(state, U']'))
+        {
+          break;
+        }
+
+        throw error(
+          error::type::syntax,
+          U"Unterminated vector literal; Missing `]'.",
+          position
+        );
+      }
+    }
+
+    return std::make_shared<node::vector_literal>(elements, position);
+  }
+
+  static std::shared_ptr<node::record_literal>
+  parse_record_literal(struct state& state)
+  {
+    node::record_literal::container_type properties;
+    struct position position;
+
+    skip_whitespace(state);
+    position = state.position;
+
+    if (!peek_read(state, U'{'))
+    {
+      throw error(
+        error::type::syntax,
+        std::u32string(U"Unexpected ") +
+        (eof(state) ? U"end of input" : U"input") +
+        U"; Missing record literal.",
+        position
+      );
+    }
+
+    skip_whitespace(state);
+
+    if (!peek_read(state, U'}'))
+    {
+      for (;;)
+      {
+        if (eof(state))
+        {
+          throw error(
+            error::type::syntax,
+            U"Unterminated record literal; Missing `}'.",
+            position
+          );
+        }
+        else if (peek_read(state, U'}'))
+        {
+          break;
+        } else {
+          const auto key = parse_string(state);
+          std::shared_ptr<node> value;
+
+          skip_whitespace(state);
+          if (!peek_read(state, U':'))
+          {
+            throw error(
+              error::type::syntax,
+              U"Missing `:' after key.",
+              state.position
+            );
+          }
+          skip_whitespace(state);
+          value = parse(state);
+          properties[key] = value;
+          skip_whitespace(state);
+          if (peek_read(state, U','))
+          {
+            continue;
+          }
+          else if (peek_read(state, U'}'))
           {
             break;
           }
-          else if (peek_read('\\'))
-          {
-            parse_escape_sequence(buffer);
-          } else {
-            buffer.append(1, read());
-          }
+
+          throw error(
+            error::type::syntax,
+            U"Unterminated record literal; Missing `}'.",
+            position
+          );
         }
-
-        return std::make_shared<node::literal>(
-          value::make_string(buffer),
-          line,
-          column
-        );
       }
+    }
 
-      void parse_escape_sequence(std::u32string& buffer)
+    return std::make_shared<node::record_literal>(properties, position);
+  }
+
+  static std::shared_ptr<node::literal>
+  parse_quote_literal(struct state& state)
+  {
+    struct position position;
+
+    quote::node_container nodes;
+
+    skip_whitespace(state);
+    position = state.position;
+
+    if (!peek_read(state, U'('))
+    {
+      throw error(
+        error::type::syntax,
+        std::u32string(U"Unexpected ") +
+        (eof(state) ? U"end of input" : U"input") +
+        U"; Missing quote literal.",
+        position
+      );
+    }
+
+    skip_whitespace(state);
+
+    if (!peek_read(state, U')'))
+    {
+      for (;;)
       {
-        const int line = m_line;
-        const int column = m_column;
-
-        if (eof())
+        if (eof(state))
         {
           throw error(
             error::type::syntax,
-            U"Unexpected end of input; Missing escape sequence.",
-            line,
-            column
+            U"Unterminated quote literal; Missing `)'.",
+            position
           );
         }
-
-        switch (read())
+        else if (peek_read(state, U')'))
         {
-        case 'b':
-          buffer.append(1, 010);
           break;
-
-        case 't':
-          buffer.append(1, 011);
-          break;
-
-        case 'n':
-          buffer.append(1, 012);
-          break;
-
-        case 'f':
-          buffer.append(1, 014);
-          break;
-
-        case 'r':
-          buffer.append(1, 015);
-          break;
-
-        case '"':
-        case '\'':
-        case '\\':
-        case '/':
-          buffer.append(1, *(m_pos - 1));
-          break;
-
-        case 'u':
-          {
-            char32_t result = 0;
-
-            for (int i = 0; i < 4; ++i)
-            {
-              if (eof())
-              {
-                throw error(
-                  error::type::syntax,
-                  U"Unterminated escape sequence.",
-                  line,
-                  column
-                );
-              }
-              else if (!peelo::unicode::ctype::isxdigit(peek()))
-              {
-                throw error(
-                  error::type::syntax,
-                  U"Illegal Unicode hex escape sequence.",
-                  line,
-                  column
-                );
-              }
-
-              if (peek() >= 'A' && peek() <= 'F')
-              {
-                result = result * 16 + (read() - 'A' + 10);
-              }
-              else if (peek() >= 'a' && peek() <= 'f')
-              {
-                result = result * 16 + (read() - 'a' + 10);
-              } else {
-                result = result * 16 + (read() - '0');
-              }
-            }
-
-            if (!peelo::unicode::ctype::isvalid(result))
-            {
-              throw error(
-                error::type::syntax,
-                U"Illegal Unicode hex escape sequence.",
-                line,
-                column
-              );
-            }
-
-            buffer.append(1, result);
-          }
-          break;
-
-        default:
-          throw error(
-            error::type::syntax,
-            U"Illegal escape sequence in string literal.",
-            line,
-            column
-          );
         }
+        nodes.push_back(parse(state));
+        skip_whitespace(state);
       }
+    }
 
-      std::shared_ptr<node::symbol> parse_symbol()
+    return std::make_shared<node::literal>(value::make_quote(nodes), position);
+  }
+
+  static std::u32string
+  parse_symbol_string(struct state& state)
+  {
+    std::u32string buffer;
+
+    skip_whitespace(state);
+    if (!peek(state, issymbol))
+    {
+      throw error(
+        error::type::syntax,
+        std::u32string(U"Unexpected ") +
+        (eof(state) ? U"end of input" : U"input") +
+        U"; Missing symbol or definition.",
+        state.position
+      );
+    }
+    do
+    {
+      buffer.push_back(read(state));
+    }
+    while (peek(state, issymbol));
+
+    return buffer;
+  }
+
+  static std::shared_ptr<node>
+  parse_symbol(struct state& state)
+  {
+    std::u32string id;
+    struct position position;
+
+    skip_whitespace(state);
+    position = state.position;
+    if ((id = parse_symbol_string(state)) == U"->")
+    {
+      const auto symbol = parse_symbol_string(state);
+
+      return std::make_shared<node::definition>(symbol, position);
+    }
+
+    return std::make_shared<node::symbol>(id, position);
+  }
+
+  static std::shared_ptr<node>
+  parse(struct state& state)
+  {
+    skip_whitespace(state);
+
+    if (eof(state))
+    {
+      throw error(
+        error::type::syntax,
+        U"Unexpected end of input; Missing statement.",
+        state.position
+      );
+    }
+
+    switch (peek(state))
+    {
+      case '(':
+        return parse_quote_literal(state);
+
+      case '[':
+        return parse_vector_literal(state);
+
+      case '{':
+        return parse_record_literal(state);
+
+      case '"':
+      case '\'':
+        return parse_string_literal(state);
+
+      default:
+        return parse_symbol(state);
+    }
+  }
+
+  /**
+   * Parses top level script into sequence of AST nodes.
+   */
+  static quote::node_container
+  parse_script(struct state& state)
+  {
+    quote::node_container nodes;
+
+    for (;;)
+    {
+      skip_whitespace(state);
+      if (eof(state))
       {
-        std::u32string buffer;
-        int line;
-        int column;
-
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (!peek(issymbol))
-        {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing symbol.",
-            line,
-            column
-          );
-        }
-
-        do
-        {
-          buffer.append(1, read());
-        }
-        while (peek(issymbol));
-
-        if (!buffer.compare(U"->"))
-        {
-          throw error(
-            error::type::syntax,
-            U"Unexpected definition; Missing symbol.",
-            line,
-            column
-          );
-        }
-
-        return std::make_shared<node::symbol>(buffer, line, column);
+        break;
       }
+      nodes.push_back(parse(state));
+    }
 
-      std::shared_ptr<node> parse_statement_symbol()
-      {
-        std::u32string buffer;
-        int line;
-        int column;
+    return nodes;
+  }
 
-        skip_whitespace();
-
-        line = m_line;
-        column = m_column;
-
-        if (!peek(issymbol))
-        {
-          throw error(
-            error::type::syntax,
-            std::u32string(U"Unexpected ") +
-            (eof() ? U"end of input" : U"input") +
-            U"; Missing symbol or definition.",
-            line,
-            column
-          );
-        }
-
-        do
-        {
-          buffer.append(1, read());
-        }
-        while (peek(issymbol));
-
-        if (!buffer.compare(U"->"))
-        {
-          const auto symbol = parse_symbol();
-
-          return std::make_shared<node::definition>(
-            symbol->id,
-            line,
-            column
-          );
-        }
-
-        return std::make_shared<node::symbol>(buffer, line, column);
-      }
-
-      /**
-       * Returns true if there are no more characters to be read from the
-       * source code.
-       */
-      inline bool eof() const
-      {
-        return m_pos >= m_end;
-      }
-
-      /**
-       * Advances to next character in the source code discarding the current
-       * one.
-       */
-      inline void advance()
-      {
-        read();
-      }
-
-      /**
-       * Advances to next character in the source code and returns the current
-       * one.
-       */
-      char32_t read()
-      {
-        const auto result = *m_pos++;
-
-        if (result == '\n')
-        {
-          ++m_line;
-          m_column = 1;
-        } else {
-          ++m_column;
-        }
-
-        return result;
-      }
-
-      /**
-       * Returns next character from the source code without advancing any
-       * further.
-       */
-      inline char32_t peek() const
-      {
-        return *m_pos;
-      }
-
-      /**
-       * Returns true if the next character from the source code equals with
-       * the one given as argument.
-       */
-      inline bool peek(char32_t expected) const
-      {
-        return !eof() && peek() == expected;
-      }
-
-      /**
-       * Returns true if the next character from the source code matches with
-       * given callback function.
-       */
-      inline bool peek(bool (*callback)(char32_t)) const
-      {
-        return !eof() && callback(peek());
-      }
-
-      /**
-       * Returns true and advances to next character in the source code if
-       * current one equals with the one given as argument.
-       */
-      bool peek_read(char32_t expected)
-      {
-        if (peek(expected))
-        {
-          advance();
-
-          return true;
-        }
-
-        return false;
-      }
-
-      /**
-       * Skips whitespace and comments from the source code.
-       */
-      void skip_whitespace()
-      {
-        while (!eof())
-        {
-          // Skip line comments.
-          if (peek_read('#'))
-          {
-            while (!eof())
-            {
-              if (peek_read('\n') || peek_read('\r'))
-              {
-                break;
-              } else {
-                advance();
-              }
-            }
-          }
-          else if (!peek(peelo::unicode::ctype::isspace))
-          {
-            return;
-          } else {
-            advance();
-          }
-        }
-      }
-
-    private:
-      std::u32string::const_iterator m_pos;
-      const std::u32string::const_iterator m_end;
-      int m_line;
-      int m_column;
+  quote
+  quote::parse(
+    const std::u32string& source,
+    const std::optional<std::filesystem::path>& path,
+    int line,
+    int column
+  )
+  {
+    struct state state =
+    {
+      path,
+      line,
+      column,
+      std::begin(source),
+      std::end(source),
     };
-  }
 
-  quote quote::parse(const std::u32string& source, int line, int column)
-  {
-    return quote(parser(source, line, column).parse_script());
-  }
-
-  static inline bool issymbol(char32_t c)
-  {
-    return c != '['
-      && c != ']'
-      && c != '('
-      && c != ')'
-      && c != '{'
-      && c != '}'
-      && c != ','
-      && peelo::unicode::ctype::isgraph(c);
+    return quote(parse_script(state));
   }
 }

@@ -48,6 +48,7 @@ namespace laskin
 
     static quote parse(
       const std::u32string& source,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
       int line = 1,
       int column = 1
     );

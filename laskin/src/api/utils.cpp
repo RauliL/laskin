@@ -581,7 +581,7 @@ BUILTIN_WORD(w_try)
     {
       throw e;
     }
-    context << e.message();
+    context << e.message;
     catch_quote.call(context, out);
   }
 }
@@ -609,7 +609,7 @@ BUILTIN_WORD(w_try_else)
     {
       throw e;
     }
-    context << e.message();
+    context << e.message;
     catch_quote.call(context, out);
     return;
   }

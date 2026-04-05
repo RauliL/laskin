@@ -23,74 +23,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/encoding/utf8.hpp>
-
-#include "laskin/error.hpp"
+#include "laskin/position.hpp"
 
 namespace laskin
 {
-  error::error(
-    enum type type_,
-    const std::u32string& message_,
-    const std::optional<struct position>& position_
-  )
-    : type(type_)
-    , message(peelo::unicode::encoding::utf8::encode(message_))
-    , position(position_) {}
-
   std::ostream&
-  operator<<(std::ostream& os, enum error::type type)
+  operator<<(std::ostream& os, const struct position& position)
   {
-    switch (type)
+    if (position.path)
     {
-      case error::type::syntax:
-        os << "Syntax error";
-        break;
-
-      case error::type::type:
-        os << "Type error";
-        break;
-
-      case error::type::unit:
-        os << "Unit error";
-        break;
-
-      case error::type::range:
-        os << "Range error";
-        break;
-
-      case error::type::domain:
-        os << "Domain error";
-        break;
-
-      case error::type::name:
-        os << "Name error";
-        break;
-
-      case error::type::system:
-        os << "System error";
-        break;
-
-      case error::type::exit:
-        os << "Program exit";
-        break;
+      os << *position.path << ':';
     }
-
-    return os;
-  }
-
-  std::ostream&
-  operator<<(std::ostream& os, const class error& error)
-  {
-    if (error.position)
-    {
-      os << *error.position << ':';
-    }
-    os << error.type;
-    if (!error.message.empty())
-    {
-      os << ':' << error.message;
-    }
+    os << position.line << ':' << position.column;
 
     return os;
   }

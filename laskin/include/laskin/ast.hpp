@@ -27,6 +27,7 @@
 
 #include <memory>
 
+#include "laskin/position.hpp"
 #include "laskin/value.hpp"
 
 namespace laskin
@@ -34,6 +35,9 @@ namespace laskin
   class context;
   class value;
 
+  /**
+   * Representation of an AST node.
+   */
   class node
   {
   public:
@@ -52,14 +56,11 @@ namespace laskin
     class symbol;
     class vector_literal;
 
-    /** Line number where the AST node was encountered in. */
-    const int line;
-    /** Column number where the AST node was encountered in. */
-    const int column;
+    /** Position of the AST node in the source code. */
+    std::optional<struct position> position;
 
-    explicit node(int line_ = 0, int column_ = 0)
-      : line(line_)
-      , column(column_) {}
+    explicit node(const std::optional<struct position>& position_)
+      : position(position_) {}
 
     node(const node&) = delete;
     node(node&&) = delete;
@@ -123,10 +124,9 @@ namespace laskin
 
     explicit literal(
       const class value& value_,
-      int line = 0,
-      int column = 0
+      const std::optional<struct position>& position_ = std::nullopt
     )
-      : node(line, column)
+      : node(position_)
       , value(value_) {}
 
     inline enum type type() const override
@@ -164,10 +164,9 @@ namespace laskin
 
     explicit vector_literal(
       const container_type& elements_,
-      int line = 0,
-      int column = 0
+      const std::optional<struct position>& position_ = std::nullopt
     )
-      : node(line, column)
+      : node(position_)
       , elements(elements_) {}
 
     inline enum type type() const override
@@ -202,10 +201,9 @@ namespace laskin
 
     explicit record_literal(
       const container_type& properties_,
-      int line = 0,
-      int column = 0
+      const std::optional<struct position>& position_ = std::nullopt
     )
-      : node(line, column)
+      : node(position_)
       , properties(properties_) {}
 
     inline enum type type() const override
@@ -233,8 +231,11 @@ namespace laskin
   public:
     const std::u32string id;
 
-    explicit symbol(const std::u32string& id_, int line = 0, int column = 0)
-      : node(line, column)
+    explicit symbol(
+      const std::u32string& id_,
+      const std::optional<struct position>& position_ = std::nullopt
+    )
+      : node(position_)
       , id(id_) {}
 
     inline enum type type() const override
@@ -267,10 +268,9 @@ namespace laskin
 
     explicit definition(
       const std::u32string& id_,
-      int line = 0,
-      int column = 0
+      const std::optional<struct position>& position_ = std::nullopt
     )
-      : node(line, column)
+      : node(position_)
       , id(id_) {}
 
     inline enum type type() const override

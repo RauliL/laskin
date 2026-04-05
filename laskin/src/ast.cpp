@@ -277,8 +277,7 @@ namespace laskin
     throw error(
       error::type::name,
       U"Unrecognized symbol: `" + id + U"'",
-      line,
-      column
+      position
     );
   }
 
@@ -331,8 +330,7 @@ namespace laskin
     throw error(
       error::type::name,
       U"Unable to evaluate `" + id + U"' as expression.",
-      line,
-      column
+      position
     );
   }
 
@@ -365,8 +363,7 @@ namespace laskin
     throw error(
       error::type::syntax,
       U"Unable to evaluate definition of `" + id + U"' as expression.",
-      line,
-      column
+      position
     );
   }
 
