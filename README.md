@@ -23,19 +23,19 @@ Other dependencies that are handled by [CMake] are:
 On Ubuntu, requirements for the compilation of this software can be installed
 with this command:
 
-```bash
-$ sudo apt install build-essential cmake libgmp-dev
+```shell
+sudo apt install build-essential cmake libgmp-dev
 ```
 
 ## How to compile
 
-```bash
-$ git clone https://github.com/RauliL/laskin.git
-$ cd laskin
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+```shell
+git clone https://github.com/RauliL/laskin.git
+cd laskin
+mkdir build
+cd build
+cmake ..
+make
 ```
 
 [forth]: https://en.wikipedia.org/wiki/Forth_%28programming_language%29
