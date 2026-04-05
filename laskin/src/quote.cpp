@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
 namespace laskin
@@ -47,7 +48,14 @@ namespace laskin
       {
         if (node)
         {
-          node->exec(context, out);
+          try
+          {
+            node->exec(context, out);
+          }
+          catch (const error& e)
+          {
+            throw error(e.type, e.message, node->position);
+          }
         }
       }
     }
