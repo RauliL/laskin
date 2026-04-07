@@ -418,9 +418,11 @@ BUILTIN_WORD(w_to_source)
  */
 BUILTIN_WORD(w_println)
 {
+  const auto value = context.pop();
+
   if (out)
   {
-    *out << context.pop() << std::endl;
+    *out << value << std::endl;
   }
 }
 
@@ -432,9 +434,11 @@ BUILTIN_WORD(w_println)
  */
 BUILTIN_WORD(w_print)
 {
+  const auto value = context.pop();
+
   if (out)
   {
-    *out << context.pop();
+    *out << value;
   }
 }
 
