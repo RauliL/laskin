@@ -27,6 +27,7 @@
 #include <peelo/unicode/ctype/isspace.hpp>
 #include <peelo/unicode/ctype/isvalid.hpp>
 #include <peelo/unicode/ctype/isxdigit.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
@@ -625,5 +626,47 @@ namespace laskin
     }
 
     return quote(nodes);
+  }
+
+  quote
+  quote::parse(
+    const std::string& source,
+    const std::optional<std::filesystem::path>& path,
+    int line,
+    int column
+  )
+  {
+    using peelo::unicode::encoding::utf8::decode_validate;
+    std::u32string decoded_source;
+
+    if (!decode_validate(source, decoded_source))
+    {
+      throw error(
+        error::type::system,
+        U"Unable to decode source with UTF-8 character encoding.",
+        std::make_optional<position>({ path, line, column })
+      );
+    }
+
+    return parse(decoded_source, path, line, column);
+  }
+
+  quote
+  quote::parse(
+    std::istream& input,
+    const std::optional<std::filesystem::path>& path,
+    int line,
+    int column
+  )
+  {
+    return parse(
+      std::string(
+        std::istreambuf_iterator<char>(input),
+        std::istreambuf_iterator<char>()
+      ),
+      path,
+      line,
+      column
+    );
   }
 }

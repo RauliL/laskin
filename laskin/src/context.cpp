@@ -74,43 +74,6 @@ namespace laskin
   }
 
   void
-  context::run(
-    const std::u32string& source,
-    std::ostream* out,
-    const std::optional<std::filesystem::path>& path,
-    int line,
-    int column
-  )
-  {
-    quote::parse(source, path, line, column).call(*this, out);
-  }
-
-  void
-  context::run(
-    const std::string& source,
-    std::ostream* out,
-    const std::optional<std::filesystem::path>& path,
-    int line,
-    int column
-  )
-  {
-    using peelo::unicode::encoding::utf8::decode_validate;
-
-    std::u32string decoded_source;
-
-    if (!decode_validate(source, decoded_source))
-    {
-      throw error(
-        error::type::system,
-        U"Unable to decode contents of the file with UTF-8 character "
-        U"encoding",
-        std::make_optional<position>({ path, line, column })
-      );
-    }
-    run(decoded_source, out, path, line, column);
-  }
-
-  void
   context::include(const std::filesystem::path& path, std::ostream* out)
   {
     using peelo::unicode::encoding::utf8::decode;

@@ -66,25 +66,46 @@ namespace laskin
     /**
      * Evaluates given source code as program.
      */
-    void run(
+    inline void run(
       const std::u32string& source,
       std::ostream* out = nullptr,
       const std::optional<std::filesystem::path>& path = std::nullopt,
       int line = 1,
       int column = 0
-    );
+    )
+    {
+      quote::parse(source, path, line, column).call(*this, out);
+    }
 
     /**
      * Evaluates given source code as program. The input is expected to encoded
      * with UTF-8 character encoding.
      */
-    void run(
+    inline void run(
       const std::string& source,
       std::ostream* out = nullptr,
       const std::optional<std::filesystem::path>& path = std::nullopt,
       int line = 1,
       int column = 0
-    );
+    )
+    {
+      quote::parse(source, path, line, column).call(*this, out);
+    }
+
+    /**
+     * Evaluates source code read from given input stream as a program. The
+     * input is expected to be encoded with UTF-8 character encoding.
+     */
+    inline void run(
+      std::istream& input,
+      std::ostream* out = nullptr,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
+      int line = 1,
+      int column = 0
+    )
+    {
+      quote::parse(input, path, line, column).call(*this, out);
+    }
 
     /**
      * Includes and executes given program file.

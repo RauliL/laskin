@@ -53,6 +53,20 @@ namespace laskin
       int column = 1
     );
 
+    static quote parse(
+      const std::string& source,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
+      int line = 1,
+      int column = 1
+    );
+
+    static quote parse(
+      std::istream& input,
+      const std::optional<std::filesystem::path>& path = std::nullopt,
+      int line = 1,
+      int column = 1
+    );
+
     /**
      * Constructs empty quote that does nothing.
      */

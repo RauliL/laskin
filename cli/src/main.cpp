@@ -72,12 +72,7 @@ main(int argc, char** argv)
     {
       laskin::cli::run_repl(context);
     } else {
-      const std::string source(
-        std::istreambuf_iterator<char>(std::cin),
-        std::istreambuf_iterator<char>()
-      );
-
-      context.run(source, &std::cout, "<stdin>");
+      context.run(std::cin, &std::cout, "<stdin>");
     }
   }
   catch (const laskin::error& error)
