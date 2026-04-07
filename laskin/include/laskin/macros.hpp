@@ -25,7 +25,7 @@
  */
 #pragma once
 
-#define LASKIN_VERSION "5.1.0"
+#define LASKIN_VERSION "5.1.1"
 
 #define BUILTIN_WORD(x) \
   static void x( \
