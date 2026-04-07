@@ -607,9 +607,7 @@ namespace laskin
   {
     struct state state =
     {
-      path,
-      line,
-      column,
+      { path, line, column },
       std::begin(source),
       std::end(source),
     };
