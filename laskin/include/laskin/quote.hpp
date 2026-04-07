@@ -96,6 +96,18 @@ namespace laskin
     }
 
     /**
+     * Provides access to the AST nodes contained inside the quote, unless it's
+     * a native quote instead of scripted one in which case an empty vector is
+     * returned instead.
+     */
+    inline node_container nodes() const
+    {
+      return is_native()
+        ? node_container()
+        : std::get<node_container>(m_container);
+    }
+
+    /**
      * Executes the quote with given execution context and optional output
      * stream.
      */
