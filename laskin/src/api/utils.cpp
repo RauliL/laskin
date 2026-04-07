@@ -681,7 +681,7 @@ BUILTIN_WORD(w_include)
 
   const auto path = context.pop().as_string();
 
-  context.include(encode(path));
+  context.include(encode(path), out);
 }
 
 namespace laskin::api
