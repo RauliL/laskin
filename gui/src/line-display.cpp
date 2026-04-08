@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,14 @@ namespace laskin::gui
     m_text_view.set_monospace(true);
     m_text_view.set_editable(false);
     m_text_view.set_wrap_mode(Gtk::WRAP_CHAR);
+    m_text_view.signal_size_allocate().connect(
+      [this](Gtk::Allocation& allocation)
+      {
+        const auto adj = m_scrolled_window.get_vadjustment();
+
+        adj->set_value(adj->get_upper() - adj->get_page_size());
+      }
+    );
 
     m_scrolled_window.add(m_text_view);
     m_scrolled_window.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
@@ -46,12 +54,14 @@ namespace laskin::gui
     m_error_tag->property_foreground().set_value("red");
   }
 
-  void LineDisplay::clear()
+  void
+  LineDisplay::clear()
   {
     m_text_buffer->erase(m_text_buffer->begin(), m_text_buffer->end());
   }
 
-  void LineDisplay::add_line(const Glib::ustring& line, LineType type)
+  void
+  LineDisplay::add_line(const Glib::ustring& line, LineType type)
   {
     Glib::RefPtr<Gtk::TextTag> tag;
     Glib::RefPtr<Gtk::Adjustment> adjustment;
@@ -73,13 +83,5 @@ namespace laskin::gui
     }
 
     m_text_buffer->insert_with_tag(end, line, tag);
-    scroll_to_bottom();
-  }
-
-  void LineDisplay::scroll_to_bottom()
-  {
-    const auto adjustment = m_scrolled_window.get_vadjustment();
-
-    adjustment->set_value(adjustment->get_upper());
   }
 }
