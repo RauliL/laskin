@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ namespace laskin::gui
     {
       quote::parse(
         utils::string_convert<std::u32string, Glib::ustring>(source_code),
+        U"<gui>",
         line
       ).call(m_context, &buffer);
     }
