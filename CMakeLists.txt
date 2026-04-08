@@ -11,6 +11,11 @@ OPTION(
   "Whether GUI interpreter should be built or not."
   OFF
 )
+OPTION(
+  LASKIN_ENABLE_2CPP
+  "Whether C++ transpiler should be built or not."
+  OFF
+)
 
 ADD_SUBDIRECTORY(laskin)
 IF(LASKIN_ENABLE_CLI)
@@ -18,4 +23,7 @@ IF(LASKIN_ENABLE_CLI)
 ENDIF()
 IF(LASKIN_ENABLE_GUI)
   ADD_SUBDIRECTORY(gui)
+ENDIF()
+IF(LASKIN_ENABLE_2CPP)
+  ADD_SUBDIRECTORY(2cpp)
 ENDIF()
