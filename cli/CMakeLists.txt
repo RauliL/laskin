@@ -1,17 +1,25 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 PROJECT(laskin-cli C CXX)
 
 ADD_EXECUTABLE(
   laskin-cli
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/repl.cpp
+  ./src/main.cpp
+  ./src/repl.cpp
 )
 
-TARGET_COMPILE_OPTIONS(
-  laskin-cli
-  PRIVATE
-    -Wall -Werror
-)
+IF(MSVC)
+  TARGET_COMPILE_OPTIONS(
+    laskin-cli
+    PRIVATE
+      /W4 /WX
+  )
+ELSE()
+  TARGET_COMPILE_OPTIONS(
+    laskin-cli
+    PRIVATE
+      -Wall -Werror
+  )
+ENDIF()
 
 TARGET_COMPILE_FEATURES(
   laskin-cli
