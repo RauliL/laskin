@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,11 @@
  */
 #pragma once
 
-#include "laskin/gui/context.hpp"
-#include "laskin/gui/dictionary-display.hpp"
-#include "laskin/gui/line-display.hpp"
-#include "laskin/gui/line-editor.hpp"
-#include "laskin/gui/stack-display.hpp"
+#include "./context.hpp"
+#include "./dictionary-display.hpp"
+#include "./line-display.hpp"
+#include "./line-editor.hpp"
+#include "./stack-display.hpp"
 
 namespace laskin::gui
 {

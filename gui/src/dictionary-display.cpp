@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/gui/dictionary-display.hpp"
-#include "laskin/gui/utils.hpp"
+#include "./dictionary-display.hpp"
+#include "./utils.hpp"
 
 namespace laskin::gui
 {
@@ -59,7 +59,8 @@ namespace laskin::gui
     add(m_scrolled_window);
   }
 
-  void DictionaryDisplay::update(const context::dictionary_type& dictionary)
+  void
+  DictionaryDisplay::update(const context::dictionary_type& dictionary)
   {
     const auto name_column = m_columns.name_column();
     const auto value_column = m_columns.value_column();
@@ -87,8 +88,11 @@ namespace laskin::gui
     }
   }
 
-  void DictionaryDisplay::on_row_activated(const Gtk::TreeModel::Path& path,
-                                           Gtk::TreeViewColumn* column)
+  void
+  DictionaryDisplay::on_row_activated(
+    const Gtk::TreeModel::Path& path,
+    Gtk::TreeViewColumn* column
+  )
   {
     const auto iter = m_tree_model->get_iter(path);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,11 +23,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/gui/utils.hpp"
+#include "./utils.hpp"
 
 namespace laskin::gui::utils
 {
-  void count_open_braces(
+  void
+  count_open_braces(
     std::stack<char32_t>& open_braces,
     const Glib::ustring& line
   )
@@ -80,7 +81,8 @@ namespace laskin::gui::utils
     }
   }
 
-  const Pango::FontDescription& get_monospace_font()
+  const Pango::FontDescription&
+  get_monospace_font()
   {
     static Pango::FontDescription font;
     static bool initialized = false;

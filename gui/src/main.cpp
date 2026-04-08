@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,9 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/gui/window.hpp"
+#include "./window.hpp"
 
-int main(int argc, char** argv)
+int
+main(int argc, char** argv)
 {
   auto app = Gtk::Application::create(argc, argv, "dev.rauli.laskin.gui");
   auto context = Glib::RefPtr<laskin::gui::Context>(new laskin::gui::Context());

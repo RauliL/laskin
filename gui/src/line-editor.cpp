@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/gui/line-editor.hpp"
-#include "laskin/gui/utils.hpp"
+#include "./line-editor.hpp"
+#include "./utils.hpp"
 
 namespace laskin::gui
 {
@@ -51,12 +51,14 @@ namespace laskin::gui
     ));
   }
 
-  void LineEditor::grab_focus()
+  void
+  LineEditor::grab_focus()
   {
     m_entry.grab_focus_without_selecting();
   }
 
-  void LineEditor::set_line_count(int line_count)
+  void
+  LineEditor::set_line_count(int line_count)
   {
     if (m_line_count != line_count)
     {
@@ -65,7 +67,8 @@ namespace laskin::gui
     }
   }
 
-  void LineEditor::set_stack_depth_count(int stack_depth_count)
+  void
+  LineEditor::set_stack_depth_count(int stack_depth_count)
   {
     if (m_stack_depth_count != stack_depth_count)
     {
@@ -74,19 +77,22 @@ namespace laskin::gui
     }
   }
 
-  void LineEditor::set_text(const Glib::ustring& text)
+  void
+  LineEditor::set_text(const Glib::ustring& text)
   {
     m_entry.set_text(text);
   }
 
-  void LineEditor::on_activate()
+  void
+  LineEditor::on_activate()
   {
     set_line_count(m_line_count + 1);
     m_signal_line_received.emit(m_entry.get_text());
     m_entry.set_text(Glib::ustring());
   }
 
-  void LineEditor::update_prompt()
+  void
+  LineEditor::update_prompt()
   {
     m_label.set_text(Glib::ustring::format(
       "laskin:",

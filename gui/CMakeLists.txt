@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 PROJECT(laskin-gui CXX)
 
 FIND_PACKAGE(PkgConfig)
@@ -11,21 +11,29 @@ LINK_DIRECTORIES(
 
 ADD_EXECUTABLE(
   laskin-gui
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/context.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/dictionary-display.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/line-display.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/line-editor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/stack-display.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/window.cpp
+  ./src/context.cpp
+  ./src/dictionary-display.cpp
+  ./src/line-display.cpp
+  ./src/line-editor.cpp
+  ./src/main.cpp
+  ./src/stack-display.cpp
+  ./src/utils.cpp
+  ./src/window.cpp
 )
 
-TARGET_COMPILE_OPTIONS(
-  laskin-gui
-  PRIVATE
-    -Wall -Werror
-)
+IF(MSVC)
+  TARGET_COMPILE_OPTIONS(
+    laskin-gui
+    PRIVATE
+      /W4 /WX
+  )
+ELSE()
+  TARGET_COMPILE_OPTIONS(
+    laskin-gui
+    PRIVATE
+      -Wall -Werror
+  )
+ENDIF()
 
 TARGET_COMPILE_FEATURES(
   laskin-gui
@@ -37,7 +45,6 @@ TARGET_INCLUDE_DIRECTORIES(
   laskin-gui
   PRIVATE
     ${GTKMM_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 TARGET_LINK_LIBRARIES(

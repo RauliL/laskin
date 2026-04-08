@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/gui/stack-display.hpp"
-#include "laskin/gui/utils.hpp"
+#include "./stack-display.hpp"
+#include "./utils.hpp"
 
 namespace laskin::gui
 {
@@ -51,7 +51,8 @@ namespace laskin::gui
     add(m_scrolled_window);
   }
 
-  void StackDisplay::update(const context::container_type& stack)
+  void
+  StackDisplay::update(const context::container_type& stack)
   {
     auto it = stack.rbegin();
     const auto end = stack.rend();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,8 @@
  */
 #include <sstream>
 
-#include <laskin/gui/utils.hpp>
-#include <laskin/gui/window.hpp>
+#include "./utils.hpp"
+#include "./window.hpp"
 
 namespace laskin::gui
 {
@@ -73,13 +73,15 @@ namespace laskin::gui
     ));
   }
 
-  void Window::on_show()
+  void
+  Window::on_show()
   {
     Gtk::Window::on_show();
     m_line_editor.grab_focus();
   }
 
-  void Window::on_line_received(const Glib::ustring& line)
+  void
+  Window::on_line_received(const Glib::ustring& line)
   {
     if (line.empty())
     {
@@ -104,7 +106,8 @@ namespace laskin::gui
     }
   }
 
-  void Window::on_error_thrown(const laskin::error& error)
+  void
+  Window::on_error_thrown(const laskin::error& error)
   {
     std::stringstream buffer;
 
@@ -112,12 +115,14 @@ namespace laskin::gui
     m_line_display.add_line(buffer.str() + '\n', LineDisplay::LINE_TYPE_ERROR);
   }
 
-  void Window::on_text_written(const Glib::ustring& text)
+  void
+  Window::on_text_written(const Glib::ustring& text)
   {
     m_line_display.add_line(text, LineDisplay::LINE_TYPE_OUTPUT);
   }
 
-  bool Window::on_key_press_event(GdkEventKey* event)
+  bool
+  Window::on_key_press_event(GdkEventKey* event)
   {
     if ((event->state & GDK_CONTROL_MASK) != 0)
     {
@@ -159,7 +164,8 @@ namespace laskin::gui
     return Gtk::Window::on_key_press_event(event);
   }
 
-  void Window::on_word_activated(
+  void
+  Window::on_word_activated(
     const Glib::ustring& id,
     const Glib::ustring& value_source
   )

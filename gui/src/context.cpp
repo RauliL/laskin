@@ -27,14 +27,15 @@
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
-#include "laskin/gui/utils.hpp"
-#include "laskin/gui/window.hpp"
+#include "./utils.hpp"
+#include "./window.hpp"
 
 namespace laskin::gui
 {
   Context::Context() {}
 
-  void Context::execute(const Glib::ustring& source_code, int line)
+  void
+  Context::execute(const Glib::ustring& source_code, int line)
   {
     std::stringstream buffer;
 
