@@ -160,6 +160,20 @@ namespace laskin::gui
         return true;
       }
     }
+    // Scroll line display up when Page Up is pressed.
+    else if (event->keyval == GDK_KEY_Page_Up)
+    {
+      m_line_display.scroll_up();
+
+      return true;
+    }
+    // Scroll line display down when Page Down is pressed.
+    else if (event->keyval == GDK_KEY_Page_Down)
+    {
+      m_line_display.scroll_down();
+
+      return true;
+    }
 
     return Gtk::Window::on_key_press_event(event);
   }

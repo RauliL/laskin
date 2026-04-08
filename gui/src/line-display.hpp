@@ -43,6 +43,8 @@ namespace laskin::gui
 
     void add_line(const Glib::ustring& line, LineType type = LINE_TYPE_OUTPUT);
     void clear();
+    void scroll_down();
+    void scroll_up();
 
   private:
     Gtk::ScrolledWindow m_scrolled_window;

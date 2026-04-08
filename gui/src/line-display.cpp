@@ -84,4 +84,40 @@ namespace laskin::gui
 
     m_text_buffer->insert_with_tag(end, line, tag);
   }
+
+  void
+  LineDisplay::scroll_down()
+  {
+    const auto adj = m_scrolled_window.get_vadjustment();
+    const auto page = adj->get_page_size();
+    const auto value = adj->get_value();
+    const auto max = adj->get_upper();
+
+    if (value + page < max)
+    {
+      adj->set_value(value + page);
+    }
+    else if (value < max)
+    {
+      adj->set_value(max);
+    }
+  }
+
+  void
+  LineDisplay::scroll_up()
+  {
+    const auto adj = m_scrolled_window.get_vadjustment();
+    const auto page = adj->get_page_size();
+    const auto value = adj->get_value();
+    const auto min = adj->get_lower();
+
+    if (value - page > min)
+    {
+      adj->set_value(value - page);
+    }
+    else if (value > min)
+    {
+      adj->set_value(min);
+    }
+  }
 }
