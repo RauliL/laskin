@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin-gui CXX)
 
+INCLUDE(../cmake/enable-all-warnings.cmake)
+
 FIND_PACKAGE(PkgConfig)
 
 PKG_CHECK_MODULES(GTKMM gtkmm-3.0 REQUIRED)
@@ -21,19 +23,7 @@ ADD_EXECUTABLE(
   ./src/window.cpp
 )
 
-IF(MSVC)
-  TARGET_COMPILE_OPTIONS(
-    laskin-gui
-    PRIVATE
-      /W4 /WX
-  )
-ELSE()
-  TARGET_COMPILE_OPTIONS(
-    laskin-gui
-    PRIVATE
-      -Wall -Werror
-  )
-ENDIF()
+ENABLE_ALL_WARNINGS(laskin-gui)
 
 TARGET_COMPILE_FEATURES(
   laskin-gui

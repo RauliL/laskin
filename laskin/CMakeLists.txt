@@ -1,41 +1,28 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin)
 
-INCLUDE(FetchContent)
+INCLUDE(../cmake/add-dependency.cmake)
+INCLUDE(../cmake/enable-all-warnings.cmake)
 
-FetchContent_Declare(
+ADD_DEPENDENCY(
   ordered-map
-  GIT_REPOSITORY
-    https://github.com/Tessil/ordered-map.git
-  GIT_TAG
-    v1.2.0
+  https://github.com/Tessil/ordered-map.git
+  v1.2.0
 )
-FetchContent_Declare(
+ADD_DEPENDENCY(
   peelo-chrono
-  GIT_REPOSITORY
-    https://github.com/peelonet/peelo-chrono.git
-  GIT_TAG
-    v1.0.0
+  https://github.com/peelonet/peelo-chrono.git
+  v1.0.0
 )
-FetchContent_Declare(
+ADD_DEPENDENCY(
   peelo-number
-  GIT_REPOSITORY
-    https://github.com/peelonet/peelo-number.git
-  GIT_TAG
-    v2.0.0
+  https://github.com/peelonet/peelo-number.git
+  v2.0.0
 )
-FetchContent_Declare(
+ADD_DEPENDENCY(
   peelo-unicode
-  GIT_REPOSITORY
-    https://github.com/peelonet/peelo-unicode.git
-  GIT_TAG
-    v2.1.0
-)
-FetchContent_MakeAvailable(
-  ordered-map
-  peelo-chrono
-  peelo-number
-  peelo-unicode
+  https://github.com/peelonet/peelo-unicode.git
+  v2.1.0
 )
 
 ADD_LIBRARY(
@@ -85,19 +72,7 @@ TARGET_LINK_LIBRARIES(
   ${MPFR_LIBRARIES}
 )
 
-IF(MSVC)
-  TARGET_COMPILE_OPTIONS(
-    laskin
-    PRIVATE
-      /W4 /WX
-  )
-ELSE()
-  TARGET_COMPILE_OPTIONS(
-    laskin
-    PRIVATE
-      -Wall -Werror
-  )
-ENDIF()
+ENABLE_ALL_WARNINGS(laskin)
 
 TARGET_COMPILE_FEATURES(
   laskin

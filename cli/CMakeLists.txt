@@ -1,25 +1,15 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin-cli C CXX)
 
+INCLUDE(../cmake/enable-all-warnings.cmake)
+
 ADD_EXECUTABLE(
   laskin-cli
   ./src/main.cpp
   ./src/repl.cpp
 )
 
-IF(MSVC)
-  TARGET_COMPILE_OPTIONS(
-    laskin-cli
-    PRIVATE
-      /W4 /WX
-  )
-ELSE()
-  TARGET_COMPILE_OPTIONS(
-    laskin-cli
-    PRIVATE
-      -Wall -Werror
-  )
-ENDIF()
+ENABLE_ALL_WARNINGS(laskin-cli)
 
 TARGET_COMPILE_FEATURES(
   laskin-cli

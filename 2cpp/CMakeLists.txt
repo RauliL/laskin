@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin2cpp CXX)
 
+INCLUDE(../cmake/enable-all-warnings.cmake)
+
 ADD_EXECUTABLE(
   laskin2cpp
   ./src/instruction.cpp
@@ -10,19 +12,7 @@ ADD_EXECUTABLE(
   ./src/writer.cpp
 )
 
-IF(MSVC)
-  TARGET_COMPILE_OPTIONS(
-    laskin2cpp
-    PRIVATE
-      /W4 /WX
-  )
-ELSE()
-  TARGET_COMPILE_OPTIONS(
-    laskin2cpp
-    PRIVATE
-      -Wall -Werror
-  )
-ENDIF()
+ENABLE_ALL_WARNINGS(laskin2cpp)
 
 TARGET_COMPILE_FEATURES(
   laskin2cpp
