@@ -82,10 +82,7 @@ namespace laskin
      */
     explicit quote(const node_container& nodes);
 
-    quote(const quote&) = default;
-    quote(quote&&) = default;
-    quote& operator=(const quote& that) = default;
-    quote& operator=(quote&&) = default;
+    LASKIN_DEFAULT_COPY_AND_ASSIGN(quote);
 
     /**
      * Tests whether the quote is a native quote instead of scripted one.

@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+#include <laskin/macros.hpp>
+
 namespace laskin2cpp
 {
   class writer
@@ -43,10 +45,7 @@ namespace laskin2cpp
     writer()
       : m_indent(2) {}
 
-    writer(const writer&) = default;
-    writer(writer&&) = default;
-    writer& operator=(const writer&) = default;
-    writer& operator=(writer&&) = default;
+    LASKIN_DEFAULT_COPY_AND_ASSIGN(writer);
 
     inline const_iterator begin() const
     {

@@ -27,7 +27,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -36,7 +35,7 @@ using namespace laskin;
  *
  * Tests whether the given values are equal.
  */
-BUILTIN_WORD(w_eq)
+LASKIN_BUILTIN_WORD(w_eq)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -49,7 +48,7 @@ BUILTIN_WORD(w_eq)
  *
  * Tests whether the given values are not equal.
  */
-BUILTIN_WORD(w_ne)
+LASKIN_BUILTIN_WORD(w_ne)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -62,7 +61,7 @@ BUILTIN_WORD(w_ne)
  *
  * Performs greater than comparison on the values.
  */
-BUILTIN_WORD(w_gt)
+LASKIN_BUILTIN_WORD(w_gt)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -75,7 +74,7 @@ BUILTIN_WORD(w_gt)
  *
  * Performs less than comparison on the values.
  */
-BUILTIN_WORD(w_lt)
+LASKIN_BUILTIN_WORD(w_lt)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -88,7 +87,7 @@ BUILTIN_WORD(w_lt)
  *
  * Performs greater than or equals comparison on the values.
  */
-BUILTIN_WORD(w_gte)
+LASKIN_BUILTIN_WORD(w_gte)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -101,7 +100,7 @@ BUILTIN_WORD(w_gte)
  *
  * Performs less than or equals comparison on the values.
  */
-BUILTIN_WORD(w_lte)
+LASKIN_BUILTIN_WORD(w_lte)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -114,7 +113,7 @@ BUILTIN_WORD(w_lte)
  *
  * Performs addition on the values.
  */
-BUILTIN_WORD(w_add)
+LASKIN_BUILTIN_WORD(w_add)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -127,7 +126,7 @@ BUILTIN_WORD(w_add)
  *
  * Performs substraction on the values.
  */
-BUILTIN_WORD(w_sub)
+LASKIN_BUILTIN_WORD(w_sub)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -140,7 +139,7 @@ BUILTIN_WORD(w_sub)
  *
  * Performs multiplication on the values.
  */
-BUILTIN_WORD(w_mul)
+LASKIN_BUILTIN_WORD(w_mul)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -153,7 +152,7 @@ BUILTIN_WORD(w_mul)
  *
  * Performs division on the values.
  */
-BUILTIN_WORD(w_div)
+LASKIN_BUILTIN_WORD(w_div)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -166,7 +165,7 @@ BUILTIN_WORD(w_div)
  *
  * Performs modulation on the values.
  */
-BUILTIN_WORD(w_mod)
+LASKIN_BUILTIN_WORD(w_mod)
 {
   const auto b = context.pop();
   const auto a = context.pop();
@@ -185,7 +184,7 @@ type_test(class context& context, enum value::type type)
  *
  * Tests whether given value is boolean.
  */
-BUILTIN_WORD(w_is_boolean)
+LASKIN_BUILTIN_WORD(w_is_boolean)
 {
   type_test(context, value::type::boolean);
 }
@@ -195,7 +194,7 @@ BUILTIN_WORD(w_is_boolean)
  *
  * Tests whether given value is date.
  */
-BUILTIN_WORD(w_is_date)
+LASKIN_BUILTIN_WORD(w_is_date)
 {
   type_test(context, value::type::date);
 }
@@ -205,7 +204,7 @@ BUILTIN_WORD(w_is_date)
  *
  * Tests whether given value is month.
  */
-BUILTIN_WORD(w_is_month)
+LASKIN_BUILTIN_WORD(w_is_month)
 {
   type_test(context, value::type::month);
 }
@@ -215,7 +214,7 @@ BUILTIN_WORD(w_is_month)
  *
  * Tests whether given value is number.
  */
-BUILTIN_WORD(w_is_number)
+LASKIN_BUILTIN_WORD(w_is_number)
 {
   type_test(context, value::type::number);
 }
@@ -225,7 +224,7 @@ BUILTIN_WORD(w_is_number)
  *
  * Tests whether given value is vector.
  */
-BUILTIN_WORD(w_is_vector)
+LASKIN_BUILTIN_WORD(w_is_vector)
 {
   type_test(context, value::type::vector);
 }
@@ -235,7 +234,7 @@ BUILTIN_WORD(w_is_vector)
  *
  * Tests whether given value is record.
  */
-BUILTIN_WORD(w_is_record)
+LASKIN_BUILTIN_WORD(w_is_record)
 {
   type_test(context, value::type::record);
 }
@@ -245,7 +244,7 @@ BUILTIN_WORD(w_is_record)
  *
  * Tests whether given value is string.
  */
-BUILTIN_WORD(w_is_string)
+LASKIN_BUILTIN_WORD(w_is_string)
 {
   type_test(context, value::type::string);
 }
@@ -255,7 +254,7 @@ BUILTIN_WORD(w_is_string)
  *
  * Tests whether given value is time.
  */
-BUILTIN_WORD(w_is_time)
+LASKIN_BUILTIN_WORD(w_is_time)
 {
   type_test(context, value::type::time);
 }
@@ -265,7 +264,7 @@ BUILTIN_WORD(w_is_time)
  *
  * Tests whether given value is quote.
  */
-BUILTIN_WORD(w_is_quote)
+LASKIN_BUILTIN_WORD(w_is_quote)
 {
   type_test(context, value::type::quote);
 }
@@ -275,7 +274,7 @@ BUILTIN_WORD(w_is_quote)
  *
  * Tests whether given value is weekday.
  */
-BUILTIN_WORD(w_is_weekday)
+LASKIN_BUILTIN_WORD(w_is_weekday)
 {
   type_test(context, value::type::weekday);
 }
@@ -285,7 +284,7 @@ BUILTIN_WORD(w_is_weekday)
  *
  * Removes every value from the stack.
  */
-BUILTIN_WORD(w_clear)
+LASKIN_BUILTIN_WORD(w_clear)
 {
   context.clear();
 }
@@ -295,7 +294,7 @@ BUILTIN_WORD(w_clear)
  *
  * Duplicates topmost value of the stack.
  */
-BUILTIN_WORD(w_dup)
+LASKIN_BUILTIN_WORD(w_dup)
 {
   context << context.peek();
 }
@@ -305,7 +304,7 @@ BUILTIN_WORD(w_dup)
  *
  * Removes topmost value of the stack.
  */
-BUILTIN_WORD(w_drop)
+LASKIN_BUILTIN_WORD(w_drop)
 {
   context.pop();
 }
@@ -315,7 +314,7 @@ BUILTIN_WORD(w_drop)
  *
  * Drops the first value and pushes the second value onto stack.
  */
-BUILTIN_WORD(w_nip)
+LASKIN_BUILTIN_WORD(w_nip)
 {
   const auto a = context.pop();
 
@@ -329,7 +328,7 @@ BUILTIN_WORD(w_nip)
  * Copies second topmost value of the stack into topmost value of the
  * stack.
  */
-BUILTIN_WORD(w_over)
+LASKIN_BUILTIN_WORD(w_over)
 {
   const auto a = context.pop();
   const auto b = context.pop();
@@ -342,7 +341,7 @@ BUILTIN_WORD(w_over)
  *
  * Rotates the three topmost values on the stack.
  */
-BUILTIN_WORD(w_rot)
+LASKIN_BUILTIN_WORD(w_rot)
 {
   const auto a = context.pop();
   const auto b = context.pop();
@@ -356,7 +355,7 @@ BUILTIN_WORD(w_rot)
  *
  * Swaps positions of the two topmost values on the stack.
  */
-BUILTIN_WORD(w_swap)
+LASKIN_BUILTIN_WORD(w_swap)
 {
   const auto a = context.pop();
   const auto b = context.pop();
@@ -370,7 +369,7 @@ BUILTIN_WORD(w_swap)
  * Copies the topmost value of the stack as the third topmost value of the
  * stack.
  */
-BUILTIN_WORD(w_tuck)
+LASKIN_BUILTIN_WORD(w_tuck)
 {
   const auto a = context.pop();
   const auto b = context.pop();
@@ -383,7 +382,7 @@ BUILTIN_WORD(w_tuck)
  *
  * Returns the number of values in the stack.
  */
-BUILTIN_WORD(w_depth)
+LASKIN_BUILTIN_WORD(w_depth)
 {
   context << value::make_number(
     static_cast<std::int64_t>(context.data.size())
@@ -395,7 +394,7 @@ BUILTIN_WORD(w_depth)
  *
  * Returns textual representation of the topmost value of the stack.
  */
-BUILTIN_WORD(w_to_string)
+LASKIN_BUILTIN_WORD(w_to_string)
 {
   context << context.pop().to_string();
 }
@@ -405,7 +404,7 @@ BUILTIN_WORD(w_to_string)
  *
  * Converts topmost value of the stack into source code.
  */
-BUILTIN_WORD(w_to_source)
+LASKIN_BUILTIN_WORD(w_to_source)
 {
   context << context.pop().to_source();
 }
@@ -416,7 +415,7 @@ BUILTIN_WORD(w_to_source)
  * Outputs textual presentation of the topmost value of the stack with a
  * newline after it.
  */
-BUILTIN_WORD(w_println)
+LASKIN_BUILTIN_WORD(w_println)
 {
   const auto value = context.pop();
 
@@ -432,7 +431,7 @@ BUILTIN_WORD(w_println)
  * Outputs textual presentation of the topmost value of the stack without
  * printing a newline afterwards.
  */
-BUILTIN_WORD(w_print)
+LASKIN_BUILTIN_WORD(w_print)
 {
   const auto value = context.pop();
 
@@ -448,7 +447,7 @@ BUILTIN_WORD(w_print)
  * Outputs textual presentation of first ten values in the stack to the
  * output.
  */
-BUILTIN_WORD(w_stack_preview)
+LASKIN_BUILTIN_WORD(w_stack_preview)
 {
   const auto& data = context.data;
   const auto size = data.size();
@@ -479,7 +478,7 @@ BUILTIN_WORD(w_stack_preview)
  *
  * Terminates the interpreter.
  */
-BUILTIN_WORD(w_quit)
+LASKIN_BUILTIN_WORD(w_quit)
 {
   throw error(error::type::exit, U"Program exit");
 }
@@ -489,7 +488,7 @@ BUILTIN_WORD(w_quit)
  *
  * Executes quote if given boolean value is true.
  */
-BUILTIN_WORD(w_if)
+LASKIN_BUILTIN_WORD(w_if)
 {
   const auto quote = context.pop().as_quote();
   const auto condition = context.pop().as_boolean();
@@ -506,7 +505,7 @@ BUILTIN_WORD(w_if)
  * Executes first quote if given boolean value is true and the second one
  * otherwise.
  */
-BUILTIN_WORD(w_if_else)
+LASKIN_BUILTIN_WORD(w_if_else)
 {
   const auto else_quote = context.pop().as_quote();
   const auto then_quote = context.pop().as_quote();
@@ -525,7 +524,7 @@ BUILTIN_WORD(w_if_else)
  *
  * Executes first quote as long as second quote pushes true into the stack.
  */
-BUILTIN_WORD(w_while)
+LASKIN_BUILTIN_WORD(w_while)
 {
   const auto quote = context.pop().as_quote();
   const auto condition = context.pop().as_quote();
@@ -546,7 +545,7 @@ BUILTIN_WORD(w_while)
  *
  * Executes first quote if second quote throws an error.
  */
-BUILTIN_WORD(w_try)
+LASKIN_BUILTIN_WORD(w_try)
 {
   const auto quote = context.pop().as_quote();
   const auto catch_quote = context.pop().as_quote();
@@ -573,7 +572,7 @@ BUILTIN_WORD(w_try)
  * Executes first quote if third quote does not throw error and second quote
  * otherwise.
  */
-BUILTIN_WORD(w_try_else)
+LASKIN_BUILTIN_WORD(w_try_else)
 {
   const auto quote = context.pop().as_quote();
   const auto catch_quote = context.pop().as_quote();
@@ -605,7 +604,7 @@ BUILTIN_WORD(w_try_else)
  *
  * Name error will be thrown if dictionary does not contain such entry.
  */
-BUILTIN_WORD(w_lookup)
+LASKIN_BUILTIN_WORD(w_lookup)
 {
   const auto& dictionary = context.dictionary;
   const auto id = context.pop().as_string();
@@ -626,7 +625,7 @@ BUILTIN_WORD(w_lookup)
  * Inserts an word into the dictionary where quote is associated with the
  * name given as string.
  */
-BUILTIN_WORD(w_define)
+LASKIN_BUILTIN_WORD(w_define)
 {
   const auto id = context.pop().as_string();
   const auto value = context.pop();
@@ -641,7 +640,7 @@ BUILTIN_WORD(w_define)
  *
  * Name error will be thrown if dictionary does not contain such entry.
  */
-BUILTIN_WORD(w_delete)
+LASKIN_BUILTIN_WORD(w_delete)
 {
   const auto id = context.pop().as_string();
   auto& dictionary = context.dictionary;
@@ -660,7 +659,7 @@ BUILTIN_WORD(w_delete)
  *
  * Constructs vector containing all words in the dictionary as strings.
  */
-BUILTIN_WORD(w_symbols)
+LASKIN_BUILTIN_WORD(w_symbols)
 {
   const auto& dictionary = context.dictionary;
   value::vector_container result;
@@ -679,7 +678,7 @@ BUILTIN_WORD(w_symbols)
  * Searches for the file system for a while which path is given as string and
  * executes it as Laskin program.
  */
-BUILTIN_WORD(w_include)
+LASKIN_BUILTIN_WORD(w_include)
 {
   using peelo::unicode::encoding::utf8::encode;
 

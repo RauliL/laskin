@@ -59,6 +59,8 @@ namespace laskin2cpp
     explicit instruction(const std::optional<laskin::position>& position_)
       : position(position_) {}
 
+    LASKIN_DISALLOW_COPY_AND_ASSIGN(instruction);
+
     virtual enum type type() const = 0;
 
     virtual void transpile(

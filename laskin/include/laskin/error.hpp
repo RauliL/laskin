@@ -27,6 +27,7 @@
 
 #include <exception>
 
+#include "laskin/macros.hpp"
 #include "laskin/position.hpp"
 
 namespace laskin
@@ -65,10 +66,7 @@ namespace laskin
       , message(message_)
       , position(position_) {}
 
-    error(const error&) = default;
-    error(error&&) = default;
-    error& operator=(const error& that) = default;
-    error& operator=(error&&) = default;
+    LASKIN_DEFAULT_COPY_AND_ASSIGN(error);
 
     inline bool is(enum type t) const
     {

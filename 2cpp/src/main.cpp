@@ -27,7 +27,6 @@
 #include <fstream>
 
 #include <laskin/error.hpp>
-#include <laskin/macros.hpp>
 
 #include "./program.hpp"
 

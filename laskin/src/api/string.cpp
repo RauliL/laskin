@@ -31,7 +31,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -40,7 +39,7 @@ using namespace laskin;
  *
  * Returns the number of characters in the string.
  */
-BUILTIN_WORD(w_length)
+LASKIN_BUILTIN_WORD(w_length)
 {
   context << value::make_number(
     static_cast<std::int64_t>(context.peek().as_string().length())
@@ -53,7 +52,7 @@ BUILTIN_WORD(w_length)
  * Extracts characters from string and returns them in vector of
  * substrings.
  */
-BUILTIN_WORD(w_chars)
+LASKIN_BUILTIN_WORD(w_chars)
 {
   const auto str = context.peek().as_string();
   value::vector_container result;
@@ -72,7 +71,7 @@ BUILTIN_WORD(w_chars)
  * Extracts all Unicode code points of characters in the string and returns
  * them as numbers inside vector.
  */
-BUILTIN_WORD(w_runes)
+LASKIN_BUILTIN_WORD(w_runes)
 {
   const auto str = context.peek().as_string();
   value::vector_container result;
@@ -91,7 +90,7 @@ BUILTIN_WORD(w_runes)
  * Extracts all whitespace separated words from the string and returns them
  * in vector.
  */
-BUILTIN_WORD(w_words)
+LASKIN_BUILTIN_WORD(w_words)
 {
   const auto str = context.peek().as_string();
   const auto length = str.length();
@@ -124,7 +123,7 @@ BUILTIN_WORD(w_words)
  *
  * Extracts all lines from the string and returns them in vector.
  */
-BUILTIN_WORD(w_lines)
+LASKIN_BUILTIN_WORD(w_lines)
 {
   const auto str = context.peek().as_string();
   const auto length = str.length();
@@ -161,7 +160,7 @@ BUILTIN_WORD(w_lines)
  *
  * Tests whether string has the same prefix than the other string.
  */
-BUILTIN_WORD(w_starts_with)
+LASKIN_BUILTIN_WORD(w_starts_with)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
@@ -196,7 +195,7 @@ BUILTIN_WORD(w_starts_with)
  *
  * Tests whether string has the same suffix than the other string.
  */
-BUILTIN_WORD(w_ends_with)
+LASKIN_BUILTIN_WORD(w_ends_with)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
@@ -231,7 +230,7 @@ BUILTIN_WORD(w_ends_with)
  *
  * Tests whether string contains the other string somewhere in it's contents.
  */
-BUILTIN_WORD(w_includes)
+LASKIN_BUILTIN_WORD(w_includes)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
@@ -260,7 +259,7 @@ BUILTIN_WORD(w_includes)
  * Finds first position of substring from a string and returns it's index, or
  * false if the substring does not exist in the string.
  */
-BUILTIN_WORD(w_index_of)
+LASKIN_BUILTIN_WORD(w_index_of)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
@@ -295,7 +294,7 @@ BUILTIN_WORD(w_index_of)
  * Finds last position of substring from a string and returns it's index, or
  * false if the substring does not exist in the string.
  */
-BUILTIN_WORD(w_last_index_of)
+LASKIN_BUILTIN_WORD(w_last_index_of)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
@@ -329,7 +328,7 @@ BUILTIN_WORD(w_last_index_of)
  *
  * Returns reversed copy of the string.
  */
-BUILTIN_WORD(w_reverse)
+LASKIN_BUILTIN_WORD(w_reverse)
 {
   const auto string = context.pop().as_string();
 
@@ -353,7 +352,7 @@ convert_string(class context& context, char32_t (*callback)(char32_t))
  *
  * Converts all upper case characters into lower case.
  */
-BUILTIN_WORD(w_lower_case)
+LASKIN_BUILTIN_WORD(w_lower_case)
 {
   convert_string(context, peelo::unicode::ctype::tolower);
 }
@@ -363,7 +362,7 @@ BUILTIN_WORD(w_lower_case)
  *
  * Converts all lower case characters into upper case.
  */
-BUILTIN_WORD(w_upper_case)
+LASKIN_BUILTIN_WORD(w_upper_case)
 {
   convert_string(context, peelo::unicode::ctype::toupper);
 }
@@ -373,7 +372,7 @@ BUILTIN_WORD(w_upper_case)
  *
  * Converts all lower case characters into upper case and vice versa.
  */
-BUILTIN_WORD(w_swap_case)
+LASKIN_BUILTIN_WORD(w_swap_case)
 {
   using peelo::unicode::ctype::isupper;
   using peelo::unicode::ctype::tolower;
@@ -393,7 +392,7 @@ BUILTIN_WORD(w_swap_case)
  *
  * Removes whitespace from beginning and end of the string.
  */
-BUILTIN_WORD(w_trim)
+LASKIN_BUILTIN_WORD(w_trim)
 {
   const auto string = context.pop().as_string();
   const auto length = string.length();
@@ -427,7 +426,7 @@ BUILTIN_WORD(w_trim)
  *
  * Removes whitespace from beginning of the string.
  */
-BUILTIN_WORD(w_trim_start)
+LASKIN_BUILTIN_WORD(w_trim_start)
 {
   const auto string = context.pop().as_string();
   const auto length = string.length();
@@ -454,7 +453,7 @@ BUILTIN_WORD(w_trim_start)
  *
  * Removes whitespace from the end of the string.
  */
-BUILTIN_WORD(w_trim_end)
+LASKIN_BUILTIN_WORD(w_trim_end)
 {
   const auto string = context.pop().as_string();
   const auto length = string.length();
@@ -484,7 +483,7 @@ BUILTIN_WORD(w_trim_end)
  *
  * Range error will be thrown if either of the indices are out of bounds.
  */
-BUILTIN_WORD(w_substring)
+LASKIN_BUILTIN_WORD(w_substring)
 {
   try
   {
@@ -528,7 +527,7 @@ BUILTIN_WORD(w_substring)
  * Splits the string into substrings based on pattern given as another
  * string.
  */
-BUILTIN_WORD(w_split)
+LASKIN_BUILTIN_WORD(w_split)
 {
   const auto string = context.pop().as_string();
   const auto pattern = context.pop().as_string();
@@ -587,7 +586,7 @@ BUILTIN_WORD(w_split)
  *
  * Repeats string given number of times.
  */
-BUILTIN_WORD(w_repeat)
+LASKIN_BUILTIN_WORD(w_repeat)
 {
   try
   {
@@ -619,7 +618,7 @@ BUILTIN_WORD(w_repeat)
  * Finds a substring from a string and replaces it with given replacement
  * returning result.
  */
-BUILTIN_WORD(w_replace)
+LASKIN_BUILTIN_WORD(w_replace)
 {
   const auto string = context.pop().as_string();
   const auto replacement = context.pop().as_string();
@@ -658,7 +657,7 @@ BUILTIN_WORD(w_replace)
  * Makes sure that a string is long enough by adding a padding string to it's
  * start required number of times.
  */
-BUILTIN_WORD(w_pad_start)
+LASKIN_BUILTIN_WORD(w_pad_start)
 {
   try
   {
@@ -704,7 +703,7 @@ BUILTIN_WORD(w_pad_start)
  * Makes sure that a string is long enough by adding a padding string to it's
  * end required number of times.
  */
-BUILTIN_WORD(w_pad_end)
+LASKIN_BUILTIN_WORD(w_pad_end)
 {
   try
   {
@@ -752,7 +751,7 @@ BUILTIN_WORD(w_pad_end)
  *
  * Range error will be thrown if the index is out of bounds.
  */
-BUILTIN_WORD(w_at)
+LASKIN_BUILTIN_WORD(w_at)
 {
   try
   {
@@ -789,7 +788,7 @@ BUILTIN_WORD(w_at)
  *
  * Range error will be thrown if the string cannot be parsed as number.
  */
-BUILTIN_WORD(w_to_number)
+LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto string = context.pop().as_string();
 
@@ -811,7 +810,7 @@ BUILTIN_WORD(w_to_number)
  *
  * Parses string as Laskin program and turns it into an executable quote.
  */
-BUILTIN_WORD(w_to_quote)
+LASKIN_BUILTIN_WORD(w_to_quote)
 {
   const auto source = context.pop().as_string();
 

@@ -25,7 +25,6 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -34,7 +33,7 @@ using namespace laskin;
  *
  * Returns Sunday.
  */
-BUILTIN_WORD(w_sunday)
+LASKIN_BUILTIN_WORD(w_sunday)
 {
   context << value::make_weekday(peelo::chrono::weekday::sun);
 }
@@ -44,7 +43,7 @@ BUILTIN_WORD(w_sunday)
  *
  * Returns Monday.
  */
-BUILTIN_WORD(w_monday)
+LASKIN_BUILTIN_WORD(w_monday)
 {
   context << value::make_weekday(peelo::chrono::weekday::mon);
 }
@@ -54,7 +53,7 @@ BUILTIN_WORD(w_monday)
  *
  * Returns Tuesday.
  */
-BUILTIN_WORD(w_tuesday)
+LASKIN_BUILTIN_WORD(w_tuesday)
 {
   context << value::make_weekday(peelo::chrono::weekday::tue);
 }
@@ -64,7 +63,7 @@ BUILTIN_WORD(w_tuesday)
  *
  * Returns Wednesday.
  */
-BUILTIN_WORD(w_wednesday)
+LASKIN_BUILTIN_WORD(w_wednesday)
 {
   context << value::make_weekday(peelo::chrono::weekday::wed);
 }
@@ -74,7 +73,7 @@ BUILTIN_WORD(w_wednesday)
  *
  * Returns Thursday.
  */
-BUILTIN_WORD(w_thursday)
+LASKIN_BUILTIN_WORD(w_thursday)
 {
   context << value::make_weekday(peelo::chrono::weekday::thu);
 }
@@ -84,7 +83,7 @@ BUILTIN_WORD(w_thursday)
  *
  * Returns Friday.
  */
-BUILTIN_WORD(w_friday)
+LASKIN_BUILTIN_WORD(w_friday)
 {
   context << value::make_weekday(peelo::chrono::weekday::fri);
 }
@@ -94,7 +93,7 @@ BUILTIN_WORD(w_friday)
  *
  * Returns Saturday.
  */
-BUILTIN_WORD(w_saturday)
+LASKIN_BUILTIN_WORD(w_saturday)
 {
   context << value::make_weekday(peelo::chrono::weekday::sat);
 }
@@ -104,7 +103,7 @@ BUILTIN_WORD(w_saturday)
  *
  * Tests whether given day of the week is on weekend.
  */
-BUILTIN_WORD(w_is_weekend)
+LASKIN_BUILTIN_WORD(w_is_weekend)
 {
   const auto weekday = context.peek().as_weekday();
 
@@ -119,7 +118,7 @@ BUILTIN_WORD(w_is_weekend)
  *
  * Converts day of the week into number where Sunday is 1 and Saturday 7.
  */
-BUILTIN_WORD(w_to_number)
+LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto value = static_cast<int>(context.pop().as_weekday()) + 1;
 

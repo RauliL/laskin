@@ -27,7 +27,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -36,7 +35,7 @@ using namespace laskin;
  *
  * Returns current time.
  */
-BUILTIN_WORD(w_now)
+LASKIN_BUILTIN_WORD(w_now)
 {
   try
   {
@@ -56,7 +55,7 @@ BUILTIN_WORD(w_now)
  *
  * Returns hour of the time.
  */
-BUILTIN_WORD(w_hour)
+LASKIN_BUILTIN_WORD(w_hour)
 {
   context << context.peek().as_time().hour();
 }
@@ -66,7 +65,7 @@ BUILTIN_WORD(w_hour)
  *
  * Returns minute of the time.
  */
-BUILTIN_WORD(w_minute)
+LASKIN_BUILTIN_WORD(w_minute)
 {
   context << context.peek().as_time().minute();
 }
@@ -76,7 +75,7 @@ BUILTIN_WORD(w_minute)
  *
  * Returns seconds of the time.
  */
-BUILTIN_WORD(w_second)
+LASKIN_BUILTIN_WORD(w_second)
 {
   context << context.peek().as_time().second();
 }
@@ -86,7 +85,7 @@ BUILTIN_WORD(w_second)
  *
  * Formats time with strftime().
  */
-BUILTIN_WORD(w_format)
+LASKIN_BUILTIN_WORD(w_format)
 {
   using peelo::unicode::encoding::utf8::encode;
 
@@ -101,7 +100,7 @@ BUILTIN_WORD(w_format)
  *
  * Constructs UNIX timestamp from the time.
  */
-BUILTIN_WORD(w_to_number)
+LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto time = context.pop().as_time();
   peelo::number result(0.0, peelo::number::unit::second);
@@ -119,7 +118,7 @@ BUILTIN_WORD(w_to_number)
  * Extracts hour, minutes and seconds from the time and returns them as a
  * vector of number.
  */
-BUILTIN_WORD(w_to_vector)
+LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto time = context.pop().as_time();
 

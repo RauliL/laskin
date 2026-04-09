@@ -61,7 +61,7 @@ namespace laskin
       string,
       time,
       vector,
-      weekday
+      weekday,
     };
 
     /**

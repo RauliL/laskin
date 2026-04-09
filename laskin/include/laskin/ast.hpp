@@ -27,13 +27,13 @@
 
 #include <memory>
 
+#include "laskin/macros.hpp"
 #include "laskin/position.hpp"
 #include "laskin/value.hpp"
 
 namespace laskin
 {
   class context;
-  class value;
 
   /**
    * Representation of an AST node.
@@ -62,10 +62,7 @@ namespace laskin
     explicit node(const std::optional<struct position>& position_)
       : position(position_) {}
 
-    node(const node&) = delete;
-    node(node&&) = delete;
-    void operator=(const node&) = delete;
-    void operator=(node&&) = delete;
+    LASKIN_DISALLOW_COPY_AND_ASSIGN(node);
 
     /**
      * Returns type of the AST node.

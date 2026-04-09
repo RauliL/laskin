@@ -38,10 +38,8 @@ namespace laskin2cpp
     using container_type = std::vector<value_type>;
 
     program() {}
-    program(const program&) = default;
-    program(program&&) = default;
-    program& operator=(const program&) = default;
-    program& operator=(program&&) = default;
+
+    LASKIN_DEFAULT_COPY_AND_ASSIGN(program);
 
     inline const container_type& instructions() const
     {

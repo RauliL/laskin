@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/context.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -33,7 +32,7 @@ using namespace laskin;
  *
  * Executes quote.
  */
-BUILTIN_WORD(w_call)
+LASKIN_BUILTIN_WORD(w_call)
 {
   context.pop().as_quote().call(context, out);
 }
@@ -43,7 +42,7 @@ BUILTIN_WORD(w_call)
  *
  * Constructs quote that calls two quotes.
  */
-BUILTIN_WORD(w_compose)
+LASKIN_BUILTIN_WORD(w_compose)
 {
   const auto right = context.pop().as_quote();
   const auto left = context.pop().as_quote();
@@ -62,7 +61,7 @@ BUILTIN_WORD(w_compose)
  *
  * Constructs quote that curries given value as argument for the quote.
  */
-BUILTIN_WORD(w_curry)
+LASKIN_BUILTIN_WORD(w_curry)
 {
   const auto quote = context.pop().as_quote();
   const auto argument = context.pop();
@@ -79,7 +78,7 @@ BUILTIN_WORD(w_curry)
  *
  * Constructs quote that negates result of given quote.
  */
-BUILTIN_WORD(w_negate)
+LASKIN_BUILTIN_WORD(w_negate)
 {
   const auto quote = context.pop().as_quote();
 
@@ -97,7 +96,7 @@ BUILTIN_WORD(w_negate)
  * the quote has returned from it's execution, hidden value will be placed
  * back on the stack.
  */
-BUILTIN_WORD(w_dip)
+LASKIN_BUILTIN_WORD(w_dip)
 {
   const auto quote = context.pop().as_quote();
   const auto value = context.pop();

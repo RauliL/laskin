@@ -27,7 +27,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -36,7 +35,7 @@ using namespace laskin;
  *
  * Returns value of pi.
  */
-BUILTIN_WORD(w_pi)
+LASKIN_BUILTIN_WORD(w_pi)
 {
   context << M_PI;
 }
@@ -46,7 +45,7 @@ BUILTIN_WORD(w_pi)
  *
  * Returns Euler's number.
  */
-BUILTIN_WORD(w_e)
+LASKIN_BUILTIN_WORD(w_e)
 {
   context << M_E;
 }
@@ -56,7 +55,7 @@ BUILTIN_WORD(w_e)
  *
  * Returns infinity.
  */
-BUILTIN_WORD(w_inf)
+LASKIN_BUILTIN_WORD(w_inf)
 {
   context << peelo::number::inf();
 }
@@ -66,7 +65,7 @@ BUILTIN_WORD(w_inf)
  *
  * Returns negative infinity.
  */
-BUILTIN_WORD(w_neg_inf)
+LASKIN_BUILTIN_WORD(w_neg_inf)
 {
   context << -peelo::number::inf();
 }
@@ -76,7 +75,7 @@ BUILTIN_WORD(w_neg_inf)
  *
  * Returns not a number.
  */
-BUILTIN_WORD(w_nan)
+LASKIN_BUILTIN_WORD(w_nan)
 {
   context << peelo::number::nan();
 }
@@ -86,7 +85,7 @@ BUILTIN_WORD(w_nan)
  *
  * Tests whether number has measurement unit.
  */
-BUILTIN_WORD(w_has_unit)
+LASKIN_BUILTIN_WORD(w_has_unit)
 {
   context << bool(context.peek().as_number().measurement_unit());
 }
@@ -99,7 +98,7 @@ BUILTIN_WORD(w_has_unit)
  *
  * Unit error will be thrown if the number does not have measurement unit.
  */
-BUILTIN_WORD(w_unit)
+LASKIN_BUILTIN_WORD(w_unit)
 {
   const auto& unit = context.peek().as_number().measurement_unit();
 
@@ -119,7 +118,7 @@ BUILTIN_WORD(w_unit)
  *
  * Unit error will be thrown if the number does not have measurement unit.
  */
-BUILTIN_WORD(w_unit_type)
+LASKIN_BUILTIN_WORD(w_unit_type)
 {
   const auto& unit = context.peek().as_number().measurement_unit();
 
@@ -135,7 +134,7 @@ BUILTIN_WORD(w_unit_type)
  *
  * Removes the measurement unit from the number, if it has one.
  */
-BUILTIN_WORD(w_drop_unit)
+LASKIN_BUILTIN_WORD(w_drop_unit)
 {
   context << context.pop().as_number().without_measurement_unit();
 }
@@ -145,7 +144,7 @@ BUILTIN_WORD(w_drop_unit)
  *
  * Tests whether number represents infinity.
  */
-BUILTIN_WORD(w_is_inf)
+LASKIN_BUILTIN_WORD(w_is_inf)
 {
   context << value::make_boolean(context.peek().as_number().is_inf());
 }
@@ -155,7 +154,7 @@ BUILTIN_WORD(w_is_inf)
  *
  * Tests whether number represents NaN.
  */
-BUILTIN_WORD(w_is_nan)
+LASKIN_BUILTIN_WORD(w_is_nan)
 {
   context << value::make_boolean(context.peek().as_number().is_nan());
 }
@@ -167,7 +166,7 @@ BUILTIN_WORD(w_is_nan)
  * maximum boundaries. For example `1 3 range` would return vector containing
  * numbers 1 and 2.
  */
-BUILTIN_WORD(w_range)
+LASKIN_BUILTIN_WORD(w_range)
 {
   const auto limit = context.pop().as_number();
   auto current = context.pop().as_number();
@@ -186,7 +185,7 @@ BUILTIN_WORD(w_range)
  *
  * Ensures that number is between given minimum and maximum boundaries.
  */
-BUILTIN_WORD(w_clamp)
+LASKIN_BUILTIN_WORD(w_clamp)
 {
   const auto value = context.pop().as_number();
   const auto max = context.pop().as_number();
@@ -200,7 +199,7 @@ BUILTIN_WORD(w_clamp)
  *
  * Executes quote given number of times.
  */
-BUILTIN_WORD(w_times)
+LASKIN_BUILTIN_WORD(w_times)
 {
   auto count = context.pop().as_number();
   const auto quote = context.pop().as_quote();
@@ -216,42 +215,42 @@ BUILTIN_WORD(w_times)
   }
 }
 
-BUILTIN_WORD(w_exp)
+LASKIN_BUILTIN_WORD(w_exp)
 {
   context << context.pop().as_number().exp();
 }
 
-BUILTIN_WORD(w_exp2)
+LASKIN_BUILTIN_WORD(w_exp2)
 {
   context << context.pop().as_number().exp2();
 }
 
-BUILTIN_WORD(w_expm1)
+LASKIN_BUILTIN_WORD(w_expm1)
 {
   context << context.pop().as_number().expm1();
 }
 
-BUILTIN_WORD(w_log)
+LASKIN_BUILTIN_WORD(w_log)
 {
   context << context.pop().as_number().log();
 }
 
-BUILTIN_WORD(w_log10)
+LASKIN_BUILTIN_WORD(w_log10)
 {
   context << context.pop().as_number().log10();
 }
 
-BUILTIN_WORD(w_log2)
+LASKIN_BUILTIN_WORD(w_log2)
 {
   context << context.pop().as_number().log2();
 }
 
-BUILTIN_WORD(w_log1p)
+LASKIN_BUILTIN_WORD(w_log1p)
 {
   context << context.pop().as_number().log1p();
 }
 
-BUILTIN_WORD(w_pow)
+LASKIN_BUILTIN_WORD(w_pow)
 {
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
@@ -259,17 +258,17 @@ BUILTIN_WORD(w_pow)
   context << a.pow(b);
 }
 
-BUILTIN_WORD(w_sqrt)
+LASKIN_BUILTIN_WORD(w_sqrt)
 {
   context << context.pop().as_number().sqrt();
 }
 
-BUILTIN_WORD(w_cbrt)
+LASKIN_BUILTIN_WORD(w_cbrt)
 {
   context << context.pop().as_number().cbrt();
 }
 
-BUILTIN_WORD(w_hypot)
+LASKIN_BUILTIN_WORD(w_hypot)
 {
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
@@ -277,22 +276,22 @@ BUILTIN_WORD(w_hypot)
   context << a.hypot(b);
 }
 
-BUILTIN_WORD(w_acos)
+LASKIN_BUILTIN_WORD(w_acos)
 {
   context << context.pop().as_number().acos();
 }
 
-BUILTIN_WORD(w_asin)
+LASKIN_BUILTIN_WORD(w_asin)
 {
   context << context.pop().as_number().asin();
 }
 
-BUILTIN_WORD(w_atan)
+LASKIN_BUILTIN_WORD(w_atan)
 {
   context << context.pop().as_number().atan();
 }
 
-BUILTIN_WORD(w_atan2)
+LASKIN_BUILTIN_WORD(w_atan2)
 {
   const auto a = context.pop().as_number();
   const auto b = context.pop().as_number();
@@ -300,59 +299,59 @@ BUILTIN_WORD(w_atan2)
   context << a.atan2(b);
 }
 
-BUILTIN_WORD(w_cos)
+LASKIN_BUILTIN_WORD(w_cos)
 {
   context << context.pop().as_number().cos();
 }
 
-BUILTIN_WORD(w_sin)
+LASKIN_BUILTIN_WORD(w_sin)
 {
   context << context.pop().as_number().sin();
 }
 
-BUILTIN_WORD(w_tan)
+LASKIN_BUILTIN_WORD(w_tan)
 {
   context << context.pop().as_number().tan();
 }
 
-BUILTIN_WORD(w_sinh)
+LASKIN_BUILTIN_WORD(w_sinh)
 {
   context << context.pop().as_number().sinh();
 }
 
-BUILTIN_WORD(w_cosh)
+LASKIN_BUILTIN_WORD(w_cosh)
 {
   context << context.pop().as_number().cosh();
 }
 
-BUILTIN_WORD(w_tanh)
+LASKIN_BUILTIN_WORD(w_tanh)
 {
   context << context.pop().as_number().tanh();
 }
 
-BUILTIN_WORD(w_asinh)
+LASKIN_BUILTIN_WORD(w_asinh)
 {
   context << context.pop().as_number().asinh();
 }
 
-BUILTIN_WORD(w_acosh)
+LASKIN_BUILTIN_WORD(w_acosh)
 {
   context << context.pop().as_number().acosh();
 }
 
-BUILTIN_WORD(w_atanh)
+LASKIN_BUILTIN_WORD(w_atanh)
 {
   context << context.pop().as_number().atanh();
 }
 
-BUILTIN_WORD(w_deg)
+LASKIN_BUILTIN_WORD(w_deg)
 {
   const auto value = context.pop().as_number();
 
   context << (value * 180 / M_PI);
 }
 
-BUILTIN_WORD(w_rad)
+LASKIN_BUILTIN_WORD(w_rad)
 {
   const auto value = context.pop().as_number();
 
@@ -367,7 +366,7 @@ BUILTIN_WORD(w_rad)
  *
  * Range error will be thrown if the number is out of range.
  */
-BUILTIN_WORD(w_to_month)
+LASKIN_BUILTIN_WORD(w_to_month)
 {
   try
   {
@@ -397,7 +396,7 @@ BUILTIN_WORD(w_to_month)
  *
  * Range error will be thrown if the number is out of range.
  */
-BUILTIN_WORD(w_to_weekday)
+LASKIN_BUILTIN_WORD(w_to_weekday)
 {
   try
   {

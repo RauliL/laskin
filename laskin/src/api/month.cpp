@@ -25,7 +25,6 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -34,7 +33,7 @@ using namespace laskin;
  *
  * Returns January.
  */
-BUILTIN_WORD(w_january)
+LASKIN_BUILTIN_WORD(w_january)
 {
   context << value::make_month(peelo::chrono::month::jan);
 }
@@ -44,7 +43,7 @@ BUILTIN_WORD(w_january)
  *
  * Returns February.
  */
-BUILTIN_WORD(w_february)
+LASKIN_BUILTIN_WORD(w_february)
 {
   context << value::make_month(peelo::chrono::month::feb);
 }
@@ -54,7 +53,7 @@ BUILTIN_WORD(w_february)
  *
  * Return March.
  */
-BUILTIN_WORD(w_march)
+LASKIN_BUILTIN_WORD(w_march)
 {
   context << value::make_month(peelo::chrono::month::mar);
 }
@@ -64,7 +63,7 @@ BUILTIN_WORD(w_march)
  *
  * Returns April.
  */
-BUILTIN_WORD(w_april)
+LASKIN_BUILTIN_WORD(w_april)
 {
   context << value::make_month(peelo::chrono::month::apr);
 }
@@ -74,7 +73,7 @@ BUILTIN_WORD(w_april)
  *
  * Returns May.
  */
-BUILTIN_WORD(w_may)
+LASKIN_BUILTIN_WORD(w_may)
 {
   context << value::make_month(peelo::chrono::month::may);
 }
@@ -84,7 +83,7 @@ BUILTIN_WORD(w_may)
  *
  * Returns June.
  */
-BUILTIN_WORD(w_june)
+LASKIN_BUILTIN_WORD(w_june)
 {
   context << value::make_month(peelo::chrono::month::jun);
 }
@@ -94,7 +93,7 @@ BUILTIN_WORD(w_june)
  *
  * Returns July.
  */
-BUILTIN_WORD(w_july)
+LASKIN_BUILTIN_WORD(w_july)
 {
   context << value::make_month(peelo::chrono::month::jul);
 }
@@ -104,7 +103,7 @@ BUILTIN_WORD(w_july)
  *
  * Returns August.
  */
-BUILTIN_WORD(w_august)
+LASKIN_BUILTIN_WORD(w_august)
 {
   context << value::make_month(peelo::chrono::month::aug);
 }
@@ -114,7 +113,7 @@ BUILTIN_WORD(w_august)
  *
  * Returns September.
  */
-BUILTIN_WORD(w_september)
+LASKIN_BUILTIN_WORD(w_september)
 {
   context << value::make_month(peelo::chrono::month::sep);
 }
@@ -124,7 +123,7 @@ BUILTIN_WORD(w_september)
  *
  * Returns October.
  */
-BUILTIN_WORD(w_october)
+LASKIN_BUILTIN_WORD(w_october)
 {
   context << value::make_month(peelo::chrono::month::oct);
 }
@@ -134,7 +133,7 @@ BUILTIN_WORD(w_october)
  *
  * Returns November.
  */
-BUILTIN_WORD(w_november)
+LASKIN_BUILTIN_WORD(w_november)
 {
   context << value::make_month(peelo::chrono::month::nov);
 }
@@ -144,7 +143,7 @@ BUILTIN_WORD(w_november)
  *
  * Returns December.
  */
-BUILTIN_WORD(w_december)
+LASKIN_BUILTIN_WORD(w_december)
 {
   context << value::make_month(peelo::chrono::month::dec);
 }
@@ -154,7 +153,7 @@ BUILTIN_WORD(w_december)
  *
  * Converts month into a number. January is 1, December 12 and so on.
  */
-BUILTIN_WORD(w_to_number)
+LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto value = static_cast<int>(context.pop().as_month()) + 1;
 

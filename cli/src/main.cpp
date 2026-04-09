@@ -32,7 +32,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 #include "laskin/quote.hpp"
 
 static std::string programfile;

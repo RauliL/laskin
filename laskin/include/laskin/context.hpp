@@ -58,10 +58,7 @@ namespace laskin
       bool allow_include_ = true
     );
 
-    context(const context&) = default;
-    context(context&&) = default;
-    context& operator=(const context& that) = default;
-    context& operator=(context&&) = default;
+    LASKIN_DEFAULT_COPY_AND_ASSIGN(context);
 
     /**
      * Evaluates given source code as program.

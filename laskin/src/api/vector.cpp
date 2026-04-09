@@ -25,7 +25,6 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -34,7 +33,7 @@ using namespace laskin;
  *
  * Constructs vector from given number of values extracted from the stack.
  */
-BUILTIN_WORD(w_vector)
+LASKIN_BUILTIN_WORD(w_vector)
 {
   const auto size = context.pop().as_number();
   value::vector_container elements;
@@ -64,7 +63,7 @@ BUILTIN_WORD(w_vector)
  *
  * Returns the number of elements in the vector.
  */
-BUILTIN_WORD(w_length)
+LASKIN_BUILTIN_WORD(w_length)
 {
   context << value::make_number(
     static_cast<std::int64_t>(context.peek().as_vector().size())
@@ -78,7 +77,7 @@ BUILTIN_WORD(w_length)
  *
  * Range error is thrown if the vector is empty.
  */
-BUILTIN_WORD(w_max)
+LASKIN_BUILTIN_WORD(w_max)
 {
   const auto vec = context.pop().as_vector();
   const auto size = vec.size();
@@ -110,7 +109,7 @@ BUILTIN_WORD(w_max)
  *
  * Range error is thrown if the vector is empty.
  */
-BUILTIN_WORD(w_min)
+LASKIN_BUILTIN_WORD(w_min)
 {
   const auto vec = context.pop().as_vector();
   const auto size = vec.size();
@@ -142,7 +141,7 @@ BUILTIN_WORD(w_min)
  *
  * Range error is thrown if the vector is empty.
  */
-BUILTIN_WORD(w_mean)
+LASKIN_BUILTIN_WORD(w_mean)
 {
   const auto vec = context.pop().as_vector();
   const auto size = vec.size();
@@ -169,7 +168,7 @@ BUILTIN_WORD(w_mean)
  *
  * Range error is thrown if the vector is empty.
  */
-BUILTIN_WORD(w_sum)
+LASKIN_BUILTIN_WORD(w_sum)
 {
   const auto vec = context.pop().as_vector();
   const auto size = vec.size();
@@ -194,7 +193,7 @@ BUILTIN_WORD(w_sum)
  *
  * Executes quote once for each value in the vector.
  */
-BUILTIN_WORD(w_for_each)
+LASKIN_BUILTIN_WORD(w_for_each)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
@@ -212,7 +211,7 @@ BUILTIN_WORD(w_for_each)
  * Constructs new vector from results of what executing the given quote once
  * for every value in the vector will return.
  */
-BUILTIN_WORD(w_map)
+LASKIN_BUILTIN_WORD(w_map)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
@@ -235,7 +234,7 @@ BUILTIN_WORD(w_map)
  * once for every value in the vector, leaving out those for which the quote
  * returns false.
  */
-BUILTIN_WORD(w_filter)
+LASKIN_BUILTIN_WORD(w_filter)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
@@ -261,7 +260,7 @@ BUILTIN_WORD(w_filter)
  *
  * Range error will be thrown if the vector is empty.
  */
-BUILTIN_WORD(w_reduce)
+LASKIN_BUILTIN_WORD(w_reduce)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
@@ -288,7 +287,7 @@ BUILTIN_WORD(w_reduce)
  * Constructs new vector from the one given with the new value prepended into
  * it.
  */
-BUILTIN_WORD(w_prepend)
+LASKIN_BUILTIN_WORD(w_prepend)
 {
   auto vec = context.pop().as_vector();
   const auto value = context.pop();
@@ -303,7 +302,7 @@ BUILTIN_WORD(w_prepend)
  * Constructs new vector from the one given with the new value appended into
  * it.
  */
-BUILTIN_WORD(w_append)
+LASKIN_BUILTIN_WORD(w_append)
 {
   auto vec = context.pop().as_vector();
   const auto value = context.pop();
@@ -319,7 +318,7 @@ BUILTIN_WORD(w_append)
  *
  * Throws range error if given index is out of bounds.
  */
-BUILTIN_WORD(w_insert)
+LASKIN_BUILTIN_WORD(w_insert)
 {
   try
   {
@@ -354,7 +353,7 @@ BUILTIN_WORD(w_insert)
  *
  * Returns reversed copy of the vector.
  */
-BUILTIN_WORD(w_reverse)
+LASKIN_BUILTIN_WORD(w_reverse)
 {
   const auto vector = context.pop().as_vector();
 
@@ -366,7 +365,7 @@ BUILTIN_WORD(w_reverse)
  *
  * Pushes all values inside the vector onto the stack.
  */
-BUILTIN_WORD(w_extract)
+LASKIN_BUILTIN_WORD(w_extract)
 {
   const auto vector = context.pop().as_vector();
 
@@ -420,7 +419,7 @@ quicksort(
  *
  * Performs quicksort on the vector.
  */
-BUILTIN_WORD(w_sort)
+LASKIN_BUILTIN_WORD(w_sort)
 {
   auto vector = context.pop().as_vector();
 
@@ -436,7 +435,7 @@ BUILTIN_WORD(w_sort)
  *
  * Range error will be thrown if given index is out of bounds.
  */
-BUILTIN_WORD(w_at)
+LASKIN_BUILTIN_WORD(w_at)
 {
   try
   {
@@ -472,7 +471,7 @@ BUILTIN_WORD(w_at)
  *
  * Range error will be thrown if given index is out of bounds.
  */
-BUILTIN_WORD(w_set)
+LASKIN_BUILTIN_WORD(w_set)
 {
   try
   {
@@ -511,7 +510,7 @@ BUILTIN_WORD(w_set)
  * Range error will be thrown if the values inside the vector cannot be used
  * to construct a time.
  */
-BUILTIN_WORD(w_to_time)
+LASKIN_BUILTIN_WORD(w_to_time)
 {
   const auto vector = context.pop().as_vector();
   long hour;
@@ -552,7 +551,7 @@ BUILTIN_WORD(w_to_time)
  * Range error will be thrown if the values inside the vector cannot be used
  * to construct a date.
  */
-BUILTIN_WORD(w_to_date)
+LASKIN_BUILTIN_WORD(w_to_date)
 {
   try
   {

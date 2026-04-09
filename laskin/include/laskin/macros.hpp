@@ -27,8 +27,20 @@
 
 #define LASKIN_VERSION "5.1.1"
 
-#define BUILTIN_WORD(x) \
+#define LASKIN_BUILTIN_WORD(x) \
   static void x( \
     class context& context, \
     std::ostream* out \
   )
+
+#define LASKIN_DEFAULT_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&) = default; \
+  TypeName(TypeName&&) = default; \
+  TypeName& operator=(const TypeName&) = default; \
+  TypeName& operator=(TypeName&&) = default
+
+#define LASKIN_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&) = delete; \
+  TypeName(TypeName&&) = delete; \
+  void operator=(const TypeName&) = delete; \
+  void operator=(TypeName&&) = delete

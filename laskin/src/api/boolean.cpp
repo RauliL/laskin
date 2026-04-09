@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/context.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -33,7 +32,7 @@ using namespace laskin;
  *
  * Returns boolean value of true.
  */
-BUILTIN_WORD(w_true)
+LASKIN_BUILTIN_WORD(w_true)
 {
   context << true;
 }
@@ -43,7 +42,7 @@ BUILTIN_WORD(w_true)
  *
  * Returns boolean value of false.
  */
-BUILTIN_WORD(w_false)
+LASKIN_BUILTIN_WORD(w_false)
 {
   context << false;
 }
@@ -53,7 +52,7 @@ BUILTIN_WORD(w_false)
  *
  * Performs negation on the given boolean value.
  */
-BUILTIN_WORD(w_not)
+LASKIN_BUILTIN_WORD(w_not)
 {
   context << !context.pop().as_boolean();
 }
@@ -63,7 +62,7 @@ BUILTIN_WORD(w_not)
  *
  * Performs logical and on the given boolean values.
  */
-BUILTIN_WORD(w_and)
+LASKIN_BUILTIN_WORD(w_and)
 {
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();
@@ -76,7 +75,7 @@ BUILTIN_WORD(w_and)
  *
  * Performs logical or on the given boolean values.
  */
-BUILTIN_WORD(w_or)
+LASKIN_BUILTIN_WORD(w_or)
 {
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();
@@ -89,7 +88,7 @@ BUILTIN_WORD(w_or)
  *
  * Performs exclusive or on the given boolean values.
  */
-BUILTIN_WORD(w_xor)
+LASKIN_BUILTIN_WORD(w_xor)
 {
   const auto b = context.pop().as_boolean();
   const auto a = context.pop().as_boolean();

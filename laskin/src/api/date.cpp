@@ -27,7 +27,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -36,7 +35,7 @@ using namespace laskin;
  *
  * Returns current date.
  */
-BUILTIN_WORD(w_today)
+LASKIN_BUILTIN_WORD(w_today)
 {
   try
   {
@@ -56,7 +55,7 @@ BUILTIN_WORD(w_today)
  *
  * Returns tomorrow's date.
  */
-BUILTIN_WORD(w_tomorrow)
+LASKIN_BUILTIN_WORD(w_tomorrow)
 {
   try
   {
@@ -76,7 +75,7 @@ BUILTIN_WORD(w_tomorrow)
  *
  * Returns yesterday's date.
  */
-BUILTIN_WORD(w_yesterday)
+LASKIN_BUILTIN_WORD(w_yesterday)
 {
   try
   {
@@ -96,7 +95,7 @@ BUILTIN_WORD(w_yesterday)
  *
  * Extracts year from the date.
  */
-BUILTIN_WORD(w_year)
+LASKIN_BUILTIN_WORD(w_year)
 {
   context << context.peek().as_date().year();
 }
@@ -106,7 +105,7 @@ BUILTIN_WORD(w_year)
  *
  * Extracts month from the date.
  */
-BUILTIN_WORD(w_month)
+LASKIN_BUILTIN_WORD(w_month)
 {
   context << value::make_month(context.peek().as_date().month());
 }
@@ -116,7 +115,7 @@ BUILTIN_WORD(w_month)
  *
  * Extracts day of the month from the date.
  */
-BUILTIN_WORD(w_day)
+LASKIN_BUILTIN_WORD(w_day)
 {
   context << context.peek().as_date().day();
 }
@@ -126,7 +125,7 @@ BUILTIN_WORD(w_day)
  *
  * Extracts day of the week from the date.
  */
-BUILTIN_WORD(w_weekday)
+LASKIN_BUILTIN_WORD(w_weekday)
 {
   context << value::make_weekday(context.peek().as_date().day_of_week());
 }
@@ -136,7 +135,7 @@ BUILTIN_WORD(w_weekday)
  *
  * Extracts day of the year from the date.
  */
-BUILTIN_WORD(w_day_of_year)
+LASKIN_BUILTIN_WORD(w_day_of_year)
 {
   context << context.peek().as_date().day_of_year();
 }
@@ -146,7 +145,7 @@ BUILTIN_WORD(w_day_of_year)
  *
  * Determines how many days there are in the month of the date.
  */
-BUILTIN_WORD(w_days_in_month)
+LASKIN_BUILTIN_WORD(w_days_in_month)
 {
   context << context.peek().as_date().days_in_month();
 }
@@ -156,7 +155,7 @@ BUILTIN_WORD(w_days_in_month)
  *
  * Determines how many days there are in the year of the date.
  */
-BUILTIN_WORD(w_days_in_year)
+LASKIN_BUILTIN_WORD(w_days_in_year)
 {
   context << context.peek().as_date().days_in_year();
 }
@@ -166,7 +165,7 @@ BUILTIN_WORD(w_days_in_year)
  *
  * Tests whether given date occurs on leap year.
  */
-BUILTIN_WORD(w_is_leap_year)
+LASKIN_BUILTIN_WORD(w_is_leap_year)
 {
   context << context.peek().as_date().is_leap_year();
 }
@@ -176,7 +175,7 @@ BUILTIN_WORD(w_is_leap_year)
  *
  * Formats date with strftime().
  */
-BUILTIN_WORD(w_format)
+LASKIN_BUILTIN_WORD(w_format)
 {
   using peelo::unicode::encoding::utf8::encode;
   using peelo::unicode::encoding::utf8::decode;
@@ -192,7 +191,7 @@ BUILTIN_WORD(w_format)
  *
  * Converts date into UNIX timestamp.
  */
-BUILTIN_WORD(w_to_number)
+LASKIN_BUILTIN_WORD(w_to_number)
 {
   context << value::make_number(
     context.pop().as_date().timestamp(),
@@ -206,7 +205,7 @@ BUILTIN_WORD(w_to_number)
  * Extracts year, month and day of month from the date and returns them
  * inside an vector.
  */
-BUILTIN_WORD(w_to_vector)
+LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto date = context.pop().as_date();
   const auto year = date.year();

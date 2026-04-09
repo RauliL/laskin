@@ -25,7 +25,6 @@
  */
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/macros.hpp"
 
 using namespace laskin;
 
@@ -34,7 +33,7 @@ using namespace laskin;
  *
  * Returns the number of properties in the quote.
  */
-BUILTIN_WORD(w_size)
+LASKIN_BUILTIN_WORD(w_size)
 {
   const auto& properties = context.peek().as_record();
 
@@ -46,7 +45,7 @@ BUILTIN_WORD(w_size)
  *
  * Returns all property names of the record in an vector.
  */
-BUILTIN_WORD(w_keys)
+LASKIN_BUILTIN_WORD(w_keys)
 {
   const auto& properties = context.peek().as_record();
   value::vector_container result;
@@ -64,7 +63,7 @@ BUILTIN_WORD(w_keys)
  *
  * Returns all property values of the record in an vector.
  */
-BUILTIN_WORD(w_values)
+LASKIN_BUILTIN_WORD(w_values)
 {
   const auto& properties = context.peek().as_record();
   value::vector_container result;
@@ -82,7 +81,7 @@ BUILTIN_WORD(w_values)
  *
  * Executes quote once for each property (name and value) in the record.
  */
-BUILTIN_WORD(w_for_each)
+LASKIN_BUILTIN_WORD(w_for_each)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
@@ -100,7 +99,7 @@ BUILTIN_WORD(w_for_each)
  * Constructs an record from results of executing the quote once for each
  * property (name and value) in the record.
  */
-BUILTIN_WORD(w_map)
+LASKIN_BUILTIN_WORD(w_map)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
@@ -127,7 +126,7 @@ BUILTIN_WORD(w_map)
  * Constructs an record from properties of the record for which the execution
  * of the quote (with name and value given) returns true.
  */
-BUILTIN_WORD(w_filter)
+LASKIN_BUILTIN_WORD(w_filter)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
@@ -153,7 +152,7 @@ BUILTIN_WORD(w_filter)
  *
  * Range error will be thrown if no such property exist in the record.
  */
-BUILTIN_WORD(w_at)
+LASKIN_BUILTIN_WORD(w_at)
 {
   const auto properties = context.pop().as_record();
   const auto key = context.pop().as_string();
@@ -172,7 +171,7 @@ BUILTIN_WORD(w_at)
  * Constructs new record with new property injected (or old one replaced) to
  * it.
  */
-BUILTIN_WORD(w_set)
+LASKIN_BUILTIN_WORD(w_set)
 {
   auto properties = context.pop().as_record();
   const auto key = context.pop().as_string();
@@ -188,7 +187,7 @@ BUILTIN_WORD(w_set)
  * Converts record into vector of key-value pairs made from properties of the
  * record.
  */
-BUILTIN_WORD(w_to_vector)
+LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto properties = context.pop().as_record();
   value::vector_container values;
