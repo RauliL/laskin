@@ -33,36 +33,32 @@ namespace laskin2cpp
   static void
   transpile_boolean(bool value, class writer& writer)
   {
-    writer.print("value::make_boolean(");
     writer.print(value ? "true" : "false");
+  }
+
+  static void
+  transpile_date(const laskin::date& value, class writer& writer)
+  {
+    writer.print("date(");
+    writer.print(std::to_string(value.year()));
+    writer.print(", static_cast<month>(");
+    writer.print(std::to_string(static_cast<int>(value.month())));
+    writer.print("), ");
+    writer.print(std::to_string(value.day()));
     writer.print(")");
   }
 
   static void
-  transpile_date(const peelo::chrono::date& value, class writer& writer)
+  transpile_month(const laskin::month value, class writer& writer)
   {
-    writer.print("value::make_date(peelo::chrono::date(");
-    writer.print(std::to_string(value.year()));
-    writer.print(", static_cast<peelo::chrono::month>(");
-    writer.print(std::to_string(static_cast<int>(value.month())));
-    writer.print("), ");
-    writer.print(std::to_string(value.day()));
-    writer.print("))");
-  }
-
-  static void
-  transpile_month(const peelo::chrono::month value, class writer& writer)
-  {
-    writer.print("value::make_month(static_cast<peelo::chrono::month>(");
+    writer.print("static_cast<month>(");
     writer.print(std::to_string(static_cast<int>(value)));
-    writer.print("))");
+    writer.print(")");
   }
 
   void
-  transpile_number(const peelo::number& value, class writer& writer)
+  transpile_number(const laskin::number& value, class writer& writer)
   {
-    writer.print("value::make_number(");
-
     // If the number does not have measurement unit, see if it fits into
     // `double`.
     if (!value.measurement_unit())
@@ -84,6 +80,7 @@ namespace laskin2cpp
       }
       if (fits)
       {
+        writer.print("number(");
         writer.print(std::to_string(result));
         writer.print(")");
         return;
@@ -91,7 +88,7 @@ namespace laskin2cpp
     }
 
     // TODO: Find out more optimal way of converting measurement unit into C++.
-    writer.print("\"");
+    writer.print("value::parse_number(\"");
     writer.print(value.to_string());
     writer.print("\")");
   }
@@ -106,7 +103,7 @@ namespace laskin2cpp
     program subprogram;
 
     subprogram.compile(value, options);
-    writer.println("value::make_quote(quote(");
+    writer.println("quote(");
     writer.indent();
     writer.println("[](context& c, std::ostream* out)");
     writer.println("{");
@@ -118,17 +115,17 @@ namespace laskin2cpp
     writer.dedent();
     writer.println("}");
     writer.dedent();
-    writer.print("))");
+    writer.print(")");
   }
 
   static void
   transpile_record(
-    const laskin::value::record_container& value,
+    const laskin::record& value,
     class writer& writer,
     const struct options& options
   )
   {
-    writer.println("value::make_record({");
+    writer.println("record{");
     writer.indent();
     for (const auto& property : value)
     {
@@ -139,37 +136,35 @@ namespace laskin2cpp
       writer.println(" },");
     }
     writer.dedent();
-    writer.print("})");
+    writer.print("}");
   }
 
   static void
   transpile_string(const std::u32string& value, class writer& writer)
   {
-    writer.print("value::make_string(");
     writer.print(writer::escape(value));
-    writer.print(")");
   }
 
   static void
-  transpile_time(const peelo::chrono::time& value, class writer& writer)
+  transpile_time(const laskin::time& value, class writer& writer)
   {
-    writer.print("value::make_time(peelo::chrono::time(");
+    writer.print("time(");
     writer.print(std::to_string(value.hour()));
     writer.print(", ");
     writer.print(std::to_string(value.hour()));
     writer.print(", ");
     writer.print(std::to_string(value.minute()));
-    writer.print("))");
+    writer.print(")");
   }
 
   static void
   transpile_vector(
-    const laskin::value::vector_container& value,
+    const laskin::vector& value,
     class writer& writer,
     const struct options& options
   )
   {
-    writer.println("value::make_vector({");
+    writer.println("vector{");
     writer.indent();
     for (const auto& element : value)
     {
@@ -177,15 +172,15 @@ namespace laskin2cpp
       writer.println(",");
     }
     writer.dedent();
-    writer.print("})");
+    writer.print("}");
   }
 
   static void
-  transpile_weekday(const peelo::chrono::weekday value, class writer& writer)
+  transpile_weekday(const laskin::weekday value, class writer& writer)
   {
-    writer.print("value::make_weekday(static_cast<peelo::chrono::weekday>(");
+    writer.print("static_cast<weekday>(");
     writer.print(std::to_string(static_cast<int>(value)));
-    writer.print("))");
+    writer.print(")");
   }
 
   void
@@ -246,7 +241,7 @@ namespace laskin2cpp
     const struct options& options
   )
   {
-    writer.println("value::make_record({");
+    writer.println("{");
     writer.indent();
     for (const auto& property : properties)
     {
@@ -257,7 +252,7 @@ namespace laskin2cpp
       writer.println(" },");
     }
     writer.dedent();
-    writer.print("})");
+    writer.print("}");
   }
 
   static void
@@ -267,7 +262,7 @@ namespace laskin2cpp
     const struct options& options
   )
   {
-    writer.println("value::make_vector({");
+    writer.println("{");
     writer.indent();
     for (const auto& element : elements)
     {
@@ -275,7 +270,7 @@ namespace laskin2cpp
       writer.println(",");
     }
     writer.dedent();
-    writer.print("})");
+    writer.print("}");
   }
 
   void
@@ -321,9 +316,9 @@ namespace laskin2cpp
           const auto id
             = std::static_pointer_cast<laskin::node::symbol>(node)->id;
 
-          if (options.number_optimization && peelo::number::is_valid(id))
+          if (options.number_optimization && laskin::number::is_valid(id))
           {
-            transpile_number(peelo::number::parse(id), writer);
+            transpile_number(laskin::number::parse(id), writer);
           } else {
             writer.print("c.eval(" + writer::escape(id) + ")");
           }

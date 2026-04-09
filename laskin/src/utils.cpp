@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,12 @@
 
 namespace laskin::utils
 {
-  std::int64_t time_as_seconds(const peelo::chrono::time& time)
+  std::int64_t
+  time_as_seconds(const time& value)
   {
-    const auto hour = static_cast<std::int64_t>(time.hour());
-    const auto minute = static_cast<std::int64_t>(time.minute());
-    auto second = static_cast<std::int64_t>(time.second());
+    const auto hour = static_cast<std::int64_t>(value.hour());
+    const auto minute = static_cast<std::int64_t>(value.minute());
+    auto second = static_cast<std::int64_t>(value.second());
 
     if (minute > 0)
     {
@@ -47,7 +48,8 @@ namespace laskin::utils
     return second;
   }
 
-  std::u32string escape_string(const std::u32string& str)
+  std::u32string
+  escape_string(const std::u32string& str)
   {
     std::u32string result;
 

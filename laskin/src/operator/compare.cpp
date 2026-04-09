@@ -29,7 +29,7 @@
 namespace laskin
 {
   static inline int
-  compare_number(const peelo::number& a, const peelo::number& b)
+  compare_number(const number& a, const number& b)
   {
     return a.compare(b);
   }
@@ -41,16 +41,13 @@ namespace laskin
   }
 
   static int
-  compare_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
-  )
+  compare_vector(const vector& a, const vector& b)
   {
     const auto size_a = a.size();
     const auto size_b = b.size();
     const auto min_size = std::min(size_a, size_b);
 
-    for (value::vector_container::size_type i = 0; i < min_size; ++i)
+    for (vector::size_type i = 0; i < min_size; ++i)
     {
       const auto cmp = a[i].compare(b[i]);
 
@@ -64,25 +61,25 @@ namespace laskin
   }
 
   static inline int
-  compare_month(peelo::chrono::month a, peelo::chrono::month b)
+  compare_month(month a, month b)
   {
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
   static inline int
-  compare_weekday(peelo::chrono::weekday a, peelo::chrono::weekday b)
+  compare_weekday(weekday a, weekday b)
   {
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
   static inline int
-  compare_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
+  compare_date(const date& a, const date& b)
   {
     return a.compare(b);
   }
 
   static inline int
-  compare_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
+  compare_time(const time& a, const time& b)
   {
     return a.compare(b);
   }
@@ -122,7 +119,7 @@ namespace laskin
         }
       }
     }
-    catch (const peelo::number::unit_error& e)
+    catch (const number::unit_error& e)
     {
       throw error(error::type::unit, e.what());
     }

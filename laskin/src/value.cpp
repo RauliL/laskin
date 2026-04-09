@@ -36,219 +36,79 @@
 namespace laskin
 {
   value
-  value::make_boolean(bool value)
+  value::parse_number(const std::u32string& input)
   {
-    class value instance;
-
-    instance.m_value_boolean = value;
-
-    return instance;
-  }
-
-  value
-  value::make_number(const peelo::number& value)
-  {
-    class value instance;
-
-    instance.m_type = type::number;
-    instance.m_value_number = new peelo::number(value);
-
-    return instance;
-  }
-
-  value
-  value::make_number(
-    int value,
-    const peelo::number::unit_type& unit
-  )
-  {
-    return make_number(static_cast<std::int64_t>(value), unit);
-  }
-
-  value
-  value::make_number(
-    std::int64_t value,
-    const peelo::number::unit_type& unit
-  )
-  {
-    class value instance;
-
-    instance.m_type = type::number;
-    instance.m_value_number = new peelo::number(value, unit);
-
-    return instance;
-  }
-
-  value
-  value::make_number(
-    double value,
-    const peelo::number::unit_type& unit
-  )
-  {
-    class value instance;
-
-    instance.m_type = type::number;
-    instance.m_value_number = new peelo::number(value, unit);
-
-    return instance;
-  }
-
-  value
-  value::make_number(const std::u32string& input)
-  {
-    value instance;
-
     try
     {
-      instance.m_value_number = new peelo::number(peelo::number::parse(input));
-      instance.m_type = type::number;
+      return number::parse(input);
     }
     catch (const std::invalid_argument&)
     {
       throw error(error::type::range, U"Input does not contain valid number.");
     }
-
-    return instance;
-  }
-
-  value
-  value::make_vector(const vector_container& elements)
-  {
-    class value instance;
-
-    instance.m_type = type::vector;
-    instance.m_value_vector = new vector_container(elements);
-
-    return instance;
-  }
-
-  value
-  value::make_record(const record_container& properties)
-  {
-    class value instance;
-
-    instance.m_type = type::record;
-    instance.m_value_record = new record_container(properties);
-
-    return instance;
-  }
-
-  value
-  value::make_string(const std::u32string& string)
-  {
-    value instance;
-
-    instance.m_type = type::string;
-    instance.m_value_string = new std::u32string(string);
-
-    return instance;
-  }
-
-  value
-  value::make_quote(const class quote& quote)
-  {
-    class value instance;
-
-    instance.m_type = type::quote;
-    instance.m_value_quote = new class quote(quote);
-
-    return instance;
-  }
-
-  value
-  value::make_quote(const quote::node_container& nodes)
-  {
-    class value instance;
-
-    instance.m_type = type::quote;
-    instance.m_value_quote = new class quote(nodes);
-
-    return instance;
-  }
-
-  value
-  value::make_month(peelo::chrono::month month)
-  {
-    value instance;
-
-    instance.m_type = type::month;
-    instance.m_value_month = month;
-
-    return instance;
-  }
-
-  value
-  value::make_month(const std::u32string& month)
-  {
-    return make_month(parse_month(month));
-  }
-
-  value
-  value::make_weekday(peelo::chrono::weekday weekday)
-  {
-    value instance;
-
-    instance.m_type = type::weekday;
-    instance.m_value_weekday = weekday;
-
-    return instance;
-  }
-
-  value
-  value::make_weekday(const std::u32string& weekday)
-  {
-    return make_weekday(parse_weekday(weekday));
-  }
-
-  value
-  value::make_date(const peelo::chrono::date& date)
-  {
-    value instance;
-
-    instance.m_type = type::date;
-    instance.m_value_date = new peelo::chrono::date(date);
-
-    return instance;
-  }
-
-  value
-  value::make_date(const std::u32string& input)
-  {
-    const auto date = parse_date(input);
-    value instance;
-
-    instance.m_type = type::date;
-    instance.m_value_date = new peelo::chrono::date(date);
-
-    return instance;
-  }
-
-  value
-  value::make_time(const peelo::chrono::time& time)
-  {
-    value instance;
-
-    instance.m_type = type::time;
-    instance.m_value_time = new peelo::chrono::time(time);
-
-    return instance;
-  }
-
-  value
-  value::make_time(const std::u32string& input)
-  {
-    const auto time = parse_time(input);
-    value instance;
-
-    instance.m_type = type::time;
-    instance.m_value_time = new peelo::chrono::time(time);
-
-    return instance;
   }
 
   value::value()
     : m_type(type::boolean)
     , m_value_boolean(false) {}
+
+  value::value(bool value)
+    : m_type(type::boolean)
+    , m_value_boolean(value) {}
+
+  value::value(const number& value)
+    : m_type(type::number)
+    , m_value_number(new number(value)) {}
+
+  value::value(int value)
+    : m_type(type::number)
+    , m_value_number(new number(value)) {}
+
+  value::value(long value)
+    : m_type(type::number)
+    , m_value_number(new number(value)) {}
+
+  value::value(double value)
+    : m_type(type::number)
+    , m_value_number(new number(value)) {}
+
+  value::value(const std::u32string& value)
+    : m_type(type::string)
+    , m_value_string(new std::u32string(value)) {}
+
+  value::value(const std::string& value)
+    : m_type(type::string)
+    , m_value_string(new std::u32string(
+        peelo::unicode::encoding::utf8::decode(value))
+      ) {}
+
+  value::value(const vector& elements)
+    : m_type(type::vector)
+    , m_value_vector(new vector(elements)) {}
+
+  value::value(const record& properties)
+    : m_type(type::record)
+    , m_value_record(new record(properties)) {}
+
+  value::value(const quote& value)
+    : m_type(type::quote)
+    , m_value_quote(new quote(value)) {}
+
+  value::value(const date& value)
+    : m_type(type::date)
+    , m_value_date(new date(value)) {}
+
+  value::value(const time& value)
+    : m_type(type::time)
+    , m_value_time(new time(value)) {}
+
+  value::value(month value)
+    : m_type(type::month)
+    , m_value_month(value) {}
+
+  value::value(weekday value)
+    : m_type(type::weekday)
+    , m_value_weekday(value) {}
 
   value::value(const value& that)
     : m_type(that.m_type)
@@ -260,11 +120,11 @@ namespace laskin
         break;
 
       case type::number:
-        m_value_number = new peelo::number(*that.m_value_number);
+        m_value_number = new number(*that.m_value_number);
         break;
 
       case type::vector:
-        m_value_vector = new vector_container(*that.m_value_vector);
+        m_value_vector = new vector(*that.m_value_vector);
         break;
 
       case type::string:
@@ -284,15 +144,15 @@ namespace laskin
         break;
 
       case type::date:
-        m_value_date = new peelo::chrono::date(*that.m_value_date);
+        m_value_date = new date(*that.m_value_date);
         break;
 
       case type::time:
-        m_value_time = new peelo::chrono::time(*that.m_value_time);
+        m_value_time = new time(*that.m_value_time);
         break;
 
       case type::record:
-        m_value_record = new record_container(*that.m_value_record);
+        m_value_record = new record(*that.m_value_record);
         break;
     }
   }
@@ -352,6 +212,148 @@ namespace laskin
   }
 
   value&
+  value::assign(bool value)
+  {
+    reset();
+    m_type = type::boolean;
+    m_value_boolean = value;
+
+    return *this;
+  }
+
+  value&
+  value::assign(const number& value)
+  {
+    reset();
+    m_type = type::number;
+    m_value_number = new number(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(int value)
+  {
+    reset();
+    m_type = type::number;
+    m_value_number = new number(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(long value)
+  {
+    reset();
+    m_type = type::number;
+    m_value_number = new number(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(double value)
+  {
+    reset();
+    m_type = type::number;
+    m_value_number = new number(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const std::u32string& value)
+  {
+    reset();
+    m_type = type::string;
+    m_value_string = new std::u32string(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const std::string& value)
+  {
+    using peelo::unicode::encoding::utf8::decode;
+
+    reset();
+    m_type = type::string;
+    m_value_string = new std::u32string(decode(value));
+
+    return *this;
+  }
+
+  value&
+  value::assign(const vector& elements)
+  {
+    reset();
+    m_type = type::vector;
+    m_value_vector = new vector(elements);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const record& properties)
+  {
+    reset();
+    m_type = type::record;
+    m_value_record = new record(properties);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const quote& value)
+  {
+    reset();
+    m_type = type::quote;
+    m_value_quote = new quote(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const date& value)
+  {
+    reset();
+    m_type = type::date;
+    m_value_date = new date(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(const time& value)
+  {
+    reset();
+    m_type = type::time;
+    m_value_time = new time(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(month value)
+  {
+    reset();
+    m_type = type::month;
+    m_value_month = value;
+
+    return *this;
+  }
+
+  value&
+  value::assign(weekday value)
+  {
+    reset();
+    m_type = type::weekday;
+    m_value_weekday = value;
+
+    return *this;
+  }
+
+  value&
   value::assign(const value& that)
   {
     if (this != &that)
@@ -364,11 +366,11 @@ namespace laskin
           break;
 
         case type::number:
-          m_value_number = new peelo::number(*that.m_value_number);
+          m_value_number = new number(*that.m_value_number);
           break;
 
         case type::vector:
-          m_value_vector = new vector_container(*that.m_value_vector);
+          m_value_vector = new vector(*that.m_value_vector);
           break;
 
         case type::string:
@@ -388,15 +390,15 @@ namespace laskin
           break;
 
         case type::date:
-          m_value_date = new peelo::chrono::date(*that.m_value_date);
+          m_value_date = new date(*that.m_value_date);
           break;
 
         case type::time:
-          m_value_time = new peelo::chrono::time(*that.m_value_time);
+          m_value_time = new time(*that.m_value_time);
           break;
 
         case type::record:
-          m_value_record = new record_container(*that.m_value_record);
+          m_value_record = new record(*that.m_value_record);
           break;
       }
     }
@@ -555,7 +557,7 @@ namespace laskin
     return m_value_boolean;
   }
 
-  const peelo::number&
+  const number&
   value::as_number() const
   {
     if (!is(type::number))
@@ -571,7 +573,7 @@ namespace laskin
     return *m_value_number;
   }
 
-  const value::vector_container&
+  const vector&
   value::as_vector() const
   {
     if (!is(type::vector))
@@ -587,7 +589,7 @@ namespace laskin
     return *m_value_vector;
   }
 
-  const value::record_container&
+  const record&
   value::as_record() const
   {
     if (!is(type::record))
@@ -635,7 +637,7 @@ namespace laskin
     return *m_value_quote;
   }
 
-  peelo::chrono::month
+  month
   value::as_month() const
   {
     if (!is(type::month))
@@ -651,7 +653,7 @@ namespace laskin
     return m_value_month;
   }
 
-  peelo::chrono::weekday
+  weekday
   value::as_weekday() const
   {
     if (!is(type::weekday))
@@ -667,7 +669,7 @@ namespace laskin
     return m_value_weekday;
   }
 
-  const peelo::chrono::date&
+  const date&
   value::as_date() const
   {
     if (!is(type::date))
@@ -683,7 +685,7 @@ namespace laskin
     return *m_value_date;
   }
 
-  const peelo::chrono::time&
+  const time&
   value::as_time() const
   {
     if (!is(type::time))
@@ -699,8 +701,40 @@ namespace laskin
     return *m_value_time;
   }
 
+  value::operator long() const
+  {
+    try
+    {
+      return long(as_number());
+    }
+    catch (const std::underflow_error&)
+    {
+      throw error(error::type::range, U"Numeric underflow.");
+    }
+    catch (const std::overflow_error&)
+    {
+      throw error(error::type::range, U"Numeric overflow.");
+    }
+  }
+
+  value::operator double() const
+  {
+    try
+    {
+      return double(as_number());
+    }
+    catch (const std::underflow_error&)
+    {
+      throw error(error::type::range, U"Numeric underflow.");
+    }
+    catch (const std::overflow_error&)
+    {
+      throw error(error::type::range, U"Numeric overflow.");
+    }
+  }
+
   static std::u32string
-  vector_to_string(const value::vector_container& elements)
+  vector_to_string(const vector& elements)
   {
     std::u32string result;
     bool first = true;
@@ -720,44 +754,44 @@ namespace laskin
   }
 
   static std::u32string
-  month_to_string(peelo::chrono::month month)
+  month_to_string(month value)
   {
-    switch (month)
+    switch (value)
     {
-      case peelo::chrono::month::jan:
+      case month::jan:
         return U"january";
 
-      case peelo::chrono::month::feb:
+      case month::feb:
         return U"february";
 
-      case peelo::chrono::month::mar:
+      case month::mar:
         return U"march";
 
-      case peelo::chrono::month::apr:
+      case month::apr:
         return U"april";
 
-      case peelo::chrono::month::may:
+      case month::may:
         return U"may";
 
-      case peelo::chrono::month::jun:
+      case month::jun:
         return U"june";
 
-      case peelo::chrono::month::jul:
+      case month::jul:
         return U"july";
 
-      case peelo::chrono::month::aug:
+      case month::aug:
         return U"august";
 
-      case peelo::chrono::month::sep:
+      case month::sep:
         return U"september";
 
-      case peelo::chrono::month::oct:
+      case month::oct:
         return U"october";
 
-      case peelo::chrono::month::nov:
+      case month::nov:
         return U"november";
 
-      case peelo::chrono::month::dec:
+      case month::dec:
         return U"december";
     }
 
@@ -765,29 +799,29 @@ namespace laskin
   }
 
   static std::u32string
-  weekday_to_string(peelo::chrono::weekday weekday)
+  weekday_to_string(weekday value)
   {
-    switch (weekday)
+    switch (value)
     {
-      case peelo::chrono::weekday::sun:
+      case weekday::sun:
         return U"sunday";
 
-      case peelo::chrono::weekday::mon:
+      case weekday::mon:
         return U"monday";
 
-      case peelo::chrono::weekday::tue:
+      case weekday::tue:
         return U"tuesday";
 
-      case peelo::chrono::weekday::wed:
+      case weekday::wed:
         return U"wednesday";
 
-      case peelo::chrono::weekday::thu:
+      case weekday::thu:
         return U"thursday";
 
-      case peelo::chrono::weekday::fri:
+      case weekday::fri:
         return U"friday";
 
-      case peelo::chrono::weekday::sat:
+      case weekday::sat:
         return U"saturday";
     }
 
@@ -795,11 +829,11 @@ namespace laskin
   }
 
   static std::u32string
-  date_to_string(const peelo::chrono::date& date)
+  date_to_string(const date& value)
   {
-    const auto year = date.year();
-    const auto month = date.month();
-    const auto day = date.day();
+    const auto year = value.year();
+    const auto month = value.month();
+    const auto day = value.day();
     char buffer[32];
     std::u32string result;
 
@@ -821,11 +855,11 @@ namespace laskin
   }
 
   static std::u32string
-  time_to_string(const peelo::chrono::time& time)
+  time_to_string(const time& value)
   {
-    const auto hour = time.hour();
-    const auto minute = time.minute();
-    const auto second = time.second();
+    const auto hour = value.hour();
+    const auto minute = value.minute();
+    const auto second = value.second();
     char buffer[9];
     std::u32string result;
 
@@ -847,7 +881,7 @@ namespace laskin
   }
 
   static std::u32string
-  record_to_string(const value::record_container& properties)
+  record_to_string(const record& properties)
   {
     std::u32string result;
     bool first = true;
@@ -908,7 +942,7 @@ namespace laskin
   }
 
   static std::u32string
-  vector_to_source(const value::vector_container& elements)
+  vector_to_source(const vector& elements)
   {
     std::u32string result;
     bool first = true;
@@ -930,7 +964,7 @@ namespace laskin
   }
 
   static std::u32string
-  record_to_source(const value::record_container& properties)
+  record_to_source(const record& properties)
   {
     std::u32string result;
     bool first = true;

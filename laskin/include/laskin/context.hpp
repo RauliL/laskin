@@ -149,88 +149,88 @@ namespace laskin
     /**
      * Pushes given value onto the stack.
      */
-    void push(const class value& value);
+    inline void push(const class value& value)
+    {
+      data.push_back(value);
+    }
 
     /**
      * Clears the entire data stack.
      */
-    void clear();
+    inline void clear()
+    {
+      data.clear();
+    }
 
     /**
      * Pushes given value onto the stack.
      */
-    context& operator<<(const class value& value);
+    inline context& operator<<(const class value& value)
+    {
+      data.push_back(value);
 
-    /**
-     * Pushes given boolean value onto the stack.
-     */
-    context& operator<<(bool value);
-
-    /**
-     * Pushes given numeric value onto the stack.
-     */
-    context& operator<<(const peelo::number& value);
-
-    /**
-     * Pushes given numeric value onto the stack.
-     */
-    context& operator<<(double value);
-
-    /**
-     * Pushes given numeric value onto the stack.
-     */
-    context& operator<<(int value);
-
-    /**
-     * Pushes given string onto the stack.
-     */
-    context& operator<<(const std::u32string& value);
-
-    /**
-     * Pushes given string onto the stack. The string is expected to be UTF-8
-     * encoded.
-     */
-    context& operator<<(const std::string& value);
-
-    /**
-     * Pushes given quote onto the stack.
-     */
-    context& operator<<(const quote& value);
-
-    /**
-     * Pushes given vector onto the stack.
-     */
-    context& operator<<(const value::vector_container& elements);
-
-    /**
-     * Pushes given record onto the stack.
-     */
-    context& operator<<(const value::record_container& properties);
+      return *this;
+    }
 
     /**
      * Pops value from the stack and places it into given slot.
      */
-    context& operator>>(class value& value);
+    inline context& operator>>(class value& value)
+    {
+      value = pop();
+
+      return *this;
+    }
 
     /**
      * Pops boolean value from the stack and places it into given slot.
      */
-    context& operator>>(bool& value);
+    inline context& operator>>(bool& value)
+    {
+      value = pop().as_boolean();
+
+      return *this;
+    }
 
     /**
      * Pops numeric value from the stack and places it into given slot.
      */
-    context& operator>>(peelo::number& value);
+    inline context& operator>>(number& value)
+    {
+      value = pop().as_number();
+
+      return *this;
+    }
 
     /**
      * Pops numeric value from the stack and places it into given slot.
      */
-    context& operator>>(double& value);
+    inline context& operator>>(long& value)
+    {
+      value = long(pop());
+
+      return *this;
+    }
+
+    /**
+     * Pops numeric value from the stack and places it into given slot.
+     */
+    inline context& operator>>(double& value)
+    {
+      value = double(pop());
+
+      return *this;
+    }
 
     /**
      * Pops string from the stack and places it into given slot.
      */
-    context& operator>>(std::u32string& value);
+    inline context& operator>>(std::u32string& value)
+    {
+      value = pop().as_string();
+
+      return *this;
+    }
 
     /**
      * Pops string from the stack and places it into given slot after encoding
@@ -241,17 +241,32 @@ namespace laskin
     /**
      * Pops quote from the stack and places it into given slot.
      */
-    context& operator>>(quote& value);
+    inline context& operator>>(quote& value)
+    {
+      value = pop().as_quote();
+
+      return *this;
+    }
 
     /**
      * Pops vector from the stack and places it into given slot.
      */
-    context& operator>>(value::vector_container& elements);
+    inline context& operator>>(vector& elements)
+    {
+      elements = pop().as_vector();
+
+      return *this;
+    }
 
     /**
      * Pops record from the stack and places it into given slot.
      */
-    context& operator>>(value::record_container& properties);
+    inline context& operator>>(record& properties)
+    {
+      properties = pop().as_record();
+
+      return *this;
+    }
 
     /**
      * Returns `false` if the data stack is empty, `true` otherwise.

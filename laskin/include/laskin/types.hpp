@@ -25,37 +25,31 @@
  */
 #pragma once
 
-#include <peelo/unicode/ctype/isspace.hpp>
+#include <string>
 
-#include "laskin/types.hpp"
+#include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
+#include <peelo/number.hpp>
+#include <tsl/ordered_map.h>
 
-namespace laskin::utils
+namespace laskin
 {
-  /**
-   * Tests whether given string is blank or not. String is considered to be
-   * blank when it's either empty or contains only whitespace characters.
-   */
-  template<class T>
-  inline bool is_blank(const std::basic_string<T>& str)
-  {
-    const auto length = str.length();
+  class context;
+  class node;
+  class quote;
+  class value;
 
-    if (!length)
-    {
-      return true;
-    }
-    for (std::size_t i = 0; i < length; ++i)
-    {
-      if (!peelo::unicode::ctype::isspace(str[i]))
-      {
-        return false;
-      }
-    }
+  using number = peelo::number;
 
-    return true;
-  }
+  using date = peelo::chrono::date;
 
-  std::int64_t time_as_seconds(const time& time);
+  using month = peelo::chrono::month;
 
-  std::u32string escape_string(const std::u32string& str);
+  using time = peelo::chrono::time;
+
+  using weekday = peelo::chrono::weekday;
+
+  using vector = std::vector<value>;
+
+  using record = tsl::ordered_map<std::u32string, value>;
 }

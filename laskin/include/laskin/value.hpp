@@ -26,27 +26,17 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
-#include <peelo/chrono/date.hpp>
-#include <peelo/chrono/time.hpp>
-#include <peelo/number.hpp>
-#include <tsl/ordered_map.h>
+#include "laskin/types.hpp"
 
 namespace laskin
 {
-  class node;
-  class quote;
-
   /**
    * Wrapper class for supported value types.
    */
   class value
   {
   public:
-    using vector_container = std::vector<value>;
-    using record_container = tsl::ordered_map<std::u32string, value>;
-
     /**
      * Enumeration of different supported value types.
      */
@@ -65,135 +55,84 @@ namespace laskin
     };
 
     /**
-     * Constructs boolean value.
-     */
-    static value make_boolean(bool value);
-
-    /**
-     * Constructs number value.
-     */
-    static value make_number(const peelo::number& value);
-
-    /**
-     * Constructs integer number value.
-     */
-    static value make_number(
-      int value,
-      const peelo::number::unit_type& unit = std::nullopt
-    );
-
-    /**
-     * Constructs integer number value.
-     */
-    static value make_number(
-      std::int64_t value,
-      const peelo::number::unit_type& unit = std::nullopt
-    );
-
-    /**
-     * Constructs real number value.
-     */
-    static value make_number(
-      double value,
-      const peelo::number::unit_type& unit = std::nullopt
-    );
-
-    /**
      * Constructs number value by parsing number and unit from given string.
      */
-    static value make_number(const std::u32string& input);
-
-    /**
-     * Constructs vector value.
-     */
-    static value make_vector(const vector_container& elements);
-
-    /**
-     * Constructs vector value from given iterator.
-     */
-    template<class InputIt>
-    static value make_vector(InputIt first, InputIt last)
-    {
-      return make_vector(vector_container(first, last));
-    }
-
-    /**
-     * Constructs string value.
-     */
-    static value make_string(const std::u32string& string);
-
-    /**
-     * Constructs string value from given iterator.
-     */
-    template<class InputIt>
-    static value make_string(InputIt first, InputIt last)
-    {
-      return make_string(std::u32string(first, last));
-    }
-
-    /**
-     * Constructs quote value.
-     */
-    static value make_quote(const class quote& quote);
-
-    /**
-     * Constructs quote from given sequence of nodes.
-     */
-    static value make_quote(const std::vector<std::shared_ptr<node>>& nodes);
-
-    /**
-     * Constructs month value.
-     */
-    static value make_month(peelo::chrono::month month);
-
-    /**
-     * Constructs month value from given string which should contain valid name
-     * of a month.
-     */
-    static value make_month(const std::u32string& month);
-
-    /**
-     * Constructs weekday value.
-     */
-    static value make_weekday(peelo::chrono::weekday weekday);
-
-    /**
-     * Constructs weekday value from given string which should contain valid name
-     * of weekday.
-     */
-    static value make_weekday(const std::u32string& weekday);
-
-    /**
-     * Constructs date value.
-     */
-    static value make_date(const peelo::chrono::date& date);
-
-    /**
-     * Constructs date value from given string. The input is expected to be in
-     * ISO 8601 format.
-     */
-    static value make_date(const std::u32string& input);
-
-    /**
-     * Constructs time value.
-     */
-    static value make_time(const peelo::chrono::time& time);
-
-    /**
-     * Constructs time value from given string. The input is expected to be in
-     * ISO 8601 format.
-     */
-    static value make_time(const std::u32string& input);
-
-    /**
-     * Constructs record value.
-     */
-    static value make_record(const record_container& properties);
+    static value parse_number(const std::u32string& input);
 
     /**
      * Constructs boolean value of false.
      */
     explicit value();
+
+    /**
+     * Constructs boolean value.
+     */
+    value(bool value);
+
+    /**
+     * Constructs numeric value.
+     */
+    value(const number& value);
+
+    /**
+     * Constructs numeric value.
+     */
+    value(int value);
+
+    /**
+     * Constructs numeric value.
+     */
+    value(long value);
+
+    /**
+     * Constructs numeric value.
+     */
+    value(double value);
+
+    /**
+     * Constructs string.
+     */
+    value(const std::u32string& value);
+
+    /**
+     * Constructs string. The input is expected to be encoded with UTF-8.
+     */
+    value(const std::string& value);
+
+    /**
+     * Constructs vector.
+     */
+    value(const vector& elements);
+
+    /**
+     * Constructs record.
+     */
+    value(const record& properties);
+
+    /**
+     * Constructs quote.
+     */
+    value(const quote& value);
+
+    /**
+     * Constructs date value.
+     */
+    value(const date& value);
+
+    /**
+     * Constructs time value.
+     */
+    value(const time& value);
+
+    /**
+     * Constructs month value.
+     */
+    value(month value);
+
+    /**
+     * Constructs day of the week value.
+     */
+    value(weekday value);
 
     /**
      * Constructs copy of existing value.
@@ -212,9 +151,183 @@ namespace laskin
     ~value();
 
     /**
+     * Assigns boolean value into this value.
+     */
+    value& assign(bool value);
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    value& assign(const number& value);
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    value& assign(int value);
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    value& assign(long value);
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    value& assign(double value);
+
+    /**
+     * Assigns string into this value.
+     */
+    value& assign(const std::u32string& value);
+
+    /**
+     * Assigns UTF-8 encoded into this value.
+     */
+    value& assign(const std::string& value);
+
+    /**
+     * Assigns vector into this value.
+     */
+    value& assign(const vector& elements);
+
+    /**
+     * Assigns record into this value.
+     */
+    value& assign(const record& properties);
+
+    /**
+     * Assigns quote into this value.
+     */
+    value& assign(const quote& value);
+
+    /**
+     * Assigns date value into this value.
+     */
+    value& assign(const date& value);
+
+    /**
+     * Assigns time value into this value.
+     */
+    value& assign(const time& value);
+
+    /**
+     * Assigns month value into this value.
+     */
+    value& assign(month value);
+
+    /**
+     * Assigns day of the week value into this value.
+     */
+    value& assign(weekday value);
+
+    /**
      * Copies contents of another value into this one.
      */
     value& assign(const value& that);
+
+    /**
+     * Assigns boolean value into this value.
+     */
+    inline value& operator=(bool value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    inline value& operator=(const number& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    inline value& operator=(int value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    inline value& operator=(long value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns numeric value into this value.
+     */
+    inline value& operator=(double value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns string into this value.
+     */
+    inline value& operator=(const std::u32string& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns UTF-8 encoded into this value.
+     */
+    inline value& operator=(const std::string& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns vector into this value.
+     */
+    inline value& operator=(const vector& elements)
+    {
+      return assign(elements);
+    }
+
+    /**
+     * Assigns record into this value.
+     */
+    inline value& operator=(const record& properties)
+    {
+      return assign(properties);
+    }
+
+    /**
+     * Assigns quote into this value.
+     */
+    inline value& operator=(const quote& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns date value into this value.
+     */
+    inline value& operator=(const date& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns time value into this value.
+     */
+    inline value& operator=(const time& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns day of the week value into this value.
+     */
+    inline value& operator=(weekday value)
+    {
+      return assign(value);
+    }
 
     /**
      * Copies contents of another value into this one.
@@ -256,15 +369,29 @@ namespace laskin
     void reset();
 
     bool as_boolean() const;
-    const peelo::number& as_number() const;
-    const vector_container& as_vector() const;
-    const record_container& as_record() const;
+    const number& as_number() const;
+    const vector& as_vector() const;
+    const record& as_record() const;
     const std::u32string& as_string() const;
     const quote& as_quote() const;
-    peelo::chrono::month as_month() const;
-    peelo::chrono::weekday as_weekday() const;
-    const peelo::chrono::date& as_date() const;
-    const peelo::chrono::time& as_time() const;
+    month as_month() const;
+    weekday as_weekday() const;
+    const date& as_date() const;
+    const time& as_time() const;
+
+    /**
+     * Extracts number value as long integer, or throws `laskin::error` if
+     * the value does not contain number value or does not fit into long
+     * integer.
+     */
+    explicit operator long() const;
+
+    /**
+     * Extracts number value as double precision, or throws `laskin::error` if
+     * the value does not contain number value or does not fit into double
+     * precision.
+     */
+    explicit operator double() const;
 
     /**
      * Constructs string representation of the value.
@@ -398,15 +525,15 @@ namespace laskin
     union
     {
       bool m_value_boolean;
-      peelo::number* m_value_number;
-      vector_container* m_value_vector;
+      number* m_value_number;
+      vector* m_value_vector;
       std::u32string* m_value_string;
       quote* m_value_quote;
-      peelo::chrono::month m_value_month;
-      peelo::chrono::weekday m_value_weekday;
-      peelo::chrono::date* m_value_date;
-      peelo::chrono::time* m_value_time;
-      record_container* m_value_record;
+      month m_value_month;
+      weekday m_value_weekday;
+      date* m_value_date;
+      time* m_value_time;
+      record* m_value_record;
     };
   };
 

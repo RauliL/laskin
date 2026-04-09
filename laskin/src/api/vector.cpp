@@ -36,26 +36,14 @@ using namespace laskin;
 LASKIN_BUILTIN_WORD(w_vector)
 {
   const auto size = context.pop().as_number();
-  value::vector_container elements;
+  vector elements;
 
-  try
-  {
-    elements.reserve(long(size));
-  }
-  catch (const std::underflow_error&)
-  {
-    throw error(error::type::range, U"Numeric underflow.");
-  }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
-  for (peelo::number i; i < size; ++i)
+  elements.reserve(long(size));
+  for (number i; i < size; ++i)
   {
     elements.push_back(context.pop());
   }
-
-  context << value::make_vector(elements.rbegin(), elements.rend());
+  context << vector(elements.rbegin(), elements.rend());
 }
 
 /**
@@ -65,9 +53,7 @@ LASKIN_BUILTIN_WORD(w_vector)
  */
 LASKIN_BUILTIN_WORD(w_length)
 {
-  context << value::make_number(
-    static_cast<std::int64_t>(context.peek().as_vector().size())
-  );
+  context << static_cast<long>(context.peek().as_vector().size());
 }
 
 /**
@@ -86,7 +72,7 @@ LASKIN_BUILTIN_WORD(w_max)
   {
     auto largest = vec[0];
 
-    for (value::vector_container::size_type i = 1; i < size; ++i)
+    for (vector::size_type i = 1; i < size; ++i)
     {
       const auto& candidate = vec[i];
 
@@ -118,7 +104,7 @@ LASKIN_BUILTIN_WORD(w_min)
   {
     auto smallest = vec[0];
 
-    for (value::vector_container::size_type i = 1; i < size; ++i)
+    for (vector::size_type i = 1; i < size; ++i)
     {
       const auto& candidate = vec[i];
 
@@ -150,7 +136,7 @@ LASKIN_BUILTIN_WORD(w_mean)
   {
     auto sum = vec[0].as_number();
 
-    for (value::vector_container::size_type i = 1; i < size; ++i)
+    for (vector::size_type i = 1; i < size; ++i)
     {
       sum = sum + vec[i].as_number();
     }
@@ -177,7 +163,7 @@ LASKIN_BUILTIN_WORD(w_sum)
   {
     auto sum = vec[0].as_number();
 
-    for (value::vector_container::size_type i = 1; i < size; ++i)
+    for (vector::size_type i = 1; i < size; ++i)
     {
       sum = sum + vec[i].as_number();
     }
@@ -215,7 +201,7 @@ LASKIN_BUILTIN_WORD(w_map)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
-  value::vector_container result;
+  vector result;
 
   result.reserve(vec.size());
   for (const auto& value : vec)
@@ -238,7 +224,7 @@ LASKIN_BUILTIN_WORD(w_filter)
 {
   const auto vec = context.pop().as_vector();
   const auto quote = context.pop().as_quote();
-  value::vector_container result;
+  vector result;
 
   for (const auto& value : vec)
   {
@@ -272,7 +258,7 @@ LASKIN_BUILTIN_WORD(w_reduce)
     throw error(error::type::range, U"Cannot reduce empty vector.");
   }
   result = vec[0];
-  for (value::vector_container::size_type i = 1; i < size; ++i)
+  for (vector::size_type i = 1; i < size; ++i)
   {
     context << result << vec[i];
     quote.call(context, out);
@@ -320,32 +306,21 @@ LASKIN_BUILTIN_WORD(w_append)
  */
 LASKIN_BUILTIN_WORD(w_insert)
 {
-  try
-  {
-    auto vec = context.pop().as_vector();
-    const auto size = vec.size();
-    const auto value = context.pop();
-    auto index = long(context.pop().as_number());
+  auto vec = context.pop().as_vector();
+  const auto size = vec.size();
+  const auto value = context.pop();
+  auto index = long(context.pop());
 
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    vec.insert(std::begin(vec) + index, 1, value);
-    context << vec;
-  }
-  catch (const std::underflow_error&)
+  if (index < 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    index += size;
   }
-  catch (const std::overflow_error&)
+  if (!size || index < 0 || index >= static_cast<long>(size))
   {
-    throw error(error::type::range, U"Numeric overflow.");
+    throw error(error::type::range, U"Vector index out of bounds.");
   }
+  vec.insert(std::begin(vec) + index, 1, value);
+  context << vec;
 }
 
 /**
@@ -355,9 +330,9 @@ LASKIN_BUILTIN_WORD(w_insert)
  */
 LASKIN_BUILTIN_WORD(w_reverse)
 {
-  const auto vector = context.pop().as_vector();
+  const auto vec = context.pop().as_vector();
 
-  context << value::make_vector(vector.rbegin(), vector.rend());
+  context << vector(std::rbegin(vec), std::rend(vec));
 }
 
 /**
@@ -375,17 +350,13 @@ LASKIN_BUILTIN_WORD(w_extract)
   }
 }
 
-static value::vector_container::size_type
-partition(
-  value::vector_container& vector,
-  value::vector_container::size_type low,
-  value::vector_container::size_type high
-)
+static vector::size_type
+partition(vector& vector, vector::size_type low, vector::size_type high)
 {
   const auto& pivot = vector[high];
   auto i = low - 1;
 
-  for (value::vector_container::size_type j = low; j <= high - 1; ++j)
+  for (vector::size_type j = low; j <= high - 1; ++j)
   {
     if (vector[j] < pivot)
     {
@@ -399,11 +370,7 @@ partition(
 }
 
 static void
-quicksort(
-  value::vector_container& vector,
-  value::vector_container::size_type low,
-  value::vector_container::size_type high
-)
+quicksort(vector& vector, vector::size_type low, vector::size_type high)
 {
   if (low < high)
   {
@@ -437,30 +404,19 @@ LASKIN_BUILTIN_WORD(w_sort)
  */
 LASKIN_BUILTIN_WORD(w_at)
 {
-  try
-  {
-    const auto vector = context.pop().as_vector();
-    const auto size = vector.size();
-    auto index = long(context.pop().as_number());
+  const auto vector = context.pop().as_vector();
+  const auto size = vector.size();
+  auto index = long(context.pop());
 
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    context << vector[index];
-  }
-  catch (const std::underflow_error&)
+  if (index < 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    index += size;
   }
-  catch (const std::overflow_error&)
+  if (!size || index < 0 || index >= static_cast<long>(size))
   {
-    throw error(error::type::range, U"Numeric overflow.");
+    throw error(error::type::range, U"Vector index out of bounds.");
   }
+  context << vector[index];
 }
 
 /**
@@ -473,32 +429,21 @@ LASKIN_BUILTIN_WORD(w_at)
  */
 LASKIN_BUILTIN_WORD(w_set)
 {
-  try
-  {
-    auto vector = context.pop().as_vector();
-    const auto size = vector.size();
-    auto index = long(context.pop().as_number());
-    const auto value = context.pop();
+  auto vector = context.pop().as_vector();
+  const auto size = vector.size();
+  auto index = long(context.pop());
+  const auto value = context.pop();
 
-    if (index < 0)
-    {
-      index += size;
-    }
-    if (!size || index < 0 || index >= static_cast<long>(size))
-    {
-      throw error(error::type::range, U"Vector index out of bounds.");
-    }
-    vector[index] = value;
-    context << vector;
-  }
-  catch (const std::underflow_error&)
+  if (index < 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    index += size;
   }
-  catch (const std::overflow_error&)
+  if (!size || index < 0 || index >= static_cast<long>(size))
   {
-    throw error(error::type::range, U"Numeric overflow.");
+    throw error(error::type::range, U"Vector index out of bounds.");
   }
+  vector[index] = value;
+  context << vector;
 }
 
 /**
@@ -521,25 +466,14 @@ LASKIN_BUILTIN_WORD(w_to_time)
   {
     throw error(error::type::range, U"Time needs three values.");
   }
-  try
-  {
-    hour = long(vector[0].as_number());
-    minute = long(vector[1].as_number());
-    second = long(vector[2].as_number());
-  }
-  catch (const std::underflow_error&)
-  {
-    throw error(error::type::range, U"Numeric underflow.");
-  }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
-  if (!peelo::chrono::time::is_valid(hour, minute, second))
+  hour = long(vector[0]);
+  minute = long(vector[1]);
+  second = long(vector[2]);
+  if (!time::is_valid(hour, minute, second))
   {
     throw error(error::type::range, U"Invalid time.");
   }
-  context << value::make_time(peelo::chrono::time(hour, minute, second));
+  context << laskin::time(hour, minute, second);
 }
 
 /**
@@ -553,45 +487,34 @@ LASKIN_BUILTIN_WORD(w_to_time)
  */
 LASKIN_BUILTIN_WORD(w_to_date)
 {
-  try
-  {
-    const auto vector = context.pop().as_vector();
-    long day;
-    peelo::chrono::month month;
-    long year;
+  const auto vector = context.pop().as_vector();
+  long day;
+  month mon;
+  long year;
 
-    if (vector.size() != 3)
-    {
-      throw error(error::type::range, U"Date needs three values.");
-    }
-    year = long(vector[0].as_number());
-    if (vector[1].is(value::type::month))
-    {
-      month = vector[1].as_month();
-    } else {
-      const auto value = long(vector[1].as_number());
+  if (vector.size() != 3)
+  {
+    throw error(error::type::range, U"Date needs three values.");
+  }
+  year = long(vector[0]);
+  if (vector[1].is(value::type::month))
+  {
+    mon = vector[1].as_month();
+  } else {
+    const auto value = long(vector[1]);
 
-      if (value < 1 || value > 12)
-      {
-        throw error(error::type::range, U"Given month is out of range.");
-      }
-      month = static_cast<peelo::chrono::month>(value - 1);
-    }
-    day = long(vector[2].as_number());
-    if (!peelo::chrono::date::is_valid(year, month, day))
+    if (value < 1 || value > 12)
     {
-      throw error(error::type::range, U"Invalid date.");
+      throw error(error::type::range, U"Given month is out of range.");
     }
-    context << value::make_date(peelo::chrono::date(year, month, day));
+    mon = static_cast<month>(value - 1);
   }
-  catch (const std::underflow_error&)
+  day = long(vector[2]);
+  if (!date::is_valid(year, mon, day))
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    throw error(error::type::range, U"Invalid date.");
   }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+  context << date(year, mon, day);
 }
 
 namespace laskin::api

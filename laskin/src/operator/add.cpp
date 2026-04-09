@@ -29,56 +29,47 @@
 namespace laskin
 {
   static inline value
-  add_number(const peelo::number& a, const peelo::number& b)
+  add_number(const number& a, const number& b)
   {
-    return value::make_number(a + b);
+    return a + b;
   }
 
   static value
-  add_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
-  )
+  add_vector(const vector& a, const vector& b)
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
     if (size != b.size())
     {
       throw error(error::type::range, U"Vector length mismatch.");
     }
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] += b[i];
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static value
-  add_record(
-    const value::record_container& a,
-    const value::record_container& b
-  )
+  add_record(const record& a, const record& b)
   {
-    value::record_container result(a);
+    record result(a);
 
     for (const auto& property : b)
     {
       result[property.first] = property.second;
     }
 
-    return value::make_record(result);
+    return result;
   }
 
   static value
-  add_number_to_vector(
-    const value::vector_container& a,
-    const value& b
-  )
+  add_number_to_vector(const vector& a, const value& b)
   {
     const auto size = a.size();
-    value::vector_container result;
+    vector result;
 
     result.reserve(size);
     for (const auto& value : a)
@@ -86,21 +77,21 @@ namespace laskin
       result.push_back(value + b);
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static inline value
   add_string(const std::u32string& a, const std::u32string& b)
   {
-    return value::make_string(a + b);
+    return a + b;
   }
 
   static value
-  add_month(peelo::chrono::month a, const peelo::number& b)
+  add_month(month a, const value& b)
   {
     long delta;
 
-    if (b.measurement_unit())
+    if (b.as_number().measurement_unit())
     {
       throw error(
         error::type::type,
@@ -110,15 +101,15 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_month(a + delta);
+    return a + delta;
   }
 
   static value
-  add_weekday(peelo::chrono::weekday a, const peelo::number& b)
+  add_weekday(weekday a, const value& b)
   {
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
       if (!unit->symbol.compare("d"))
       {
@@ -133,15 +124,15 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_weekday(a + delta);
+    return a + delta;
   }
 
   static value
-  add_date(const peelo::chrono::date& a, const peelo::number& b)
+  add_date(const date& a, const value& b)
   {
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
       if (!unit->symbol.compare("d"))
       {
@@ -156,42 +147,47 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_date(a + delta);
+    return a + delta;
   }
 
   static value
-  add_time(const peelo::chrono::time& a, const peelo::number& b)
+  add_time(const time& a, const value& b)
   {
+    using peelo::chrono::duration;
+
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
+      duration::value_type multiplier;
+
       if (!unit->symbol.compare("s"))
       {
-        delta = long(b);
+        multiplier = 1;
       }
       else if (!unit->symbol.compare("min"))
       {
-        delta = long(b) * peelo::chrono::duration::minutes_per_hour;
+        multiplier = duration::minutes_per_hour;
       }
       else if (!unit->symbol.compare("h"))
       {
-        delta = long(b) * peelo::chrono::duration::seconds_per_hour;
+        multiplier = duration::seconds_per_hour;
       }
       else if (!unit->symbol.compare("d"))
       {
-        delta = long(b) * peelo::chrono::duration::seconds_per_day;
+        multiplier = duration::seconds_per_day;
       } else {
         throw error(
           error::type::type,
           U"Cannot add number to time."
         );
       }
+      delta = long(b) * multiplier;
     } else {
       delta = long(b);
     }
 
-    return value::make_time(a + delta);
+    return a + delta;
   }
 
   value
@@ -224,16 +220,16 @@ namespace laskin
         switch (m_type)
         {
           case type::month:
-            return add_month(m_value_month, *that.m_value_number);
+            return add_month(m_value_month, that);
 
           case type::weekday:
-            return add_weekday(m_value_weekday, *that.m_value_number);
+            return add_weekday(m_value_weekday, that);
 
           case type::date:
-            return add_date(*m_value_date, *that.m_value_number);
+            return add_date(*m_value_date, that);
 
           case type::time:
-            return add_time(*m_value_time, *that.m_value_number);
+            return add_time(*m_value_time, that);
 
           case type::vector:
             return add_number_to_vector(*m_value_vector, that);
@@ -243,15 +239,7 @@ namespace laskin
         }
       }
     }
-    catch (const std::underflow_error&)
-    {
-      throw error(error::type::range, U"Numeric underflow.");
-    }
-    catch (const std::overflow_error&)
-    {
-      throw error(error::type::range, U"Numeric overflow.");
-    }
-    catch (const peelo::number::unit_error& e)
+    catch (const number::unit_error& e)
     {
       throw error(error::type::unit, e.what());
     }

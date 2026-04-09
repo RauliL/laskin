@@ -48,10 +48,10 @@ LASKIN_BUILTIN_WORD(w_compose)
   const auto left = context.pop().as_quote();
   const auto call = std::make_shared<node::symbol>(U"quote:call");
 
-  context << value::make_quote({
-    std::make_shared<node::literal>(value::make_quote(left)),
+  context << quote({
+    std::make_shared<node::literal>(left),
     call,
-    std::make_shared<node::literal>(value::make_quote(right)),
+    std::make_shared<node::literal>(right),
     call
   });
 }
@@ -63,12 +63,12 @@ LASKIN_BUILTIN_WORD(w_compose)
  */
 LASKIN_BUILTIN_WORD(w_curry)
 {
-  const auto quote = context.pop().as_quote();
+  const auto q = context.pop().as_quote();
   const auto argument = context.pop();
 
-  context << value::make_quote({
+  context << quote({
     std::make_shared<node::literal>(argument),
-    std::make_shared<node::literal>(value::make_quote(quote)),
+    std::make_shared<node::literal>(q),
     std::make_shared<node::symbol>(U"quote:call")
   });
 }
@@ -80,10 +80,10 @@ LASKIN_BUILTIN_WORD(w_curry)
  */
 LASKIN_BUILTIN_WORD(w_negate)
 {
-  const auto quote = context.pop().as_quote();
+  const auto q = context.pop().as_quote();
 
-  context << value::make_quote({
-    std::make_shared<node::literal>(value::make_quote(quote)),
+  context << quote({
+    std::make_shared<node::literal>(q),
     std::make_shared<node::symbol>(U"quote:call"),
     std::make_shared<node::symbol>(U"boolean:not")
   });

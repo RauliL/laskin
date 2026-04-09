@@ -384,9 +384,7 @@ LASKIN_BUILTIN_WORD(w_tuck)
  */
 LASKIN_BUILTIN_WORD(w_depth)
 {
-  context << value::make_number(
-    static_cast<std::int64_t>(context.data.size())
-  );
+  context << static_cast<long>(context.data.size());
 }
 
 /**
@@ -662,12 +660,12 @@ LASKIN_BUILTIN_WORD(w_delete)
 LASKIN_BUILTIN_WORD(w_symbols)
 {
   const auto& dictionary = context.dictionary;
-  value::vector_container result;
+  vector result;
 
   result.reserve(dictionary.size());
   for (const auto& entry : dictionary)
   {
-    result.push_back(value::make_string(entry.first));
+    result.push_back(entry.first);
   }
   context << result;
 }

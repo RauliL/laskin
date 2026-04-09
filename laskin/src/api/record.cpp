@@ -37,7 +37,7 @@ LASKIN_BUILTIN_WORD(w_size)
 {
   const auto& properties = context.peek().as_record();
 
-  context << value::make_number(static_cast<std::int64_t>(properties.size()));
+  context << static_cast<long>(properties.size());
 }
 
 /**
@@ -48,12 +48,12 @@ LASKIN_BUILTIN_WORD(w_size)
 LASKIN_BUILTIN_WORD(w_keys)
 {
   const auto& properties = context.peek().as_record();
-  value::vector_container result;
+  vector result;
 
   result.reserve(properties.size());
   for (const auto& property : properties)
   {
-    result.push_back(value::make_string(property.first));
+    result.push_back(property.first);
   }
   context << result;
 }
@@ -66,7 +66,7 @@ LASKIN_BUILTIN_WORD(w_keys)
 LASKIN_BUILTIN_WORD(w_values)
 {
   const auto& properties = context.peek().as_record();
-  value::vector_container result;
+  vector result;
 
   result.reserve(properties.size());
   for (const auto& property : properties)
@@ -103,7 +103,7 @@ LASKIN_BUILTIN_WORD(w_map)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
-  value::record_container new_properties;
+  record new_properties;
 
   for (const auto& property : properties)
   {
@@ -130,7 +130,7 @@ LASKIN_BUILTIN_WORD(w_filter)
 {
   const auto properties = context.pop().as_record();
   const auto quote = context.pop().as_quote();
-  value::record_container new_properties;
+  record new_properties;
 
   for (const auto& property : properties)
   {
@@ -190,17 +190,12 @@ LASKIN_BUILTIN_WORD(w_set)
 LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto properties = context.pop().as_record();
-  value::vector_container values;
+  vector values;
 
   values.reserve(properties.size());
   for (const auto& property : properties)
   {
-    value::vector_container pair;
-
-    pair.reserve(2);
-    pair.push_back(value::make_string(property.first));
-    pair.push_back(property.second);
-    values.push_back(value::make_vector(pair));
+    values.push_back(vector{ property.first, property.second });
   }
 
   context << values;

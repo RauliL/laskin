@@ -35,7 +35,7 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_sunday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::sun);
+  context << weekday::sun;
 }
 
 /**
@@ -45,7 +45,7 @@ LASKIN_BUILTIN_WORD(w_sunday)
  */
 LASKIN_BUILTIN_WORD(w_monday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::mon);
+  context << weekday::mon;
 }
 
 /**
@@ -55,7 +55,7 @@ LASKIN_BUILTIN_WORD(w_monday)
  */
 LASKIN_BUILTIN_WORD(w_tuesday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::tue);
+  context << weekday::tue;
 }
 
 /**
@@ -65,7 +65,7 @@ LASKIN_BUILTIN_WORD(w_tuesday)
  */
 LASKIN_BUILTIN_WORD(w_wednesday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::wed);
+  context << weekday::wed;
 }
 
 /**
@@ -75,7 +75,7 @@ LASKIN_BUILTIN_WORD(w_wednesday)
  */
 LASKIN_BUILTIN_WORD(w_thursday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::thu);
+  context << weekday::thu;
 }
 
 /**
@@ -85,7 +85,7 @@ LASKIN_BUILTIN_WORD(w_thursday)
  */
 LASKIN_BUILTIN_WORD(w_friday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::fri);
+  context << weekday::fri;
 }
 
 /**
@@ -95,7 +95,7 @@ LASKIN_BUILTIN_WORD(w_friday)
  */
 LASKIN_BUILTIN_WORD(w_saturday)
 {
-  context << value::make_weekday(peelo::chrono::weekday::sat);
+  context << weekday::sat;
 }
 
 /**
@@ -107,10 +107,7 @@ LASKIN_BUILTIN_WORD(w_is_weekend)
 {
   const auto weekday = context.peek().as_weekday();
 
-  context << (
-    weekday == peelo::chrono::weekday::sat
-    || weekday == peelo::chrono::weekday::sun
-  );
+  context << (weekday == weekday::sat || weekday == weekday::sun);
 }
 
 /**

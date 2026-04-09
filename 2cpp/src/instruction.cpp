@@ -75,10 +75,10 @@ namespace laskin2cpp
     const struct options& options
   ) const
   {
-    if (options.number_optimization && peelo::number::is_valid(id))
+    if (options.number_optimization && laskin::number::is_valid(id))
     {
       writer.print("c.push(");
-      transpile_number(peelo::number::parse(id), writer);
+      transpile_number(laskin::number::parse(id), writer);
       writer.println(");");
     } else {
       writer.println("c.lookup(" + writer::escape(id) + ", &std::cout);");

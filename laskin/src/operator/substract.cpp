@@ -30,40 +30,37 @@
 namespace laskin
 {
   static inline value
-  substract_number(const peelo::number& a, const peelo::number& b)
+  substract_number(const number& a, const number& b)
   {
-    return value::make_number(a - b);
+    return a - b;
   }
 
   static value
   substract_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
+    const vector& a,
+    const vector& b
   )
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
     if (size != b.size())
     {
       throw error(error::type::range, U"Vector length mismatch.");
     }
     result.reserve(size);
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] -= b[i];
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static value
-  substract_record(
-    const value::record_container& a,
-    const value::record_container& b
-  )
+  substract_record(const record& a, const record& b)
   {
-    value::record_container result(a);
+    record result(a);
 
     for (const auto& property : b)
     {
@@ -75,47 +72,44 @@ namespace laskin
       }
     }
 
-    return value::make_record(result);
+    return result;
   }
 
   static value
-  substract_number_from_vector(
-    const value::vector_container& a,
-    const value& b
-  )
+  substract_number_from_vector(const vector& a, const value& b)
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] -= b;
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static inline value
-  substract_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
+  substract_date(const date& a, const date& b)
   {
-    return value::make_number((a - b).days(), peelo::number::unit::day);
+    return number((a - b).days(), number::unit::day);
   }
 
   static inline value
-  substract_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
+  substract_time(const time& a, const time& b)
   {
-    return value::make_number(
+    return number(
       utils::time_as_seconds(a) - utils::time_as_seconds(b),
-      peelo::number::unit::second
+      number::unit::second
     );
   }
 
   static value
-  substract_month(peelo::chrono::month a, const peelo::number& b)
+  substract_month(month a, const value& b)
   {
     long delta;
 
-    if (b.measurement_unit())
+    if (b.as_number().measurement_unit())
     {
       throw error(
         error::type::type,
@@ -125,15 +119,15 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_month(a - delta);
+    return a - delta;
   }
 
   static value
-  substract_weekday(peelo::chrono::weekday a, const peelo::number& b)
+  substract_weekday(weekday a, const value& b)
   {
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
       if (!unit->symbol.compare("d"))
       {
@@ -148,15 +142,15 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_weekday(a - delta);
+    return a - delta;
   }
 
   static value
-  substract_date(const peelo::chrono::date& a, const peelo::number& b)
+  substract_date(const date& a, const value& b)
   {
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
       if (!unit->symbol.compare("d"))
       {
@@ -171,42 +165,47 @@ namespace laskin
       delta = long(b);
     }
 
-    return value::make_date(a - delta);
+    return a - delta;
   }
 
   static value
-  substract_time(const peelo::chrono::time& a, const peelo::number& b)
+  substract_time(const time& a, const value& b)
   {
+    using peelo::chrono::duration;
+
     long delta;
 
-    if (const auto& unit = b.measurement_unit())
+    if (const auto& unit = b.as_number().measurement_unit())
     {
+      duration::value_type multiplier;
+
       if (!unit->symbol.compare("s"))
       {
-        delta = long(b);
+        multiplier = 1;
       }
       else if (!unit->symbol.compare("min"))
       {
-        delta = long(b) * peelo::chrono::duration::minutes_per_hour;
+        multiplier = duration::minutes_per_hour;
       }
       else if (!unit->symbol.compare("h"))
       {
-        delta = long(b) * peelo::chrono::duration::seconds_per_hour;
+        multiplier = duration::seconds_per_hour;
       }
       else if (!unit->symbol.compare("d"))
       {
-        delta = long(b) * peelo::chrono::duration::seconds_per_day;
+        multiplier = duration::seconds_per_day;
       } else {
         throw error(
           error::type::type,
           U"Cannot substract number to time."
         );
       }
+      delta = long(b) * multiplier;
     } else {
       delta = long(b);
     }
 
-    return value::make_time(a - delta);
+    return a - delta;
   }
 
   value
@@ -242,16 +241,16 @@ namespace laskin
         switch (m_type)
         {
           case type::month:
-            return substract_month(m_value_month, *that.m_value_number);
+            return substract_month(m_value_month, that);
 
           case type::weekday:
-            return substract_weekday(m_value_weekday, *that.m_value_number);
+            return substract_weekday(m_value_weekday, that);
 
           case type::date:
-            return substract_date(*m_value_date, *that.m_value_number);
+            return substract_date(*m_value_date, that);
 
           case type::time:
-            return substract_time(*m_value_time, *that.m_value_number);
+            return substract_time(*m_value_time, that);
 
           case type::vector:
             return substract_number_from_vector(*m_value_vector, that);
@@ -261,15 +260,7 @@ namespace laskin
         }
       }
     }
-    catch (const std::underflow_error&)
-    {
-      throw error(error::type::range, U"Numeric underflow.");
-    }
-    catch (const std::overflow_error&)
-    {
-      throw error(error::type::range, U"Numeric overflow.");
-    }
-    catch (const peelo::number::unit_error& e)
+    catch (const number::unit_error& e)
     {
       throw error(error::type::unit, e.what());
     }

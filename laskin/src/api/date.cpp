@@ -39,7 +39,7 @@ LASKIN_BUILTIN_WORD(w_today)
 {
   try
   {
-    context << value::make_date(peelo::chrono::date::today());
+    context << date::today();
   }
   catch (const std::runtime_error&)
   {
@@ -59,7 +59,7 @@ LASKIN_BUILTIN_WORD(w_tomorrow)
 {
   try
   {
-    context << value::make_date(peelo::chrono::date::tomorrow());
+    context << date::tomorrow();
   }
   catch (const std::runtime_error&)
   {
@@ -79,7 +79,7 @@ LASKIN_BUILTIN_WORD(w_yesterday)
 {
   try
   {
-    context << value::make_date(peelo::chrono::date::yesterday());
+    context << date::yesterday();
   }
   catch (const std::runtime_error&)
   {
@@ -107,7 +107,7 @@ LASKIN_BUILTIN_WORD(w_year)
  */
 LASKIN_BUILTIN_WORD(w_month)
 {
-  context << value::make_month(context.peek().as_date().month());
+  context << context.peek().as_date().month();
 }
 
 /**
@@ -127,7 +127,7 @@ LASKIN_BUILTIN_WORD(w_day)
  */
 LASKIN_BUILTIN_WORD(w_weekday)
 {
-  context << value::make_weekday(context.peek().as_date().day_of_week());
+  context << context.peek().as_date().day_of_week();
 }
 
 /**
@@ -193,9 +193,9 @@ LASKIN_BUILTIN_WORD(w_format)
  */
 LASKIN_BUILTIN_WORD(w_to_number)
 {
-  context << value::make_number(
+  context << number(
     context.pop().as_date().timestamp(),
-    peelo::number::unit::second
+    number::unit::second
   );
 }
 
@@ -208,15 +208,8 @@ LASKIN_BUILTIN_WORD(w_to_number)
 LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto date = context.pop().as_date();
-  const auto year = date.year();
-  const auto month = date.month();
-  const auto day = date.day();
 
-  context << value::make_vector({
-    value::make_number(year),
-    value::make_month(month),
-    value::make_number(day)
-  });
+  context << vector{ date.year(), date.month(), date.day() };
 }
 
 namespace laskin::api
