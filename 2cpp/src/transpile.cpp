@@ -58,21 +58,21 @@ namespace laskin2cpp
     writer.print("))");
   }
 
-  static void
+  void
   transpile_number(const peelo::number& value, class writer& writer)
   {
     writer.print("value::make_number(");
 
     // If the number does not have measurement unit, see if it fits into
-    // `long`.
+    // `double`.
     if (!value.measurement_unit())
     {
       bool fits = true;
-      long result;
+      double result;
 
       try
       {
-        result = long(value);
+        result = double(value);
       }
       catch (const std::underflow_error&)
       {
@@ -97,7 +97,11 @@ namespace laskin2cpp
   }
 
   static void
-  transpile_quote(const laskin::quote& value, class writer& writer)
+  transpile_quote(
+    const laskin::quote& value,
+    class writer& writer,
+    const struct options& options
+  )
   {
     program subprogram;
 
@@ -109,7 +113,7 @@ namespace laskin2cpp
     writer.indent();
     for (const auto& instruction : subprogram.instructions())
     {
-      instruction->transpile(writer);
+      instruction->transpile(writer, options);
     }
     writer.dedent();
     writer.println("}");
@@ -120,7 +124,8 @@ namespace laskin2cpp
   static void
   transpile_record(
     const laskin::value::record_container& value,
-    class writer& writer
+    class writer& writer,
+    const struct options& options
   )
   {
     writer.println("value::make_record({");
@@ -130,7 +135,7 @@ namespace laskin2cpp
       writer.print("{ ");
       writer.print(writer::escape(property.first));
       writer.print(", ");
-      transpile(property.second, writer);
+      transpile(property.second, writer, options);
       writer.println(" },");
     }
     writer.dedent();
@@ -160,14 +165,15 @@ namespace laskin2cpp
   static void
   transpile_vector(
     const laskin::value::vector_container& value,
-    class writer& writer
+    class writer& writer,
+    const struct options& options
   )
   {
     writer.println("value::make_vector({");
     writer.indent();
     for (const auto& element : value)
     {
-      transpile(element, writer);
+      transpile(element, writer, options);
       writer.println(",");
     }
     writer.dedent();
@@ -183,7 +189,11 @@ namespace laskin2cpp
   }
 
   void
-  transpile(const laskin::value& value, class writer& writer)
+  transpile(
+    const laskin::value& value,
+    class writer& writer,
+    const struct options& options
+  )
   {
     switch (value.type())
     {
@@ -204,11 +214,11 @@ namespace laskin2cpp
         break;
 
       case laskin::value::type::quote:
-        transpile_quote(value.as_quote(), writer);
+        transpile_quote(value.as_quote(), writer, options);
         break;
 
       case laskin::value::type::record:
-        transpile_record(value.as_record(), writer);
+        transpile_record(value.as_record(), writer, options);
         break;
 
       case laskin::value::type::string:
@@ -220,7 +230,7 @@ namespace laskin2cpp
         break;
 
       case laskin::value::type::vector:
-        transpile_vector(value.as_vector(), writer);
+        transpile_vector(value.as_vector(), writer, options);
         break;
 
       case laskin::value::type::weekday:
@@ -232,7 +242,8 @@ namespace laskin2cpp
   static void
   transpile_record(
     const laskin::node::record_literal::container_type& properties,
-    class writer& writer
+    class writer& writer,
+    const struct options& options
   )
   {
     writer.println("value::make_record({");
@@ -242,7 +253,7 @@ namespace laskin2cpp
       writer.print("{ ");
       writer.print(writer::escape(property.first));
       writer.print(", ");
-      transpile(property.second, writer);
+      transpile(property.second, writer, options);
       writer.println(" },");
     }
     writer.dedent();
@@ -252,14 +263,15 @@ namespace laskin2cpp
   static void
   transpile_vector(
     const laskin::node::vector_literal::container_type& elements,
-    class writer& writer
+    class writer& writer,
+    const struct options& options
   )
   {
     writer.println("value::make_vector({");
     writer.indent();
     for (const auto& element : elements)
     {
-      transpile(element, writer);
+      transpile(element, writer, options);
       writer.println(",");
     }
     writer.dedent();
@@ -267,7 +279,11 @@ namespace laskin2cpp
   }
 
   void
-  transpile(const std::shared_ptr<laskin::node>& node, class writer& writer)
+  transpile(
+    const std::shared_ptr<laskin::node>& node,
+    class writer& writer,
+    const struct options& options
+  )
   {
     if (!node)
     {
@@ -285,7 +301,8 @@ namespace laskin2cpp
       case laskin::node::type::literal:
         transpile(
           std::static_pointer_cast<laskin::node::literal>(node)->value,
-          writer
+          writer,
+          options
         );
         break;
 
@@ -294,20 +311,23 @@ namespace laskin2cpp
           std::static_pointer_cast<laskin::node::record_literal>(
             node
           )->properties,
-          writer
+          writer,
+          options
         );
         break;
 
       case laskin::node::type::symbol:
-        // TODO: Add optional optimization for number values that bypasses
-        // `eval` entirely.
-        writer.print("c.eval(");
-        writer.print(
-          writer::escape(
-            std::static_pointer_cast<laskin::node::symbol>(node)->id
-          )
-        );
-        writer.print(")");
+        {
+          const auto id
+            = std::static_pointer_cast<laskin::node::symbol>(node)->id;
+
+          if (options.number_optimization && peelo::number::is_valid(id))
+          {
+            transpile_number(peelo::number::parse(id), writer);
+          } else {
+            writer.print("c.eval(" + writer::escape(id) + ")");
+          }
+        }
         break;
 
       case laskin::node::type::vector_literal:
@@ -315,7 +335,8 @@ namespace laskin2cpp
           std::static_pointer_cast<laskin::node::vector_literal>(
             node
           )->elements,
-          writer
+          writer,
+          options
         );
         break;
     }

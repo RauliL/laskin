@@ -38,6 +38,8 @@ static bool output_path_set = false;
 static void parse_args(int, char**);
 static void print_usage(std::ostream&, const char*);
 
+laskin2cpp::options options = { true };
+
 int
 main(int argc, char** argv)
 {
@@ -61,7 +63,7 @@ main(int argc, char** argv)
   try
   {
     program.compile(laskin::quote::parse(input));
-    program.transpile(writer);
+    program.transpile(writer, options);
   }
   catch (const laskin::error& e)
   {
@@ -123,7 +125,12 @@ parse_args(int argc, char** argv)
     }
     else if (arg[1] == '-')
     {
-      if (!std::strcmp(arg, "--help"))
+      if (!std::strcmp(arg, "--no-number-optimization"))
+      {
+        options.number_optimization = false;
+        continue;
+      }
+      else if (!std::strcmp(arg, "--help"))
       {
         print_usage(std::cout, argv[0]);
         std::exit(EXIT_SUCCESS);
@@ -196,6 +203,8 @@ print_usage(std::ostream& output, const char* executable_name)
     << " [switches] <filename>"
     << std::endl
     << "  -o filename       Where the transpiled C++ will be written to."
+    << std::endl
+    << "  --no-number-optimization"
     << std::endl
     << "  --version         Print the version."
     << std::endl

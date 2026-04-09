@@ -27,14 +27,25 @@
 
 #include <laskin/value.hpp>
 
+#include "./options.hpp"
 #include "./writer.hpp"
 
 namespace laskin2cpp
 {
-  void transpile(const laskin::value& value, class writer& writer);
+  void transpile_number(
+    const peelo::number& value,
+    class writer& writer
+  );
+
+  void transpile(
+    const laskin::value& value,
+    class writer& writer,
+    const struct options& options
+  );
 
   void transpile(
     const std::shared_ptr<laskin::node>& node,
-    class writer& writer
+    class writer& writer,
+    const struct options& options
   );
 }

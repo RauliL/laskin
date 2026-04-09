@@ -140,11 +140,14 @@ namespace laskin2cpp
   }
 
   void
-  program::transpile(class writer& writer) const
+  program::transpile(
+    class writer& writer,
+    const struct options& options
+  ) const
   {
     for (const auto& instruction : m_instructions)
     {
-      instruction->transpile(writer);
+      instruction->transpile(writer, options);
     }
     writer.flush();
   }

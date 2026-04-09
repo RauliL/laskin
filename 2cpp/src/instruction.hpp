@@ -30,6 +30,7 @@
 #include <laskin/ast.hpp>
 #include <laskin/value.hpp>
 
+#include "./options.hpp"
 #include "./writer.hpp"
 
 namespace laskin2cpp
@@ -46,7 +47,10 @@ namespace laskin2cpp
     explicit instruction(const std::optional<laskin::position>& position_)
       : position(position_) {}
 
-    virtual void transpile(class writer& writer) const = 0;
+    virtual void transpile(
+      class writer& writer,
+      const struct options& options
+    ) const = 0;
   };
 
   class instruction::define final : public instruction
@@ -61,7 +65,10 @@ namespace laskin2cpp
       : instruction(position_)
       , id(id_) {}
 
-    void transpile(class writer& writer) const override;
+    void transpile(
+      class writer& writer,
+      const struct options& options
+    ) const override;
   };
 
   class instruction::lookup final : public instruction
@@ -76,7 +83,10 @@ namespace laskin2cpp
       : instruction(position_)
       , id(id_) {}
 
-    void transpile(class writer& writer) const override;
+    void transpile(
+      class writer& writer,
+      const struct options& options
+    ) const override;
   };
 
   class instruction::push final : public instruction
@@ -96,6 +106,9 @@ namespace laskin2cpp
       : instruction(position_)
       , value(value_) {}
 
-    void transpile(class writer& writer) const override;
+    void transpile(
+      class writer& writer,
+      const struct options& options
+    ) const override;
   };
 }

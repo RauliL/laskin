@@ -29,7 +29,10 @@
 namespace laskin2cpp
 {
   void
-  instruction::define::transpile(class writer& writer) const
+  instruction::define::transpile(
+    class writer& writer,
+    const struct options& options
+  ) const
   {
     // TODO: Add optimization that searches for `push` followed directly by
     // definition and combine them into one instruction.
@@ -37,29 +40,42 @@ namespace laskin2cpp
   }
 
   void
-  instruction::lookup::transpile(class writer& writer) const
+  instruction::lookup::transpile(
+    class writer& writer,
+    const struct options& options
+  ) const
   {
-    // TODO: Add optional optimization for number values that bypasses
-    // `lookup` entirely.
-    writer.println("c.lookup(" + writer::escape(id) + ", &std::cout);");
+    if (options.number_optimization && peelo::number::is_valid(id))
+    {
+      writer.print("c.push(");
+      transpile_number(peelo::number::parse(id), writer);
+      writer.println(");");
+    } else {
+      writer.println("c.lookup(" + writer::escape(id) + ", &std::cout);");
+    }
   }
 
   void
-  instruction::push::transpile(class writer& writer) const
+  instruction::push::transpile(
+    class writer& writer,
+    const struct options& options
+  ) const
   {
     writer.print("c.push(");
     if (std::holds_alternative<laskin::value>(value))
     {
       laskin2cpp::transpile(
         std::get<laskin::value>(value),
-        writer
+        writer,
+        options
       );
     }
     else if (std::holds_alternative<std::shared_ptr<laskin::node>>(value))
     {
       laskin2cpp::transpile(
         std::get<std::shared_ptr<laskin::node>>(value),
-        writer
+        writer,
+        options
       );
     }
     writer.println(");");

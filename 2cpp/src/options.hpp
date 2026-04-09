@@ -25,37 +25,10 @@
  */
 #pragma once
 
-#include <laskin/quote.hpp>
-
-#include "./instruction.hpp"
-
 namespace laskin2cpp
 {
-  class program
+  struct options
   {
-  public:
-    using value_type = std::shared_ptr<instruction>;
-    using container_type = std::vector<value_type>;
-
-    program() {}
-    program(const program&) = default;
-    program(program&&) = default;
-    program& operator=(const program&) = default;
-    program& operator=(program&&) = default;
-
-    inline const container_type& instructions() const
-    {
-      return m_instructions;
-    }
-
-    void compile(const laskin::quote& quote);
-
-    void transpile(
-      class writer& writer,
-      const struct options& options
-    ) const;
-
-  private:
-    container_type m_instructions;
+    bool number_optimization;
   };
 }
