@@ -38,7 +38,7 @@ static bool output_path_set = false;
 static void parse_args(int, char**);
 static void print_usage(std::ostream&, const char*);
 
-laskin2cpp::options options = { true };
+laskin2cpp::options options = { true, true };
 
 int
 main(int argc, char** argv)
@@ -62,7 +62,7 @@ main(int argc, char** argv)
 
   try
   {
-    program.compile(laskin::quote::parse(input));
+    program.compile(laskin::quote::parse(input), options);
     program.transpile(writer, options);
   }
   catch (const laskin::error& e)
@@ -128,6 +128,11 @@ parse_args(int argc, char** argv)
       if (!std::strcmp(arg, "--no-number-optimization"))
       {
         options.number_optimization = false;
+        continue;
+      }
+      else if (!std::strcmp(arg, "--no-push-define-optimization"))
+      {
+        options.push_define_optimization = false;
         continue;
       }
       else if (!std::strcmp(arg, "--help"))

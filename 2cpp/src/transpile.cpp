@@ -105,7 +105,7 @@ namespace laskin2cpp
   {
     program subprogram;
 
-    subprogram.compile(value);
+    subprogram.compile(value, options);
     writer.println("value::make_quote(quote(");
     writer.indent();
     writer.println("[](context& c, std::ostream* out)");

@@ -42,10 +42,24 @@ namespace laskin2cpp
     class lookup;
     class push;
 
+    using push_value = std::variant<
+      laskin::value,
+      std::shared_ptr<laskin::node>
+    >;
+
+    enum class type
+    {
+      define,
+      lookup,
+      push,
+    };
+
     const std::optional<laskin::position> position;
 
     explicit instruction(const std::optional<laskin::position>& position_)
       : position(position_) {}
+
+    virtual enum type type() const = 0;
 
     virtual void transpile(
       class writer& writer,
@@ -57,13 +71,21 @@ namespace laskin2cpp
   {
   public:
     const std::u32string id;
+    const std::optional<push_value> value;
 
     explicit define(
       const std::optional<laskin::position>& position_,
-      const std::u32string& id_
+      const std::u32string& id_,
+      const std::optional<push_value>& value_ = std::nullopt
     )
       : instruction(position_)
-      , id(id_) {}
+      , id(id_)
+      , value(value_) {}
+
+    inline enum type type() const override
+    {
+      return type::define;
+    }
 
     void transpile(
       class writer& writer,
@@ -83,6 +105,11 @@ namespace laskin2cpp
       : instruction(position_)
       , id(id_) {}
 
+    inline enum type type() const override
+    {
+      return type::lookup;
+    }
+
     void transpile(
       class writer& writer,
       const struct options& options
@@ -92,19 +119,19 @@ namespace laskin2cpp
   class instruction::push final : public instruction
   {
   public:
-    using value_type = std::variant<
-      laskin::value,
-      std::shared_ptr<laskin::node>
-    >;
-
-    const value_type value;
+    const push_value value;
 
     explicit push(
       const std::optional<laskin::position>& position_,
-      const value_type& value_
+      const push_value& value_
     )
       : instruction(position_)
       , value(value_) {}
+
+    inline enum type type() const override
+    {
+      return type::push;
+    }
 
     void transpile(
       class writer& writer,

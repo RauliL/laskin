@@ -28,15 +28,45 @@
 
 namespace laskin2cpp
 {
+  static void
+  transpile(
+    const instruction::push_value& value,
+    class writer& writer,
+    const struct options& options
+  )
+  {
+    if (std::holds_alternative<laskin::value>(value))
+    {
+      laskin2cpp::transpile(
+        std::get<laskin::value>(value),
+        writer,
+        options
+      );
+    }
+    else if (std::holds_alternative<std::shared_ptr<laskin::node>>(value))
+    {
+      laskin2cpp::transpile(
+        std::get<std::shared_ptr<laskin::node>>(value),
+        writer,
+        options
+      );
+    }
+  }
+
   void
   instruction::define::transpile(
     class writer& writer,
     const struct options& options
   ) const
   {
-    // TODO: Add optimization that searches for `push` followed directly by
-    // definition and combine them into one instruction.
-    writer.println("c.dictionary[" + writer::escape(id) + "] = c.pop();");
+    writer.print("c.dictionary[" + writer::escape(id) + "] = ");
+    if (value)
+    {
+      laskin2cpp::transpile(*value, writer, options);
+    } else {
+      writer.print("c.pop()");
+    }
+    writer.println(";");
   }
 
   void
@@ -62,22 +92,7 @@ namespace laskin2cpp
   ) const
   {
     writer.print("c.push(");
-    if (std::holds_alternative<laskin::value>(value))
-    {
-      laskin2cpp::transpile(
-        std::get<laskin::value>(value),
-        writer,
-        options
-      );
-    }
-    else if (std::holds_alternative<std::shared_ptr<laskin::node>>(value))
-    {
-      laskin2cpp::transpile(
-        std::get<std::shared_ptr<laskin::node>>(value),
-        writer,
-        options
-      );
-    }
+    laskin2cpp::transpile(value, writer, options);
     writer.println(");");
   }
 }

@@ -48,7 +48,10 @@ namespace laskin2cpp
       return m_instructions;
     }
 
-    void compile(const laskin::quote& quote);
+    void compile(
+      const laskin::quote& quote,
+      const struct options& options
+    );
 
     void transpile(
       class writer& writer,

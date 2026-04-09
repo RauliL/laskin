@@ -30,5 +30,6 @@ namespace laskin2cpp
   struct options
   {
     bool number_optimization;
+    bool push_define_optimization;
   };
 }

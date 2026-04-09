@@ -78,9 +78,44 @@ namespace laskin2cpp
     }
   }
 
-  void
-  program::compile(const laskin::quote& quote)
+  static void
+  optimize_push_define(program::container_type& instructions)
   {
+RETRY:
+    auto it = std::begin(instructions);
+    const auto end = std::end(instructions);
+
+    while (it != end)
+    {
+      if (
+        (*it)->type() == instruction::type::push &&
+        it + 1 != end &&
+        (*(it + 1))->type() == instruction::type::define
+      )
+      {
+        const auto push = std::static_pointer_cast<instruction::push>(*it);
+        const auto define = std::static_pointer_cast<instruction::define>(*(it + 1));
+
+        *it = std::make_shared<instruction::define>(
+          define->position,
+          define->id,
+          push->value
+        );
+        instructions.erase(++it);
+        goto RETRY;
+      }
+      ++it;
+    }
+  }
+
+  void
+  program::compile(
+    const laskin::quote& quote,
+    const struct options& options
+  )
+  {
+    container_type instructions;
+
     for (const auto& node : quote.nodes())
     {
       if (!node)
@@ -90,14 +125,14 @@ namespace laskin2cpp
       switch (node->type())
       {
         case laskin::node::type::definition:
-          m_instructions.push_back(std::make_shared<instruction::define>(
+          instructions.push_back(std::make_shared<instruction::define>(
             node->position,
             std::static_pointer_cast<laskin::node::definition>(node)->id
           ));
           break;
 
         case laskin::node::type::literal:
-          m_instructions.push_back(std::make_shared<instruction::push>(
+          instructions.push_back(std::make_shared<instruction::push>(
             node->position,
             std::static_pointer_cast<laskin::node::literal>(node)->value
           ));
@@ -109,7 +144,7 @@ namespace laskin2cpp
               = std::static_pointer_cast<laskin::node::record_literal>(node);
 
             validate(record);
-            m_instructions.push_back(std::make_shared<instruction::push>(
+            instructions.push_back(std::make_shared<instruction::push>(
               record->position,
               record
             ));
@@ -117,7 +152,7 @@ namespace laskin2cpp
           break;
 
         case laskin::node::type::symbol:
-          m_instructions.push_back(std::make_shared<instruction::lookup>(
+          instructions.push_back(std::make_shared<instruction::lookup>(
             node->position,
             std::static_pointer_cast<laskin::node::symbol>(node)->id
           ));
@@ -129,7 +164,7 @@ namespace laskin2cpp
               = std::static_pointer_cast<laskin::node::vector_literal>(node);
 
             validate(vector);
-            m_instructions.push_back(std::make_shared<instruction::push>(
+            instructions.push_back(std::make_shared<instruction::push>(
               vector->position,
               vector
             ));
@@ -137,6 +172,17 @@ namespace laskin2cpp
           break;
       }
     }
+
+    if (options.push_define_optimization)
+    {
+      optimize_push_define(instructions);
+    }
+
+    m_instructions.insert(
+      std::end(m_instructions),
+      std::begin(instructions),
+      std::end(instructions)
+    );
   }
 
   void
