@@ -27,8 +27,6 @@
 #include <cstring>
 #include <stack>
 
-#include <peelo/unicode/encoding/utf8.hpp>
-
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
@@ -51,7 +49,7 @@ namespace laskin::cli
   void
   run_repl(class context& context)
   {
-    std::u32string source;
+    std::string source;
 
     for (;;)
     {
@@ -63,9 +61,7 @@ namespace laskin::cli
         break;
       }
       linenoise::AddHistory(line.c_str());
-      source
-        .append(peelo::unicode::encoding::utf8::decode(line))
-        .append(1, '\n');
+      source.append(line).append(1, '\n');
       count_open_braces(open_braces, line);
       if (!open_braces.empty())
       {
@@ -75,13 +71,13 @@ namespace laskin::cli
       {
         context.run(source, &std::cout, "<repl>", line_counter);
       }
-      catch (const laskin::error& error)
+      catch (const error& e)
       {
-        if (error.is(laskin::error::type::exit))
+        if (e.is(laskin::error::type::exit))
         {
           std::exit(EXIT_FAILURE);
         } else {
-          std::cout << error << std::endl;
+          std::cout << e << std::endl;
         }
       }
       source.clear();

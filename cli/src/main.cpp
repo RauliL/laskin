@@ -28,14 +28,12 @@
 
 #include <unistd.h>
 
-#include <peelo/unicode/encoding/utf8.hpp>
-
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
 static std::string programfile;
-static std::vector<std::u32string> inline_scripts;
+static std::vector<std::string> inline_scripts;
 
 namespace laskin::cli
 {
@@ -48,8 +46,6 @@ static void print_usage(std::ostream&, const char*);
 int
 main(int argc, char** argv)
 {
-  using peelo::unicode::encoding::utf8::decode;
-
   laskin::context context;
 
   parse_args(argc, argv);
@@ -58,9 +54,11 @@ main(int argc, char** argv)
   {
     if (!inline_scripts.empty())
     {
+      int line = 1;
+
       for (const auto& source : inline_scripts)
       {
-        context.run(source, &std::cout, "<arg>");
+        context.run(source, &std::cout, "<arg>", line++);
       }
     }
     else if (!programfile.empty())
@@ -134,18 +132,7 @@ parse_args(int argc, char** argv)
         case 'e':
           if (offset < argc)
           {
-            std::u32string script;
-
-            if (!peelo::unicode::encoding::utf8::decode_validate(
-                  argv[offset++],
-                  script
-                ))
-            {
-              std::cerr << "Unable to decode given inline script as UTF-8."
-                        << std::endl;
-              std::exit(EXIT_FAILURE);
-            }
-            inline_scripts.push_back(script);
+            inline_scripts.push_back(argv[offset++]);
           } else {
             std::cerr << "Argument expected for the -e option." << std::endl;
             print_usage(std::cerr, argv[0]);
