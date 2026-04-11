@@ -25,7 +25,7 @@
  */
 #pragma once
 
-#include <iostream>
+#include <ostream>
 #include <string>
 #include <vector>
 
