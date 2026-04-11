@@ -323,10 +323,7 @@ namespace laskin
     const auto position = state.position;
     const auto value = parse_string(state);
 
-    return std::make_shared<node::literal>(
-      value::make_string(value),
-      position
-    );
+    return std::make_shared<node::literal>(value, position);
   }
 
   static std::shared_ptr<node::vector_literal>
@@ -508,7 +505,7 @@ namespace laskin
       }
     }
 
-    return std::make_shared<node::literal>(value::make_quote(nodes), position);
+    return std::make_shared<node::literal>(quote(nodes), position);
   }
 
   static std::u32string

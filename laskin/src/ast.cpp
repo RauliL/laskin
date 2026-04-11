@@ -64,7 +64,7 @@ namespace laskin
     std::ostream* out
   ) const
   {
-    value::vector_container container;
+    vector container;
 
     container.reserve(elements.size());
     for (const auto& element : elements)
@@ -72,7 +72,7 @@ namespace laskin
       container.push_back(element->eval(context, out));
     }
 
-    return value::make_vector(container);
+    return container;
   }
 
   bool
@@ -139,7 +139,7 @@ namespace laskin
     std::ostream* out
   ) const
   {
-    value::record_container resolved_properties;
+    record resolved_properties;
 
     for (const auto& property : properties)
     {
@@ -149,7 +149,7 @@ namespace laskin
       );
     }
 
-    return value::make_record(resolved_properties);
+    return resolved_properties;
   }
 
   bool

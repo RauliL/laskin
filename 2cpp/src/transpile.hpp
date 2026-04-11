@@ -33,7 +33,7 @@
 namespace laskin2cpp
 {
   void transpile_number(
-    const peelo::number& value,
+    const laskin::number& value,
     class writer& writer
   );
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,9 @@
  */
 #pragma once
 
-#include <peelo/chrono/time.hpp>
 #include <peelo/unicode/ctype/isspace.hpp>
+
+#include "laskin/types.hpp"
 
 namespace laskin::utils
 {
@@ -54,7 +55,7 @@ namespace laskin::utils
     return true;
   }
 
-  std::int64_t time_as_seconds(const peelo::chrono::time& time);
+  std::int64_t time_as_seconds(const time& time);
 
   std::u32string escape_string(const std::u32string& str);
 }

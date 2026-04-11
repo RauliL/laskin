@@ -35,7 +35,7 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_january)
 {
-  context << value::make_month(peelo::chrono::month::jan);
+  context << month::jan;
 }
 
 /**
@@ -45,7 +45,7 @@ LASKIN_BUILTIN_WORD(w_january)
  */
 LASKIN_BUILTIN_WORD(w_february)
 {
-  context << value::make_month(peelo::chrono::month::feb);
+  context << month::feb;
 }
 
 /**
@@ -55,7 +55,7 @@ LASKIN_BUILTIN_WORD(w_february)
  */
 LASKIN_BUILTIN_WORD(w_march)
 {
-  context << value::make_month(peelo::chrono::month::mar);
+  context << month::mar;
 }
 
 /**
@@ -65,7 +65,7 @@ LASKIN_BUILTIN_WORD(w_march)
  */
 LASKIN_BUILTIN_WORD(w_april)
 {
-  context << value::make_month(peelo::chrono::month::apr);
+  context << month::apr;
 }
 
 /**
@@ -75,7 +75,7 @@ LASKIN_BUILTIN_WORD(w_april)
  */
 LASKIN_BUILTIN_WORD(w_may)
 {
-  context << value::make_month(peelo::chrono::month::may);
+  context << month::may;
 }
 
 /**
@@ -85,7 +85,7 @@ LASKIN_BUILTIN_WORD(w_may)
  */
 LASKIN_BUILTIN_WORD(w_june)
 {
-  context << value::make_month(peelo::chrono::month::jun);
+  context << month::jun;
 }
 
 /**
@@ -95,7 +95,7 @@ LASKIN_BUILTIN_WORD(w_june)
  */
 LASKIN_BUILTIN_WORD(w_july)
 {
-  context << value::make_month(peelo::chrono::month::jul);
+  context << month::jul;
 }
 
 /**
@@ -105,7 +105,7 @@ LASKIN_BUILTIN_WORD(w_july)
  */
 LASKIN_BUILTIN_WORD(w_august)
 {
-  context << value::make_month(peelo::chrono::month::aug);
+  context << month::aug;
 }
 
 /**
@@ -115,7 +115,7 @@ LASKIN_BUILTIN_WORD(w_august)
  */
 LASKIN_BUILTIN_WORD(w_september)
 {
-  context << value::make_month(peelo::chrono::month::sep);
+  context << month::sep;
 }
 
 /**
@@ -125,7 +125,7 @@ LASKIN_BUILTIN_WORD(w_september)
  */
 LASKIN_BUILTIN_WORD(w_october)
 {
-  context << value::make_month(peelo::chrono::month::oct);
+  context << month::oct;
 }
 
 /**
@@ -135,7 +135,7 @@ LASKIN_BUILTIN_WORD(w_october)
  */
 LASKIN_BUILTIN_WORD(w_november)
 {
-  context << value::make_month(peelo::chrono::month::nov);
+  context << month::nov;
 }
 
 /**
@@ -145,7 +145,7 @@ LASKIN_BUILTIN_WORD(w_november)
  */
 LASKIN_BUILTIN_WORD(w_december)
 {
-  context << value::make_month(peelo::chrono::month::dec);
+  context << month::dec;
 }
 
 /**

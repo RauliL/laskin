@@ -25,10 +25,7 @@
  */
 #pragma once
 
-#include <peelo/chrono/date.hpp>
-#include <peelo/chrono/month.hpp>
-#include <peelo/chrono/time.hpp>
-#include <peelo/chrono/weekday.hpp>
+#include "./types.hpp"
 
 namespace laskin
 {
@@ -56,21 +53,21 @@ namespace laskin
    * Parses given string into a date. The date is expected to be in ISO 8601
    * format.
    */
-  peelo::chrono::date parse_date(const std::u32string&);
+  date parse_date(const std::u32string&);
 
   /**
    * Parses given string into a time. The time is expected to be in ISO 8601
    * format.
    */
-  peelo::chrono::time parse_time(const std::u32string&);
+  time parse_time(const std::u32string&);
 
   /**
    * Parses given string into a month.
    */
-  peelo::chrono::month parse_month(const std::u32string&);
+  month parse_month(const std::u32string&);
 
   /**
    * Parses given string into day of an week.
    */
-  peelo::chrono::weekday parse_weekday(const std::u32string&);
+  weekday parse_weekday(const std::u32string&);
 }

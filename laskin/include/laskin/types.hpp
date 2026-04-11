@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,57 +25,31 @@
  */
 #pragma once
 
-#include <ostream>
 #include <string>
-#include <vector>
 
-#include <laskin/macros.hpp>
+#include <peelo/chrono/date.hpp>
+#include <peelo/chrono/time.hpp>
+#include <peelo/number.hpp>
+#include <tsl/ordered_map.h>
 
-namespace laskin2cpp
+namespace laskin
 {
-  class writer
-  {
-  public:
-    using value_type = std::string;
-    using container_type = std::vector<value_type>;
-    using const_iterator = container_type::const_iterator;
+  class context;
+  class node;
+  class quote;
+  class value;
 
-    static std::string escape(const std::u32string& input);
+  using number = peelo::number;
 
-    writer()
-      : m_indent(2) {}
+  using date = peelo::chrono::date;
 
-    LASKIN_DEFAULT_COPY_AND_ASSIGN(writer);
+  using month = peelo::chrono::month;
 
-    inline const_iterator begin() const
-    {
-      return std::begin(m_lines);
-    }
+  using time = peelo::chrono::time;
 
-    inline const_iterator end() const
-    {
-      return std::end(m_lines);
-    }
+  using weekday = peelo::chrono::weekday;
 
-    inline void indent()
-    {
-      ++m_indent;
-    }
+  using vector = std::vector<value>;
 
-    inline void dedent()
-    {
-      --m_indent;
-    }
-
-    void flush();
-    void print(const value_type& line);
-    void println(const value_type& line);
-
-  private:
-    value_type m_buffer;
-    container_type m_lines;
-    int m_indent;
-  };
-
-  std::ostream& operator<<(std::ostream&, const writer&);
+  using record = tsl::ordered_map<std::u32string, value>;
 }

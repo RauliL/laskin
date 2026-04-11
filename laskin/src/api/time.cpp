@@ -39,7 +39,7 @@ LASKIN_BUILTIN_WORD(w_now)
 {
   try
   {
-    context << value::make_time(peelo::chrono::time::now());
+    context << time::now();
   }
   catch (const std::runtime_error&)
   {
@@ -103,7 +103,7 @@ LASKIN_BUILTIN_WORD(w_format)
 LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto time = context.pop().as_time();
-  peelo::number result(0.0, peelo::number::unit::second);
+  number result(0.0, number::unit::second);
 
   result += time.hour() * peelo::chrono::duration::seconds_per_hour;
   result += time.minute() * peelo::chrono::duration::seconds_per_minute;
@@ -122,11 +122,7 @@ LASKIN_BUILTIN_WORD(w_to_vector)
 {
   const auto time = context.pop().as_time();
 
-  context << value::make_vector({
-    value::make_number(time.hour()),
-    value::make_number(time.minute()),
-    value::make_number(time.second())
-  });
+  context << vector{ time.hour(), time.minute(), time.second() };
 }
 
 namespace laskin::api

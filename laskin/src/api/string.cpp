@@ -41,9 +41,7 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_length)
 {
-  context << value::make_number(
-    static_cast<std::int64_t>(context.peek().as_string().length())
-  );
+  context << static_cast<long>(context.peek().as_string().length());
 }
 
 /**
@@ -55,12 +53,12 @@ LASKIN_BUILTIN_WORD(w_length)
 LASKIN_BUILTIN_WORD(w_chars)
 {
   const auto str = context.peek().as_string();
-  value::vector_container result;
+  vector result;
 
   result.reserve(str.length());
   for (const auto& c : str)
   {
-    result.push_back(value::make_string(std::u32string(&c, 1)));
+    result.push_back(std::u32string(&c, 1));
   }
   context << result;
 }
@@ -74,12 +72,12 @@ LASKIN_BUILTIN_WORD(w_chars)
 LASKIN_BUILTIN_WORD(w_runes)
 {
   const auto str = context.peek().as_string();
-  value::vector_container result;
+  vector result;
 
   result.reserve(str.length());
   for (const auto& c : str)
   {
-    result.push_back(value::make_number(static_cast<std::int64_t>(c)));
+    result.push_back(static_cast<long>(c));
   }
   context << result;
 }
@@ -96,7 +94,7 @@ LASKIN_BUILTIN_WORD(w_words)
   const auto length = str.length();
   std::u32string::size_type begin = 0;
   std::u32string::size_type end = 0;
-  value::vector_container result;
+  vector result;
 
   for (std::u32string::size_type i = 0; i < length; ++i)
   {
@@ -104,7 +102,7 @@ LASKIN_BUILTIN_WORD(w_words)
     {
       if (end - begin > 0)
       {
-        result.push_back(value::make_string(str.substr(begin, end - begin)));
+        result.push_back(str.substr(begin, end - begin));
       }
       begin = end = i + 1;
     } else {
@@ -113,7 +111,7 @@ LASKIN_BUILTIN_WORD(w_words)
   }
   if (end - begin > 0)
   {
-    result.push_back(value::make_string(str.substr(begin, end - begin)));
+    result.push_back(str.substr(begin, end - begin));
   }
   context << result;
 }
@@ -129,7 +127,7 @@ LASKIN_BUILTIN_WORD(w_lines)
   const auto length = str.length();
   std::u32string::size_type begin = 0;
   std::u32string::size_type end = 0;
-  value::vector_container result;
+  vector result;
 
   for (std::u32string::size_type i = 0; i < length; ++i)
   {
@@ -137,12 +135,12 @@ LASKIN_BUILTIN_WORD(w_lines)
 
     if (i + 1 < length && c == '\r' && str[i + 1] == '\n')
     {
-      result.push_back(value::make_string(str.substr(begin, end - begin)));
+      result.push_back(str.substr(begin, end - begin));
       begin = end = ++i + 1;
     }
     else if (c == '\n' || c == '\r')
     {
-      result.push_back(value::make_string(str.substr(begin, end - begin)));
+      result.push_back(str.substr(begin, end - begin));
       begin = end = i + 1;
     } else {
       ++end;
@@ -150,7 +148,7 @@ LASKIN_BUILTIN_WORD(w_lines)
   }
   if (end - begin > 0)
   {
-    result.push_back(value::make_string(str.substr(begin, end - begin)));
+    result.push_back(str.substr(begin, end - begin));
   }
   context << result;
 }
@@ -274,7 +272,7 @@ LASKIN_BUILTIN_WORD(w_index_of)
   }
   else if (!substring_length)
   {
-    context << 0;
+    context << static_cast<int>(0);
     return;
   }
 
@@ -285,7 +283,7 @@ LASKIN_BUILTIN_WORD(w_index_of)
     return;
   }
 
-  context << value::make_number(static_cast<std::int64_t>(position));
+  context << static_cast<long>(position);
 }
 
 /**
@@ -309,7 +307,7 @@ LASKIN_BUILTIN_WORD(w_last_index_of)
   }
   else if (!substring_length)
   {
-    context << 0;
+    context << static_cast<int>(0);
     return;
   }
 
@@ -320,7 +318,7 @@ LASKIN_BUILTIN_WORD(w_last_index_of)
     return;
   }
 
-  context << value::make_number(static_cast<std::int64_t>(position));
+  context << static_cast<long>(position);
 }
 
 /**
@@ -332,7 +330,7 @@ LASKIN_BUILTIN_WORD(w_reverse)
 {
   const auto string = context.pop().as_string();
 
-  context << value::make_string(string.rbegin(), string.rend());
+  context << std::u32string(string.rbegin(), string.rend());
 }
 
 static void
@@ -485,40 +483,29 @@ LASKIN_BUILTIN_WORD(w_trim_end)
  */
 LASKIN_BUILTIN_WORD(w_substring)
 {
-  try
-  {
-    const auto string = context.pop().as_string();
-    const auto length = string.length();
-    auto begin = long(context.pop().as_number());
-    auto end = long(context.pop().as_number());
+  const auto string = context.pop().as_string();
+  const auto length = string.length();
+  auto begin = long(context.pop());
+  auto end = long(context.pop());
 
-    if (begin < 0)
-    {
-      begin += length;
-    }
-    if (end < 0)
-    {
-      end += length;
-    }
-
-    if (
-      (begin < 0 || begin >= static_cast<std::int64_t>(length)) ||
-        (end < 0 || end >= static_cast<std::int64_t>(length)) ||
-        end < begin)
-    {
-      throw error(error::type::range, U"String index out of bounds.");
-    }
-
-    context << string.substr(begin, end - begin + 1);
-  }
-  catch (const std::underflow_error&)
+  if (begin < 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    begin += length;
   }
-  catch (const std::overflow_error&)
+  if (end < 0)
   {
-    throw error(error::type::range, U"Numeric overflow.");
+    end += length;
   }
+
+  if (
+    (begin < 0 || begin >= static_cast<std::int64_t>(length)) ||
+      (end < 0 || end >= static_cast<std::int64_t>(length)) ||
+      end < begin)
+  {
+    throw error(error::type::range, U"String index out of bounds.");
+  }
+
+  context << string.substr(begin, end - begin + 1);
 }
 
 /**
@@ -533,7 +520,7 @@ LASKIN_BUILTIN_WORD(w_split)
   const auto pattern = context.pop().as_string();
   const auto string_length = string.length();
   const auto pattern_length = pattern.length();
-  value::vector_container result;
+  vector result;
 
   if (pattern_length)
   {
@@ -544,9 +531,11 @@ LASKIN_BUILTIN_WORD(w_split)
     {
       bool found = true;
 
-      for (std::u32string::size_type j = 0;
-            j < pattern_length && i + j < string_length;
-            ++j)
+      for (
+        std::u32string::size_type j = 0;
+        j < pattern_length && i + j < string_length;
+        ++j
+      )
       {
         if (pattern[j] != string[i + j])
         {
@@ -556,9 +545,7 @@ LASKIN_BUILTIN_WORD(w_split)
       }
       if (found)
       {
-        result.push_back(
-          value::make_string(string.substr(begin, end - begin))
-        );
+        result.push_back(string.substr(begin, end - begin));
         begin = end = i + 1;
       } else {
         ++end;
@@ -566,15 +553,13 @@ LASKIN_BUILTIN_WORD(w_split)
     }
     if (end - begin > 0)
     {
-      result.push_back(
-        value::make_string(string.substr(begin, end - begin))
-      );
+      result.push_back(string.substr(begin, end - begin));
     }
   } else {
     result.reserve(string_length);
     for (std::u32string::size_type i = 0; i < string_length; ++i)
     {
-      result.push_back(value::make_string(std::u32string(&string[i], 1)));
+      result.push_back(std::u32string(&string[i], 1));
     }
   }
 
@@ -588,28 +573,17 @@ LASKIN_BUILTIN_WORD(w_split)
  */
 LASKIN_BUILTIN_WORD(w_repeat)
 {
-  try
-  {
-    const auto string = context.pop().as_string();
-    auto count = long(context.pop().as_number());
-    std::u32string result;
+  const auto string = context.pop().as_string();
+  auto count = long(context.pop());
+  std::u32string result;
 
-    result.reserve(string.length() * count);
-    while (count > 0)
-    {
-      result.append(string);
-      --count;
-    }
-    context << result;
-  }
-  catch (const std::underflow_error&)
+  result.reserve(string.length() * count);
+  while (count > 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    result.append(string);
+    --count;
   }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+  context << result;
 }
 
 /**
@@ -659,42 +633,31 @@ LASKIN_BUILTIN_WORD(w_replace)
  */
 LASKIN_BUILTIN_WORD(w_pad_start)
 {
-  try
-  {
-    const auto string = context.pop().as_string();
-    auto pad_string = context.pop().as_string();
-    auto target_length = long(context.pop().as_number());
-    const auto string_length = string.length();
-    const auto pad_string_length = pad_string.length();
+  const auto string = context.pop().as_string();
+  auto pad_string = context.pop().as_string();
+  auto target_length = long(context.pop());
+  const auto string_length = string.length();
+  const auto pad_string_length = pad_string.length();
 
-    if (static_cast<long>(string_length) >= target_length)
+  if (static_cast<long>(string_length) >= target_length)
+  {
+    context << string;
+    return;
+  }
+
+  target_length -= string_length;
+  if (target_length > static_cast<long>(pad_string_length))
+  {
+    const auto original_pad_string = pad_string;
+    auto count = target_length / pad_string_length;
+
+    while (count-- > 0)
     {
-      context << string;
-      return;
+      pad_string += original_pad_string;
     }
-
-    target_length -= string_length;
-    if (target_length > static_cast<long>(pad_string_length))
-    {
-      const auto original_pad_string = pad_string;
-      auto count = target_length / pad_string_length;
-
-      while (count-- > 0)
-      {
-        pad_string += original_pad_string;
-      }
-    }
-
-    context << (pad_string.substr(0, target_length) + string);
   }
-  catch (const std::underflow_error&)
-  {
-    throw error(error::type::range, U"Numeric underflow.");
-  }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+
+  context << (pad_string.substr(0, target_length) + string);
 }
 
 /**
@@ -705,42 +668,31 @@ LASKIN_BUILTIN_WORD(w_pad_start)
  */
 LASKIN_BUILTIN_WORD(w_pad_end)
 {
-  try
-  {
-    const auto string = context.pop().as_string();
-    auto pad_string = context.pop().as_string();
-    auto target_length = long(context.pop().as_number());
-    const auto string_length = string.length();
-    const auto pad_string_length = pad_string.length();
+  const auto string = context.pop().as_string();
+  auto pad_string = context.pop().as_string();
+  auto target_length = long(context.pop());
+  const auto string_length = string.length();
+  const auto pad_string_length = pad_string.length();
 
-    if (static_cast<long>(string_length) >= target_length)
+  if (static_cast<long>(string_length) >= target_length)
+  {
+    context << string;
+    return;
+  }
+
+  target_length -= string_length;
+  if (target_length > static_cast<long>(pad_string_length))
+  {
+    const auto original_pad_string = pad_string;
+    auto count = target_length / pad_string_length;
+
+    while (count-- > 0)
     {
-      context << string;
-      return;
+      pad_string += original_pad_string;
     }
-
-    target_length -= string_length;
-    if (target_length > static_cast<long>(pad_string_length))
-    {
-      const auto original_pad_string = pad_string;
-      auto count = target_length / pad_string_length;
-
-      while (count-- > 0)
-      {
-        pad_string += original_pad_string;
-      }
-    }
-
-    context << (string + pad_string.substr(0, target_length));
   }
-  catch (const std::underflow_error&)
-  {
-    throw error(error::type::range, U"Numeric underflow.");
-  }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+
+  context << (string + pad_string.substr(0, target_length));
 }
 
 /**
@@ -753,32 +705,21 @@ LASKIN_BUILTIN_WORD(w_pad_end)
  */
 LASKIN_BUILTIN_WORD(w_at)
 {
-  try
-  {
-    const auto string = context.pop().as_string();
-    const auto length = string.length();
-    auto index = long(context.pop().as_number());
-    char32_t c;
+  const auto string = context.pop().as_string();
+  const auto length = string.length();
+  auto index = long(context.pop());
+  char32_t c;
 
-    if (index < 0)
-    {
-      index += length;
-    }
-    if (!length || index < 0 || index >= static_cast<long>(length))
-    {
-      throw error(error::type::range, U"String index out of bounds.");
-    }
-    c = string[index];
-    context << std::u32string(&c, 1);
-  }
-  catch (const std::underflow_error&)
+  if (index < 0)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    index += length;
   }
-  catch (const std::overflow_error&)
+  if (!length || index < 0 || index >= static_cast<long>(length))
   {
-    throw error(error::type::range, U"Numeric overflow.");
+    throw error(error::type::range, U"String index out of bounds.");
   }
+  c = string[index];
+  context << std::u32string(&c, 1);
 }
 
 /**
@@ -792,17 +733,7 @@ LASKIN_BUILTIN_WORD(w_to_number)
 {
   const auto string = context.pop().as_string();
 
-  try
-  {
-    context << peelo::number::parse(string);
-  }
-  catch (const std::invalid_argument&)
-  {
-    throw error(
-      error::type::range,
-      U"Cannot convert given string into a number."
-    );
-  }
+  context << value::parse_number(string);
 }
 
 /**

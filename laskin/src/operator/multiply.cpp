@@ -29,40 +29,34 @@
 namespace laskin
 {
   static inline value
-  multiply_number(const peelo::number& a, const peelo::number& b)
+  multiply_number(const number& a, const number& b)
   {
-    return value::make_number(a * b);
+    return a * b;
   }
 
   static value
-  multiply_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
-  )
+  multiply_vector(const vector& a, const vector& b)
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
     if (size != b.size())
     {
       throw error(error::type::range, U"Vector length mismatch.");
     }
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] *= b[i];
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static value
-  multiply_number_with_vector(
-    const value::vector_container& a,
-    const value& b
-  )
+  multiply_number_with_vector(const vector& a, const value& b)
   {
     const auto size = a.size();
-    value::vector_container result;
+    vector result;
 
     result.reserve(size);
     for (const auto& value : a)
@@ -70,7 +64,7 @@ namespace laskin
       result.push_back(value * b);
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   value
@@ -104,7 +98,7 @@ namespace laskin
         }
       }
     }
-    catch (const peelo::number::unit_error& e)
+    catch (const number::unit_error& e)
     {
       throw error(error::type::unit, e.what());
     }

@@ -57,7 +57,7 @@ LASKIN_BUILTIN_WORD(w_e)
  */
 LASKIN_BUILTIN_WORD(w_inf)
 {
-  context << peelo::number::inf();
+  context << number::inf();
 }
 
 /**
@@ -67,7 +67,7 @@ LASKIN_BUILTIN_WORD(w_inf)
  */
 LASKIN_BUILTIN_WORD(w_neg_inf)
 {
-  context << -peelo::number::inf();
+  context << -number::inf();
 }
 
 /**
@@ -77,7 +77,7 @@ LASKIN_BUILTIN_WORD(w_neg_inf)
  */
 LASKIN_BUILTIN_WORD(w_nan)
 {
-  context << peelo::number::nan();
+  context << number::nan();
 }
 
 /**
@@ -146,7 +146,7 @@ LASKIN_BUILTIN_WORD(w_drop_unit)
  */
 LASKIN_BUILTIN_WORD(w_is_inf)
 {
-  context << value::make_boolean(context.peek().as_number().is_inf());
+  context << context.peek().as_number().is_inf();
 }
 
 /**
@@ -156,7 +156,7 @@ LASKIN_BUILTIN_WORD(w_is_inf)
  */
 LASKIN_BUILTIN_WORD(w_is_nan)
 {
-  context << value::make_boolean(context.peek().as_number().is_nan());
+  context << context.peek().as_number().is_nan();
 }
 
 /**
@@ -170,12 +170,11 @@ LASKIN_BUILTIN_WORD(w_range)
 {
   const auto limit = context.pop().as_number();
   auto current = context.pop().as_number();
-  value::vector_container result;
+  vector result;
 
   while (current < limit)
   {
-    result.push_back(value::make_number(current));
-    ++current;
+    result.push_back(current++);
   }
   context << result;
 }
@@ -204,7 +203,7 @@ LASKIN_BUILTIN_WORD(w_times)
   auto count = context.pop().as_number();
   const auto quote = context.pop().as_quote();
 
-  if (count < peelo::number())
+  if (count < number())
   {
     count = -count;
   }
@@ -368,24 +367,13 @@ LASKIN_BUILTIN_WORD(w_rad)
  */
 LASKIN_BUILTIN_WORD(w_to_month)
 {
-  try
-  {
-    const auto value = long(context.pop().as_number());
+  const auto value = long(context.pop());
 
-    if (value < 1 || value > 12)
-    {
-      throw error(error::type::range, U"Month index out of range.");
-    }
-    context << value::make_month(static_cast<peelo::chrono::month>(value - 1));
-  }
-  catch (const std::underflow_error&)
+  if (value < 1 || value > 12)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    throw error(error::type::range, U"Month index out of range.");
   }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+  context << static_cast<month>(value - 1);
 }
 
 /**
@@ -398,24 +386,13 @@ LASKIN_BUILTIN_WORD(w_to_month)
  */
 LASKIN_BUILTIN_WORD(w_to_weekday)
 {
-  try
-  {
-    const auto value = long(context.pop().as_number());
+  const auto value = long(context.pop());
 
-    if (value < 1 || value > 7)
-    {
-      throw error(error::type::range, U"Weekday index out of range.");
-    }
-    context << value::make_weekday(static_cast<peelo::chrono::weekday>(value - 1));
-  }
-  catch (const std::underflow_error&)
+  if (value < 1 || value > 7)
   {
-    throw error(error::type::range, U"Numeric underflow.");
+    throw error(error::type::range, U"Weekday index out of range.");
   }
-  catch (const std::overflow_error&)
-  {
-    throw error(error::type::range, U"Numeric overflow.");
-  }
+  context << static_cast<weekday>(value - 1);
 }
 
 namespace laskin::api

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Rauli Laine
+ * Copyright (c) 2018-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,31 @@
 
 namespace laskin
 {
-  static const std::unordered_map<std::u32string, peelo::chrono::month> month_mapping =
+  static const std::unordered_map<std::u32string, month> month_mapping =
   {
-      { U"january", peelo::chrono::month::jan },
-      { U"february", peelo::chrono::month::feb },
-      { U"march", peelo::chrono::month::mar },
-      { U"april", peelo::chrono::month::apr },
-      { U"may", peelo::chrono::month::may },
-      { U"june", peelo::chrono::month::jun },
-      { U"july", peelo::chrono::month::jul },
-      { U"august", peelo::chrono::month::aug },
-      { U"september", peelo::chrono::month::sep },
-      { U"october", peelo::chrono::month::oct },
-      { U"november", peelo::chrono::month::nov },
-      { U"december", peelo::chrono::month::dec }
+      { U"january", month::jan },
+      { U"february", month::feb },
+      { U"march", month::mar },
+      { U"april", month::apr },
+      { U"may", month::may },
+      { U"june", month::jun },
+      { U"july", month::jul },
+      { U"august", month::aug },
+      { U"september", month::sep },
+      { U"october", month::oct },
+      { U"november", month::nov },
+      { U"december", month::dec }
   };
 
-  static const std::unordered_map<std::u32string, peelo::chrono::weekday> weekday_mapping =
+  static const std::unordered_map<std::u32string, weekday> weekday_mapping =
   {
-    { U"sunday", peelo::chrono::weekday::sun },
-    { U"monday", peelo::chrono::weekday::mon },
-    { U"tuesday", peelo::chrono::weekday::tue },
-    { U"wednesday", peelo::chrono::weekday::wed },
-    { U"thursday", peelo::chrono::weekday::thu },
-    { U"friday", peelo::chrono::weekday::fri },
-    { U"saturday", peelo::chrono::weekday::sat }
+    { U"sunday", weekday::sun },
+    { U"monday", weekday::mon },
+    { U"tuesday", weekday::tue },
+    { U"wednesday", weekday::wed },
+    { U"thursday", weekday::thu },
+    { U"friday", weekday::fri },
+    { U"saturday", weekday::sat }
   };
 
   static inline bool is_digits(
@@ -69,7 +69,8 @@ namespace laskin
     const std::u32string::size_type
   );
 
-  bool is_date(const std::u32string& input)
+  bool
+  is_date(const std::u32string& input)
   {
     const auto length = input.length();
     std::u32string::size_type dash1;
@@ -85,7 +86,8 @@ namespace laskin
     );
   }
 
-  bool is_time(const std::u32string& input)
+  bool
+  is_time(const std::u32string& input)
   {
     return (
       input.length() == 8
@@ -97,25 +99,28 @@ namespace laskin
     );
   }
 
-  bool is_month(const std::u32string& input)
+  bool
+  is_month(const std::u32string& input)
   {
     return month_mapping.find(input) != std::end(month_mapping);
   }
 
-  bool is_weekday(const std::u32string& input)
+  bool
+  is_weekday(const std::u32string& input)
   {
     return weekday_mapping.find(input) != std::end(weekday_mapping);
   }
 
-  peelo::chrono::date parse_date(const std::u32string& input)
+  date
+  parse_date(const std::u32string& input)
   {
     const auto length = input.length();
     std::u32string::size_type dash1;
     std::u32string::size_type dash2;
     int year;
-    int month;
+    int month_int;
     int day;
-    peelo::chrono::month converted_month;
+    month converted_month;
 
     if (length < 5
         || (dash1 = input.find('-')) == std::u32string::npos
@@ -131,24 +136,25 @@ namespace laskin
     }
 
     year = to_integer(input, 0, dash1);
-    month = to_integer(input, dash1 + 1, dash2);
+    month_int = to_integer(input, dash1 + 1, dash2);
     day = to_integer(input, dash2 + 1, length);
 
-    if (month < 1 || month > 12)
+    if (month_int < 1 || month_int > 12)
     {
       throw error(error::type::range, U"Given month is out of range.");
     }
-    converted_month = static_cast<peelo::chrono::month>(month - 1);
+    converted_month = static_cast<month>(month_int - 1);
 
-    if (!peelo::chrono::date::is_valid(year, converted_month, day))
+    if (!date::is_valid(year, converted_month, day))
     {
       throw error(error::type::range, U"Given date literal is out of range.");
     }
 
-    return peelo::chrono::date(year, converted_month, day);
+    return date(year, converted_month, day);
   }
 
-  peelo::chrono::time parse_time(const std::u32string& input)
+  time
+  parse_time(const std::u32string& input)
   {
     int hour;
     int minute;
@@ -171,15 +177,16 @@ namespace laskin
     minute = to_integer(input, 3, 5);
     second = to_integer(input, 6, 8);
 
-    if (!peelo::chrono::time::is_valid(hour, minute, second))
+    if (!time::is_valid(hour, minute, second))
     {
       throw error(error::type::range, U"Given time value is out of range.");
     }
 
-    return peelo::chrono::time(hour, minute, second);
+    return time(hour, minute, second);
   }
 
-  peelo::chrono::month parse_month(const std::u32string& input)
+  month
+  parse_month(const std::u32string& input)
   {
     const auto entry = month_mapping.find(input);
 
@@ -191,7 +198,8 @@ namespace laskin
     return entry->second;
   }
 
-  peelo::chrono::weekday parse_weekday(const std::u32string& input)
+  weekday
+  parse_weekday(const std::u32string& input)
   {
     const auto entry = weekday_mapping.find(input);
 
@@ -203,9 +211,12 @@ namespace laskin
     return entry->second;
   }
 
-  static bool is_digits(const std::u32string& input,
-                        const std::u32string::size_type from,
-                        const std::u32string::size_type to)
+  static bool
+  is_digits(
+    const std::u32string& input,
+    const std::u32string::size_type from,
+    const std::u32string::size_type to
+  )
   {
     if (to - from == 0)
     {
@@ -222,9 +233,12 @@ namespace laskin
     return true;
   }
 
-  static int to_integer(const std::u32string& input,
-                        const std::u32string::size_type from,
-                        const std::u32string::size_type to)
+  static int
+  to_integer(
+    const std::u32string& input,
+    const std::u32string::size_type from,
+    const std::u32string::size_type to
+  )
   {
     static const auto div = INT_MAX / 10;
     static const auto rem = INT_MAX % 10;

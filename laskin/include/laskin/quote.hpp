@@ -70,17 +70,17 @@ namespace laskin
     /**
      * Constructs empty quote that does nothing.
      */
-    explicit quote();
+    quote();
 
     /**
      * Constructs native quote from given function callback.
      */
-    explicit quote(const callback& cb);
+    quote(const callback& cb);
 
     /**
      * Constructs scripted quote from given AST nodes.
      */
-    explicit quote(const node_container& nodes);
+    quote(const node_container& nodes);
 
     LASKIN_DEFAULT_COPY_AND_ASSIGN(quote);
 

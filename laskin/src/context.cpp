@@ -145,21 +145,21 @@ namespace laskin
       }
     }
 
-    if (peelo::number::is_valid(id))
+    if (number::is_valid(id))
     {
-      data.push_back(value::make_number(id));
+      data.push_back(value::parse_number(id));
       return;
     }
 
     if (is_date(id))
     {
-      data.push_back(value::make_date(id));
+      data.push_back(parse_date(id));
       return;
     }
 
     if (is_time(id))
     {
-      data.push_back(value::make_time(id));
+      data.push_back(parse_time(id));
       return;
     }
 
@@ -187,12 +187,12 @@ namespace laskin
   {
     if (id == U"true")
     {
-      return value::make_boolean(true);
+      return true;
     }
 
     if (id == U"false")
     {
-      return value::make_boolean(false);
+      return false;
     }
 
     if (id == U"drop")
@@ -200,29 +200,29 @@ namespace laskin
       return pop();
     }
 
-    if (peelo::number::is_valid(id))
+    if (number::is_valid(id))
     {
-      return value::make_number(id);
+      return value::parse_number(id);
     }
 
     if (is_date(id))
     {
-      return value::make_date(id);
+      return parse_date(id);
     }
 
     if (is_time(id))
     {
-      return value::make_time(id);
+      return parse_time(id);
     }
 
     if (is_month(id))
     {
-      return value::make_month(id);
+      return parse_month(id);
     }
 
     if (is_weekday(id))
     {
-      return value::make_weekday(id);
+      return parse_weekday(id);
     }
 
     if (default_callback)
@@ -266,181 +266,12 @@ namespace laskin
     throw error(error::type::range, U"Stack underflow.");
   }
 
-  void
-  context::push(const class value& value)
-  {
-    data.push_back(value);
-  }
-
-  void
-  context::clear()
-  {
-    data.clear();
-  }
-
-  context&
-  context::operator<<(const class value& value)
-  {
-    push(value);
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(bool value)
-  {
-    push(value::make_boolean(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const peelo::number& value)
-  {
-    push(value::make_number(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(double value)
-  {
-    push(value::make_number(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(int value)
-  {
-    push(value::make_number(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const std::u32string& value)
-  {
-    push(value::make_string(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const std::string& value)
-  {
-    using peelo::unicode::encoding::utf8::decode;
-
-    push(value::make_string(decode(value)));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const quote& value)
-  {
-    push(value::make_quote(value));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const value::vector_container& elements)
-  {
-    push(value::make_vector(elements));
-
-    return *this;
-  }
-
-  context&
-  context::operator<<(const value::record_container& properties)
-  {
-    push(value::make_record(properties));
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(class value& value)
-  {
-    value = pop();
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(bool& value)
-  {
-    value = pop().as_boolean();
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(peelo::number& value)
-  {
-    value = pop().as_number();
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(double& value)
-  {
-    try
-    {
-      value = double(pop().as_number());
-    }
-    catch (const std::underflow_error&)
-    {
-      throw error(error::type::range, U"Numeric value too small.");
-    }
-    catch (const std::overflow_error&)
-    {
-      throw error(error::type::range, U"Numeric value too large.");
-    }
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(std::u32string& value)
-  {
-    value = pop().as_string();
-
-    return *this;
-  }
-
   context&
   context::operator>>(std::string& value)
   {
     using peelo::unicode::encoding::utf8::encode;
 
     value = encode(pop().as_string());
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(quote& value)
-  {
-    value = pop().as_quote();
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(value::vector_container& elements)
-  {
-    elements = pop().as_vector();
-
-    return *this;
-  }
-
-  context&
-  context::operator>>(value::record_container& properties)
-  {
-    properties = pop().as_record();
 
     return *this;
   }
@@ -453,7 +284,7 @@ namespace laskin
   {
     for (const auto& word : definition)
     {
-      dictionary[word.first] = value::make_quote(quote(word.second));
+      dictionary[word.first] = word.second;
     }
   }
 }

@@ -35,16 +35,13 @@ namespace laskin
   }
 
   static inline bool
-  equals_number(const peelo::number& a, const peelo::number& b)
+  equals_number(const number& a, const number& b)
   {
     return a == b;
   }
 
   static bool
-  equals_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
-  )
+  equals_vector(const vector& a, const vector& b)
   {
     const auto size = a.size();
 
@@ -52,7 +49,7 @@ namespace laskin
     {
       return false;
     }
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       if (a[i] != b[i])
       {
@@ -64,10 +61,7 @@ namespace laskin
   }
 
   static bool
-  equals_record(
-    const value::record_container& a,
-    const value::record_container& b
-  )
+  equals_record(const record& a, const record& b)
   {
     if (a.size() != b.size())
     {
@@ -97,25 +91,25 @@ namespace laskin
   }
 
   static inline bool
-  equals_month(peelo::chrono::month a, peelo::chrono::month b)
+  equals_month(month a, month b)
   {
     return a == b;
   }
 
   static inline bool
-  equals_weekday(peelo::chrono::weekday a, peelo::chrono::weekday b)
+  equals_weekday(weekday a, weekday b)
   {
     return a == b;
   }
 
   static inline bool
-  equals_date(const peelo::chrono::date& a, const peelo::chrono::date& b)
+  equals_date(const date& a, const date& b)
   {
     return a == b;
   }
 
   static inline bool
-  equals_time(const peelo::chrono::time& a, const peelo::chrono::time& b)
+  equals_time(const time& a, const time& b)
   {
     return a == b;
   }

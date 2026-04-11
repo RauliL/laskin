@@ -29,46 +29,41 @@
 namespace laskin
 {
   static inline value
-  modulo_number(const peelo::number& a, const peelo::number& b)
+  modulo_number(const number& a, const number& b)
   {
-    return value::make_number(a % b);
+    return a % b;
   }
 
   static value
-  modulo_vector(
-    const value::vector_container& a,
-    const value::vector_container& b
-  )
+  modulo_vector(const vector& a, const vector& b)
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
     if (size != b.size())
     {
       throw error(error::type::range, U"Vector length mismatch.");
     }
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] %= b[i];
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   static value
-  modulo_number_from_vector(
-    const value::vector_container& a,
-    const value& b)
+  modulo_number_from_vector(const vector& a, const value& b)
   {
     const auto size = a.size();
-    value::vector_container result(a);
+    vector result(a);
 
-    for (value::vector_container::size_type i = 0; i < size; ++i)
+    for (vector::size_type i = 0; i < size; ++i)
     {
       result[i] %= b;
     }
 
-    return value::make_vector(result);
+    return result;
   }
 
   value
@@ -102,7 +97,7 @@ namespace laskin
         }
       }
     }
-    catch (const peelo::number::unit_error& e)
+    catch (const number::unit_error& e)
     {
       throw error(error::type::unit, e.what());
     }
