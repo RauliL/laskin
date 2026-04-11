@@ -262,7 +262,7 @@ namespace laskin2cpp
     const struct options& options
   )
   {
-    writer.println("{");
+    writer.println("vector{");
     writer.indent();
     for (const auto& element : elements)
     {
