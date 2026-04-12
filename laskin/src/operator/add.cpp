@@ -28,64 +28,6 @@
 
 namespace laskin
 {
-  static inline value
-  add_number(const number& a, const number& b)
-  {
-    return a + b;
-  }
-
-  static value
-  add_vector(const vector& a, const vector& b)
-  {
-    const auto size = a.size();
-    vector result(a);
-
-    if (size != b.size())
-    {
-      throw error(error::type::range, U"Vector length mismatch.");
-    }
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      result[i] += b[i];
-    }
-
-    return result;
-  }
-
-  static value
-  add_record(const record& a, const record& b)
-  {
-    record result(a);
-
-    for (const auto& property : b)
-    {
-      result[property.first] = property.second;
-    }
-
-    return result;
-  }
-
-  static value
-  add_number_to_vector(const vector& a, const value& b)
-  {
-    const auto size = a.size();
-    vector result;
-
-    result.reserve(size);
-    for (const auto& value : a)
-    {
-      result.push_back(value + b);
-    }
-
-    return result;
-  }
-
-  static inline value
-  add_string(const std::u32string& a, const std::u32string& b)
-  {
-    return a + b;
-  }
-
   static value
   add_month(month a, const value& b)
   {
@@ -200,16 +142,16 @@ namespace laskin
         switch (m_type)
         {
           case type::number:
-            return add_number(*m_value_number, *that.m_value_number);
+            return *m_value_number + *that.m_value_number;
 
           case type::vector:
-            return add_vector(*m_value_vector, *that.m_value_vector);
+            return *m_value_vector + *that.m_value_vector;
 
           case type::record:
-            return add_record(*m_value_record, *that.m_value_record);
+            return *m_value_record + *that.m_value_record;
 
           case type::string:
-            return add_string(*m_value_string, *that.m_value_string);
+            return *m_value_string + *that.m_value_string;
 
           default:
             break;
@@ -232,7 +174,7 @@ namespace laskin
             return add_time(*m_value_time, that);
 
           case type::vector:
-            return add_number_to_vector(*m_value_vector, that);
+            return *m_value_vector + that;
 
           default:
             break;

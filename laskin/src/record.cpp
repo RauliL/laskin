@@ -23,54 +23,65 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "laskin/error.hpp"
 #include "laskin/value.hpp"
 
 namespace laskin
 {
-  value
-  value::multiply(const value& that) const
+  record
+  operator+(const record& a, const record& b)
   {
-    try
+    record result(a);
+
+    for (const auto& property : b)
     {
-      if (that.is(m_type))
-      {
-        switch (m_type)
-        {
-          case type::number:
-            return *m_value_number * *that.m_value_number;
-
-          case type::vector:
-            return *m_value_vector * *that.m_value_vector;
-
-          default:
-            break;
-        }
-      }
-      else if (that.is(type::number))
-      {
-        switch (m_type)
-        {
-          case type::vector:
-            return *m_value_vector * that;
-
-          default:
-            break;
-        }
-      }
-    }
-    catch (const number::unit_error& e)
-    {
-      throw error(error::type::unit, e.what());
+      result[property.first] = property.second;
     }
 
-    throw error(
-      error::type::type,
-      U"Cannot multiply " +
-      type_description(that.m_type) +
-      U" with " +
-      type_description(m_type)
-    );
+    return result;
+  }
+
+  record
+  operator-(const record& a, const record& b)
+  {
+    record result(a);
+
+    for (const auto& property : b)
+    {
+      const auto i = result.find(property.first);
+
+      if (i != std::end(result))
+      {
+        result.erase(i);
+      }
+    }
+
+    return result;
+  }
+
+  record&
+  operator+=(record& a, const record& b)
+  {
+    for (const auto& property : b)
+    {
+      a[property.first] = property.second;
+    }
+
+    return a;
+  }
+
+  record&
+  operator-=(record& a, const record& b)
+  {
+    for (const auto& property : b)
+    {
+      const auto i = a.find(property.first);
+
+      if (i != std::end(a))
+      {
+        a.erase(i);
+      }
+    }
+
+    return a;
   }
 }
-

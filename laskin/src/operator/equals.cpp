@@ -28,98 +28,6 @@
 
 namespace laskin
 {
-  static inline bool
-  equals_boolean(bool a, bool b)
-  {
-    return a == b;
-  }
-
-  static inline bool
-  equals_number(const number& a, const number& b)
-  {
-    return a == b;
-  }
-
-  static bool
-  equals_vector(const vector& a, const vector& b)
-  {
-    const auto size = a.size();
-
-    if (size != b.size())
-    {
-      return false;
-    }
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      if (a[i] != b[i])
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  static bool
-  equals_record(const record& a, const record& b)
-  {
-    if (a.size() != b.size())
-    {
-      return false;
-    }
-    for (const auto& property : a)
-    {
-      const auto i = b.find(property.first);
-
-      if (i == std::end(b))
-      {
-        return false;
-      }
-      else if (!i->second.equals(property.second))
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  static inline bool
-  equals_string(const std::u32string& a, const std::u32string& b)
-  {
-    return !a.compare(b);
-  }
-
-  static inline bool
-  equals_month(month a, month b)
-  {
-    return a == b;
-  }
-
-  static inline bool
-  equals_weekday(weekday a, weekday b)
-  {
-    return a == b;
-  }
-
-  static inline bool
-  equals_date(const date& a, const date& b)
-  {
-    return a == b;
-  }
-
-  static inline bool
-  equals_time(const time& a, const time& b)
-  {
-    return a == b;
-  }
-
-  static inline bool
-  equals_quote(const quote& a, const quote& b)
-  {
-    return a == b;
-  }
-
   bool
   value::equals(const value& that) const
   {
@@ -128,37 +36,34 @@ namespace laskin
       switch (m_type)
       {
         case type::boolean:
-          return equals_boolean(m_value_boolean, that.m_value_boolean);
+          return m_value_boolean == that.m_value_boolean;
 
         case type::number:
-          return equals_number(*m_value_number, *that.m_value_number);
+          return *m_value_number == *that.m_value_number;
 
         case type::vector:
-          return equals_vector(*m_value_vector, *that.m_value_vector);
+          return *m_value_vector == *that.m_value_vector;
 
         case type::record:
-          return equals_record(*m_value_record, *that.m_value_record);
+          return *m_value_record == *that.m_value_record;
 
         case type::string:
-          return equals_string(*m_value_string, *that.m_value_string);
+          return *m_value_string == *that.m_value_string;
 
         case type::month:
-          return equals_month(m_value_month, that.m_value_month);
+          return m_value_month == that.m_value_month;
 
         case type::weekday:
-          return equals_weekday(m_value_weekday, that.m_value_weekday);
+          return m_value_weekday == that.m_value_weekday;
 
         case type::date:
-          return equals_date(*m_value_date, *that.m_value_date);
+          return *m_value_date == *that.m_value_date;
 
         case type::time:
-          return equals_time(*m_value_time, *that.m_value_time);
+          return *m_value_time == *that.m_value_time;
 
         case type::quote:
-          return equals_quote(*m_value_quote, *that.m_value_quote);
-
-        default:
-          break;
+          return *m_value_quote == *that.m_value_quote;
       }
     }
 

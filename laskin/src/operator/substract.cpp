@@ -30,66 +30,6 @@
 namespace laskin
 {
   static inline value
-  substract_number(const number& a, const number& b)
-  {
-    return a - b;
-  }
-
-  static value
-  substract_vector(
-    const vector& a,
-    const vector& b
-  )
-  {
-    const auto size = a.size();
-    vector result(a);
-
-    if (size != b.size())
-    {
-      throw error(error::type::range, U"Vector length mismatch.");
-    }
-    result.reserve(size);
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      result[i] -= b[i];
-    }
-
-    return result;
-  }
-
-  static value
-  substract_record(const record& a, const record& b)
-  {
-    record result(a);
-
-    for (const auto& property : b)
-    {
-      const auto i = result.find(property.first);
-
-      if (i != std::end(result))
-      {
-        result.erase(i);
-      }
-    }
-
-    return result;
-  }
-
-  static value
-  substract_number_from_vector(const vector& a, const value& b)
-  {
-    const auto size = a.size();
-    vector result(a);
-
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      result[i] -= b;
-    }
-
-    return result;
-  }
-
-  static inline value
   substract_date(const date& a, const date& b)
   {
     return number((a - b).days(), number::unit::day);
@@ -218,13 +158,13 @@ namespace laskin
         switch (m_type)
         {
           case type::number:
-            return substract_number(*m_value_number, *that.m_value_number);
+            return *m_value_number - *that.m_value_number;
 
           case type::vector:
-            return substract_vector(*m_value_vector, *that.m_value_vector);
+            return *m_value_vector - *that.m_value_vector;
 
           case type::record:
-            return substract_record(*m_value_record, *that.m_value_record);
+            return *m_value_record - *that.m_value_record;
 
           case type::date:
             return substract_date(*m_value_date, *that.m_value_date);
@@ -253,7 +193,7 @@ namespace laskin
             return substract_time(*m_value_time, that);
 
           case type::vector:
-            return substract_number_from_vector(*m_value_vector, that);
+            return *m_value_vector - that;
 
           default:
             break;

@@ -28,18 +28,6 @@
 
 namespace laskin
 {
-  static inline int
-  compare_number(const number& a, const number& b)
-  {
-    return a.compare(b);
-  }
-
-  static inline int
-  compare_string(const std::u32string& a, const std::u32string& b)
-  {
-    return a.compare(b);
-  }
-
   static int
   compare_vector(const vector& a, const vector& b)
   {
@@ -72,18 +60,6 @@ namespace laskin
     return a > b ? 1 : a < b ? -1 : 0;
   }
 
-  static inline int
-  compare_date(const date& a, const date& b)
-  {
-    return a.compare(b);
-  }
-
-  static inline int
-  compare_time(const time& a, const time& b)
-  {
-    return a.compare(b);
-  }
-
   int
   value::compare(const value& that) const
   {
@@ -94,10 +70,10 @@ namespace laskin
         switch (m_type)
         {
           case type::number:
-            return compare_number(*m_value_number, *that.m_value_number);
+            return m_value_number->compare(*that.m_value_number);
 
           case type::string:
-            return compare_string(*m_value_string, *that.m_value_string);
+            return m_value_string->compare(*that.m_value_string);
 
           case type::vector:
             return compare_vector(*m_value_vector, *that.m_value_vector);
@@ -109,10 +85,10 @@ namespace laskin
             return compare_weekday(m_value_weekday, that.m_value_weekday);
 
           case type::date:
-            return compare_date(*m_value_date, *that.m_value_date);
+            return m_value_date->compare(*that.m_value_date);
 
           case type::time:
-            return compare_time(*m_value_time, *that.m_value_time);
+            return m_value_time->compare(*that.m_value_time);
 
           default:
             break;

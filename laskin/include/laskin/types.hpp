@@ -52,4 +52,52 @@ namespace laskin
   using vector = std::vector<value>;
 
   using record = tsl::ordered_map<std::u32string, value>;
+
+  vector operator+(const vector& a, const vector& b);
+
+  vector operator+(const vector& a, const value& b);
+
+  vector operator-(const vector& a, const vector& b);
+
+  vector operator-(const vector& a, const value& b);
+
+  vector operator*(const vector& a, const vector& b);
+
+  vector operator*(const vector& a, const value& b);
+
+  vector operator/(const vector& a, const vector& b);
+
+  vector operator/(const vector& a, const value& b);
+
+  vector operator%(const vector& a, const vector& b);
+
+  vector operator%(const vector& a, const value& b);
+
+  vector& operator+=(vector& a, const vector& b);
+
+  vector& operator+=(vector& a, const value& b);
+
+  vector& operator-=(vector& a, const vector& b);
+
+  vector& operator-=(vector& a, const value& b);
+
+  vector& operator*=(vector& a, const vector& b);
+
+  vector& operator*=(vector& a, const value& b);
+
+  vector& operator/=(vector& a, const vector& b);
+
+  vector& operator/=(vector& a, const value& b);
+
+  vector& operator%=(vector& a, const vector& b);
+
+  vector& operator%=(vector& a, const value& b);
+
+  record operator+(const record& a, const record& b);
+
+  record operator-(const record& a, const record& b);
+
+  record& operator+=(record& a, const record& b);
+
+  record& operator-=(record& a, const record& b);
 }

@@ -34,8 +34,10 @@ ADD_LIBRARY(
   ./src/parser.cpp
   ./src/position.cpp
   ./src/quote.cpp
+  ./src/record.cpp
   ./src/utils.cpp
   ./src/value.cpp
+  ./src/vector.cpp
   ./src/api/boolean.cpp
   ./src/api/date.cpp
   ./src/api/month.cpp

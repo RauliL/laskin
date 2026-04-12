@@ -28,44 +28,6 @@
 
 namespace laskin
 {
-  static inline value
-  divide_number(const number& a, const number& b)
-  {
-    return a / b;
-  }
-
-  static value
-  divide_vector(const vector& a, const vector& b)
-  {
-    const auto size = a.size();
-    vector result(a);
-
-    if (size != b.size())
-    {
-      throw error(error::type::range, U"Vector length mismatch.");
-    }
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      result[i] /= b[i];
-    }
-
-    return result;
-  }
-
-  static value
-  divide_number_from_vector(const vector& a, const value& b)
-  {
-    const auto size = a.size();
-    vector result(a);
-
-    for (vector::size_type i = 0; i < size; ++i)
-    {
-      result[i] /= b;
-    }
-
-    return result;
-  }
-
   value
   value::divide(const value& that) const
   {
@@ -76,10 +38,10 @@ namespace laskin
         switch (m_type)
         {
           case type::number:
-            return divide_number(*m_value_number, *that.m_value_number);
+            return *m_value_number / *that.m_value_number;
 
           case type::vector:
-            return divide_vector(*m_value_vector, *that.m_value_vector);
+            return *m_value_vector / *that.m_value_vector;
 
           default:
             break;
@@ -90,7 +52,7 @@ namespace laskin
         switch (m_type)
         {
           case type::vector:
-            return divide_number_from_vector(*m_value_vector, that);
+            return *m_value_vector / that;
 
           default:
             break;
