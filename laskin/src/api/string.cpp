@@ -783,7 +783,7 @@ namespace laskin::api
     { U"string:@", w_at },
 
     // Conversions.
-    { U">number", w_to_number },
-    { U">quote", w_to_quote }
+    { U"string:>number", w_to_number },
+    { U"string:>quote", w_to_quote }
   };
 }
