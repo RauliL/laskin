@@ -12,16 +12,16 @@
  *
  *  Copyright (c) 2015 yhirose
  *  All rights reserved.
- *  
+ *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
- *  
+ *
  *  1. Redistributions of source code must retain the above copyright notice, this
  *     list of conditions and the following disclaimer.
  *  2. Redistributions in binary form must reproduce the above copyright notice,
  *     this list of conditions and the following disclaimer in the documentation
  *     and/or other materials provided with the distribution.
- *  
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -77,11 +77,11 @@
  * This software is provided 'as-is', without any express or implied
  * warranty.  In no event will the author be held liable for any damages
  * arising from the use of this software.
- * 
+ *
  * Permission is granted to anyone to use this software for any purpose,
  * including commercial applications, and to alter it and redistribute it
  * freely, subject to the following restrictions:
- * 
+ *
  * 1. The origin of this software must not be misrepresented; you must not
  *    claim that you wrote the original software. If you use this software
  *    in a product, an acknowledgment in the product documentation would be
@@ -89,7 +89,7 @@
  * 2. Altered source versions must be plainly marked as such, and must not be
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
- * 
+ *
  * Jason Hood
  * jadoxa@yahoo.com.au
  */
@@ -142,8 +142,10 @@
 #define isatty _isatty
 #define write win32_write
 #define read _read
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4996)
+#endif
 #endif
 #include <algorithm>
 #include <cctype>
@@ -1001,7 +1003,7 @@ inline BOOL ParseAndPrintANSIString(HANDLE hDev, LPCVOID lpBuffer, DWORD nNumber
                 InterpretEscSeq();
                 state = 1;
                 }
-            else if (Pt_len < lenof(Pt_arg) - 1)
+            else if (Pt_len < static_cast<int>(lenof(Pt_arg) - 1))
                 Pt_arg[Pt_len++] = *s;
             }
         else if (state == 6)
@@ -1638,8 +1640,8 @@ inline int unicodeReadUTF8Char(int fd, char* buf, int* cp)
 /* Return true if the terminal name is in the list of terminals we know are
  * not able to understand basic escape sequences. */
 inline bool isUnsupportedTerm(void) {
-    static const char *unsupported_term[] = {"dumb","cons25","emacs",NULL};
 #ifndef _WIN32
+    static const char *unsupported_term[] = {"dumb","cons25","emacs",NULL};
     char *term = getenv("TERM");
     int j;
 
@@ -2581,7 +2583,9 @@ inline std::string Readline(const char *prompt){
 #undef isatty
 #undef write
 #undef read
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 #endif
 
 #endif /* __LINENOISE_HPP */

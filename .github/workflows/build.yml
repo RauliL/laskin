@@ -11,10 +11,7 @@ jobs:
       - name: Install MPFR
         run: sudo apt install -y libmpfr6 libmpfr-dev
       - name: Build
-        uses: ashutoshvarma/action-cmake-build@master
-        with:
-          build-dir: ${{ runner.workspace }}/build
-          build-type: Release
+        uses: threeal/cmake-action@v2.1.0
 
   build-macos:
     runs-on: macos-latest
@@ -26,8 +23,25 @@ jobs:
       - name: Export homebrew paths
         uses: spezifisch/export-homebrew-build-paths@v1.0.0
       - name: Build
-        uses: ashutoshvarma/action-cmake-build@master
+        uses: threeal/cmake-action@v2.1.0
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install MPFR
+        uses: msys2/setup-msys2@v2
         with:
-          build-dir: ${{ runner.workspace }}/build
-          build-type: Release
-          configure-options: -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          msystem: MINGW64
+          update: true
+          install: mingw-w64-x86_64-mpfr mingw-w64-x86_64-cmake mingw-w64-x86_64-make mingw-w64-x86_64-gcc
+      - name: Set MinGW environment variables
+        run: |
+          echo "MPFR_ROOT=C:\msys64\mingw64" >> $env:GITHUB_ENV
+          echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cmake -B build -S . -G "MinGW Makefiles"
+          cmake --build build

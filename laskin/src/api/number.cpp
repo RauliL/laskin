@@ -214,6 +214,43 @@ LASKIN_BUILTIN_WORD(w_times)
   }
 }
 
+/**
+ * number:ceil ( number -- number )
+ *
+ * Rounds the number to the next higher or equal representable integer.
+ */
+LASKIN_BUILTIN_WORD(w_ceil)
+{
+  number n;
+
+  context >> n << n.ceil();
+}
+
+/**
+ * number:floor ( number -- number )
+ *
+ * Rounds the number to the next lower or equal representable integer.
+ */
+LASKIN_BUILTIN_WORD(w_floor)
+{
+  number n;
+
+  context >> n << n.floor();
+}
+
+/**
+ * number:round ( number -- number )
+ *
+ * Rounds the number to the nearest representable integer, rounding halfway
+ * cases away from zero.
+ */
+LASKIN_BUILTIN_WORD(w_round)
+{
+  number n;
+
+  context >> n << n.round();
+}
+
 LASKIN_BUILTIN_WORD(w_exp)
 {
   context << context.pop().as_number().exp();
@@ -417,6 +454,11 @@ namespace laskin::api
     { U"number:range", w_range },
     { U"number:clamp", w_clamp },
     { U"number:times", w_times },
+
+    // Rounding functions.
+    { U"number:ceil", w_ceil },
+    { U"number:floor", w_floor },
+    { U"number:round", w_round },
 
     // Exponential functions.
     { U"number:exp", w_exp },
