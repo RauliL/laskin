@@ -88,7 +88,7 @@ namespace laskin
       {
         throw error(
           error::type::system,
-          U"Unable to open file `" + decode(path) + U"' for reading."
+          U"Unable to open file `" + decode(path.string()) + U"' for reading."
         );
       }
       source.assign(

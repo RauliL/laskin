@@ -92,7 +92,11 @@ namespace laskin::cli
     std::snprintf(
       buffer,
       BUFSIZ,
-      "laskin:%03d:%ld%c ",
+#if defined(_WIN32)
+      "laskin:%03d:%llu%c ",
+#else
+      "laskin:%03d:%lu%c ",
+#endif
       ++line_counter,
       context.data.size(),
       open_braces.empty() ? '>' : '*'
