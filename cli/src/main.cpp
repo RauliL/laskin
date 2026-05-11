@@ -24,9 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cstring>
-#include <fstream>
 
-#include <unistd.h>
+#if defined(_WIN32)
+#  include <io.h>
+#else
+#  include <unistd.h>
+#endif
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
@@ -65,7 +68,11 @@ main(int argc, char** argv)
     {
       context.include(programfile, &std::cout);
     }
+#if defined(_WIN32)
+    else if (_isatty(_fileno(stdin)))
+#else
     else if (isatty(fileno(stdin)))
+#endif
     {
       laskin::cli::run_repl(context);
     } else {
