@@ -25,8 +25,6 @@
  */
 #pragma once
 
-#include <string>
-
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
 #include <peelo/number.hpp>
