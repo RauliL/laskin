@@ -40,16 +40,28 @@ make
 
 ## WebAssembly / JavaScript
 
-Laskin can be compiled to WebAssembly for use from JavaScript or TypeScript.
-Requires the [Emscripten SDK].
+A WebAssembly build is published on npm:
+
+```shell
+npm install laskin
+```
+
+```js
+import { createLaskin } from "laskin";
+
+const ctx = await createLaskin();
+ctx.run("1 2 +");
+console.log(ctx.peek()); // "3"
+```
+
+To build the package from source, install the [Emscripten SDK] and run:
 
 ```shell
 ./scripts/build-wasm.sh
 ```
 
-This builds GMP/MPFR for WebAssembly (or reuses an existing install), compiles
-the interpreter with Embind bindings, and writes an npm-ready package under
-`web/dist/`. See [`web/README.md`](web/README.md) for the JS API.
+Artifacts are written to `web/dist/`. See [`web/README.md`](web/README.md) for
+the full JS API.
 
 [forth]: https://en.wikipedia.org/wiki/Forth_%28programming_language%29
 [rpl]: https://en.wikipedia.org/wiki/RPL_(programming_language)

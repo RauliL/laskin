@@ -61,6 +61,7 @@ ADD_CUSTOM_COMMAND(
       "${CMAKE_CURRENT_SOURCE_DIR}/index.js"
       "${CMAKE_CURRENT_SOURCE_DIR}/index.d.ts"
       "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+      "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
       "${CMAKE_CURRENT_SOURCE_DIR}/dist/"
   COMMENT
     "Copying npm package metadata into web/dist"

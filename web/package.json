@@ -16,7 +16,8 @@
     "index.d.ts",
     "laskin.js",
     "laskin.wasm",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=22"
@@ -41,7 +42,8 @@
     "url": "https://github.com/RauliL/laskin/issues"
   },
   "scripts": {
-    "test": "node --test test/**/*.test.js"
+    "test": "node --test test/**/*.test.js",
+    "prepublishOnly": "node -e \"const fs=require('fs'); if(!fs.existsSync('laskin.wasm')) { console.error('Missing laskin.wasm — publish from web/dist after ./scripts/build-wasm.sh'); process.exit(1); }\""
   },
   "devDependencies": {
     "prettier": "^3.9.6"

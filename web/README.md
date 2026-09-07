@@ -1,38 +1,36 @@
-# Laskin (WebAssembly)
+# Laskin
 
-JavaScript/TypeScript bindings for [Laskin], compiled to WebAssembly with
-[Emscripten].
+[![npm](https://img.shields.io/npm/v/laskin.svg)](https://www.npmjs.com/package/laskin)
+[![build](https://github.com/RauliL/laskin/actions/workflows/build.yml/badge.svg)](https://github.com/RauliL/laskin/actions/workflows/build.yml)
 
-This package is **not published yet**. Build it locally with:
+WebAssembly build of [Laskin] — a reverse Polish notation calculator /
+programming language inspired by Forth, RPL and Plorth.
 
-```bash
-./scripts/build-wasm.sh
-```
-
-Artifacts are written to `web/dist/` (`index.js`, `laskin.js`, `laskin.wasm`, …).
-
-## Tests
-
-After building, run the JavaScript unit tests:
+## Installation
 
 ```bash
-npm test --prefix web
+npm install laskin
 ```
+
+Requires Node.js 22+ (or a modern browser with WebAssembly exception support).
 
 ## Usage
 
 ```js
-import { createLaskin, LaskinError } from "./dist/index.js";
+import { createLaskin, LaskinError } from "laskin";
 
 const ctx = await createLaskin();
 ctx.run("1 2 +");
 console.log(ctx.peek()); // "3"
 
+const output = ctx.run('"hello" .');
+console.log(output); // "hello\n"
+
 try {
-  ctx.run("1 0 /");
+  ctx.run("]");
 } catch (error) {
   if (error instanceof LaskinError) {
-    console.error(error.type, error.message);
+    console.error(error.type, error.message, error.line, error.column);
   }
 }
 ```
@@ -46,5 +44,25 @@ try {
 
 File includes (`include`) are disabled in this build.
 
+### Options
+
+```ts
+await createLaskin({
+  locateFile(path) {
+    // Resolve laskin.wasm for bundlers / custom asset paths
+    return `/assets/${path}`;
+  },
+});
+```
+
+## Building from source
+
+Requires the [Emscripten SDK].
+
+```bash
+./scripts/build-wasm.sh
+npm test --prefix web
+```
+
 [Laskin]: https://github.com/RauliL/laskin
-[Emscripten]: https://emscripten.org/
+[Emscripten SDK]: https://emscripten.org/docs/getting-started/downloads.html
