@@ -133,8 +133,23 @@ export type LaskinValue =
 
 /**
  * Format a Laskin value as a human-readable string.
+ *
+ * Uses the same formatting as the interpreter's `>string` word.
  */
-export function formatLaskinValue(value: LaskinValue): string;
+export function laskinValueToString(
+  value: LaskinValue,
+  options?: CreateContextOptions,
+): Promise<string>;
+
+/**
+ * Format a Laskin value as source code that can be evaluated again.
+ *
+ * Uses the same formatting as the interpreter's `>source` word.
+ */
+export function laskinValueToSource(
+  value: LaskinValue,
+  options?: CreateContextOptions,
+): Promise<string>;
 
 /**
  * A Laskin interpreter context.

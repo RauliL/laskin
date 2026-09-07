@@ -3,7 +3,8 @@ import { before, describe, it } from "node:test";
 
 import {
   createContext,
-  formatLaskinValue,
+  laskinValueToSource,
+  laskinValueToString,
   LaskinError,
 } from "../dist/index.js";
 
@@ -95,7 +96,6 @@ describe("LaskinContext", () => {
     ctx.run("1km 500m +");
 
     assert.deepEqual(ctx.peek(), number("1.5km"));
-    assert.equal(formatLaskinValue(ctx.peek()), "1.5km");
   });
 
   it("supports user-defined words", () => {
@@ -114,7 +114,6 @@ describe("LaskinContext", () => {
       type: "vector",
       value: [number("11"), number("22"), number("33")],
     });
-    assert.equal(formatLaskinValue(ctx.peek()), "11, 22, 33");
   });
 
   it("supports booleans", () => {
@@ -122,7 +121,6 @@ describe("LaskinContext", () => {
     ctx.run("true false and");
 
     assert.deepEqual(ctx.peek(), { type: "boolean", value: false });
-    assert.equal(formatLaskinValue(ctx.peek()), "false");
   });
 
   it("supports strings", () => {
@@ -143,6 +141,71 @@ describe("LaskinContext", () => {
         age: number("36"),
       },
     });
+  });
+});
+
+describe("laskinValueToString", () => {
+  /** @type {import('../index.d.ts').LaskinContext} */
+  let ctx;
+
+  before(async () => {
+    ctx = await createContext();
+  });
+
+  it("formats values with >string", async () => {
+    ctx.clear();
+    ctx.run("1km 500m +");
+    assert.equal(await laskinValueToString(ctx.peek()), "1.5km");
+
+    ctx.clear();
+    ctx.run("[1, 2, 3] [10, 20, 30] +");
+    assert.equal(await laskinValueToString(ctx.peek()), "11, 22, 33");
+
+    ctx.clear();
+    ctx.run("true false and");
+    assert.equal(await laskinValueToString(ctx.peek()), "false");
+  });
+});
+
+describe("laskinValueToSource", () => {
+  /** @type {import('../index.d.ts').LaskinContext} */
+  let ctx;
+
+  before(async () => {
+    ctx = await createContext();
+  });
+
+  it("formats values as re-evaluable source code", async () => {
+    ctx.clear();
+    ctx.run("1km 500m +");
+    assert.equal(await laskinValueToSource(ctx.peek()), "1.5km");
+
+    ctx.clear();
+    ctx.run('"hello"');
+    assert.equal(await laskinValueToSource(ctx.peek()), '"hello"');
+
+    ctx.clear();
+    ctx.run("[1, 2, 3]");
+    assert.equal(await laskinValueToSource(ctx.peek()), "[1, 2, 3]");
+
+    ctx.clear();
+    ctx.run('{ "name": "Ada", "age": 36 }');
+    assert.equal(
+      await laskinValueToSource(ctx.peek()),
+      '{"name": "Ada", "age": 36}',
+    );
+  });
+
+  it("produces source that evaluates to an equal value", async () => {
+    ctx.clear();
+    ctx.run('{ "name": "Ada", "age": 36 }');
+
+    const value = ctx.peek();
+    const source = await laskinValueToSource(value);
+
+    ctx.clear();
+    ctx.run(source);
+    assert.deepEqual(ctx.peek(), value);
   });
 });
 

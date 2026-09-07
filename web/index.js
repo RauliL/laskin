@@ -17,27 +17,6 @@ export class LaskinError extends Error {
   }
 }
 
-export function formatLaskinValue(value) {
-  switch (value.type) {
-    case "boolean":
-      return value.value ? "true" : "false";
-    case "number":
-    case "string":
-    case "quote":
-    case "date":
-    case "time":
-    case "month":
-    case "weekday":
-      return value.value;
-    case "vector":
-      return value.value.map(formatLaskinValue).join(", ");
-    case "record":
-      return Object.entries(value.value)
-        .map(([key, entry]) => `${key}=${formatLaskinValue(entry)}`)
-        .join(", ");
-  }
-}
-
 const rethrow = (error) => {
   if (error && typeof error === "object" && error.name === "LaskinError") {
     throw new LaskinError(error.message, error.type, error.line, error.column);
@@ -46,12 +25,8 @@ const rethrow = (error) => {
   throw error;
 };
 
-/** @type {ReturnType<typeof createLaskinModule> | undefined} */
 let defaultModulePromise;
 
-/**
- * @param {import('./index.d.ts').CreateLaskinOptions} [options]
- */
 const loadModule = (options = {}) => {
   const locateFile =
     typeof options.locateFile === "function"
@@ -111,4 +86,34 @@ export const createContext = async (options = {}) => {
       return context.stack();
     },
   };
+};
+
+/**
+ * Format a Laskin value as a human-readable string.
+ *
+ * Uses the same formatting as the interpreter's `>string` word.
+ */
+export const laskinValueToString = async (value, options = {}) => {
+  const module = await loadModule(options);
+
+  try {
+    return module.laskinValueToString(value);
+  } catch (error) {
+    rethrow(error);
+  }
+};
+
+/**
+ * Format a Laskin value as source code that can be evaluated again.
+ *
+ * Uses the same formatting as the interpreter's `>source` word.
+ */
+export const laskinValueToSource = async (value, options = {}) => {
+  const module = await loadModule(options);
+
+  try {
+    return module.laskinValueToSource(value);
+  } catch (error) {
+    rethrow(error);
+  }
 };

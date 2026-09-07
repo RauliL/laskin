@@ -32,8 +32,10 @@
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
+#include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/quote.hpp"
 #include "laskin/value.hpp"
 
 namespace
@@ -108,6 +110,12 @@ namespace
   value_to_utf8(const laskin::value& value)
   {
     return peelo::unicode::encoding::utf8::encode(value.to_string());
+  }
+
+  std::string
+  value_to_utf8_source(const laskin::value& value)
+  {
+    return peelo::unicode::encoding::utf8::encode(value.to_source());
   }
 
   const char*
@@ -204,6 +212,118 @@ namespace
 
     return result;
   }
+
+  laskin::value
+  value_from_js(const emscripten::val& js_value)
+  {
+    using peelo::unicode::encoding::utf8::decode;
+
+    const auto type = js_value["type"].as<std::string>();
+    const auto payload = js_value["value"];
+
+    if (type == "boolean")
+    {
+      return laskin::value(payload.as<bool>());
+    }
+
+    if (type == "number")
+    {
+      return laskin::value::parse_number(decode(payload.as<std::string>()));
+    }
+
+    if (type == "string")
+    {
+      return laskin::value(decode(payload.as<std::string>()));
+    }
+
+    if (type == "vector")
+    {
+      laskin::vector elements;
+      const auto length = payload["length"].as<unsigned>();
+
+      elements.reserve(length);
+
+      for (unsigned i = 0; i < length; ++i)
+      {
+        elements.push_back(value_from_js(payload[i]));
+      }
+
+      return laskin::value(elements);
+    }
+
+    if (type == "record")
+    {
+      laskin::record properties;
+      const auto keys = emscripten::val::global("Object")
+        .call<emscripten::val>("keys", payload);
+      const auto key_count = keys["length"].as<unsigned>();
+
+      for (unsigned i = 0; i < key_count; ++i)
+      {
+        const auto key = keys[i].as<std::string>();
+
+        properties.emplace(decode(key), value_from_js(payload[key]));
+      }
+
+      return laskin::value(properties);
+    }
+
+    if (type == "quote")
+    {
+      return laskin::value(laskin::quote::parse(payload.as<std::string>()));
+    }
+
+    if (type == "date")
+    {
+      return laskin::value(laskin::parse_date(decode(payload.as<std::string>())));
+    }
+
+    if (type == "time")
+    {
+      return laskin::value(laskin::parse_time(decode(payload.as<std::string>())));
+    }
+
+    if (type == "month")
+    {
+      return laskin::value(laskin::parse_month(decode(payload.as<std::string>())));
+    }
+
+    if (type == "weekday")
+    {
+      return laskin::value(laskin::parse_weekday(decode(payload.as<std::string>())));
+    }
+
+    throw laskin::error(
+      laskin::error::type::type,
+      "Unknown Laskin value type: " + type
+    );
+  }
+}
+
+std::string
+laskinValueToString(const emscripten::val& js_value)
+{
+  try
+  {
+    return value_to_utf8(value_from_js(js_value));
+  }
+  catch (const laskin::error& error)
+  {
+    raise_laskin_error(error);
+  }
+}
+
+std::string
+laskinValueToSource(const emscripten::val& js_value)
+{
+  try
+  {
+    return value_to_utf8_source(value_from_js(js_value));
+  }
+  catch (const laskin::error& error)
+  {
+    raise_laskin_error(error);
+  }
 }
 
 /**
@@ -295,4 +415,7 @@ EMSCRIPTEN_BINDINGS(laskin)
     .function("peek", &Context::peek)
     .function("pop", &Context::pop)
     .function("stack", &Context::stack);
+
+  emscripten::function("laskinValueToString", &laskinValueToString);
+  emscripten::function("laskinValueToSource", &laskinValueToSource);
 }
