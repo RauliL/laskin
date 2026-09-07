@@ -45,3 +45,25 @@ jobs:
         run: |
           cmake -B build -S . -G "MinGW Makefiles"
           cmake --build build
+
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Install Emscripten
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git /opt/emsdk
+          /opt/emsdk/emsdk install latest
+          /opt/emsdk/emsdk activate latest
+      - name: Cache WebAssembly dependencies
+        uses: actions/cache@v4
+        with:
+          path: wasm-deps
+          key: wasm-deps-gmp-6.3.0-mpfr-4.2.2-emscripten-latest
+      - name: Build WebAssembly
+        run: |
+          source /opt/emsdk/emsdk_env.sh
+          ./scripts/build-wasm.sh
+      - name: Smoke test
+        run: node web/smoke.mjs
