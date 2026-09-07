@@ -29,6 +29,12 @@
 
 namespace laskin
 {
+  static long
+  number_magnitude(const value& value)
+  {
+    return long(value.as_number().without_measurement_unit());
+  }
+
   static inline value
   substract_date(const date& a, const date& b)
   {
@@ -71,7 +77,7 @@ namespace laskin
     {
       if (!unit->symbol.compare("d"))
       {
-        delta = long(b);
+        delta = number_magnitude(b);
       } else {
         throw error(
           error::type::type,
@@ -94,7 +100,7 @@ namespace laskin
     {
       if (!unit->symbol.compare("d"))
       {
-        delta = long(b);
+        delta = number_magnitude(b);
       } else {
         throw error(
           error::type::type,
@@ -140,7 +146,7 @@ namespace laskin
           U"Cannot substract number to time."
         );
       }
-      delta = long(b) * multiplier;
+      delta = number_magnitude(b) * multiplier;
     } else {
       delta = long(b);
     }
