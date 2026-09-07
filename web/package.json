@@ -40,6 +40,9 @@
   "bugs": {
     "url": "https://github.com/RauliL/laskin/issues"
   },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
   "devDependencies": {
     "prettier": "^3.9.6"
   }

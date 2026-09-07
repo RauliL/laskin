@@ -81,6 +81,26 @@ function wrapContext(native) {
   };
 }
 
+/** @type {ReturnType<typeof createLaskinModule> | undefined} */
+let defaultModulePromise;
+
+/**
+ * @param {import('./index.d.ts').CreateLaskinOptions} [options]
+ */
+function loadModule(options = {}) {
+  const locateFile =
+    typeof options.locateFile === "function"
+      ? options.locateFile
+      : (path) => new URL(path, import.meta.url).href;
+
+  if (typeof options.locateFile !== "function") {
+    defaultModulePromise ??= createLaskinModule({ locateFile });
+    return defaultModulePromise;
+  }
+
+  return createLaskinModule({ locateFile });
+}
+
 /**
  * Initialize the WebAssembly module and create a new interpreter context.
  *
@@ -88,15 +108,7 @@ function wrapContext(native) {
  * @returns {Promise<import('./index.d.ts').LaskinContext>}
  */
 export async function createLaskin(options = {}) {
-  const module = await createLaskinModule({
-    locateFile(path, prefix) {
-      if (typeof options.locateFile === "function") {
-        return options.locateFile(path, prefix);
-      }
-      return new URL(path, import.meta.url).href;
-    },
-  });
-
+  const module = await loadModule(options);
   return wrapContext(new module.Context());
 }
 

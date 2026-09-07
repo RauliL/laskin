@@ -47,6 +47,6 @@ emmake cmake --build "${BUILD_DIR}" --parallel "$(nproc)" --target laskin-web
 
 echo "WebAssembly package written to ${PROJECT_DIR}/web/dist"
 
-if [[ "${RUN_SMOKE_TEST:-1}" == "1" ]]; then
-  node "${PROJECT_DIR}/web/smoke.mjs"
+if [[ "${RUN_TESTS:-1}" == "1" ]]; then
+  npm test --prefix "${PROJECT_DIR}/web"
 fi

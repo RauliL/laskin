@@ -11,6 +11,14 @@ This package is **not published yet**. Build it locally with:
 
 Artifacts are written to `web/dist/` (`index.js`, `laskin.js`, `laskin.wasm`, …).
 
+## Tests
+
+After building, run the JavaScript unit tests:
+
+```bash
+npm test --prefix web
+```
+
 ## Usage
 
 ```js

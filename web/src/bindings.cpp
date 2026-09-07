@@ -77,6 +77,7 @@ namespace
   {
     const auto message = format_error_message(error);
     const auto* type = error_type_name(error.type);
+    const int has_position = error.position ? 1 : 0;
     const int line = error.position ? error.position->line : 0;
     const int column = error.position ? error.position->column : 0;
 
@@ -85,16 +86,15 @@ namespace
         const err = new Error(UTF8ToString($0));
         err.name = 'LaskinError';
         err.type = UTF8ToString($1);
-        if ($2 > 0) {
-          err.line = $2;
-        }
-        if ($3 > 0) {
-          err.column = $3;
+        if ($2) {
+          err.line = $3;
+          err.column = $4;
         }
         throw err;
       },
       message.c_str(),
       type,
+      has_position,
       line,
       column
     );

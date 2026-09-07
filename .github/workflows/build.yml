@@ -64,6 +64,6 @@ jobs:
       - name: Build WebAssembly
         run: |
           source /opt/emsdk/emsdk_env.sh
-          ./scripts/build-wasm.sh
-      - name: Smoke test
-        run: node web/smoke.mjs
+          RUN_TESTS=0 ./scripts/build-wasm.sh
+      - name: Test
+        run: npm test --prefix web
