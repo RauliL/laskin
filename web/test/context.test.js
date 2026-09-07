@@ -1,29 +1,38 @@
 import assert from "node:assert/strict";
 import { before, describe, it } from "node:test";
 
-import { createLaskin, LaskinError } from "../dist/index.js";
+import {
+  createContext,
+  formatLaskinValue,
+  LaskinError,
+} from "../dist/index.js";
 
-describe("createLaskin", () => {
+/** @param {string} value */
+function number(value) {
+  return { type: "number", value };
+}
+
+describe("createContext", () => {
   it("loads the module and returns a context", async () => {
-    const ctx = await createLaskin();
+    const ctx = await createContext();
 
     assert.equal(typeof ctx.run, "function");
     assert.equal(ctx.depth(), 0);
   });
 
   it("creates independent contexts", async () => {
-    const a = await createLaskin();
-    const b = await createLaskin();
+    const a = await createContext();
+    const b = await createContext();
 
     a.run("1 2 +");
     assert.equal(a.depth(), 1);
-    assert.equal(a.peek(), "3");
+    assert.deepEqual(a.peek(), number("3"));
     assert.equal(b.depth(), 0);
   });
 
   it("honors a custom locateFile", async () => {
     const seen = [];
-    const ctx = await createLaskin({
+    const ctx = await createContext({
       locateFile(path) {
         seen.push(path);
         return new URL(`../dist/${path}`, import.meta.url).href;
@@ -32,7 +41,7 @@ describe("createLaskin", () => {
 
     assert.ok(seen.some((entry) => entry.endsWith(".wasm")));
     ctx.run("4 2 /");
-    assert.equal(ctx.peek(), "2");
+    assert.deepEqual(ctx.peek(), number("2"));
   });
 });
 
@@ -41,7 +50,7 @@ describe("LaskinContext", () => {
   let ctx;
 
   before(async () => {
-    ctx = await createLaskin();
+    ctx = await createContext();
   });
 
   it("evaluates arithmetic and reports stack state", () => {
@@ -49,18 +58,18 @@ describe("LaskinContext", () => {
     ctx.run("10 3 -");
 
     assert.equal(ctx.depth(), 1);
-    assert.equal(ctx.peek(), "7");
-    assert.deepEqual(ctx.stack(), ["7"]);
+    assert.deepEqual(ctx.peek(), number("7"));
+    assert.deepEqual(ctx.stack(), [number("7")]);
   });
 
   it("returns stack values with the top at index 0", () => {
     ctx.clear();
     ctx.run("1 2 3");
 
-    assert.deepEqual(ctx.stack(), ["3", "2", "1"]);
-    assert.equal(ctx.peek(), "3");
-    assert.equal(ctx.pop(), "3");
-    assert.deepEqual(ctx.stack(), ["2", "1"]);
+    assert.deepEqual(ctx.stack(), [number("3"), number("2"), number("1")]);
+    assert.deepEqual(ctx.peek(), number("3"));
+    assert.deepEqual(ctx.pop(), number("3"));
+    assert.deepEqual(ctx.stack(), [number("2"), number("1")]);
     assert.equal(ctx.depth(), 2);
   });
 
@@ -85,7 +94,8 @@ describe("LaskinContext", () => {
     ctx.clear();
     ctx.run("1km 500m +");
 
-    assert.equal(ctx.peek(), "1500m");
+    assert.deepEqual(ctx.peek(), number("1.5km"));
+    assert.equal(formatLaskinValue(ctx.peek()), "1.5km");
   });
 
   it("supports user-defined words", () => {
@@ -93,14 +103,46 @@ describe("LaskinContext", () => {
     ctx.run("( dup * ) -> square");
     ctx.run("5 square");
 
-    assert.equal(ctx.peek(), "25");
+    assert.deepEqual(ctx.peek(), number("25"));
   });
 
   it("supports vectors", () => {
     ctx.clear();
     ctx.run("[1, 2, 3] [10, 20, 30] +");
 
-    assert.equal(ctx.peek(), "11, 22, 33");
+    assert.deepEqual(ctx.peek(), {
+      type: "vector",
+      value: [number("11"), number("22"), number("33")],
+    });
+    assert.equal(formatLaskinValue(ctx.peek()), "11, 22, 33");
+  });
+
+  it("supports booleans", () => {
+    ctx.clear();
+    ctx.run("true false and");
+
+    assert.deepEqual(ctx.peek(), { type: "boolean", value: false });
+    assert.equal(formatLaskinValue(ctx.peek()), "false");
+  });
+
+  it("supports strings", () => {
+    ctx.clear();
+    ctx.run('"hello"');
+
+    assert.deepEqual(ctx.peek(), { type: "string", value: "hello" });
+  });
+
+  it("supports records", () => {
+    ctx.clear();
+    ctx.run('{ "name": "Ada", "age": 36 }');
+
+    assert.deepEqual(ctx.peek(), {
+      type: "record",
+      value: {
+        name: { type: "string", value: "Ada" },
+        age: number("36"),
+      },
+    });
   });
 });
 
@@ -109,7 +151,7 @@ describe("LaskinError", () => {
   let ctx;
 
   before(async () => {
-    ctx = await createLaskin();
+    ctx = await createContext();
   });
 
   it("throws on syntax errors with position metadata", () => {

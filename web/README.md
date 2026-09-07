@@ -17,9 +17,9 @@ Requires Node.js 22+ (or a modern browser with WebAssembly exception support).
 ## Usage
 
 ```js
-import { createLaskin, LaskinError } from "laskin";
+import { createContext, LaskinError } from "laskin";
 
-const ctx = await createLaskin();
+const ctx = await createContext();
 ctx.run("1 2 +");
 console.log(ctx.peek()); // "3"
 
@@ -37,7 +37,7 @@ try {
 
 ## API
 
-- `createLaskin(options?)` — load the WASM module and return a context
+- `createContext(options?)` — load the WASM module and return a context
 - `context.run(source)` — evaluate source; returns captured output (e.g. from `.`)
 - `context.clear()` / `depth()` / `peek()` / `pop()` / `stack()`
 - `LaskinError` — thrown on interpreter errors (`type`, optional `line`/`column`)
@@ -47,7 +47,7 @@ File includes (`include`) are disabled in this build.
 ### Options
 
 ```ts
-await createLaskin({
+await createContext({
   locateFile(path) {
     // Resolve laskin.wasm for bundlers / custom asset paths
     return `/assets/${path}`;

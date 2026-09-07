@@ -34,6 +34,7 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/value.hpp"
 
 namespace
 {
@@ -108,6 +109,101 @@ namespace
   {
     return peelo::unicode::encoding::utf8::encode(value.to_string());
   }
+
+  const char*
+  value_type_name(enum laskin::value::type type)
+  {
+    switch (type)
+    {
+      case laskin::value::type::boolean:
+        return "boolean";
+      case laskin::value::type::number:
+        return "number";
+      case laskin::value::type::string:
+        return "string";
+      case laskin::value::type::vector:
+        return "vector";
+      case laskin::value::type::record:
+        return "record";
+      case laskin::value::type::quote:
+        return "quote";
+      case laskin::value::type::date:
+        return "date";
+      case laskin::value::type::time:
+        return "time";
+      case laskin::value::type::month:
+        return "month";
+      case laskin::value::type::weekday:
+        return "weekday";
+    }
+
+    return "unknown";
+  }
+
+  emscripten::val
+  value_to_js(const laskin::value& value)
+  {
+    using peelo::unicode::encoding::utf8::encode;
+
+    auto result = emscripten::val::object();
+
+    result.set("type", value_type_name(value.type()));
+
+    switch (value.type())
+    {
+      case laskin::value::type::boolean:
+        result.set("value", value.as_boolean());
+        break;
+
+      case laskin::value::type::number:
+        result.set("value", value_to_utf8(value));
+        break;
+
+      case laskin::value::type::string:
+        result.set("value", encode(value.as_string()));
+        break;
+
+      case laskin::value::type::vector:
+      {
+        auto elements = emscripten::val::array();
+
+        for (const auto& element : value.as_vector())
+        {
+          elements.call<void>("push", value_to_js(element));
+        }
+        result.set("value", elements);
+        break;
+      }
+
+      case laskin::value::type::record:
+      {
+        auto properties = emscripten::val::object();
+
+        for (const auto& property : value.as_record())
+        {
+          properties.set(
+            encode(property.first),
+            value_to_js(property.second)
+          );
+        }
+        result.set("value", properties);
+        break;
+      }
+
+      case laskin::value::type::quote:
+        result.set("value", encode(value.as_quote().to_source()));
+        break;
+
+      case laskin::value::type::date:
+      case laskin::value::type::time:
+      case laskin::value::type::month:
+      case laskin::value::type::weekday:
+        result.set("value", value_to_utf8(value));
+        break;
+    }
+
+    return result;
+  }
 }
 
 /**
@@ -145,11 +241,11 @@ public:
     return static_cast<int>(m_context.data.size());
   }
 
-  std::string peek() const
+  emscripten::val peek() const
   {
     try
     {
-      return value_to_utf8(m_context.peek());
+      return value_to_js(m_context.peek());
     }
     catch (const laskin::error& error)
     {
@@ -157,11 +253,11 @@ public:
     }
   }
 
-  std::string pop()
+  emscripten::val pop()
   {
     try
     {
-      return value_to_utf8(m_context.pop());
+      return value_to_js(m_context.pop());
     }
     catch (const laskin::error& error)
     {
@@ -178,7 +274,8 @@ public:
     {
       // Index 0 is the top of the stack, matching peek()/pop().
       const auto& value = data[data.size() - i - 1];
-      result.call<void>("push", value_to_utf8(value));
+
+      result.call<void>("push", value_to_js(value));
     }
 
     return result;

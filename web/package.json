@@ -1,6 +1,6 @@
 {
   "name": "laskin",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Reverse Polish notation calculator / programming language (WebAssembly)",
   "type": "module",
   "main": "./index.js",
@@ -9,7 +9,8 @@
     ".": {
       "types": "./index.d.ts",
       "import": "./index.js"
-    }
+    },
+    "./laskin.wasm": "./laskin.wasm"
   },
   "files": [
     "index.js",

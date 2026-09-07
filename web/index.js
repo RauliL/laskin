@@ -4,12 +4,6 @@ import createLaskinModule from "./laskin.js";
  * Error thrown by the Laskin interpreter.
  */
 export class LaskinError extends Error {
-  /**
-   * @param {string} message
-   * @param {string} type
-   * @param {number} [line]
-   * @param {number} [column]
-   */
   constructor(message, type, line, column) {
     super(message);
     this.name = "LaskinError";
@@ -23,63 +17,34 @@ export class LaskinError extends Error {
   }
 }
 
-/**
- * @param {unknown} error
- * @returns {never}
- */
-function rethrow(error) {
-  if (
-    error &&
-    typeof error === "object" &&
-    /** @type {{ name?: string }} */ (error).name === "LaskinError"
-  ) {
-    const e =
-      /** @type {{ message: string, type: string, line?: number, column?: number }} */ (
-        error
-      );
-    throw new LaskinError(e.message, e.type, e.line, e.column);
+export function formatLaskinValue(value) {
+  switch (value.type) {
+    case "boolean":
+      return value.value ? "true" : "false";
+    case "number":
+    case "string":
+    case "quote":
+    case "date":
+    case "time":
+    case "month":
+    case "weekday":
+      return value.value;
+    case "vector":
+      return value.value.map(formatLaskinValue).join(", ");
+    case "record":
+      return Object.entries(value.value)
+        .map(([key, entry]) => `${key}=${formatLaskinValue(entry)}`)
+        .join(", ");
   }
-  throw error;
 }
 
-/**
- * @param {import('./index.d.ts').LaskinContextNative} native
- * @returns {import('./index.d.ts').LaskinContext}
- */
-function wrapContext(native) {
-  return {
-    run(source) {
-      try {
-        return native.run(source);
-      } catch (error) {
-        rethrow(error);
-      }
-    },
-    clear() {
-      native.clear();
-    },
-    depth() {
-      return native.depth();
-    },
-    peek() {
-      try {
-        return native.peek();
-      } catch (error) {
-        rethrow(error);
-      }
-    },
-    pop() {
-      try {
-        return native.pop();
-      } catch (error) {
-        rethrow(error);
-      }
-    },
-    stack() {
-      return native.stack();
-    },
-  };
-}
+const rethrow = (error) => {
+  if (error && typeof error === "object" && error.name === "LaskinError") {
+    throw new LaskinError(error.message, error.type, error.line, error.column);
+  }
+
+  throw error;
+};
 
 /** @type {ReturnType<typeof createLaskinModule> | undefined} */
 let defaultModulePromise;
@@ -87,7 +52,7 @@ let defaultModulePromise;
 /**
  * @param {import('./index.d.ts').CreateLaskinOptions} [options]
  */
-function loadModule(options = {}) {
+const loadModule = (options = {}) => {
   const locateFile =
     typeof options.locateFile === "function"
       ? options.locateFile
@@ -95,21 +60,55 @@ function loadModule(options = {}) {
 
   if (typeof options.locateFile !== "function") {
     defaultModulePromise ??= createLaskinModule({ locateFile });
+
     return defaultModulePromise;
   }
 
   return createLaskinModule({ locateFile });
-}
+};
 
 /**
  * Initialize the WebAssembly module and create a new interpreter context.
- *
- * @param {import('./index.d.ts').CreateLaskinOptions} [options]
- * @returns {Promise<import('./index.d.ts').LaskinContext>}
  */
-export async function createLaskin(options = {}) {
-  const module = await loadModule(options);
-  return wrapContext(new module.Context());
-}
+export const createContext = async (options = {}) => {
+  const { Context } = await loadModule(options);
+  const context = new Context();
 
-export default createLaskin;
+  return {
+    run(source) {
+      try {
+        return context.run(source);
+      } catch (error) {
+        rethrow(error);
+      }
+    },
+
+    clear() {
+      context.clear();
+    },
+
+    depth() {
+      return context.depth();
+    },
+
+    peek() {
+      try {
+        return context.peek();
+      } catch (error) {
+        rethrow(error);
+      }
+    },
+
+    pop() {
+      try {
+        return context.pop();
+      } catch (error) {
+        rethrow(error);
+      }
+    },
+
+    stack() {
+      return context.stack();
+    },
+  };
+};
