@@ -74,6 +74,15 @@ describe("LaskinContext", () => {
     assert.equal(ctx.depth(), 2);
   });
 
+  it("pushes values that can be used by the interpreter", () => {
+    ctx.clear();
+    ctx.push(number("10"));
+    ctx.push(number("3"));
+    ctx.run("-");
+
+    assert.deepEqual(ctx.peek(), number("7"));
+  });
+
   it("clears the stack", () => {
     ctx.clear();
     ctx.run("1 2 3");
@@ -141,6 +150,99 @@ describe("LaskinContext", () => {
         age: number("36"),
       },
     });
+  });
+});
+
+describe("LaskinContext.push", () => {
+  /** @type {import('../index.d.ts').LaskinContext} */
+  let ctx;
+
+  before(async () => {
+    ctx = await createContext();
+  });
+
+  /** @param {string} source */
+  function sample(source) {
+    ctx.clear();
+    ctx.run(source);
+    return ctx.peek();
+  }
+
+  /** @param {import('../index.d.ts').LaskinValue} value */
+  function assertPushPreserves(value) {
+    ctx.clear();
+    ctx.push(value);
+    assert.deepEqual(ctx.peek(), value);
+  }
+
+  it("places pushed values on top of the stack in order", () => {
+    ctx.clear();
+    ctx.push(number("1"));
+    ctx.push(number("2"));
+    ctx.push({ type: "boolean", value: true });
+
+    assert.equal(ctx.depth(), 3);
+    assert.deepEqual(ctx.stack(), [
+      { type: "boolean", value: true },
+      number("2"),
+      number("1"),
+    ]);
+  });
+
+  it("pushes boolean values", () => {
+    assertPushPreserves(sample("true"));
+    assertPushPreserves(sample("false"));
+  });
+
+  it("pushes number values", () => {
+    assertPushPreserves(sample("42"));
+    assertPushPreserves(sample("1.5km"));
+  });
+
+  it("pushes string values", () => {
+    assertPushPreserves(sample('"hello"'));
+    assertPushPreserves(sample('"line\\nbreak"'));
+  });
+
+  it("pushes vector values", () => {
+    assertPushPreserves(sample("[1, 2, 3]"));
+    assertPushPreserves(sample('["a", "b"]'));
+  });
+
+  it("pushes record values", () => {
+    assertPushPreserves(sample('{ "name": "Ada", "age": 36 }'));
+  });
+
+  it("pushes quote values", () => {
+    for (const source of ["( dup )", "( 1 + )"]) {
+      const value = sample(source);
+      ctx.clear();
+      ctx.push(value);
+      const pushed = ctx.peek();
+
+      assert.equal(pushed.type, "quote");
+      assert.equal(typeof pushed.value, "string");
+      assert.ok(pushed.value.includes("("));
+      assert.ok(pushed.value.includes(")"));
+    }
+  });
+
+  it("pushes date values", () => {
+    assertPushPreserves(sample("2026-09-07"));
+  });
+
+  it("pushes time values", () => {
+    assertPushPreserves(sample("16:02:00"));
+  });
+
+  it("pushes month values", () => {
+    assertPushPreserves(sample("january"));
+    assertPushPreserves(sample("december"));
+  });
+
+  it("pushes weekday values", () => {
+    assertPushPreserves(sample("monday"));
+    assertPushPreserves(sample("sunday"));
   });
 });
 

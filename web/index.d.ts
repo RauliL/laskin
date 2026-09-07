@@ -184,6 +184,11 @@ export type LaskinContext = {
   pop(): LaskinValue;
 
   /**
+   * Pushes a value onto the data stack.
+   */
+  push(value: LaskinValue): void;
+
+  /**
    * Returns all stack values as an array.
    */
   stack(): LaskinValue[];

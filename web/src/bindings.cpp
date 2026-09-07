@@ -385,6 +385,18 @@ public:
     }
   }
 
+  void push(const emscripten::val& js_value)
+  {
+    try
+    {
+      m_context.push(value_from_js(js_value));
+    }
+    catch (const laskin::error& error)
+    {
+      raise_laskin_error(error);
+    }
+  }
+
   emscripten::val stack() const
   {
     auto result = emscripten::val::array();
@@ -414,6 +426,7 @@ EMSCRIPTEN_BINDINGS(laskin)
     .function("depth", &Context::depth)
     .function("peek", &Context::peek)
     .function("pop", &Context::pop)
+    .function("push", &Context::push)
     .function("stack", &Context::stack);
 
   emscripten::function("laskinValueToString", &laskinValueToString);

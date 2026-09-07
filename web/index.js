@@ -82,6 +82,14 @@ export const createContext = async (options = {}) => {
       }
     },
 
+    push(value) {
+      try {
+        context.push(value);
+      } catch (error) {
+        rethrow(error);
+      }
+    },
+
     stack() {
       return context.stack();
     },
