@@ -1,0 +1,49 @@
+{
+  "name": "laskin",
+  "version": "3.0.0",
+  "description": "Reverse Polish notation calculator / programming language (WebAssembly)",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "laskin.js",
+    "laskin.wasm",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "laskin",
+    "rpn",
+    "calculator",
+    "webassembly",
+    "wasm",
+    "forth"
+  ],
+  "author": "Rauli Laine <rauli.laine@iki.fi>",
+  "license": "BSD-2-Clause",
+  "homepage": "https://github.com/RauliL/laskin",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RauliL/laskin.git",
+    "directory": "web"
+  },
+  "bugs": {
+    "url": "https://github.com/RauliL/laskin/issues"
+  },
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6"
+  }
+}

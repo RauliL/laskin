@@ -17,7 +17,7 @@ ADD_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-number
   https://github.com/peelonet/peelo-number.git
-  v2.1.0
+  v3.0.0
 )
 ADD_DEPENDENCY(
   peelo-unicode
@@ -67,11 +67,13 @@ TARGET_INCLUDE_DIRECTORIES(
 
 TARGET_LINK_LIBRARIES(
   laskin
-  tsl::ordered_map
-  PeeloChrono
-  PeeloNumber
-  PeeloUnicode
-  ${MPFR_LIBRARIES}
+  PUBLIC
+    tsl::ordered_map
+    PeeloChrono
+    PeeloNumber
+    PeeloUnicode
+  PRIVATE
+    ${MPFR_LIBRARIES}
 )
 
 ENABLE_ALL_WARNINGS(laskin)
@@ -81,6 +83,19 @@ TARGET_COMPILE_FEATURES(
   PRIVATE
     cxx_std_17
 )
+
+IF(EMSCRIPTEN)
+  TARGET_COMPILE_OPTIONS(
+    laskin
+    PRIVATE
+      -fwasm-exceptions
+  )
+  TARGET_LINK_OPTIONS(
+    laskin
+    PUBLIC
+      -fwasm-exceptions
+  )
+ENDIF()
 
 IF(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   INSTALL(
