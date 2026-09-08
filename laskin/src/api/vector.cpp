@@ -81,7 +81,7 @@ LASKIN_BUILTIN_WORD(w_max)
         largest = candidate;
       }
     }
-    context << largest;
+    context << std::move(largest);
     return;
   }
 
@@ -113,7 +113,7 @@ LASKIN_BUILTIN_WORD(w_min)
         smallest = candidate;
       }
     }
-    context << smallest;
+    context << std::move(smallest);
     return;
   }
 
@@ -210,7 +210,7 @@ LASKIN_BUILTIN_WORD(w_map)
     quote.call(context, out);
     result.push_back(context.pop());
   }
-  context << result;
+  context << std::move(result);
 }
 
 /**
@@ -235,7 +235,7 @@ LASKIN_BUILTIN_WORD(w_filter)
       result.push_back(value);
     }
   }
-  context << result;
+  context << std::move(result);
 }
 
 /**
@@ -264,7 +264,7 @@ LASKIN_BUILTIN_WORD(w_reduce)
     quote.call(context, out);
     context >> result;
   }
-  context << result;
+  context << std::move(result);
 }
 
 /**
@@ -276,10 +276,10 @@ LASKIN_BUILTIN_WORD(w_reduce)
 LASKIN_BUILTIN_WORD(w_prepend)
 {
   auto vec = context.pop().as_vector();
-  const auto value = context.pop();
+  auto value = context.pop();
 
-  vec.insert(std::begin(vec), 1, value);
-  context << vec;
+  vec.insert(std::begin(vec), 1, std::move(value));
+  context << std::move(vec);
 }
 
 /**
@@ -291,10 +291,10 @@ LASKIN_BUILTIN_WORD(w_prepend)
 LASKIN_BUILTIN_WORD(w_append)
 {
   auto vec = context.pop().as_vector();
-  const auto value = context.pop();
+  auto value = context.pop();
 
-  vec.push_back(value);
-  context << vec;
+  vec.push_back(std::move(value));
+  context << std::move(vec);
 }
 
 /**
@@ -308,7 +308,7 @@ LASKIN_BUILTIN_WORD(w_insert)
 {
   auto vec = context.pop().as_vector();
   const auto size = vec.size();
-  const auto value = context.pop();
+  auto value = context.pop();
   auto index = long(context.pop());
 
   if (index < 0)
@@ -319,8 +319,8 @@ LASKIN_BUILTIN_WORD(w_insert)
   {
     throw error(error::type::range, U"Vector index out of bounds.");
   }
-  vec.insert(std::begin(vec) + index, 1, value);
-  context << vec;
+  vec.insert(std::begin(vec) + index, 1, std::move(value));
+  context << std::move(vec);
 }
 
 /**
@@ -391,7 +391,7 @@ LASKIN_BUILTIN_WORD(w_sort)
   auto vector = context.pop().as_vector();
 
   quicksort(vector, 0, vector.size() - 1);
-  context << vector;
+  context << std::move(vector);
 }
 
 /**
@@ -432,7 +432,7 @@ LASKIN_BUILTIN_WORD(w_set)
   auto vector = context.pop().as_vector();
   const auto size = vector.size();
   auto index = long(context.pop());
-  const auto value = context.pop();
+  auto value = context.pop();
 
   if (index < 0)
   {
@@ -442,8 +442,8 @@ LASKIN_BUILTIN_WORD(w_set)
   {
     throw error(error::type::range, U"Vector index out of bounds.");
   }
-  vector[index] = value;
-  context << vector;
+  vector[index] = std::move(value);
+  context << std::move(vector);
 }
 
 /**

@@ -37,8 +37,8 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_eq)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a == b);
 }
@@ -50,8 +50,8 @@ LASKIN_BUILTIN_WORD(w_eq)
  */
 LASKIN_BUILTIN_WORD(w_ne)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a != b);
 }
@@ -63,8 +63,8 @@ LASKIN_BUILTIN_WORD(w_ne)
  */
 LASKIN_BUILTIN_WORD(w_gt)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a > b);
 }
@@ -76,8 +76,8 @@ LASKIN_BUILTIN_WORD(w_gt)
  */
 LASKIN_BUILTIN_WORD(w_lt)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a < b);
 }
@@ -89,8 +89,8 @@ LASKIN_BUILTIN_WORD(w_lt)
  */
 LASKIN_BUILTIN_WORD(w_gte)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a >= b);
 }
@@ -102,8 +102,8 @@ LASKIN_BUILTIN_WORD(w_gte)
  */
 LASKIN_BUILTIN_WORD(w_lte)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << (a <= b);
 }
@@ -115,8 +115,8 @@ LASKIN_BUILTIN_WORD(w_lte)
  */
 LASKIN_BUILTIN_WORD(w_add)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << a + b;
 }
@@ -128,8 +128,8 @@ LASKIN_BUILTIN_WORD(w_add)
  */
 LASKIN_BUILTIN_WORD(w_sub)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << a - b;
 }
@@ -141,8 +141,8 @@ LASKIN_BUILTIN_WORD(w_sub)
  */
 LASKIN_BUILTIN_WORD(w_mul)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << a * b;
 }
@@ -154,8 +154,8 @@ LASKIN_BUILTIN_WORD(w_mul)
  */
 LASKIN_BUILTIN_WORD(w_div)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << a / b;
 }
@@ -167,8 +167,8 @@ LASKIN_BUILTIN_WORD(w_div)
  */
 LASKIN_BUILTIN_WORD(w_mod)
 {
-  const auto b = context.pop();
-  const auto a = context.pop();
+  auto b = context.pop();
+  auto a = context.pop();
 
   context << a % b;
 }
@@ -316,10 +316,10 @@ LASKIN_BUILTIN_WORD(w_drop)
  */
 LASKIN_BUILTIN_WORD(w_nip)
 {
-  const auto a = context.pop();
+  auto a = context.pop();
 
   context.pop();
-  context.push(a);
+  context.push(std::move(a));
 }
 
 /**
@@ -330,10 +330,10 @@ LASKIN_BUILTIN_WORD(w_nip)
  */
 LASKIN_BUILTIN_WORD(w_over)
 {
-  const auto a = context.pop();
-  const auto b = context.pop();
+  auto a = context.pop();
+  value b = context.pop();
 
-  context << b << a << b;
+  context << b << std::move(a) << std::move(b);
 }
 
 /**
@@ -343,11 +343,11 @@ LASKIN_BUILTIN_WORD(w_over)
  */
 LASKIN_BUILTIN_WORD(w_rot)
 {
-  const auto a = context.pop();
-  const auto b = context.pop();
-  const auto c = context.pop();
+  auto a = context.pop();
+  auto b = context.pop();
+  auto c = context.pop();
 
-  context << b << a << c;
+  context << std::move(b) << std::move(a) << std::move(c);
 }
 
 /**
@@ -357,10 +357,10 @@ LASKIN_BUILTIN_WORD(w_rot)
  */
 LASKIN_BUILTIN_WORD(w_swap)
 {
-  const auto a = context.pop();
-  const auto b = context.pop();
+  auto a = context.pop();
+  auto b = context.pop();
 
-  context << a << b;
+  context << std::move(a) << std::move(b);
 }
 
 /**
@@ -371,10 +371,10 @@ LASKIN_BUILTIN_WORD(w_swap)
  */
 LASKIN_BUILTIN_WORD(w_tuck)
 {
-  const auto a = context.pop();
-  const auto b = context.pop();
+  auto a = context.pop();
+  auto b = context.pop();
 
-  context << a << b << a;
+  context << a << std::move(b) << std::move(a);
 }
 
 /**
@@ -626,9 +626,9 @@ LASKIN_BUILTIN_WORD(w_lookup)
 LASKIN_BUILTIN_WORD(w_define)
 {
   const auto id = context.pop().as_string();
-  const auto value = context.pop();
+  auto value = context.pop();
 
-  context.dictionary[id] = value;
+  context.dictionary[id] = std::move(value);
 }
 
 /**
