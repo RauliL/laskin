@@ -48,21 +48,5 @@ SET_TARGET_PROPERTIES(
   laskin-web
   PROPERTIES
     OUTPUT_NAME laskin
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/dist"
-)
-
-# Emscripten emits both .js and .wasm next to the output name.
-ADD_CUSTOM_COMMAND(
-  TARGET laskin-web
-  POST_BUILD
-  COMMAND
-    ${CMAKE_COMMAND} -E copy_if_different
-      "${CMAKE_CURRENT_SOURCE_DIR}/package.json"
-      "${CMAKE_CURRENT_SOURCE_DIR}/index.js"
-      "${CMAKE_CURRENT_SOURCE_DIR}/index.d.ts"
-      "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
-      "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
-      "${CMAKE_CURRENT_SOURCE_DIR}/dist/"
-  COMMENT
-    "Copying npm package metadata into web/dist"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )

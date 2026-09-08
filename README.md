@@ -57,11 +57,10 @@ console.log(ctx.peek()); // "3"
 To build the package from source, install the [Emscripten SDK] and run:
 
 ```shell
-./scripts/build-wasm.sh
+npm run build --prefix web
 ```
 
-Artifacts are written to `web/dist/`. See [`web/README.md`](web/README.md) for
-the full JS API.
+See [`web/README.md`](web/README.md) for the full JS API.
 
 [forth]: https://en.wikipedia.org/wiki/Forth_%28programming_language%29
 [rpl]: https://en.wikipedia.org/wiki/RPL_(programming_language)

@@ -6,7 +6,7 @@ import {
   laskinValueToSource,
   laskinValueToString,
   LaskinError,
-} from "../dist/index.js";
+} from "../index.js";
 
 /** @param {string} value */
 function number(value) {
@@ -36,7 +36,7 @@ describe("createContext", () => {
     const ctx = await createContext({
       locateFile(path) {
         seen.push(path);
-        return new URL(`../dist/${path}`, import.meta.url).href;
+        return new URL(`../${path}`, import.meta.url).href;
       },
     });
 

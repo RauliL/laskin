@@ -60,8 +60,7 @@ await createContext({
 Requires the [Emscripten SDK].
 
 ```bash
-./scripts/build-wasm.sh
-npm test --prefix web
+npm run build
 ```
 
 [Laskin]: https://github.com/RauliL/laskin

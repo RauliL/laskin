@@ -1,4 +1,5 @@
-/dist
+/laskin.js
+/laskin.wasm
 /node_modules
 *.log
 *.tgz

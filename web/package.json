@@ -43,10 +43,18 @@
     "url": "https://github.com/RauliL/laskin/issues"
   },
   "scripts": {
+    "build": "zx build.mjs",
+    "build:deps": "zx build.mjs --deps-only",
+    "clean": "rimraf laskin.js laskin.wasm",
     "test": "node --test test/**/*.test.js",
-    "prepublishOnly": "node -e \"const fs=require('fs'); if(!fs.existsSync('laskin.wasm')) { console.error('Missing laskin.wasm — publish from web/dist after ./scripts/build-wasm.sh'); process.exit(1); }\""
+    "prebuild": "$npm_execpath run clean",
+    "pretest": "$npm_execpath run build",
+    "prepack": "$npm_execpath run build",
+    "prepublishOnly": "node -e \"const fs=require('fs'); if(!fs.existsSync('laskin.wasm')) { console.error('Missing laskin.wasm — run npm run build first'); process.exit(1); }\""
   },
   "devDependencies": {
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "rimraf": "^6.1.3",
+    "zx": "^8.8.5"
   }
 }
