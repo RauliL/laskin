@@ -4,10 +4,12 @@ PROJECT(laskin)
 INCLUDE(../cmake/add-dependency.cmake)
 INCLUDE(../cmake/enable-all-warnings.cmake)
 
-ADD_DEPENDENCY(
+ADD_HEADER_ONLY_DEPENDENCY(
   ordered-map
   https://github.com/Tessil/ordered-map.git
   v1.2.0
+  tsl::ordered_map
+  include
 )
 ADD_DEPENDENCY(
   peelo-chrono
