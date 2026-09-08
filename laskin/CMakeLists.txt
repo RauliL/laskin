@@ -12,7 +12,7 @@ ADD_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-chrono
   https://github.com/peelonet/peelo-chrono.git
-  v1.0.0
+  v1.1.0
 )
 ADD_DEPENDENCY(
   peelo-number
@@ -22,7 +22,7 @@ ADD_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-unicode
   https://github.com/peelonet/peelo-unicode.git
-  v2.1.0
+  v2.2.0
 )
 
 ADD_LIBRARY(
