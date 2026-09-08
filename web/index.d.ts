@@ -192,6 +192,11 @@ export type LaskinContext = {
    * Returns all stack values as an array.
    */
   stack(): LaskinValue[];
+
+  /**
+   * Returns copy of context dictionary.
+   */
+  dictionary(): Record<string, LaskinValue>;
 };
 
 /**

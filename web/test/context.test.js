@@ -246,6 +246,23 @@ describe("LaskinContext.push", () => {
   });
 });
 
+describe("LaskinContext.dictionary", () => {
+  /** @type {import('../index.d.ts').LaskinContext} */
+  let ctx;
+
+  before(async () => {
+    ctx = await createContext();
+  });
+
+  it("should provide readonly access to the context dictionary", () => {
+    ctx.run("'foo' -> variable");
+
+    const dictionary = ctx.dictionary();
+
+    assert.deepEqual(dictionary.variable, { type: "string", value: "foo" });
+  });
+});
+
 describe("laskinValueToString", () => {
   /** @type {import('../index.d.ts').LaskinContext} */
   let ctx;

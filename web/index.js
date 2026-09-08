@@ -93,6 +93,10 @@ export const createContext = async (options = {}) => {
     stack() {
       return context.stack();
     },
+
+    dictionary() {
+      return context.dictionary();
+    },
   };
 };
 

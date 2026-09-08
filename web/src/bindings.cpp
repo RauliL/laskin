@@ -413,6 +413,21 @@ public:
     return result;
   }
 
+  emscripten::val dictionary() const
+  {
+    using peelo::unicode::encoding::utf8::encode;
+
+    auto result = emscripten::val::object();
+    const auto& dictionary = m_context.dictionary;
+
+    for (const auto& entry : dictionary)
+    {
+      result.set(encode(entry.first), value_to_js(entry.second));
+    }
+
+    return result;
+  }
+
 private:
   laskin::context m_context;
 };
@@ -427,7 +442,8 @@ EMSCRIPTEN_BINDINGS(laskin)
     .function("peek", &Context::peek)
     .function("pop", &Context::pop)
     .function("push", &Context::push)
-    .function("stack", &Context::stack);
+    .function("stack", &Context::stack)
+    .function("dictionary", &Context::dictionary);
 
   emscripten::function("laskinValueToString", &laskinValueToString);
   emscripten::function("laskinValueToSource", &laskinValueToSource);
