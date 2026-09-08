@@ -556,6 +556,21 @@ namespace laskin
 
       return std::make_shared<node::definition>(symbol, position);
     }
+    else if (number::is_valid(id))
+    {
+      return std::make_shared<node::literal>(
+        value::parse_number(id),
+        position
+      );
+    }
+    else if (id == U"true")
+    {
+      return std::make_shared<node::literal>(true, position);
+    }
+    else if (id == U"false")
+    {
+      return std::make_shared<node::literal>(false, position);
+    }
 
     return std::make_shared<node::symbol>(id, position);
   }
