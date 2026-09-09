@@ -32,10 +32,8 @@ sudo apt install build-essential cmake libgmp-dev
 ```shell
 git clone https://github.com/RauliL/laskin.git
 cd laskin
-mkdir build
-cd build
-cmake ..
-make
+cmake -S . -B build
+cmake --build build
 ```
 
 ## WebAssembly / JavaScript
