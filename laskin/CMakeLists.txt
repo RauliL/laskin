@@ -19,7 +19,7 @@ ADD_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-number
   https://github.com/peelonet/peelo-number.git
-  v5.0.0
+  v5.1.0
 )
 ADD_DEPENDENCY(
   peelo-unicode
