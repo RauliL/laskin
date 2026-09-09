@@ -23,9 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cstdint>
 #include <cstring>
-#include <sstream>
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
@@ -700,6 +698,34 @@ namespace laskin
     }
 
     return *m_value_time;
+  }
+
+  value::operator int() const
+  {
+    long value;
+
+    try
+    {
+      return long(as_number());
+    }
+    catch (const std::underflow_error&)
+    {
+      throw error(error::type::range, U"Numeric underflow.");
+    }
+    catch (const std::overflow_error&)
+    {
+      throw error(error::type::range, U"Numeric overflow.");
+    }
+    if (value < INT_MIN)
+    {
+      throw error(error::type::range, U"Numeric underflow.");
+    }
+    else if (value > INT_MAX)
+    {
+      throw error(error::type::range, U"Numeric overflow.");
+    }
+
+    return static_cast<int>(value);
   }
 
   value::operator long() const

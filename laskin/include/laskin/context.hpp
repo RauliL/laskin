@@ -25,10 +25,6 @@
  */
 #pragma once
 
-#include <deque>
-#include <unordered_map>
-#include <utility>
-
 #include "laskin/quote.hpp"
 
 namespace laskin
@@ -217,6 +213,16 @@ namespace laskin
     inline context& operator>>(number& value)
     {
       value = pop().as_number();
+
+      return *this;
+    }
+
+    /**
+     * Pops numeric value from the stack and places it into given slot.
+     */
+    inline context& operator>>(int& value)
+    {
+      value = int(pop());
 
       return *this;
     }

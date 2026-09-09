@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cmath>
-
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -251,6 +249,20 @@ LASKIN_BUILTIN_WORD(w_round)
   context >> n << n.round();
 }
 
+/**
+ * number:round-places ( number number -- number )
+ *
+ * Rounds the number to the nearest representable integer, rounding halfway
+ * cases away from zero.
+ */
+LASKIN_BUILTIN_WORD(w_round_places)
+{
+  number n;
+  int places;
+
+  context >> n >> places << n.round(places);
+}
+
 LASKIN_BUILTIN_WORD(w_exp)
 {
   context << context.pop().as_number().exp();
@@ -459,6 +471,7 @@ namespace laskin::api
     { U"number:ceil", w_ceil },
     { U"number:floor", w_floor },
     { U"number:round", w_round },
+    { U"number:round-places", w_round_places },
 
     // Exponential functions.
     { U"number:exp", w_exp },

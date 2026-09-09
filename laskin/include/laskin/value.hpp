@@ -25,8 +25,6 @@
  */
 #pragma once
 
-#include <memory>
-
 #include "laskin/types.hpp"
 
 namespace laskin
@@ -378,6 +376,12 @@ namespace laskin
     weekday as_weekday() const;
     const date& as_date() const;
     const time& as_time() const;
+
+    /**
+     * Extracts number value as integer, or throws `laskin::error` if
+     * the value does not contain number value or does not fit into integer.
+     */
+    explicit operator int() const;
 
     /**
      * Extracts number value as long integer, or throws `laskin::error` if
