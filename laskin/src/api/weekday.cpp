@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "laskin/context.hpp"
-#include "laskin/error.hpp"
 
 using namespace laskin;
 

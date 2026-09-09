@@ -27,7 +27,6 @@
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
-#include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 #include "laskin/utils.hpp"

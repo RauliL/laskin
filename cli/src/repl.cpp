@@ -24,13 +24,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <cstdio>
-#include <cstring>
 #include <stack>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/quote.hpp"
-#include "laskin/utils.hpp"
 
 #include "./linenoise.hpp"
 

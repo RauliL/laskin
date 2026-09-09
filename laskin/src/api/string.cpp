@@ -27,7 +27,6 @@
 #include <peelo/unicode/ctype/isupper.hpp>
 #include <peelo/unicode/ctype/tolower.hpp>
 #include <peelo/unicode/ctype/toupper.hpp>
-#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"

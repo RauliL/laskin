@@ -33,7 +33,6 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/quote.hpp"
 
 static std::string programfile;
 static std::vector<std::string> inline_scripts;
