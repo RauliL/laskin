@@ -256,11 +256,11 @@ namespace laskin
   {
     if (!data.empty())
     {
-      const auto value = data.back();
+      value result = std::move(data.back());
 
       data.pop_back();
 
-      return value;
+      return result;
     }
 
     throw error(error::type::range, U"Stack underflow.");

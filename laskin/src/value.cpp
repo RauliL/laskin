@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstdint>
 #include <cstring>
 #include <sstream>
 
@@ -66,7 +67,7 @@ namespace laskin
 
   value::value(long value)
     : m_type(type::number)
-    , m_value_number(new number(value)) {}
+    , m_value_number(new number(static_cast<std::int64_t>(value))) {}
 
   value::value(double value)
     : m_type(type::number)
@@ -246,7 +247,7 @@ namespace laskin
   {
     reset();
     m_type = type::number;
-    m_value_number = new number(value);
+    m_value_number = new number(static_cast<std::int64_t>(value));
 
     return *this;
   }

@@ -27,6 +27,7 @@
 
 #include <deque>
 #include <unordered_map>
+#include <utility>
 
 #include "laskin/quote.hpp"
 
@@ -155,6 +156,14 @@ namespace laskin
     }
 
     /**
+     * Pushes given value onto the stack, transferring ownership.
+     */
+    inline void push(class value&& value)
+    {
+      data.push_back(std::move(value));
+    }
+
+    /**
      * Clears the entire data stack.
      */
     inline void clear()
@@ -168,6 +177,16 @@ namespace laskin
     inline context& operator<<(const class value& value)
     {
       data.push_back(value);
+
+      return *this;
+    }
+
+    /**
+     * Pushes given value onto the stack, transferring ownership.
+     */
+    inline context& operator<<(class value&& value)
+    {
+      data.push_back(std::move(value));
 
       return *this;
     }
