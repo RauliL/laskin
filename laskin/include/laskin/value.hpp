@@ -90,7 +90,17 @@ namespace laskin
     /**
      * Constructs string.
      */
+    value(const char32_t* value);
+
+    /**
+     * Constructs string.
+     */
     value(const std::u32string& value);
+
+    /**
+     * Constructs string. The input is expected to be encoded with UTF-8.
+     */
+    value(const char* value);
 
     /**
      * Constructs string. The input is expected to be encoded with UTF-8.

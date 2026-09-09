@@ -70,9 +70,19 @@ namespace laskin
     : m_type(type::number)
     , m_value_number(new number(value)) {}
 
+  value::value(const char32_t* value)
+    : m_type(type::string)
+    , m_value_string(new std::u32string(value)) {}
+
   value::value(const std::u32string& value)
     : m_type(type::string)
     , m_value_string(new std::u32string(value)) {}
+
+  value::value(const char* value)
+    : m_type(type::string)
+    , m_value_string(new std::u32string(
+        peelo::unicode::encoding::utf8::decode(value)
+      )) {}
 
   value::value(const std::string& value)
     : m_type(type::string)
