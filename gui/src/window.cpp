@@ -121,10 +121,15 @@ namespace laskin::gui
   void
   Window::on_error_thrown(const laskin::error& error)
   {
-    std::stringstream buffer;
+    if (error.is(laskin::error::type::exit))
+    {
+      std::exit(EXIT_SUCCESS);
+    } else {
+      std::stringstream buffer;
 
-    buffer << error;
-    m_line_display.add_line(buffer.str() + '\n', LineDisplay::LINE_TYPE_ERROR);
+      buffer << error;
+      m_line_display.add_line(buffer.str() + '\n', LineDisplay::LINE_TYPE_ERROR);
+    }
   }
 
   void
