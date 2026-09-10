@@ -25,6 +25,12 @@
  */
 #include "./syntax-highlighter.hpp"
 
+#include <peelo/number.hpp>
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
 namespace laskin::gui
 {
   namespace
@@ -226,6 +232,38 @@ namespace laskin::gui
       return false;
     }
 
+    const std::vector<std::string>&
+    unit_symbols()
+    {
+      static const std::vector<std::string> symbols = []() {
+        std::vector<std::string> result;
+
+        for (const auto type : {
+          peelo::number::unit::type::length,
+          peelo::number::unit::type::mass,
+          peelo::number::unit::type::time
+        })
+        {
+          for (const auto& u : peelo::number::unit::all_units_of(type))
+          {
+            result.push_back(u.symbol);
+          }
+        }
+
+        std::sort(
+          result.begin(),
+          result.end(),
+          [](const std::string& a, const std::string& b) {
+            return a.size() > b.size();
+          }
+        );
+
+        return result;
+      }();
+
+      return symbols;
+    }
+
     bool
     match_unit(
       const Glib::ustring& line,
@@ -233,31 +271,15 @@ namespace laskin::gui
       Glib::ustring::size_type& end
     )
     {
-      static const char* units[] = {
-        "mm",
-        "cm",
-        "km",
-        "mg",
-        "kg",
-        "ms",
-        "min",
-        "m",
-        "g",
-        "s",
-        "h",
-        "d"
-      };
-
-      for (const auto* unit : units)
+      for (const auto& unit_str : unit_symbols())
       {
-        const Glib::ustring unit_str(unit);
-
         if (
-          starts_with(line, pos, unit)
+          starts_with(line, pos, unit_str.c_str())
           && word_boundary_after(line, pos + unit_str.length())
         )
         {
           end = pos + unit_str.length();
+
           return true;
         }
       }
@@ -395,6 +417,7 @@ namespace laskin::gui
         if (body_end > body_start)
         {
           end = body_end;
+
           return true;
         }
 
@@ -404,6 +427,7 @@ namespace laskin::gui
       if (parse_number_body(line, pos, body_end))
       {
         end = body_end;
+
         return true;
       }
 
