@@ -8,34 +8,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Install MPFR
-        run: sudo apt install -y libmpfr6 libmpfr-dev
+      - name: Install dependencies
+        run: sudo apt install -y libmpfr6 libmpfr-dev libgtkmm-4.0-dev
       - name: Build
         uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            LASKIN_ENABLE_2CPP=ON
+            LASKIN_ENABLE_GUI=ON
 
   build-macos:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Install MPFR
-        run: brew install mpfr
+      - name: Install dependencies
+        run: brew install mpfr gtkmm4
       - name: Export homebrew paths
         uses: spezifisch/export-homebrew-build-paths@v1.0.0
       - name: Build
         uses: threeal/cmake-action@v2.1.0
+        with:
+          options: |
+            LASKIN_ENABLE_2CPP=ON
+            LASKIN_ENABLE_GUI=ON
 
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Install MPFR
+      - name: Install dependencies
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
           update: true
-          install: mingw-w64-x86_64-mpfr mingw-w64-x86_64-cmake mingw-w64-x86_64-make mingw-w64-x86_64-gcc
+          install: >-
+            mingw-w64-x86_64-mpfr
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-gtkmm-4.0
       - name: Set MinGW environment variables
         run: |
           echo "MPFR_ROOT=C:\msys64\mingw64" >> $env:GITHUB_ENV
@@ -43,7 +57,9 @@ jobs:
       - name: Build
         shell: msys2 {0}
         run: |
-          cmake -B build -S . -G "MinGW Makefiles"
+          cmake -B build -S . -G "MinGW Makefiles" \
+            -DLASKIN_ENABLE_2CPP=ON \
+            -DLASKIN_ENABLE_GUI=ON
           cmake --build build
 
   build-wasm:

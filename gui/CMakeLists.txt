@@ -3,9 +3,9 @@ PROJECT(laskin-gui CXX)
 
 INCLUDE(../cmake/enable-all-warnings.cmake)
 
-FIND_PACKAGE(PkgConfig)
+FIND_PACKAGE(PkgConfig REQUIRED)
 
-PKG_CHECK_MODULES(GTKMM gtkmm-4.0 REQUIRED)
+PKG_CHECK_MODULES(GTKMM REQUIRED IMPORTED_TARGET gtkmm-4.0)
 
 ADD_EXECUTABLE(
   laskin-gui
@@ -27,17 +27,12 @@ TARGET_COMPILE_FEATURES(
     cxx_std_17
 )
 
-TARGET_INCLUDE_DIRECTORIES(
-  laskin-gui
-  PRIVATE
-    ${GTKMM_INCLUDE_DIRS}
-)
-
 TARGET_LINK_LIBRARIES(
   laskin-gui
-  laskin
-  ${MPFR_LIBRARIES}
-  ${GTKMM_LIBRARIES}
+  PRIVATE
+    laskin
+    ${MPFR_LIBRARIES}
+    PkgConfig::GTKMM
 )
 
 INSTALL(
