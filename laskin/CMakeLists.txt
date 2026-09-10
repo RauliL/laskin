@@ -14,7 +14,7 @@ ADD_HEADER_ONLY_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-chrono
   https://github.com/peelonet/peelo-chrono.git
-  v1.1.0
+  v2.0.0
 )
 ADD_DEPENDENCY(
   peelo-number
