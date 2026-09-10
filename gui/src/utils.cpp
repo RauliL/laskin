@@ -86,7 +86,7 @@ namespace laskin::gui::utils
   {
     auto provider = Gtk::CssProvider::create();
 
-    provider->load_from_string("* { font-family: monospace; }");
+    provider->load_from_data("* { font-family: monospace; }");
     widget.get_style_context()->add_provider(
       provider,
       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
