@@ -33,6 +33,7 @@ namespace laskin::gui
     , m_line_count(1)
     , m_stack_depth_count(0)
     , m_updating(false)
+    , m_history_index(0)
     , m_text_buffer(m_text_view.get_buffer())
     , m_key_controller(Gtk::EventControllerKey::create())
     , m_highlighter(m_text_buffer)
@@ -95,6 +96,8 @@ namespace laskin::gui
   void
   LineEditor::set_text(const Glib::ustring& text)
   {
+    reset_history_navigation();
+
     m_updating = true;
     m_text_buffer->set_text(text);
     m_updating = false;
@@ -102,6 +105,7 @@ namespace laskin::gui
     auto line_start = m_text_buffer->begin();
 
     m_highlighter.highlight_line(line_start);
+    place_cursor_at_end();
   }
 
   Glib::ustring
@@ -120,8 +124,11 @@ namespace laskin::gui
   void
   LineEditor::on_activate()
   {
+    const Glib::ustring line = get_text();
+
     set_line_count(m_line_count + 1);
-    m_signal_line_received.emit(get_text());
+    add_to_history(line);
+    m_signal_line_received.emit(line);
 
     m_updating = true;
     m_text_buffer->set_text(Glib::ustring());
@@ -156,11 +163,105 @@ namespace laskin::gui
     m_highlighter.highlight_line(line_start);
   }
 
+  void
+  LineEditor::add_to_history(const Glib::ustring& line)
+  {
+    if (line.empty())
+    {
+      reset_history_navigation();
+      return;
+    }
+
+    if (!m_history.empty() && m_history.back() == line)
+    {
+      reset_history_navigation();
+      return;
+    }
+
+    m_history.push_back(line);
+
+    if (m_history.size() > HISTORY_MAX_LEN)
+    {
+      m_history.erase(m_history.begin());
+    }
+
+    reset_history_navigation();
+  }
+
+  void
+  LineEditor::reset_history_navigation()
+  {
+    m_history_index = m_history.size();
+    m_history_draft.clear();
+  }
+
+  void
+  LineEditor::place_cursor_at_end()
+  {
+    m_text_buffer->place_cursor(m_text_buffer->end());
+  }
+
+  void
+  LineEditor::history_previous()
+  {
+    if (m_history.empty())
+    {
+      return;
+    }
+
+    if (m_history_index == m_history.size())
+    {
+      m_history_draft = get_text();
+      m_history_index = m_history.size() - 1;
+    } else if (m_history_index > 0)
+    {
+      --m_history_index;
+    } else {
+      return;
+    }
+
+    m_updating = true;
+    m_text_buffer->set_text(m_history[m_history_index]);
+    m_updating = false;
+
+    auto line_start = m_text_buffer->begin();
+
+    m_highlighter.highlight_line(line_start);
+    place_cursor_at_end();
+  }
+
+  void
+  LineEditor::history_next()
+  {
+    if (m_history.empty() || m_history_index >= m_history.size())
+    {
+      return;
+    }
+
+    ++m_history_index;
+
+    m_updating = true;
+
+    if (m_history_index >= m_history.size())
+    {
+      m_text_buffer->set_text(m_history_draft);
+    } else {
+      m_text_buffer->set_text(m_history[m_history_index]);
+    }
+
+    m_updating = false;
+
+    auto line_start = m_text_buffer->begin();
+
+    m_highlighter.highlight_line(line_start);
+    place_cursor_at_end();
+  }
+
   bool
   LineEditor::on_key_pressed(
     guint keyval,
     guint /* keycode */,
-    Gdk::ModifierType /* state */
+    Gdk::ModifierType state
   )
   {
     if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter)
@@ -168,6 +269,26 @@ namespace laskin::gui
       on_activate();
 
       return true;
+    }
+
+    if (
+      (state & Gdk::ModifierType::CONTROL_MASK) == Gdk::ModifierType{}
+      && (state & Gdk::ModifierType::ALT_MASK) == Gdk::ModifierType{}
+    )
+    {
+      if (keyval == GDK_KEY_Up)
+      {
+        history_previous();
+
+        return true;
+      }
+
+      if (keyval == GDK_KEY_Down)
+      {
+        history_next();
+
+        return true;
+      }
     }
 
     return false;

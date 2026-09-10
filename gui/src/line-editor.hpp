@@ -25,6 +25,9 @@
  */
 #pragma once
 
+#include <cstddef>
+#include <vector>
+
 #include <gtkmm.h>
 #include <sigc++/signal.h>
 
@@ -78,10 +81,25 @@ namespace laskin::gui
 
     Glib::ustring get_text() const;
 
+    void add_to_history(const Glib::ustring& line);
+
+    void history_previous();
+
+    void history_next();
+
+    void place_cursor_at_end();
+
+    void reset_history_navigation();
+
   private:
+    static constexpr std::size_t HISTORY_MAX_LEN = 100;
+
     int m_line_count;
     int m_stack_depth_count;
     bool m_updating;
+    std::vector<Glib::ustring> m_history;
+    std::size_t m_history_index;
+    Glib::ustring m_history_draft;
     Gtk::Label m_label;
     Gtk::TextView m_text_view;
     Glib::RefPtr<Gtk::TextBuffer> m_text_buffer;
