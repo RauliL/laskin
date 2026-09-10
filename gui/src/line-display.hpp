@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 namespace laskin::gui
 {
-  class LineDisplay : public Gtk::Bin
+  class LineDisplay : public Gtk::ScrolledWindow
   {
   public:
     enum LineType
@@ -47,7 +47,6 @@ namespace laskin::gui
     void scroll_up();
 
   private:
-    Gtk::ScrolledWindow m_scrolled_window;
     Gtk::TextView m_text_view;
     Glib::RefPtr<Gtk::TextBuffer> m_text_buffer;
     Glib::RefPtr<Gtk::TextTag> m_input_tag;

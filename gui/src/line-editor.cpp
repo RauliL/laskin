@@ -29,24 +29,22 @@
 namespace laskin::gui
 {
   LineEditor::LineEditor()
-    : m_line_count(1)
+    : Gtk::Box(Gtk::Orientation::HORIZONTAL)
+    , m_line_count(1)
     , m_stack_depth_count(0)
-    , m_box(Gtk::ORIENTATION_HORIZONTAL)
   {
-    const auto& font = utils::get_monospace_font();
-
     update_prompt();
 
     m_entry.set_has_frame(false);
-    m_entry.override_font(font);
-    m_label.override_font(font);
+    m_entry.set_hexpand(true);
+    utils::set_monospace_font(m_entry);
+    utils::set_monospace_font(m_label);
 
-    m_box.pack_start(m_label, Gtk::PACK_SHRINK);
-    m_box.pack_start(m_entry);
-    add(m_box);
+    append(m_label);
+    append(m_entry);
 
     m_entry.signal_activate().connect(sigc::mem_fun(
-      this,
+      *this,
       &LineEditor::on_activate
     ));
   }

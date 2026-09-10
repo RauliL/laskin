@@ -5,11 +5,7 @@ INCLUDE(../cmake/enable-all-warnings.cmake)
 
 FIND_PACKAGE(PkgConfig)
 
-PKG_CHECK_MODULES(GTKMM gtkmm-3.0 REQUIRED)
-
-LINK_DIRECTORIES(
-  ${GTKMM_LIBRARY_DIRS}
-)
+PKG_CHECK_MODULES(GTKMM gtkmm-4.0 REQUIRED)
 
 ADD_EXECUTABLE(
   laskin-gui

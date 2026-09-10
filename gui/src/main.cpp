@@ -28,9 +28,18 @@
 int
 main(int argc, char** argv)
 {
-  auto app = Gtk::Application::create(argc, argv, "dev.rauli.laskin.gui");
+  auto app = Gtk::Application::create("dev.rauli.laskin.gui");
   auto context = Glib::RefPtr<laskin::gui::Context>(new laskin::gui::Context());
-  laskin::gui::Window window(context);
 
-  return app->run(window);
+  app->signal_activate().connect(
+    [app, context]()
+    {
+      auto window = new laskin::gui::Window(context);
+
+      app->add_window(*window);
+      window->present();
+    }
+  );
+
+  return app->run(argc, argv);
 }

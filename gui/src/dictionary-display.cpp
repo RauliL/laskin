@@ -40,23 +40,18 @@ namespace laskin::gui
     const auto& name_column = m_columns.name_column();
     const auto& value_column = m_columns.value_column();
 
-    m_tree_model->set_sort_column(value_column, Gtk::SORT_ASCENDING);
-    m_tree_view.override_font(utils::get_monospace_font());
+    m_tree_model->set_sort_column(value_column, Gtk::SortType::ASCENDING);
+    utils::set_monospace_font(m_tree_view);
     m_tree_view.set_model(m_tree_model);
     m_tree_view.append_column("Name", name_column);
     m_tree_view.append_column("Value", value_column);
     m_tree_view.signal_row_activated().connect(sigc::mem_fun(
-      this,
+      *this,
       &DictionaryDisplay::on_row_activated
     ));
 
-    m_scrolled_window.set_policy(
-      Gtk::POLICY_AUTOMATIC,
-      Gtk::POLICY_AUTOMATIC
-    );
-    m_scrolled_window.add(m_tree_view);
-
-    add(m_scrolled_window);
+    set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
+    set_child(m_tree_view);
   }
 
   void

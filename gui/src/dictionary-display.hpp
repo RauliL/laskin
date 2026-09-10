@@ -26,6 +26,7 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <sigc++/signal.h>
 
 #include "./context.hpp"
 
@@ -51,13 +52,11 @@ namespace laskin::gui
     Gtk::TreeModelColumn<Glib::ustring> m_value_column;
   };
 
-  class DictionaryDisplay : public Gtk::Bin
+  class DictionaryDisplay : public Gtk::ScrolledWindow
   {
   public:
     using word_activated_signal = sigc::signal<
-      void,
-      Glib::ustring,
-      Glib::ustring
+      void(const Glib::ustring&, const Glib::ustring&)
     >;
 
     explicit DictionaryDisplay();
@@ -81,7 +80,6 @@ namespace laskin::gui
     );
 
   private:
-    Gtk::ScrolledWindow m_scrolled_window;
     Gtk::TreeView m_tree_view;
     DictionaryDisplayColumns m_columns;
     Glib::RefPtr<Gtk::ListStore> m_tree_model;

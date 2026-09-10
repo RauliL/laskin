@@ -28,12 +28,12 @@
 #include <stack>
 
 #include <glibmm.h>
-#include <pangomm.h>
+#include <gtkmm.h>
 
 namespace laskin::gui::utils
 {
   void count_open_braces(std::stack<char32_t>&, const Glib::ustring&);
-  const Pango::FontDescription& get_monospace_font();
+  void set_monospace_font(Gtk::Widget& widget);
 
   /**
    * Simple utility function for converting between two different string

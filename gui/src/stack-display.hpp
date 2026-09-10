@@ -51,7 +51,7 @@ namespace laskin::gui
     Gtk::TreeModelColumn<Glib::ustring> m_value_column;
   };
 
-  class StackDisplay : public Gtk::Bin
+  class StackDisplay : public Gtk::ScrolledWindow
   {
   public:
     explicit StackDisplay();
@@ -59,7 +59,6 @@ namespace laskin::gui
     void update(const context::container_type& stack);
 
   private:
-    Gtk::ScrolledWindow m_scrolled_window;
     Gtk::TreeView m_tree_view;
     StackDisplayColumns m_columns;
     Glib::RefPtr<Gtk::ListStore> m_tree_model;

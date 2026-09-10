@@ -37,18 +37,13 @@ namespace laskin::gui
   StackDisplay::StackDisplay()
     : m_tree_model(Gtk::ListStore::create(m_columns))
   {
-    m_tree_view.override_font(utils::get_monospace_font());
+    utils::set_monospace_font(m_tree_view);
     m_tree_view.set_model(m_tree_model);
     m_tree_view.append_column("#", m_columns.index_column());
     m_tree_view.append_column("Value", m_columns.value_column());
 
-    m_scrolled_window.set_policy(
-      Gtk::POLICY_AUTOMATIC,
-      Gtk::POLICY_AUTOMATIC
-    );
-    m_scrolled_window.add(m_tree_view);
-
-    add(m_scrolled_window);
+    set_policy(Gtk::PolicyType::AUTOMATIC, Gtk::PolicyType::AUTOMATIC);
+    set_child(m_tree_view);
   }
 
   void

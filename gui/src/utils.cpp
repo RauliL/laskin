@@ -81,18 +81,15 @@ namespace laskin::gui::utils
     }
   }
 
-  const Pango::FontDescription&
-  get_monospace_font()
+  void
+  set_monospace_font(Gtk::Widget& widget)
   {
-    static Pango::FontDescription font;
-    static bool initialized = false;
+    auto provider = Gtk::CssProvider::create();
 
-    if (!initialized)
-    {
-      font.set_family("monospace");
-      initialized = true;
-    }
-
-    return font;
+    provider->load_from_string("* { font-family: monospace; }");
+    widget.get_style_context()->add_provider(
+      provider,
+      GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+    );
   }
 }

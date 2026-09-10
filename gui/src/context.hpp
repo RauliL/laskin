@@ -25,18 +25,19 @@
  */
 #pragma once
 
+#include <glibmm.h>
+#include <sigc++/signal.h>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-
-#include <glibmm.h>
 
 namespace laskin::gui
 {
   class Context : public Glib::ObjectBase
   {
   public:
-    using error_thrown_signal = sigc::signal<void, laskin::error>;
-    using text_written_signal = sigc::signal<void, Glib::ustring>;
+    using error_thrown_signal = sigc::signal<void(const laskin::error&)>;
+    using text_written_signal = sigc::signal<void(const Glib::ustring&)>;
 
     explicit Context();
 

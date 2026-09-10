@@ -46,7 +46,11 @@ namespace laskin::gui
     void on_line_received(const Glib::ustring& line);
     void on_error_thrown(const laskin::error& error);
     void on_text_written(const Glib::ustring& text);
-    bool on_key_press_event(GdkEventKey* event);
+    bool on_key_pressed(
+      guint keyval,
+      guint keycode,
+      Gdk::ModifierType state
+    );
     void on_word_activated(
       const Glib::ustring& id,
       const Glib::ustring& value_source
@@ -63,5 +67,6 @@ namespace laskin::gui
     StackDisplay m_stack_display;
     DictionaryDisplay m_dictionary_display;
     LineEditor m_line_editor;
+    Glib::RefPtr<Gtk::EventControllerKey> m_key_controller;
   };
 }

@@ -35,20 +35,18 @@ namespace laskin::gui
   {
     m_text_view.set_monospace(true);
     m_text_view.set_editable(false);
-    m_text_view.set_wrap_mode(Gtk::WRAP_CHAR);
-    m_text_view.signal_size_allocate().connect(
-      [this](Gtk::Allocation& allocation)
+    m_text_view.set_wrap_mode(Gtk::WrapMode::CHAR);
+    m_text_buffer->signal_changed().connect(
+      [this]()
       {
-        const auto adj = m_scrolled_window.get_vadjustment();
+        const auto adj = get_vadjustment();
 
         adj->set_value(adj->get_upper() - adj->get_page_size());
       }
     );
 
-    m_scrolled_window.add(m_text_view);
-    m_scrolled_window.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
-
-    add(m_scrolled_window);
+    set_child(m_text_view);
+    set_policy(Gtk::PolicyType::NEVER, Gtk::PolicyType::ALWAYS);
 
     m_input_tag->property_foreground().set_value("gray");
     m_error_tag->property_foreground().set_value("red");
@@ -64,7 +62,6 @@ namespace laskin::gui
   LineDisplay::add_line(const Glib::ustring& line, LineType type)
   {
     Glib::RefPtr<Gtk::TextTag> tag;
-    Glib::RefPtr<Gtk::Adjustment> adjustment;
     auto end = m_text_buffer->end();
 
     switch (type)
@@ -88,7 +85,7 @@ namespace laskin::gui
   void
   LineDisplay::scroll_down()
   {
-    const auto adj = m_scrolled_window.get_vadjustment();
+    const auto adj = get_vadjustment();
     const auto page = adj->get_page_size();
     const auto value = adj->get_value();
     const auto max = adj->get_upper();
@@ -106,7 +103,7 @@ namespace laskin::gui
   void
   LineDisplay::scroll_up()
   {
-    const auto adj = m_scrolled_window.get_vadjustment();
+    const auto adj = get_vadjustment();
     const auto page = adj->get_page_size();
     const auto value = adj->get_value();
     const auto min = adj->get_lower();

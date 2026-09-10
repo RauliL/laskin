@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Rauli Laine
+ * Copyright (c) 2023-2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,15 @@
 #pragma once
 
 #include <gtkmm.h>
+#include <sigc++/signal.h>
 
 namespace laskin::gui
 {
-  class LineEditor : public Gtk::Bin
+  class LineEditor : public Gtk::Box
   {
   public:
+    using line_received_signal = sigc::signal<void(const Glib::ustring&)>;
+
     explicit LineEditor();
 
     void grab_focus();
@@ -52,7 +55,12 @@ namespace laskin::gui
 
     void set_text(const Glib::ustring& text);
 
-    inline sigc::signal<void, Glib::ustring>& signal_line_received()
+    inline line_received_signal& signal_line_received()
+    {
+      return m_signal_line_received;
+    }
+
+    inline const line_received_signal& signal_line_received() const
     {
       return m_signal_line_received;
     }
@@ -65,9 +73,8 @@ namespace laskin::gui
   private:
     int m_line_count;
     int m_stack_depth_count;
-    Gtk::Box m_box;
     Gtk::Label m_label;
     Gtk::Entry m_entry;
-    sigc::signal<void, Glib::ustring> m_signal_line_received;
+    line_received_signal m_signal_line_received;
   };
 }
