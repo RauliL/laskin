@@ -372,6 +372,16 @@ namespace laskin
     static std::u32string type_description(enum type type);
 
     /**
+     * Returns textual description of an month.
+     */
+    static std::u32string month_description(month m);
+
+    /**
+     * Returns textual description of day of a week.
+     */
+    static std::u32string weekday_description(weekday w);
+
+    /**
      * Resets the value back to it's initial state.
      */
     void reset();

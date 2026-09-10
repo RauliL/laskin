@@ -8,9 +8,9 @@ import {
   LaskinError,
 } from "../index.js";
 
-/** @param {string} value */
-function number(value) {
-  return { type: "number", value };
+/** @param {string} value @param {string} [unit] */
+function number(value, unit) {
+  return unit ? { type: "number", value, unit } : { type: "number", value };
 }
 
 describe("createContext", () => {
@@ -104,7 +104,7 @@ describe("LaskinContext", () => {
     ctx.clear();
     ctx.run("1km 500m +");
 
-    assert.deepEqual(ctx.peek(), number("1.5km"));
+    assert.deepEqual(ctx.peek(), number("1.5", "km"));
   });
 
   it("supports user-defined words", () => {
@@ -121,7 +121,7 @@ describe("LaskinContext", () => {
 
     assert.deepEqual(ctx.peek(), {
       type: "vector",
-      value: [number("11"), number("22"), number("33")],
+      elements: [number("11"), number("22"), number("33")],
     });
   });
 
@@ -145,7 +145,7 @@ describe("LaskinContext", () => {
 
     assert.deepEqual(ctx.peek(), {
       type: "record",
-      value: {
+      properties: {
         name: { type: "string", value: "Ada" },
         age: number("36"),
       },
@@ -168,7 +168,7 @@ describe("LaskinContext.push", () => {
     return ctx.peek();
   }
 
-  /** @param {import('../index.d.ts').LaskinValue} value */
+  /** @param {import('../value.d.ts').Value} value */
   function assertPushPreserves(value) {
     ctx.clear();
     ctx.push(value);
@@ -197,6 +197,9 @@ describe("LaskinContext.push", () => {
   it("pushes number values", () => {
     assertPushPreserves(sample("42"));
     assertPushPreserves(sample("1.5km"));
+    ctx.clear();
+    ctx.push(number("1.5", "km"));
+    assert.deepEqual(ctx.peek(), sample("1.5km"));
   });
 
   it("pushes string values", () => {
@@ -221,17 +224,27 @@ describe("LaskinContext.push", () => {
       const pushed = ctx.peek();
 
       assert.equal(pushed.type, "quote");
-      assert.equal(typeof pushed.value, "string");
-      assert.ok(pushed.value.includes("("));
-      assert.ok(pushed.value.includes(")"));
+      assert.deepEqual(pushed.nodes, value.nodes);
     }
   });
 
   it("pushes date values", () => {
+    assertPushPreserves({
+      type: "date",
+      year: 2026,
+      month: "september",
+      day: 7,
+    });
     assertPushPreserves(sample("2026-09-07"));
   });
 
   it("pushes time values", () => {
+    assertPushPreserves({
+      type: "time",
+      hour: 16,
+      minute: 2,
+      second: 0,
+    });
     assertPushPreserves(sample("16:02:00"));
   });
 
@@ -243,6 +256,50 @@ describe("LaskinContext.push", () => {
   it("pushes weekday values", () => {
     assertPushPreserves(sample("monday"));
     assertPushPreserves(sample("sunday"));
+  });
+});
+
+describe("quote AST", () => {
+  /** @type {import('../index.d.ts').LaskinContext} */
+  let ctx;
+
+  before(async () => {
+    ctx = await createContext();
+  });
+
+  it("exposes scripted quote AST nodes", () => {
+    ctx.clear();
+    ctx.run("( dup 1 + )");
+
+    assert.deepEqual(ctx.peek(), {
+      type: "quote",
+      nodes: [
+        {
+          type: "symbol",
+          id: "dup",
+          position: { line: 1, column: 2 },
+        },
+        {
+          type: "literal",
+          value: { type: "number", value: "1" },
+          position: { line: 1, column: 6 },
+        },
+        {
+          type: "symbol",
+          id: "+",
+          position: { line: 1, column: 8 },
+        },
+      ],
+    });
+  });
+
+  it("uses a dummy AST node for native quotes", () => {
+    ctx.clear();
+
+    assert.deepEqual(ctx.dictionary()["+"], {
+      type: "quote",
+      nodes: [{ type: "symbol", id: "native quote" }],
+    });
   });
 });
 

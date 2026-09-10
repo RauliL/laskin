@@ -70,6 +70,11 @@ namespace laskin
     virtual enum type type() const = 0;
 
     /**
+     * Returns textual description of the AST node type.
+     */
+    static std::u32string type_description(enum type type);
+
+    /**
      * Executes the AST node as a statement.
      *
      * \param context Program context to use for execution.

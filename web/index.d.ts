@@ -28,108 +28,35 @@ export type CreateContextOptions = {
   locateFile?: (path: string, prefix: string) => string;
 };
 
-/** Supported Laskin value type names. */
-export type LaskinValueType =
-  | "boolean"
-  | "number"
-  | "string"
-  | "vector"
-  | "record"
-  | "quote"
-  | "date"
-  | "time"
-  | "month"
-  | "weekday";
+export type {
+  DefinitionNode,
+  LiteralNode,
+  Node,
+  NodeType,
+  Position,
+  RecordLiteralNode,
+  SymbolNode,
+  VectorLiteralNode,
+} from "./ast.d.ts";
 
-export type LaskinBoolean = {
-  type: "boolean";
-  value: boolean;
-};
+export type {
+  BooleanValue,
+  DateValue,
+  Month,
+  MonthValue,
+  NumberValue,
+  QuoteValue,
+  RecordValue,
+  StringValue,
+  TimeValue,
+  Value,
+  ValueType,
+  VectorValue,
+  Weekday,
+  WeekdayValue,
+} from "./value.d.ts";
 
-export type LaskinNumber = {
-  type: "number";
-  /** Numeric with optional unit, e.g. `"1500m"`. */
-  value: string;
-};
-
-export type LaskinString = {
-  type: "string";
-  value: string;
-};
-
-export type LaskinVector = {
-  type: "vector";
-  value: LaskinValue[];
-};
-
-export type LaskinRecord = {
-  type: "record";
-  value: Record<string, LaskinValue>;
-};
-
-export type LaskinQuote = {
-  type: "quote";
-  /** Laskin source for the quote. */
-  value: string;
-};
-
-export type LaskinDate = {
-  type: "date";
-  /** ISO-like date string, e.g. `"2026-09-07"`. */
-  value: string;
-};
-
-export type LaskinTime = {
-  type: "time";
-  /** Time string, e.g. `"16:02:00"`. */
-  value: string;
-};
-
-export type LaskinMonth = {
-  type: "month";
-  /** Full month name, e.g. `"january"`. */
-  value:
-    | "january"
-    | "february"
-    | "march"
-    | "april"
-    | "may"
-    | "june"
-    | "july"
-    | "august"
-    | "september"
-    | "october"
-    | "november"
-    | "december";
-};
-
-export type LaskinWeekday = {
-  type: "weekday";
-  /** Full weekday name, e.g. `"monday"`. */
-  value:
-    | "sunday"
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday";
-};
-
-/**
- * A value on the Laskin data stack.
- */
-export type LaskinValue =
-  | LaskinBoolean
-  | LaskinNumber
-  | LaskinString
-  | LaskinVector
-  | LaskinRecord
-  | LaskinQuote
-  | LaskinDate
-  | LaskinTime
-  | LaskinMonth
-  | LaskinWeekday;
+import type { Value } from "./value.d.ts";
 
 /**
  * Format a Laskin value as a human-readable string.
@@ -137,7 +64,7 @@ export type LaskinValue =
  * Uses the same formatting as the interpreter's `>string` word.
  */
 export function laskinValueToString(
-  value: LaskinValue,
+  value: Value,
   options?: CreateContextOptions,
 ): Promise<string>;
 
@@ -147,7 +74,7 @@ export function laskinValueToString(
  * Uses the same formatting as the interpreter's `>source` word.
  */
 export function laskinValueToSource(
-  value: LaskinValue,
+  value: Value,
   options?: CreateContextOptions,
 ): Promise<string>;
 
@@ -175,28 +102,28 @@ export type LaskinContext = {
   /**
    * Returns top-of-stack value or throws exception if the stack is empty.
    */
-  peek(): LaskinValue;
+  peek(): Value;
 
   /**
    * Removes and returns the top-of-stack value or throws exception if the
    * stack is empty.
    */
-  pop(): LaskinValue;
+  pop(): Value;
 
   /**
    * Pushes a value onto the data stack.
    */
-  push(value: LaskinValue): void;
+  push(value: Value): void;
 
   /**
    * Returns all stack values as an array.
    */
-  stack(): LaskinValue[];
+  stack(): Value[];
 
   /**
    * Returns copy of context dictionary.
    */
-  dictionary(): Record<string, LaskinValue>;
+  dictionary(): Record<string, Value>;
 };
 
 /**

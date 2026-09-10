@@ -508,6 +508,81 @@ namespace laskin
     return U"unknown";
   }
 
+  std::u32string
+  value::month_description(month m)
+  {
+    switch (m)
+    {
+      case month::jan:
+        return U"january";
+
+      case month::feb:
+        return U"february";
+
+      case month::mar:
+        return U"march";
+
+      case month::apr:
+        return U"april";
+
+      case month::may:
+        return U"may";
+
+      case month::jun:
+        return U"june";
+
+      case month::jul:
+        return U"july";
+
+      case month::aug:
+        return U"august";
+
+      case month::sep:
+        return U"september";
+
+      case month::oct:
+        return U"october";
+
+      case month::nov:
+        return U"november";
+
+      case month::dec:
+        return U"december";
+    }
+
+    return U"unknown";
+  }
+
+  std::u32string
+  value::weekday_description(weekday w)
+  {
+    switch (w)
+    {
+      case weekday::sun:
+        return U"sunday";
+
+      case weekday::mon:
+        return U"monday";
+
+      case weekday::tue:
+        return U"tuesday";
+
+      case weekday::wed:
+        return U"wednesday";
+
+      case weekday::thu:
+        return U"thursday";
+
+      case weekday::fri:
+        return U"friday";
+
+      case weekday::sat:
+        return U"saturday";
+    }
+
+    return U"unknown";
+  }
+
   void
   value::reset()
   {
@@ -790,81 +865,6 @@ namespace laskin
   }
 
   static std::u32string
-  month_to_string(month value)
-  {
-    switch (value)
-    {
-      case month::jan:
-        return U"january";
-
-      case month::feb:
-        return U"february";
-
-      case month::mar:
-        return U"march";
-
-      case month::apr:
-        return U"april";
-
-      case month::may:
-        return U"may";
-
-      case month::jun:
-        return U"june";
-
-      case month::jul:
-        return U"july";
-
-      case month::aug:
-        return U"august";
-
-      case month::sep:
-        return U"september";
-
-      case month::oct:
-        return U"october";
-
-      case month::nov:
-        return U"november";
-
-      case month::dec:
-        return U"december";
-    }
-
-    return U"unknown";
-  }
-
-  static std::u32string
-  weekday_to_string(weekday value)
-  {
-    switch (value)
-    {
-      case weekday::sun:
-        return U"sunday";
-
-      case weekday::mon:
-        return U"monday";
-
-      case weekday::tue:
-        return U"tuesday";
-
-      case weekday::wed:
-        return U"wednesday";
-
-      case weekday::thu:
-        return U"thursday";
-
-      case weekday::fri:
-        return U"friday";
-
-      case weekday::sat:
-        return U"saturday";
-    }
-
-    return U"unknown";
-  }
-
-  static std::u32string
   date_to_string(const date& value)
   {
     const auto year = value.year();
@@ -959,10 +959,10 @@ namespace laskin
         return m_value_quote->to_source();
 
       case type::month:
-        return month_to_string(m_value_month);
+        return month_description(m_value_month);
 
       case type::weekday:
-        return weekday_to_string(m_value_weekday);
+        return weekday_description(m_value_weekday);
 
       case type::date:
         return date_to_string(*m_value_date);
@@ -1044,10 +1044,10 @@ namespace laskin
         return m_value_quote->to_source();
 
       case type::month:
-        return month_to_string(m_value_month);
+        return month_description(m_value_month);
 
       case type::weekday:
-        return weekday_to_string(m_value_weekday);
+        return weekday_description(m_value_weekday);
 
       case type::date:
         return date_to_string(*m_value_date);

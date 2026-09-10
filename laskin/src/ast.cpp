@@ -29,6 +29,30 @@
 
 namespace laskin
 {
+  std::u32string
+  node::type_description(enum type type)
+  {
+    switch (type)
+    {
+      case type::definition:
+        return U"definition";
+
+      case type::literal:
+        return U"literal";
+
+      case type::record_literal:
+        return U"record-literal";
+
+      case type::symbol:
+        return U"symbol";
+
+      case type::vector_literal:
+        return U"vector-literal";
+    }
+
+    return U"unknown";
+  }
+
   void
   node::literal::exec(
     class context& context,
