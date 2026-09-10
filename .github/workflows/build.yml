@@ -9,7 +9,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Install dependencies
-        run: sudo apt install -y libmpfr6 libmpfr-dev libgtkmm-4.0-dev
+        uses: awalsh128/cache-apt-pkgs-action@v1.6.3
+        with:
+          packages: libmpfr6 libmpfr-dev libgtkmm-4.0-dev
+          version: 1.0
+      - name: Cache CMake dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ runner.os }}-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
       - name: Build
         uses: threeal/cmake-action@v2.1.0
         with:
@@ -22,10 +30,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Cache Homebrew bottles
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew
+          key: brew-${{ runner.os }}-${{ runner.arch }}-mpfr-gtkmm4
+          restore-keys: |
+            brew-${{ runner.os }}-${{ runner.arch }}-
       - name: Install dependencies
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install mpfr gtkmm4
       - name: Export homebrew paths
         uses: spezifisch/export-homebrew-build-paths@v1.0.0
+      - name: Cache CMake dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
       - name: Build
         uses: threeal/cmake-action@v2.1.0
         with:
@@ -43,6 +66,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
+          cache: true
           install: >-
             mingw-w64-x86_64-mpfr
             mingw-w64-x86_64-cmake
@@ -54,6 +78,11 @@ jobs:
         run: |
           echo "MPFR_ROOT=C:\msys64\mingw64" >> $env:GITHUB_ENV
           echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
+      - name: Cache CMake dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-${{ runner.os }}-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
       - name: Build
         shell: msys2 {0}
         run: |
@@ -67,16 +96,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Cache Emscripten SDK
+        id: emsdk-cache
+        uses: actions/cache@v4
+        with:
+          path: /opt/emsdk
+          key: emsdk-${{ runner.os }}-latest
       - name: Install Emscripten
+        if: steps.emsdk-cache.outputs.cache-hit != 'true'
         run: |
           git clone --depth 1 https://github.com/emscripten-core/emsdk.git /opt/emsdk
           /opt/emsdk/emsdk install latest
           /opt/emsdk/emsdk activate latest
+      - name: Activate Emscripten
+        run: |
+          source /opt/emsdk/emsdk_env.sh
+          emcc -v
+        shell: bash
       - name: Cache WebAssembly dependencies
         uses: actions/cache@v4
         with:
           path: wasm-deps
           key: wasm-deps-gmp-6.3.0-mpfr-4.2.2-emscripten-latest
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('web/package.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
       - name: Install web dependencies
         run: npm install --prefix web
       - name: Test
