@@ -23,20 +23,59 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <filesystem>
+#include <optional>
+
 #include "./window.hpp"
 
 int
 main(int argc, char** argv)
 {
-  auto app = Gtk::Application::create("dev.rauli.laskin.gui");
+  auto app = Gtk::Application::create(
+    "dev.rauli.laskin.gui",
+    Gio::Application::Flags::HANDLES_COMMAND_LINE
+  );
   auto context = Glib::RefPtr<laskin::gui::Context>(new laskin::gui::Context());
+  std::optional<std::filesystem::path> script_path;
+
+  app->signal_command_line().connect(
+    [&app, &script_path](
+      const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line
+    ) -> int
+    {
+      int argc = 0;
+      auto args = command_line->get_arguments(argc);
+
+      script_path.reset();
+      for (int i = 1; i < argc; ++i)
+      {
+        const auto arg = args[i];
+
+        if (arg && *arg && arg[0] != '-')
+        {
+          script_path = std::filesystem::path(arg);
+          break;
+        }
+      }
+      g_strfreev(args);
+
+      app->activate();
+
+      return EXIT_SUCCESS;
+    },
+    false
+  );
 
   app->signal_activate().connect(
-    [app, context]()
+    [app, context, &script_path]()
     {
       auto window = new laskin::gui::Window(context);
 
       app->add_window(*window);
+      if (script_path)
+      {
+        window->load_script(*script_path);
+      }
       window->present();
     }
   );

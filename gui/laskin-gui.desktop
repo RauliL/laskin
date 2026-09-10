@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Icon=laskin-gui
-Exec=laskin-gui
+Exec=laskin-gui %f
 Terminal=false
 StartupNotify=true
 Categories=GTK;Utility;Calculator

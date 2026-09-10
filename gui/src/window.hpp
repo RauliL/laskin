@@ -41,6 +41,8 @@ namespace laskin::gui
 
     explicit Window(const Glib::RefPtr<Context>& context);
 
+    void load_script(const std::filesystem::path& path);
+
   protected:
     void on_show();
     void on_line_received(const Glib::ustring& line);

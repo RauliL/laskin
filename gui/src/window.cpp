@@ -86,6 +86,22 @@ namespace laskin::gui
   }
 
   void
+  Window::load_script(const std::filesystem::path& path)
+  {
+    m_line_display.add_line(
+      Glib::ustring("Loading ") + path.string() + "...\n",
+      LineDisplay::LINE_TYPE_INPUT
+    );
+    m_context->include(path);
+
+    const auto& stack = m_context->stack();
+
+    m_line_editor.set_stack_depth_count(static_cast<int>(stack.size()));
+    m_stack_display.update(stack);
+    m_dictionary_display.update(m_context->dictionary());
+  }
+
+  void
   Window::on_show()
   {
     Gtk::Window::on_show();

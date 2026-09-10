@@ -64,4 +64,31 @@ namespace laskin::gui
       );
     }
   }
+
+  void
+  Context::include(const std::filesystem::path& path)
+  {
+    std::stringstream buffer;
+
+    try
+    {
+      m_context.include(path, &buffer);
+    }
+    catch (const error& e)
+    {
+      m_signal_error_thrown.emit(e);
+      return;
+    }
+
+    const auto output = buffer.str();
+
+    if (output.length() > 0)
+    {
+      m_signal_text_written.emit(
+        utils::string_convert<Glib::ustring, std::u32string>(
+          peelo::unicode::encoding::utf8::decode(output)
+        )
+      );
+    }
+  }
 }
