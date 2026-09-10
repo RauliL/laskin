@@ -86,6 +86,16 @@ jobs:
       - name: Build
         shell: msys2 {0}
         run: |
+          # MSYS2 currently ships glib 2.90 with glibmm 2.86; glib made
+          # GDBusActionGroup/GEmblem final types, which conflicts with
+          # glibmm's Class aliases. Fixed upstream in newer glibmm; drop the
+          # obsolete aliases until MSYS2 catches up.
+          giomm_inc="$(pkg-config --variable=includedir giomm-2.68)/giomm-2.68/giomm"
+          sed -i '/using GDBusActionGroupClass = struct _GDBusActionGroupClass;/d' \
+            "$giomm_inc/dbusactiongroup.h"
+          sed -i '/using GEmblemClass = struct _GEmblemClass;/d' \
+            "$giomm_inc/emblem.h"
+
           cmake -B build -S . -G "MinGW Makefiles" \
             -DLASKIN_ENABLE_2CPP=ON \
             -DLASKIN_ENABLE_GUI=ON
