@@ -13,6 +13,7 @@ ADD_EXECUTABLE(
   ./src/dictionary-display.cpp
   ./src/line-display.cpp
   ./src/line-editor.cpp
+  ./src/syntax-highlighter.cpp
   ./src/main.cpp
   ./src/stack-display.cpp
   ./src/utils.cpp

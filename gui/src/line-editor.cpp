@@ -32,27 +32,44 @@ namespace laskin::gui
     : Gtk::Box(Gtk::Orientation::HORIZONTAL)
     , m_line_count(1)
     , m_stack_depth_count(0)
+    , m_updating(false)
+    , m_text_buffer(m_text_view.get_buffer())
+    , m_key_controller(Gtk::EventControllerKey::create())
+    , m_highlighter(m_text_buffer)
   {
     update_prompt();
 
-    m_entry.set_has_frame(false);
-    m_entry.set_hexpand(true);
-    utils::set_monospace_font(m_entry);
+    m_text_view.set_editable(true);
+    m_text_view.set_accepts_tab(false);
+    m_text_view.set_cursor_visible(true);
+    m_text_view.set_wrap_mode(Gtk::WrapMode::NONE);
+    m_text_view.set_hexpand(true);
+    m_text_view.set_vexpand(false);
+    m_text_view.set_left_margin(0);
+    m_text_view.set_right_margin(0);
+    m_text_view.set_top_margin(2);
+    m_text_view.set_bottom_margin(2);
+    utils::set_monospace_font(m_text_view);
     utils::set_monospace_font(m_label);
 
     append(m_label);
-    append(m_entry);
+    append(m_text_view);
 
-    m_entry.signal_activate().connect(sigc::mem_fun(
+    m_text_buffer->signal_changed().connect(sigc::mem_fun(
       *this,
-      &LineEditor::on_activate
+      &LineEditor::on_buffer_changed
     ));
+    m_key_controller->signal_key_pressed().connect(
+      sigc::mem_fun(*this, &LineEditor::on_key_pressed),
+      false
+    );
+    m_text_view.add_controller(m_key_controller);
   }
 
   void
   LineEditor::grab_focus()
   {
-    m_entry.grab_focus_without_selecting();
+    m_text_view.grab_focus();
   }
 
   void
@@ -78,15 +95,82 @@ namespace laskin::gui
   void
   LineEditor::set_text(const Glib::ustring& text)
   {
-    m_entry.set_text(text);
+    m_updating = true;
+    m_text_buffer->set_text(text);
+    m_updating = false;
+
+    auto line_start = m_text_buffer->begin();
+
+    m_highlighter.highlight_line(line_start);
+  }
+
+  Glib::ustring
+  LineEditor::get_text() const
+  {
+    auto text = m_text_buffer->get_text();
+
+    while (!text.empty() && text[text.length() - 1] == U'\n')
+    {
+      text.erase(text.length() - 1);
+    }
+
+    return text;
   }
 
   void
   LineEditor::on_activate()
   {
     set_line_count(m_line_count + 1);
-    m_signal_line_received.emit(m_entry.get_text());
-    m_entry.set_text(Glib::ustring());
+    m_signal_line_received.emit(get_text());
+
+    m_updating = true;
+    m_text_buffer->set_text(Glib::ustring());
+    m_updating = false;
+  }
+
+  void
+  LineEditor::on_buffer_changed()
+  {
+    if (m_updating)
+    {
+      return;
+    }
+
+    const auto newline = get_text().find('\n');
+
+    if (newline != Glib::ustring::npos)
+    {
+      const Glib::ustring line = get_text().substr(0, newline);
+
+      m_updating = true;
+      m_text_buffer->set_text(line);
+      m_updating = false;
+      on_activate();
+
+      return;
+    }
+
+    auto line_start = m_text_buffer->get_insert()->get_iter();
+
+    line_start.set_line_offset(0);
+    m_highlighter.highlight_line(line_start);
+  }
+
+  bool
+  LineEditor::on_key_pressed(
+    guint keyval,
+    guint /* keycode */,
+    Gdk::ModifierType /* state */
+  )
+  {
+    if (keyval == GDK_KEY_Return || keyval == GDK_KEY_KP_Enter)
+    {
+      on_activate();
+
+      return true;
+    }
+
+    return false;
   }
 
   void

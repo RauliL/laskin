@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2026, Rauli Laine
+ * Copyright (c) 2026, Rauli Laine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,67 +26,50 @@
 #pragma once
 
 #include <gtkmm.h>
-#include <sigc++/signal.h>
-
-#include "./syntax-highlighter.hpp"
 
 namespace laskin::gui
 {
-  class LineEditor : public Gtk::Box
+  /**
+   * Applies Laskin syntax highlighting to a Gtk::TextBuffer using TextTags.
+   * Token rules mirror editor/laskin.vim.
+   */
+  class SyntaxHighlighter
   {
   public:
-    using line_received_signal = sigc::signal<void(const Glib::ustring&)>;
-
-    explicit LineEditor();
-
-    void grab_focus();
-
-    inline int get_line_count() const
+    enum class Tag
     {
-      return m_line_count;
-    }
+      COMMENT,
+      STRING,
+      BOOLEAN,
+      CONSTANT,
+      KEYWORD,
+      NUMBER,
+      OPERATOR,
+      DELIMITER,
+      DEFINITION,
+      COUNT
+    };
 
-    void set_line_count(int line_count);
+    explicit SyntaxHighlighter(const Glib::RefPtr<Gtk::TextBuffer>& buffer);
 
-    inline int get_stack_depth_count() const
-    {
-      return m_stack_depth_count;
-    }
-
-    void set_stack_depth_count(int stack_depth_count);
-
-    void set_text(const Glib::ustring& text);
-
-    inline line_received_signal& signal_line_received()
-    {
-      return m_signal_line_received;
-    }
-
-    inline const line_received_signal& signal_line_received() const
-    {
-      return m_signal_line_received;
-    }
-
-  protected:
-    void on_activate();
-
-    void update_prompt();
-
-    void on_buffer_changed();
-
-    bool on_key_pressed(guint keyval, guint keycode, Gdk::ModifierType state);
-
-    Glib::ustring get_text() const;
+    void highlight_line(const Gtk::TextIter& line_start);
+    void highlight_range(const Gtk::TextIter& start, const Gtk::TextIter& end);
 
   private:
-    int m_line_count;
-    int m_stack_depth_count;
-    bool m_updating;
-    Gtk::Label m_label;
-    Gtk::TextView m_text_view;
-    Glib::RefPtr<Gtk::TextBuffer> m_text_buffer;
-    Glib::RefPtr<Gtk::EventControllerKey> m_key_controller;
-    SyntaxHighlighter m_highlighter;
-    line_received_signal m_signal_line_received;
+    void create_tags();
+
+    void apply_tag(
+      Tag tag,
+      Gtk::TextIter start,
+      Gtk::TextIter end
+    );
+
+    void highlight_text(
+      const Glib::ustring& line,
+      const Gtk::TextIter& line_start
+    );
+
+    Glib::RefPtr<Gtk::TextBuffer> m_buffer;
+    Glib::RefPtr<Gtk::TextTag> m_tags[static_cast<int>(Tag::COUNT)];
   };
 }
