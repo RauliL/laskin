@@ -208,7 +208,7 @@ LASKIN_BUILTIN_WORD(w_times)
   while (count)
   {
     --count;
-    quote.call(context, out);
+    call(quote, context, out);
   }
 }
 

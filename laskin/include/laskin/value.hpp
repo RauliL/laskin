@@ -123,6 +123,11 @@ namespace laskin
     value(const quote& value);
 
     /**
+     * Constructs quote.
+     */
+    value(const scripted_quote& value);
+
+    /**
      * Constructs date value.
      */
     value(const date& value);

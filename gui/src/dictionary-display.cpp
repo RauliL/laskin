@@ -25,6 +25,7 @@
  */
 #include "./dictionary-display.hpp"
 #include "./utils.hpp"
+#include <variant>
 
 namespace laskin::gui
 {
@@ -69,7 +70,10 @@ namespace laskin::gui
       // Skip built-in words.
       // TODO: The problem with this is that it also skips user defined words
       // that just happen to have an native quote as it's value.
-      if (!value.is(value::type::quote) || !value.as_quote().is_native())
+      if (
+        !value.is(value::type::quote) ||
+        !std::holds_alternative<native_quote>(value.as_quote())
+      )
       {
         auto row = *(m_tree_model->append());
 

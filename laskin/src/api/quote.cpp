@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/ast.hpp"
 #include "laskin/context.hpp"
 
 using namespace laskin;
@@ -34,7 +35,7 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_call)
 {
-  context.pop().as_quote().call(context, out);
+  call(context.pop().as_quote(), context, out);
 }
 
 /**
@@ -48,7 +49,7 @@ LASKIN_BUILTIN_WORD(w_compose)
   const auto left = context.pop().as_quote();
   const auto call = std::make_shared<node::symbol>(U"quote:call");
 
-  context << quote({
+  context << scripted_quote({
     std::make_shared<node::literal>(left),
     call,
     std::make_shared<node::literal>(right),
@@ -66,7 +67,7 @@ LASKIN_BUILTIN_WORD(w_curry)
   const auto q = context.pop().as_quote();
   const auto argument = context.pop();
 
-  context << quote({
+  context << scripted_quote({
     std::make_shared<node::literal>(argument),
     std::make_shared<node::literal>(q),
     std::make_shared<node::symbol>(U"quote:call")
@@ -82,7 +83,7 @@ LASKIN_BUILTIN_WORD(w_negate)
 {
   const auto q = context.pop().as_quote();
 
-  context << quote({
+  context << scripted_quote({
     std::make_shared<node::literal>(q),
     std::make_shared<node::symbol>(U"quote:call"),
     std::make_shared<node::symbol>(U"boolean:not")
@@ -101,7 +102,7 @@ LASKIN_BUILTIN_WORD(w_dip)
   const auto quote = context.pop().as_quote();
   const auto value = context.pop();
 
-  quote.call(context, out);
+  call(quote, context, out);
   context << value;
 }
 

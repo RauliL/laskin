@@ -25,7 +25,10 @@
  */
 #pragma once
 
+#include "laskin/macros.hpp"
+#include "laskin/position.hpp"
 #include "laskin/quote.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
@@ -35,7 +38,7 @@ namespace laskin
     using container_type = std::deque<value>;
     using dictionary_type = std::unordered_map<std::u32string, value>;
     using dictionary_definition = std::initializer_list<
-      std::pair<std::u32string, quote::callback>
+      std::pair<std::u32string, native_quote>
     >;
     using dictionary_default_callback = std::function<
       std::optional<value>(const std::u32string&)
@@ -68,7 +71,7 @@ namespace laskin
       int column = 0
     )
     {
-      quote::parse(source, path, line, column).call(*this, out);
+      call(parse(source, path, line, column), *this, out);
     }
 
     /**
@@ -83,7 +86,7 @@ namespace laskin
       int column = 0
     )
     {
-      quote::parse(source, path, line, column).call(*this, out);
+      call(parse(source, path, line, column), *this, out);
     }
 
     /**
@@ -98,7 +101,7 @@ namespace laskin
       int column = 0
     )
     {
-      quote::parse(input, path, line, column).call(*this, out);
+      call(parse(input, path, line, column), *this, out);
     }
 
     /**

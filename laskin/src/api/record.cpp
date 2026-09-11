@@ -89,7 +89,7 @@ LASKIN_BUILTIN_WORD(w_for_each)
   for (const auto& property : properties)
   {
     context << property.first << property.second;
-    quote.call(context, out);
+    call(quote, context, out);
   }
 }
 
@@ -111,7 +111,7 @@ LASKIN_BUILTIN_WORD(w_map)
     class value value;
 
     context << property.first << property.second;
-    quote.call(context, out);
+    call(quote, context, out);
     value = context.pop();
     key = context.pop().as_string();
     new_properties[key] = value;
@@ -135,7 +135,7 @@ LASKIN_BUILTIN_WORD(w_filter)
   for (const auto& property : properties)
   {
     context << property.first << property.second;
-    quote.call(context, out);
+    call(quote, context, out);
     if (context.pop().as_boolean())
     {
       new_properties[property.first] = property.second;

@@ -168,7 +168,7 @@ namespace
   {
     auto nodes = emscripten::val::array();
 
-    if (quote.is_native())
+    if (std::holds_alternative<laskin::native_quote>(quote))
     {
       auto dummy = emscripten::val::object();
 
@@ -179,7 +179,7 @@ namespace
       dummy.set("id", std::u32string(U"native quote"));
       nodes.call<void>("push", dummy);
     } else {
-      for (const auto& node : quote.nodes())
+      for (const auto& node : std::get<laskin::scripted_quote>(quote))
       {
         nodes.call<void>("push", node_to_js(node));
       }
@@ -260,10 +260,10 @@ namespace
     return result;
   }
 
-  laskin::quote::node_container
+  laskin::scripted_quote
   nodes_from_js(const emscripten::val& js_nodes)
   {
-    laskin::quote::node_container nodes;
+    laskin::scripted_quote nodes;
     const auto length = js_nodes["length"].as<unsigned>();
 
     nodes.reserve(length);
@@ -508,11 +508,11 @@ namespace
 
       if (!js_nodes.isUndefined() && !js_nodes.isNull())
       {
-        return laskin::value(laskin::quote(nodes_from_js(js_nodes)));
+        return laskin::value(nodes_from_js(js_nodes));
       }
 
       return laskin::value(
-        laskin::quote::parse(js_value["source"].as<std::u32string>())
+        laskin::parse(js_value["source"].as<std::u32string>())
       );
     }
     else if (type == U"date")

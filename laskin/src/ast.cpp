@@ -23,6 +23,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/ast.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/utils.hpp"
