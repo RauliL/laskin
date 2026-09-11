@@ -493,7 +493,7 @@ LASKIN_BUILTIN_WORD(w_if)
 
   if (condition)
   {
-    quote.call(context, out);
+    call(quote, context, out);
   }
 }
 
@@ -511,9 +511,9 @@ LASKIN_BUILTIN_WORD(w_if_else)
 
   if (condition)
   {
-    then_quote.call(context, out);
+    call(then_quote, context, out);
   } else {
-    else_quote.call(context, out);
+    call(else_quote, context, out);
   }
 }
 
@@ -529,12 +529,12 @@ LASKIN_BUILTIN_WORD(w_while)
 
   for (;;)
   {
-    condition.call(context, out);
+    call(condition, context, out);
     if (!context.pop().as_boolean())
     {
       return;
     }
-    quote.call(context, out);
+    call(quote, context, out);
   }
 }
 
@@ -550,7 +550,7 @@ LASKIN_BUILTIN_WORD(w_try)
 
   try
   {
-    quote.call(context, out);
+    call(quote, context, out);
   }
   catch (const error& e)
   {
@@ -560,7 +560,7 @@ LASKIN_BUILTIN_WORD(w_try)
       throw e;
     }
     context << e.message;
-    catch_quote.call(context, out);
+    call(catch_quote, context, out);
   }
 }
 
@@ -578,7 +578,7 @@ LASKIN_BUILTIN_WORD(w_try_else)
 
   try
   {
-    quote.call(context, out);
+    call(quote, context, out);
   }
   catch (const error& e)
   {
@@ -588,10 +588,10 @@ LASKIN_BUILTIN_WORD(w_try_else)
       throw e;
     }
     context << e.message;
-    catch_quote.call(context, out);
+    call(catch_quote, context, out);
     return;
   }
-  else_quote.call(context, out);
+  call(else_quote, context, out);
 }
 
 /**

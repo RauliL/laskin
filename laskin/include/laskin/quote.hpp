@@ -25,109 +25,65 @@
  */
 #pragma once
 
-#include <functional>
+#include <filesystem>
 #include <iostream>
-#include <variant>
+#include <optional>
 
-#include "laskin/ast.hpp"
+#include "laskin/types.hpp"
 
 namespace laskin
 {
+  class context;
+  class node;
+
+  scripted_quote parse(
+    const std::u32string& source,
+    const std::optional<std::filesystem::path>& path = std::nullopt,
+    int line = 1,
+    int column = 1
+  );
+
+  scripted_quote parse(
+    const std::string& source,
+    const std::optional<std::filesystem::path>& path = std::nullopt,
+    int line = 1,
+    int column = 1
+  );
+
+  scripted_quote parse(
+    std::istream& input,
+    const std::optional<std::filesystem::path>& path = std::nullopt,
+    int line = 1,
+    int column = 1
+  );
+
   /**
-   * Quote is collection of code or an C++ function callback that can be
-   * executed with execution context. Basically an function.
+   * Executes given quote with given execution context and optional output
+   * stream.
    */
-  class quote
+  void call(
+    const quote& q,
+    context& c,
+    std::ostream* out = nullptr
+  );
+
+  /**
+   * Converts the quote back into source code.
+   */
+  std::u32string to_source(const quote& q);
+
+  /**
+   * Tests whether two quotes could be considered to be equivalent.
+   */
+  bool equals(const quote& a, const quote& b);
+
+  inline bool operator==(const quote& a, const quote& b)
   {
-  public:
-    using callback = std::function<void(
-      context&,
-      std::ostream*
-    )>;
-    using node_container = std::vector<std::shared_ptr<node>>;
+    return equals(a, b);
+  }
 
-    static quote parse(
-      const std::u32string& source,
-      const std::optional<std::filesystem::path>& path = std::nullopt,
-      int line = 1,
-      int column = 1
-    );
-
-    static quote parse(
-      const std::string& source,
-      const std::optional<std::filesystem::path>& path = std::nullopt,
-      int line = 1,
-      int column = 1
-    );
-
-    static quote parse(
-      std::istream& input,
-      const std::optional<std::filesystem::path>& path = std::nullopt,
-      int line = 1,
-      int column = 1
-    );
-
-    /**
-     * Constructs empty quote that does nothing.
-     */
-    quote();
-
-    /**
-     * Constructs native quote from given function callback.
-     */
-    quote(const callback& cb);
-
-    /**
-     * Constructs scripted quote from given AST nodes.
-     */
-    quote(const node_container& nodes);
-
-    LASKIN_DEFAULT_COPY_AND_ASSIGN(quote);
-
-    /**
-     * Tests whether the quote is a native quote instead of scripted one.
-     */
-    inline bool is_native() const
-    {
-      return !std::holds_alternative<node_container>(m_container);
-    }
-
-    /**
-     * Provides access to the AST nodes contained inside the quote, unless it's
-     * a native quote instead of scripted one in which case an empty vector is
-     * returned instead.
-     */
-    inline node_container nodes() const
-    {
-      return is_native()
-        ? node_container()
-        : std::get<node_container>(m_container);
-    }
-
-    /**
-     * Executes the quote with given execution context and optional output
-     * stream.
-     */
-    void call(class context& context, std::ostream* out = nullptr) const;
-
-    bool equals(const quote& that) const;
-
-    inline bool operator==(const quote& that) const
-    {
-      return equals(that);
-    }
-
-    inline bool operator!=(const quote& that) const
-    {
-      return !equals(that);
-    }
-
-    /**
-     * Converts the quote back into source code.
-     */
-    std::u32string to_source() const;
-
-  private:
-    std::variant<callback, node_container> m_container;
-  };
+  inline bool operator!=(const quote& a, const quote& b)
+  {
+    return !equals(a, b);
+  }
 }

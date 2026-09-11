@@ -25,6 +25,9 @@
  */
 #pragma once
 
+#include <functional>
+#include <variant>
+
 #include <peelo/chrono/date.hpp>
 #include <peelo/chrono/time.hpp>
 #include <peelo/number.hpp>
@@ -34,8 +37,23 @@ namespace laskin
 {
   class context;
   class node;
-  class quote;
   class value;
+
+  /**
+   * C++ function callback that can be used as quote.
+   */
+  using native_quote = std::function<void(context&, std::ostream*)>;
+
+  /**
+   * Collection of AST nodes that can be used as quote.
+   */
+  using scripted_quote = std::vector<std::shared_ptr<node>>;
+
+  /**
+   * Quote is collection of code or an C++ function callback that can be
+   * executed with execution context. Basically an function.
+   */
+  using quote = std::variant<native_quote, scripted_quote>;
 
   using number = peelo::number;
 

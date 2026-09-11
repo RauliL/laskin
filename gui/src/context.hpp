@@ -25,8 +25,6 @@
  */
 #pragma once
 
-#include <filesystem>
-
 #include <glibmm.h>
 #include <sigc++/signal.h>
 

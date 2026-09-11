@@ -744,7 +744,7 @@ LASKIN_BUILTIN_WORD(w_to_quote)
 {
   const auto source = context.pop().as_string();
 
-  context << quote::parse(source);
+  context << parse(source);
 }
 
 namespace laskin::api

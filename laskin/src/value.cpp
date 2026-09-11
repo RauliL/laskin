@@ -30,6 +30,7 @@
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 #include "laskin/utils.hpp"
+#include "laskin/value.hpp"
 
 namespace laskin
 {
@@ -99,6 +100,10 @@ namespace laskin
     , m_value_record(new record(properties)) {}
 
   value::value(const quote& value)
+    : m_type(type::quote)
+    , m_value_quote(new quote(value)) {}
+
+  value::value(const scripted_quote& value)
     : m_type(type::quote)
     , m_value_quote(new quote(value)) {}
 
@@ -956,7 +961,7 @@ namespace laskin
         return *m_value_string;
 
       case type::quote:
-        return m_value_quote->to_source();
+        return laskin::to_source(*m_value_quote);
 
       case type::month:
         return month_description(m_value_month);
@@ -1041,7 +1046,7 @@ namespace laskin
         return utils::escape_string(*m_value_string);
 
       case type::quote:
-        return m_value_quote->to_source();
+        return laskin::to_source(*m_value_quote);
 
       case type::month:
         return month_description(m_value_month);

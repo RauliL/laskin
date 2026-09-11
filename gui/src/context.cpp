@@ -41,11 +41,15 @@ namespace laskin::gui
 
     try
     {
-      quote::parse(
-        utils::string_convert<std::u32string, Glib::ustring>(source_code),
-        U"<gui>",
-        line
-      ).call(m_context, &buffer);
+      call(
+        parse(
+          utils::string_convert<std::u32string, Glib::ustring>(source_code),
+          U"<gui>",
+          line
+        ),
+        m_context,
+        &buffer
+      );
     }
     catch (const error& e)
     {

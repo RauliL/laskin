@@ -61,7 +61,7 @@ main(int argc, char** argv)
 
   try
   {
-    program.compile(laskin::quote::parse(input), options);
+    program.compile(laskin::parse(input), options);
     program.transpile(writer, options);
   }
   catch (const laskin::error& e)

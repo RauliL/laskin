@@ -29,6 +29,7 @@
 #include <peelo/unicode/ctype/isxdigit.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
 
+#include "laskin/ast.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
@@ -465,8 +466,7 @@ namespace laskin
   parse_quote_literal(struct state& state)
   {
     struct position position;
-
-    quote::node_container nodes;
+    scripted_quote nodes;
 
     skip_whitespace(state);
     position = state.position;
@@ -609,8 +609,8 @@ namespace laskin
     }
   }
 
-  quote
-  quote::parse(
+  scripted_quote
+  parse(
     const std::u32string& source,
     const std::optional<std::filesystem::path>& path,
     int line,
@@ -623,7 +623,7 @@ namespace laskin
       std::begin(source),
       std::end(source),
     };
-    quote::node_container nodes;
+    scripted_quote nodes;
 
     for (;;)
     {
@@ -635,11 +635,11 @@ namespace laskin
       nodes.push_back(laskin::parse(state, true));
     }
 
-    return quote(nodes);
+    return nodes;
   }
 
-  quote
-  quote::parse(
+  scripted_quote
+  parse(
     const std::string& source,
     const std::optional<std::filesystem::path>& path,
     int line,
@@ -647,6 +647,7 @@ namespace laskin
   )
   {
     using peelo::unicode::encoding::utf8::decode_validate;
+
     std::u32string decoded_source;
 
     if (!decode_validate(source, decoded_source))
@@ -661,8 +662,8 @@ namespace laskin
     return parse(decoded_source, path, line, column);
   }
 
-  quote
-  quote::parse(
+  scripted_quote
+  parse(
     std::istream& input,
     const std::optional<std::filesystem::path>& path,
     int line,

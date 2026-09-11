@@ -187,7 +187,7 @@ LASKIN_BUILTIN_WORD(w_for_each)
   for (const auto& value : vec)
   {
     context.push(value);
-    quote.call(context, out);
+    call(quote, context, out);
   }
 }
 
@@ -207,7 +207,7 @@ LASKIN_BUILTIN_WORD(w_map)
   for (const auto& value : vec)
   {
     context.push(value);
-    quote.call(context, out);
+    call(quote, context, out);
     result.push_back(context.pop());
   }
   context << std::move(result);
@@ -229,7 +229,7 @@ LASKIN_BUILTIN_WORD(w_filter)
   for (const auto& value : vec)
   {
     context.push(value);
-    quote.call(context, out);
+    call(quote, context, out);
     if (context.pop().as_boolean())
     {
       result.push_back(value);
@@ -261,7 +261,7 @@ LASKIN_BUILTIN_WORD(w_reduce)
   for (vector::size_type i = 1; i < size; ++i)
   {
     context << result << vec[i];
-    quote.call(context, out);
+    call(quote, context, out);
     context >> result;
   }
   context << std::move(result);

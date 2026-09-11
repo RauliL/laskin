@@ -23,34 +23,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "laskin/ast.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
 
 namespace laskin
 {
-  quote::quote() {}
-
-  quote::quote(const callback& cb)
-    : m_container(cb) {}
-
-  quote::quote(const node_container& nodes)
-    : m_container(nodes) {}
-
   void
-  quote::call(
-    class context& context,
+  call(
+    const quote& q,
+    context& c,
     std::ostream* out
-  ) const
+  )
   {
-    if (std::holds_alternative<node_container>(m_container))
+    if (std::holds_alternative<scripted_quote>(q))
     {
-      for (const auto& node : std::get<node_container>(m_container))
+      for (const auto& node : std::get<scripted_quote>(q))
       {
         if (node)
         {
           try
           {
-            node->exec(context, out);
+            node->exec(c, out);
           }
           catch (const error& e)
           {
@@ -59,31 +53,31 @@ namespace laskin
         }
       }
     }
-    else if (std::holds_alternative<callback>(m_container))
+    else if (std::holds_alternative<native_quote>(q))
     {
-      std::get<callback>(m_container)(context, out);
+      std::get<native_quote>(q)(c, out);
     }
   }
 
   bool
-  quote::equals(const quote& that) const
+  equals(const quote& a, const quote& b)
   {
-    if (std::holds_alternative<node_container>(m_container))
+    if (std::holds_alternative<scripted_quote>(a))
     {
-      const auto& a = std::get<node_container>(m_container);
+      const auto& aa = std::get<scripted_quote>(a);
 
-      if (std::holds_alternative<node_container>(that.m_container))
+      if (std::holds_alternative<scripted_quote>(b))
       {
-        const auto& b = std::get<node_container>(that.m_container);
-        const auto size = a.size();
+        const auto& bb = std::get<scripted_quote>(b);
+        const auto size = aa.size();
 
-        if (b.size() != size)
+        if (bb.size() != size)
         {
           return false;
         }
-        for (node_container::size_type i = 0; i < size; ++i)
+        for (scripted_quote::size_type i = 0; i < size; ++i)
         {
-          if (!node::equals(a[i], b[i]))
+          if (!node::equals(aa[i], bb[i]))
           {
             return false;
           }
@@ -91,36 +85,37 @@ namespace laskin
 
         return true;
       }
-      else if (!std::holds_alternative<callback>(that.m_container))
+      else if (!std::holds_alternative<native_quote>(b))
       {
-        return a.empty();
+        return aa.empty();
       }
 
       return false;
     }
-    else if (std::holds_alternative<callback>(m_container))
+
+    if (std::holds_alternative<native_quote>(a))
     {
       // It's almost impossible to test equality between two `std::function`
       // instances. While some clever hacks to retrieve the memory address
       // exist, I could not get them working reliably. For native quotes the
       // result will always be `false` until I find working solution. Sorry.
       return false;
-    } else {
-      return !std::holds_alternative<node_container>(that.m_container) &&
-        !std::holds_alternative<callback>(that.m_container);
     }
+
+    return !std::holds_alternative<scripted_quote>(b) &&
+      !std::holds_alternative<native_quote>(b);
   }
 
   std::u32string
-  quote::to_source() const
+  to_source(const quote& q)
   {
-    if (std::holds_alternative<node_container>(m_container))
+    if (std::holds_alternative<scripted_quote>(q))
     {
       std::u32string result;
       bool first = true;
 
       result.append(1, U'(');
-      for (const auto& node : std::get<node_container>(m_container))
+      for (const auto& node : std::get<scripted_quote>(q))
       {
         if (first)
         {
@@ -137,7 +132,7 @@ namespace laskin
 
       return result;
     }
-    else if (std::holds_alternative<callback>(m_container))
+    else if (std::holds_alternative<native_quote>(q))
     {
       return U"(\"native quote\")";
     }

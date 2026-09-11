@@ -122,7 +122,7 @@ namespace laskin
       {
         if (word->second.is(value::type::quote))
         {
-          word->second.as_quote().call(*this, out);
+          call(word->second.as_quote(), *this, out);
         } else {
           data.push_back(word->second);
         }
@@ -137,7 +137,7 @@ namespace laskin
       {
         if (word->second.is(value::type::quote))
         {
-          word->second.as_quote().call(*this, out);
+          call(word->second.as_quote(), *this, out);
         } else {
           data.push_back(word->second);
         }
