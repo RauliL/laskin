@@ -62,8 +62,8 @@ namespace laskin
    * stream.
    */
   void call(
-    const quote& q,
-    context& c,
+    const quote& quote,
+    context& context,
     std::ostream* out = nullptr
   );
 

@@ -34,8 +34,8 @@ namespace laskin
 {
   void
   call(
-    const quote& q,
-    context& c,
+    const quote& quote,
+    context& context,
     std::ostream* out
   )
   {
@@ -52,7 +52,7 @@ namespace laskin
             {
               try
               {
-                node->exec(c, out);
+                node->exec(context, out);
               }
               catch (const error& e)
               {
@@ -60,11 +60,13 @@ namespace laskin
               }
             }
           }
-        } else {
-          alternative(c, out);
+        }
+        else if (alternative)
+        {
+          alternative(context, out);
         }
       },
-      q
+      quote
     );
   }
 
@@ -73,46 +75,36 @@ namespace laskin
   {
     if (std::holds_alternative<scripted_quote>(a))
     {
-      const auto& aa = std::get<scripted_quote>(a);
-
-      if (std::holds_alternative<scripted_quote>(b))
+      if (!std::holds_alternative<scripted_quote>(b))
       {
-        const auto& bb = std::get<scripted_quote>(b);
-        const auto size = aa.size();
+        return std::get<scripted_quote>(a).empty() &&
+          !std::get<native_quote>(b);
+      }
 
-        if (bb.size() != size)
+      const auto& aa = std::get<scripted_quote>(a);
+      const auto& bb = std::get<scripted_quote>(b);
+      const auto size = aa.size();
+
+      if (bb.size() != size)
+      {
+        return false;
+      }
+      for (scripted_quote::size_type i = 0; i < size; ++i)
+      {
+        if (!node::equals(aa[i], bb[i]))
         {
           return false;
         }
-        for (scripted_quote::size_type i = 0; i < size; ++i)
-        {
-          if (!node::equals(aa[i], bb[i]))
-          {
-            return false;
-          }
-        }
-
-        return true;
-      }
-      else if (!std::holds_alternative<native_quote>(b))
-      {
-        return aa.empty();
       }
 
-      return false;
+      return true;
     }
-
-    if (std::holds_alternative<native_quote>(a))
+    else if (!std::holds_alternative<native_quote>(b))
     {
-      // It's almost impossible to test equality between two `std::function`
-      // instances. While some clever hacks to retrieve the memory address
-      // exist, I could not get them working reliably. For native quotes the
-      // result will always be `false` until I find working solution. Sorry.
-      return false;
+      return !std::get<native_quote>(a) && std::get<scripted_quote>(b).empty();
     }
 
-    return !std::holds_alternative<scripted_quote>(b) &&
-      !std::holds_alternative<native_quote>(b);
+    return std::get<native_quote>(a) == std::get<native_quote>(b);
   }
 
   std::u32string

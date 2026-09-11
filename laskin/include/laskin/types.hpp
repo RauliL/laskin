@@ -25,7 +25,6 @@
  */
 #pragma once
 
-#include <functional>
 #include <variant>
 
 #include <peelo/chrono/date.hpp>
@@ -42,7 +41,7 @@ namespace laskin
   /**
    * C++ function callback that can be used as quote.
    */
-  using native_quote = std::function<void(context&, std::ostream*)>;
+  using native_quote = void(*)(context&, std::ostream*);
 
   /**
    * Collection of AST nodes that can be used as quote.

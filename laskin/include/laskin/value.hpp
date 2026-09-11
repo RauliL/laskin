@@ -128,6 +128,11 @@ namespace laskin
     value(const scripted_quote& value);
 
     /**
+     * Constructs native quote.
+     */
+    value(native_quote value);
+
+    /**
      * Constructs date value.
      */
     value(const date& value);
@@ -212,6 +217,11 @@ namespace laskin
      * Assigns quote into this value.
      */
     value& assign(const quote& value);
+
+    /**
+     * Assigns native quote into this value.
+     */
+    value& assign(native_quote value);
 
     /**
      * Assigns date value into this value.
@@ -314,6 +324,14 @@ namespace laskin
      * Assigns quote into this value.
      */
     inline value& operator=(const quote& value)
+    {
+      return assign(value);
+    }
+
+    /**
+     * Assigns native quote into this value.
+     */
+    inline value& operator=(native_quote value)
     {
       return assign(value);
     }

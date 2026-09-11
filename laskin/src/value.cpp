@@ -107,6 +107,10 @@ namespace laskin
     : m_type(type::quote)
     , m_value_quote(new quote(value)) {}
 
+  value::value(native_quote value)
+    : m_type(type::quote)
+    , m_value_quote(new quote(value)) {}
+
   value::value(const date& value)
     : m_type(type::date)
     , m_value_date(new date(value)) {}
@@ -318,6 +322,16 @@ namespace laskin
 
   value&
   value::assign(const quote& value)
+  {
+    reset();
+    m_type = type::quote;
+    m_value_quote = new quote(value);
+
+    return *this;
+  }
+
+  value&
+  value::assign(native_quote value)
   {
     reset();
     m_type = type::quote;
