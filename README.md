@@ -10,8 +10,8 @@ inspired by [Forth], [RPL] and [Plorth].
 ## Requirements
 
 - [GNU MPFR Library]
-- [CMake] >= 3.11
-- C++17 compatible C++ compiler
+- [CMake] >= 3.14
+- C++20 compatible C++ compiler
 
 Other dependencies that are handled by [CMake] are:
 

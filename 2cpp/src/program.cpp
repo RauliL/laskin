@@ -116,12 +116,14 @@ RETRY:
   {
     container_type instructions;
 
-    if (!std::holds_alternative<laskin::scripted_quote>(quote))
+    const auto* nodes = std::get_if<laskin::scripted_quote>(&quote);
+
+    if (!nodes)
     {
       return;
     }
 
-    for (const auto& node : std::get<laskin::scripted_quote>(quote))
+    for (const auto& node : *nodes)
     {
       if (!node)
       {

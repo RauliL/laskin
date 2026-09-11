@@ -25,6 +25,8 @@
  */
 #include <sstream>
 #include <string>
+#include <type_traits>
+#include <variant>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
@@ -149,9 +151,9 @@ namespace
     }
 
     laskin::position position{
-      std::nullopt,
-      js_position["line"].as<int>(),
-      js_position["column"].as<int>()
+      .path = std::nullopt,
+      .line = js_position["line"].as<int>(),
+      .column = js_position["column"].as<int>(),
     };
     const auto path = js_position["path"];
 
@@ -168,22 +170,30 @@ namespace
   {
     auto nodes = emscripten::val::array();
 
-    if (std::holds_alternative<laskin::native_quote>(quote))
-    {
-      auto dummy = emscripten::val::object();
-
-      dummy.set(
-        "type",
-        laskin::node::type_description(laskin::node::type::symbol)
-      );
-      dummy.set("id", std::u32string(U"native quote"));
-      nodes.call<void>("push", dummy);
-    } else {
-      for (const auto& node : std::get<laskin::scripted_quote>(quote))
+    std::visit(
+      [&](const auto& alternative)
       {
-        nodes.call<void>("push", node_to_js(node));
-      }
-    }
+        using T = std::decay_t<decltype(alternative)>;
+
+        if constexpr (std::is_same_v<T, laskin::native_quote>)
+        {
+          auto dummy = emscripten::val::object();
+
+          dummy.set(
+            "type",
+            laskin::node::type_description(laskin::node::type::symbol)
+          );
+          dummy.set("id", std::u32string(U"native quote"));
+          nodes.call<void>("push", dummy);
+        } else {
+          for (const auto& node : alternative)
+          {
+            nodes.call<void>("push", node_to_js(node));
+          }
+        }
+      },
+      quote
+    );
 
     return nodes;
   }

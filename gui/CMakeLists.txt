@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin-gui CXX)
 
 INCLUDE(../cmake/enable-all-warnings.cmake)
@@ -25,7 +24,7 @@ ENABLE_ALL_WARNINGS(laskin-gui)
 TARGET_COMPILE_FEATURES(
   laskin-gui
   PRIVATE
-    cxx_std_17
+    cxx_std_20
 )
 
 TARGET_LINK_LIBRARIES(

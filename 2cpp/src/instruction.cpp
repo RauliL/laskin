@@ -35,22 +35,13 @@ namespace laskin2cpp
     const struct options& options
   )
   {
-    if (std::holds_alternative<laskin::value>(value))
-    {
-      laskin2cpp::transpile(
-        std::get<laskin::value>(value),
-        writer,
-        options
-      );
-    }
-    else if (std::holds_alternative<std::shared_ptr<laskin::node>>(value))
-    {
-      laskin2cpp::transpile(
-        std::get<std::shared_ptr<laskin::node>>(value),
-        writer,
-        options
-      );
-    }
+    std::visit(
+      [&](const auto& alternative)
+      {
+        laskin2cpp::transpile(alternative, writer, options);
+      },
+      value
+    );
   }
 
   void

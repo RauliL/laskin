@@ -102,13 +102,13 @@ namespace laskin
   bool
   is_month(const std::u32string& input)
   {
-    return month_mapping.find(input) != std::end(month_mapping);
+    return month_mapping.contains(input);
   }
 
   bool
   is_weekday(const std::u32string& input)
   {
-    return weekday_mapping.find(input) != std::end(weekday_mapping);
+    return weekday_mapping.contains(input);
   }
 
   date

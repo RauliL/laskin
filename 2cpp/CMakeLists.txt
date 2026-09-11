@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin2cpp CXX)
 
 INCLUDE(../cmake/enable-all-warnings.cmake)
@@ -17,7 +16,7 @@ ENABLE_ALL_WARNINGS(laskin2cpp)
 TARGET_COMPILE_FEATURES(
   laskin2cpp
   PRIVATE
-    cxx_std_17
+    cxx_std_20
 )
 
 TARGET_LINK_LIBRARIES(

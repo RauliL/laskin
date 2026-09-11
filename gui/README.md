@@ -7,7 +7,7 @@ Icon by [Pexelby](https://freeicons.io/profile/433683) on
 
 ## Compilation
 
-Laskin GUI depends on [gtkmm] library. C++17 capable compiler and [CMake] are
+Laskin GUI depends on [gtkmm] library. C++20 capable compiler and [CMake] are
 also required to compile the GUI.
 
 [gtkmm]: https://gtkmm.org
