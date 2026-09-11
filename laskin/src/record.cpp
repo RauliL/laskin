@@ -47,12 +47,7 @@ namespace laskin
 
     for (const auto& property : b)
     {
-      const auto i = result.find(property.first);
-
-      if (i != std::end(result))
-      {
-        result.erase(i);
-      }
+      result.erase(property.first);
     }
 
     return result;
@@ -74,12 +69,7 @@ namespace laskin
   {
     for (const auto& property : b)
     {
-      const auto i = a.find(property.first);
-
-      if (i != std::end(a))
-      {
-        a.erase(i);
-      }
+      a.erase(property.first);
     }
 
     return a;

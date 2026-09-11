@@ -75,7 +75,7 @@ namespace laskin
 
     if (const auto& unit = b.as_number().measurement_unit())
     {
-      if (!unit->symbol.compare("d"))
+      if (unit->symbol == "d")
       {
         delta = number_magnitude(b);
       } else {
@@ -98,7 +98,7 @@ namespace laskin
 
     if (const auto& unit = b.as_number().measurement_unit())
     {
-      if (!unit->symbol.compare("d"))
+      if (unit->symbol == "d")
       {
         delta = number_magnitude(b);
       } else {
@@ -125,19 +125,19 @@ namespace laskin
     {
       duration::value_type multiplier;
 
-      if (!unit->symbol.compare("s"))
+      if (unit->symbol == "s")
       {
         multiplier = 1;
       }
-      else if (!unit->symbol.compare("min"))
+      else if (unit->symbol == "min")
       {
         multiplier = duration::minutes_per_hour;
       }
-      else if (!unit->symbol.compare("h"))
+      else if (unit->symbol == "h")
       {
         multiplier = duration::seconds_per_hour;
       }
-      else if (!unit->symbol.compare("d"))
+      else if (unit->symbol == "d")
       {
         multiplier = duration::seconds_per_day;
       } else {

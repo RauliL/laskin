@@ -23,6 +23,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <type_traits>
+#include <variant>
+
 #include "laskin/ast.hpp"
 #include "laskin/error.hpp"
 #include "laskin/quote.hpp"
@@ -36,27 +39,33 @@ namespace laskin
     std::ostream* out
   )
   {
-    if (std::holds_alternative<scripted_quote>(q))
-    {
-      for (const auto& node : std::get<scripted_quote>(q))
+    std::visit(
+      [&](const auto& alternative)
       {
-        if (node)
+        using T = std::decay_t<decltype(alternative)>;
+
+        if constexpr (std::is_same_v<T, scripted_quote>)
         {
-          try
+          for (const auto& node : alternative)
           {
-            node->exec(c, out);
+            if (node)
+            {
+              try
+              {
+                node->exec(c, out);
+              }
+              catch (const error& e)
+              {
+                throw error(e.type, e.message, node->position);
+              }
+            }
           }
-          catch (const error& e)
-          {
-            throw error(e.type, e.message, node->position);
-          }
+        } else {
+          alternative(c, out);
         }
-      }
-    }
-    else if (std::holds_alternative<native_quote>(q))
-    {
-      std::get<native_quote>(q)(c, out);
-    }
+      },
+      q
+    );
   }
 
   bool
@@ -109,34 +118,38 @@ namespace laskin
   std::u32string
   to_source(const quote& q)
   {
-    if (std::holds_alternative<scripted_quote>(q))
-    {
-      std::u32string result;
-      bool first = true;
-
-      result.append(1, U'(');
-      for (const auto& node : std::get<scripted_quote>(q))
+    return std::visit(
+      [](const auto& alternative) -> std::u32string
       {
-        if (first)
+        using T = std::decay_t<decltype(alternative)>;
+
+        if constexpr (std::is_same_v<T, scripted_quote>)
         {
-          first = false;
+          std::u32string result;
+          bool first = true;
+
+          result.append(1, U'(');
+          for (const auto& node : alternative)
+          {
+            if (first)
+            {
+              first = false;
+            } else {
+              result.append(1, U' ');
+            }
+            if (node)
+            {
+              result.append(node->to_source());
+            }
+          }
+          result.append(1, U')');
+
+          return result;
         } else {
-          result.append(1, U' ');
+          return U"(\"native quote\")";
         }
-        if (node)
-        {
-          result.append(node->to_source());
-        }
-      }
-      result.append(1, U')');
-
-      return result;
-    }
-    else if (std::holds_alternative<native_quote>(q))
-    {
-      return U"(\"native quote\")";
-    }
-
-    return U"()";
+      },
+      q
+    );
   }
 }

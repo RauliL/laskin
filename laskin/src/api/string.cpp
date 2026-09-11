@@ -57,7 +57,7 @@ LASKIN_BUILTIN_WORD(w_chars)
   result.reserve(str.length());
   for (const auto& c : str)
   {
-    result.push_back(std::u32string(&c, 1));
+    result.push_back(std::u32string(1, c));
   }
   context << result;
 }
@@ -161,30 +161,8 @@ LASKIN_BUILTIN_WORD(w_starts_with)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto substring_length = substring.length();
 
-  if (substring_length > string_length)
-  {
-    context << false;
-    return;
-  }
-  else if (!substring_length)
-  {
-    context << true;
-    return;
-  }
-
-  for (std::u32string::size_type i = 0; i < substring_length; ++i)
-  {
-    if (string[i] != substring[i])
-    {
-      context << false;
-      return;
-    }
-  }
-
-  context << true;
+  context << string.starts_with(substring);
 }
 
 /**
@@ -196,30 +174,8 @@ LASKIN_BUILTIN_WORD(w_ends_with)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto substring_length = substring.length();
 
-  if (substring_length > string_length)
-  {
-    context << false;
-    return;
-  }
-  else if (!substring_length)
-  {
-    context << true;
-    return;
-  }
-
-  for (std::u32string::size_type i = 0; i < substring_length; ++i)
-  {
-    if (string[string_length - substring_length + i] != substring[i])
-    {
-      context << false;
-      return;
-    }
-  }
-
-  context << true;
+  context << string.ends_with(substring);
 }
 
 /**
@@ -231,23 +187,8 @@ LASKIN_BUILTIN_WORD(w_includes)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto substring_length = substring.length();
-  std::u32string::size_type position;
 
-  if (substring_length > string_length)
-  {
-    context << false;
-    return;
-  }
-  else if (!substring_length)
-  {
-    context << true;
-    return;
-  }
-
-  position = string.find(substring);
-  context << (position != std::u32string::npos);
+  context << (string.find(substring) != std::u32string::npos);
 }
 
 /**
@@ -260,22 +201,8 @@ LASKIN_BUILTIN_WORD(w_index_of)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto substring_length = substring.length();
-  std::u32string::size_type position;
+  const auto position = string.find(substring);
 
-  if (substring_length > string_length)
-  {
-    context << false;
-    return;
-  }
-  else if (!substring_length)
-  {
-    context << static_cast<int>(0);
-    return;
-  }
-
-  position = string.find(substring);
   if (position == std::u32string::npos)
   {
     context << false;
@@ -295,22 +222,8 @@ LASKIN_BUILTIN_WORD(w_last_index_of)
 {
   const auto string = context.pop().as_string();
   const auto substring = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto substring_length = substring.length();
-  std::u32string::size_type position;
+  const auto position = string.rfind(substring);
 
-  if (substring_length > string_length)
-  {
-    context << false;
-    return;
-  }
-  else if (!substring_length)
-  {
-    context << static_cast<int>(0);
-    return;
-  }
-
-  position = string.rfind(substring);
   if (position == std::u32string::npos)
   {
     context << false;
@@ -524,41 +437,28 @@ LASKIN_BUILTIN_WORD(w_split)
   if (pattern_length)
   {
     std::u32string::size_type begin = 0;
-    std::u32string::size_type end = 0;
 
-    for (std::u32string::size_type i = 0; i < string_length; ++i)
+    for (;;)
     {
-      bool found = true;
+      const auto end = string.find(pattern, begin);
 
-      for (
-        std::u32string::size_type j = 0;
-        j < pattern_length && i + j < string_length;
-        ++j
-      )
+      if (end == std::u32string::npos)
       {
-        if (pattern[j] != string[i + j])
+        if (begin < string_length)
         {
-          found = false;
-          break;
+          result.push_back(string.substr(begin));
         }
+        break;
       }
-      if (found)
-      {
-        result.push_back(string.substr(begin, end - begin));
-        begin = end = i + 1;
-      } else {
-        ++end;
-      }
-    }
-    if (end - begin > 0)
-    {
+
       result.push_back(string.substr(begin, end - begin));
+      begin = end + pattern_length;
     }
   } else {
     result.reserve(string_length);
     for (std::u32string::size_type i = 0; i < string_length; ++i)
     {
-      result.push_back(std::u32string(&string[i], 1));
+      result.push_back(std::u32string(1, string[i]));
     }
   }
 
@@ -596,32 +496,19 @@ LASKIN_BUILTIN_WORD(w_replace)
   const auto string = context.pop().as_string();
   const auto replacement = context.pop().as_string();
   const auto needle = context.pop().as_string();
-  const auto string_length = string.length();
-  const auto needle_length = needle.length();
-  std::u32string result;
+  const auto position = string.find(needle);
 
-  for (std::u32string::size_type i = 0; i < string_length; ++i)
+  if (position == std::u32string::npos)
   {
-    bool found = true;
-
-    for (std::u32string::size_type j = 0; j < needle_length; ++j)
-    {
-      if (i + j >= string_length || string[i + j] != needle[j])
-      {
-        found = false;
-        break;
-      }
-    }
-    if (found)
-    {
-      result.append(replacement);
-      result.append(string.substr(i + needle_length));
-      break;
-    }
-    result.append(1, string[i]);
+    context << string;
+    return;
   }
 
-  context << result;
+  context << (
+    string.substr(0, position)
+    + replacement
+    + string.substr(position + needle.length())
+  );
 }
 
 /**
@@ -718,7 +605,7 @@ LASKIN_BUILTIN_WORD(w_at)
     throw error(error::type::range, U"String index out of bounds.");
   }
   c = string[index];
-  context << std::u32string(&c, 1);
+  context << std::u32string(1, c);
 }
 
 /**

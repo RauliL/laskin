@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin)
 
 INCLUDE(../cmake/add-dependency.cmake)
@@ -83,7 +82,7 @@ ENABLE_ALL_WARNINGS(laskin)
 TARGET_COMPILE_FEATURES(
   laskin
   PRIVATE
-    cxx_std_17
+    cxx_std_20
 )
 
 IF(EMSCRIPTEN)

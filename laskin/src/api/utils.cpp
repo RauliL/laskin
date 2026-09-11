@@ -641,13 +641,9 @@ LASKIN_BUILTIN_WORD(w_define)
 LASKIN_BUILTIN_WORD(w_delete)
 {
   const auto id = context.pop().as_string();
-  auto& dictionary = context.dictionary;
-  const auto i = dictionary.find(id);
 
-  if (i != std::end(dictionary))
+  if (!context.dictionary.erase(id))
   {
-    dictionary.erase(i);
-  } else {
     throw error(error::type::name, U"Unrecognized symbol: `" + id + U"'");
   }
 }

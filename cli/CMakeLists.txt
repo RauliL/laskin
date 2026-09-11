@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.11)
 PROJECT(laskin-cli C CXX)
 
 INCLUDE(../cmake/enable-all-warnings.cmake)
@@ -14,7 +13,7 @@ ENABLE_ALL_WARNINGS(laskin-cli)
 TARGET_COMPILE_FEATURES(
   laskin-cli
   PRIVATE
-    cxx_std_17
+    cxx_std_20
 )
 
 TARGET_LINK_LIBRARIES(
