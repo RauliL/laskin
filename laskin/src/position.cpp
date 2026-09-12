@@ -38,7 +38,9 @@ namespace laskin
 
     if (position.path)
     {
-      result.append(decode(*position.path)).append(1, U':');
+      result
+        .append(decode(position.path->native()))
+        .append(1, U':');
     }
 
     return result
