@@ -39,7 +39,7 @@ namespace laskin
     if (position.path)
     {
       result
-        .append(decode(position.path->native()))
+        .append(position.path->u32string())
         .append(1, U':');
     }
 
