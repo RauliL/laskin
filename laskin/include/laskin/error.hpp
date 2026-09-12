@@ -73,13 +73,16 @@ namespace laskin
       return type == t;
     }
 
-    inline const char* what() const noexcept
+    inline const char* what() const noexcept override
     {
       return message.c_str();
     }
   };
 
-  std::ostream& operator<<(std::ostream&, enum error::type);
+  std::u32string to_string(enum error::type type);
+  std::u32string to_string(const error& error);
 
-  std::ostream& operator<<(std::ostream&, const error&);
+  std::u32string to_source(enum error::type type);
+
+  std::ostream& operator<<(std::ostream& os, const error& error);
 }

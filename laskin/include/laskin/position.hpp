@@ -26,7 +26,6 @@
 #pragma once
 
 #include <filesystem>
-#include <iostream>
 #include <optional>
 
 namespace laskin
@@ -41,5 +40,5 @@ namespace laskin
     int column;
   };
 
-  std::ostream& operator<<(std::ostream&, const position&);
+  std::u32string to_string(const position& position);
 }

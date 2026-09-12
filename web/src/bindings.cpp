@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <sstream>
-
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
@@ -38,66 +36,31 @@
 
 namespace
 {
-  const char*
-  error_type_name(enum laskin::error::type type)
-  {
-    switch (type)
-    {
-      case laskin::error::type::syntax:
-        return "syntax";
-      case laskin::error::type::type:
-        return "type";
-      case laskin::error::type::unit:
-        return "unit";
-      case laskin::error::type::range:
-        return "range";
-      case laskin::error::type::domain:
-        return "domain";
-      case laskin::error::type::name:
-        return "name";
-      case laskin::error::type::system:
-        return "system";
-      case laskin::error::type::exit:
-        return "exit";
-    }
-
-    return "system";
-  }
-
-  std::string
-  format_error_message(const laskin::error& error)
-  {
-    std::ostringstream out;
-
-    out << error;
-    return out.str();
-  }
-
   [[noreturn]] void
   raise_laskin_error(const laskin::error& error)
   {
-    const auto message = format_error_message(error);
-    const auto* type = error_type_name(error.type);
-    const int has_position = error.position ? 1 : 0;
-    const int line = error.position ? error.position->line : 0;
-    const int column = error.position ? error.position->column : 0;
+    const auto message = laskin::to_string(error);
+    const auto type = laskin::to_source(error.type);
+    const bool has_position = !!error.position;
 
     EM_ASM(
       {
-        const err = new Error(UTF8ToString($0));
+        const err = new Error(UTF32ToString($0));
+
         err.name = 'LaskinError';
-        err.type = UTF8ToString($1);
+        err.type = UTF32ToString($1);
         if ($2) {
           err.line = $3;
           err.column = $4;
         }
+
         throw err;
       },
       message.c_str(),
-      type,
+      type.c_str(),
       has_position,
-      line,
-      column
+      has_position ? error.position->line : 0,
+      has_position ? error.position->column : 0
     );
 
     // EM_ASM always throws; this keeps the compiler happy.

@@ -38,59 +38,98 @@ namespace laskin
     , message(peelo::unicode::encoding::utf8::encode(message_))
     , position(position_) {}
 
-  std::ostream&
-  operator<<(std::ostream& os, enum error::type type)
+  std::u32string
+  to_string(enum error::type type)
   {
     switch (type)
     {
       case error::type::syntax:
-        os << "Syntax error";
-        break;
+        return U"Syntax error";
 
       case error::type::type:
-        os << "Type error";
-        break;
+        return U"Type error";
 
       case error::type::unit:
-        os << "Unit error";
-        break;
+        return U"Unit error";
 
       case error::type::range:
-        os << "Range error";
-        break;
+        return U"Range error";
 
       case error::type::domain:
-        os << "Domain error";
-        break;
+        return U"Domain error";
 
       case error::type::name:
-        os << "Name error";
-        break;
+        return U"Name error";
 
       case error::type::system:
-        os << "System error";
-        break;
+        return U"System error";
 
       case error::type::exit:
-        os << "Program exit";
-        break;
+        return U"Program exit";
     }
 
-    return os;
+    return U"Unknown error";
+  }
+
+  std::u32string
+  to_string(const error& error)
+  {
+    using peelo::unicode::encoding::utf8::decode;
+
+    std::u32string result;
+
+    if (error.position)
+    {
+      result.append(to_string(*error.position)).append(U": ");
+    }
+    result.append(to_string(error.type));
+    if (!error.message.empty())
+    {
+      result.append(U": ").append(decode(error.message));
+    }
+
+    return result;
+  }
+
+  std::u32string
+  to_source(enum error::type type)
+  {
+    switch (type)
+    {
+      case error::type::syntax:
+        return U"syntax";
+
+      case error::type::type:
+        return U"type";
+
+      case error::type::unit:
+        return U"unit";
+
+      case error::type::range:
+        return U"range";
+
+      case error::type::domain:
+        return U"domain";
+
+      case error::type::name:
+        return U"name";
+
+      case error::type::system:
+        return U"system";
+
+      case error::type::exit:
+        return U"exit";
+    }
+
+    return U"unknown";
   }
 
   std::ostream&
-  operator<<(std::ostream& os, const class error& error)
+  operator<<(std::ostream& os, const error& error)
   {
-    if (error.position)
-    {
-      os << *error.position << ": ";
-    }
-    os << error.type;
-    if (!error.message.empty())
-    {
-      os << ": " << error.message;
-    }
+    using peelo::unicode::encoding::utf8::encode;
+
+    os << encode(to_string(error));
 
     return os;
   }

@@ -23,19 +23,27 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode/encoding/utf8.hpp>
+
 #include "laskin/position.hpp"
 
 namespace laskin
 {
-  std::ostream&
-  operator<<(std::ostream& os, const struct position& position)
+  std::u32string
+  to_string(const position& position)
   {
+    using peelo::unicode::encoding::utf8::decode;
+
+    std::u32string result;
+
     if (position.path)
     {
-      os << *position.path << ':';
+      result.append(decode(*position.path)).append(1, U':');
     }
-    os << position.line << ':' << position.column;
 
-    return os;
+    return result
+      .append(decode(std::to_string(position.line)))
+      .append(1, U':')
+      .append(decode(std::to_string(position.column)));
   }
 }
