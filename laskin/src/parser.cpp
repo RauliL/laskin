@@ -31,7 +31,6 @@
 
 #include "laskin/ast.hpp"
 #include "laskin/error.hpp"
-#include "laskin/quote.hpp"
 
 namespace laskin
 {

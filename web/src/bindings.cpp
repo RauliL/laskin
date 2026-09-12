@@ -24,9 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <sstream>
-#include <string>
-#include <type_traits>
-#include <variant>
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
