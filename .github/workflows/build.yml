@@ -72,8 +72,6 @@ jobs:
             mingw-w64-x86_64-cmake
             mingw-w64-x86_64-make
             mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-pkgconf
-            mingw-w64-x86_64-gtkmm-4.0
       - name: Set MinGW environment variables
         run: |
           echo "MPFR_ROOT=C:\msys64\mingw64" >> $env:GITHUB_ENV
@@ -86,55 +84,9 @@ jobs:
       - name: Build
         shell: msys2 {0}
         run: |
-          # MSYS2 currently ships glib 2.90 with glibmm 2.86; glib made
-          # GDBusActionGroup/GEmblem final types, which conflicts with
-          # glibmm's Class aliases. Fixed upstream in newer glibmm; drop the
-          # obsolete aliases until MSYS2 catches up.
-          giomm_inc="$(pkg-config --variable=includedir giomm-2.68)/giomm-2.68/giomm"
-          sed -i '/using GDBusActionGroupClass = struct _GDBusActionGroupClass;/d' \
-            "$giomm_inc/dbusactiongroup.h"
-          sed -i '/using GEmblemClass = struct _GEmblemClass;/d' \
-            "$giomm_inc/emblem.h"
-
-          # GTK 4.19+ declares many Gdk types as final or internal, which
-          # conflicts with gtkmm's Class aliases. Fixed upstream in gtkmm
-          # 4.23.1; drop the obsolete aliases until MSYS2 catches up.
-          gdkmm_inc="$(pkg-config --variable=includedir gtkmm-4.0)/gtkmm-4.0/gdkmm"
-          for header in \
-            applaunchcontext.h \
-            cairocontext.h \
-            clipboard.h \
-            cursor.h \
-            device.h \
-            devicepad.h \
-            devicetool.h \
-            display.h \
-            displaymanager.h \
-            dmabuftexture.h \
-            drag.h \
-            drawcontext.h \
-            drop.h \
-            frameclock.h \
-            glcontext.h \
-            gltexture.h \
-            memorytexture.h \
-            monitor.h \
-            seat.h \
-            snapshot.h \
-            surface.h \
-            texture.h
-          do
-            sed -i '/using Gdk.*Class = struct _Gdk.*Class;/d' \
-              "$gdkmm_inc/$header"
-          done
-          sed -i '/using GdkCursor = struct _GdkCursor;/d' \
-            "$gdkmm_inc/cursor.h"
-          sed -i '/using GdkDevicePadInterface = struct _GdkDevicePadInterface;/d' \
-            "$gdkmm_inc/devicepad.h"
-
           cmake -B build -S . -G "MinGW Makefiles" \
             -DLASKIN_ENABLE_2CPP=ON \
-            -DLASKIN_ENABLE_GUI=ON
+            -DLASKIN_ENABLE_GUI=OFF
           cmake --build build
 
   build-wasm:
