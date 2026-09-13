@@ -88,7 +88,7 @@ jobs:
       - name: Build
         uses: threeal/cmake-action@v2.1.0
         with:
-          generator: Visual Studio 17 2022
+          generator: Visual Studio 18 2026
           args: -A x64
           build-args: --config Release
           options: |
