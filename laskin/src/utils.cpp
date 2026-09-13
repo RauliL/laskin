@@ -31,12 +31,6 @@
 
 namespace laskin::utils
 {
-  bool
-  is_symbol(char32_t c)
-  {
-    return !is_separator(c) && peelo::unicode::ctype::isgraph(c);
-  }
-
   std::int64_t
   time_as_seconds(const time& value)
   {

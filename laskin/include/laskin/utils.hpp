@@ -25,6 +25,7 @@
  */
 #pragma once
 
+#include <peelo/unicode/ctype/isgraph.hpp>
 #include <peelo/unicode/ctype/isspace.hpp>
 
 #include "laskin/types.hpp"
@@ -52,15 +53,19 @@ namespace laskin::utils
    * Tests whether given character is considered to be part of a symbol in
    * Laskin syntax.
    */
-  bool
-  is_symbol(char32_t c);
+  inline bool
+  is_symbol(char32_t c)
+  {
+    return !is_separator(c) && peelo::unicode::ctype::isgraph(c);
+  }
 
   /**
    * Tests whether given string is blank or not. String is considered to be
    * blank when it's either empty or contains only whitespace characters.
    */
   template<class T>
-  inline bool is_blank(const std::basic_string<T>& str)
+  inline bool
+  is_blank(const std::basic_string<T>& str)
   {
     const auto length = str.length();
 
