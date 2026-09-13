@@ -447,6 +447,8 @@ LASKIN_BUILTIN_WORD(w_print)
  */
 LASKIN_BUILTIN_WORD(w_stack_preview)
 {
+  using peelo::unicode::encoding::utf8::encode;
+
   const auto& data = context.data;
   const auto size = data.size();
 
@@ -459,14 +461,14 @@ LASKIN_BUILTIN_WORD(w_stack_preview)
     *out << "Stack is empty." << std::endl;
     return;
   }
-  for (std::deque<value>::size_type i = 0; i < size && i < 10; ++i)
+  for (context::container_type::size_type i = 0; i < size && i < 10; ++i)
   {
     const auto& value = data[size - i - 1];
 
     *out
       << (size - i)
       << ": "
-      << peelo::unicode::encoding::utf8::encode(value.to_source())
+      << encode(value.to_source())
       << std::endl;
   }
 }
@@ -674,11 +676,9 @@ LASKIN_BUILTIN_WORD(w_symbols)
  */
 LASKIN_BUILTIN_WORD(w_include)
 {
-  using peelo::unicode::encoding::utf8::encode;
-
   const auto path = context.pop().as_string();
 
-  context.include(encode(path), out);
+  context.include(path, out);
 }
 
 namespace laskin::api
