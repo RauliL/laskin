@@ -58,36 +58,42 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Install dependencies
-        uses: msys2/setup-msys2@v2
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        id: vcpkg-cache
         with:
-          msystem: MINGW64
-          update: true
-          cache: true
-          install: >-
-            mingw-w64-x86_64-mpfr
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-make
-            mingw-w64-x86_64-gcc
-      - name: Set MinGW environment variables
+          path: vcpkg
+          key: vcpkg-${{ runner.os }}-mpfr-4.2.2
+          restore-keys: |
+            vcpkg-${{ runner.os }}-mpfr-
+      - name: Setup vcpkg
+        if: steps.vcpkg-cache.outputs.cache-hit != 'true'
         run: |
-          echo "MPFR_ROOT=C:\msys64\mingw64" >> $env:GITHUB_ENV
-          echo "C:\msys64\mingw64\bin" >> $GITHUB_PATH
+          git clone --depth 1 https://github.com/microsoft/vcpkg.git vcpkg
+          .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+      - name: Install MPFR
+        run: .\vcpkg\vcpkg.exe install mpfr --clean-after-build
+      - name: Export MPFR_ROOT
+        run: echo "MPFR_ROOT=${{ github.workspace }}/vcpkg/installed/x64-windows" >> $env:GITHUB_ENV
       - name: Cache CMake dependencies
         uses: actions/cache@v4
         with:
           path: build/_deps
           key: fetchcontent-${{ runner.os }}-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
       - name: Build
-        shell: msys2 {0}
-        run: |
-          cmake -B build -S . -G "MinGW Makefiles" \
-            -DLASKIN_ENABLE_2CPP=ON \
-            -DLASKIN_ENABLE_GUI=OFF
-          cmake --build build
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          generator: Visual Studio 17 2022
+          args: -A x64
+          build-args: --config Release
+          options: |
+            LASKIN_ENABLE_2CPP=ON
+            LASKIN_ENABLE_GUI=OFF
 
   build-wasm:
     runs-on: ubuntu-latest
