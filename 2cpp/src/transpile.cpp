@@ -236,7 +236,7 @@ namespace laskin2cpp
 
   static void
   transpile_record(
-    const laskin::node::record_literal::container_type& properties,
+    const laskin::node::record::container_type& properties,
     class writer& writer,
     const struct options& options
   )
@@ -257,7 +257,7 @@ namespace laskin2cpp
 
   static void
   transpile_vector(
-    const laskin::node::vector_literal::container_type& elements,
+    const laskin::node::vector::container_type& elements,
     class writer& writer,
     const struct options& options
   )
@@ -301,9 +301,9 @@ namespace laskin2cpp
         );
         break;
 
-      case laskin::node::type::record_literal:
+      case laskin::node::type::record:
         transpile_record(
-          std::static_pointer_cast<laskin::node::record_literal>(
+          std::static_pointer_cast<laskin::node::record>(
             node
           )->properties,
           writer,
@@ -325,9 +325,9 @@ namespace laskin2cpp
         }
         break;
 
-      case laskin::node::type::vector_literal:
+      case laskin::node::type::vector:
         transpile_vector(
-          std::static_pointer_cast<laskin::node::vector_literal>(
+          std::static_pointer_cast<laskin::node::vector>(
             node
           )->elements,
           writer,

@@ -23,8 +23,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <peelo/unicode/ctype/isgraph.hpp>
-#include <peelo/unicode/ctype/isspace.hpp>
 #include <peelo/unicode/ctype/isvalid.hpp>
 #include <peelo/unicode/ctype/isxdigit.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
@@ -314,10 +312,10 @@ namespace laskin
     return std::make_shared<node::literal>(value, position);
   }
 
-  static std::shared_ptr<node::vector_literal>
+  static std::shared_ptr<node::vector>
   parse_vector_literal(struct state& state)
   {
-    node::vector_literal::container_type elements;
+    node::vector::container_type elements;
     struct position position;
 
     skip_whitespace(state);
@@ -371,13 +369,13 @@ namespace laskin
       }
     }
 
-    return std::make_shared<node::vector_literal>(elements, position);
+    return std::make_shared<node::vector>(elements, position);
   }
 
-  static std::shared_ptr<node::record_literal>
+  static std::shared_ptr<node::record>
   parse_record_literal(struct state& state)
   {
-    node::record_literal::container_type properties;
+    node::record::container_type properties;
     struct position position;
 
     skip_whitespace(state);
@@ -446,7 +444,7 @@ namespace laskin
       }
     }
 
-    return std::make_shared<node::record_literal>(properties, position);
+    return std::make_shared<node::record>(properties, position);
   }
 
   static std::shared_ptr<node::literal>

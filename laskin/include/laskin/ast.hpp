@@ -45,16 +45,16 @@ namespace laskin
     {
       definition,
       literal,
-      record_literal,
+      record,
       symbol,
-      vector_literal,
+      vector,
     };
 
     class definition;
     class literal;
-    class record_literal;
+    class record;
     class symbol;
-    class vector_literal;
+    class vector;
 
     /** Position of the AST node in the source code. */
     std::optional<struct position> position;
@@ -157,14 +157,14 @@ namespace laskin
     }
   };
 
-  class node::vector_literal final : public node
+  class node::vector final : public node
   {
   public:
     using container_type = std::vector<std::shared_ptr<node>>;
 
     const container_type elements;
 
-    explicit vector_literal(
+    explicit vector(
       const container_type& elements_,
       const std::optional<struct position>& position_ = std::nullopt
     )
@@ -173,7 +173,7 @@ namespace laskin
 
     inline enum type type() const override
     {
-      return type::vector_literal;
+      return type::vector;
     }
 
     void exec(
@@ -191,7 +191,7 @@ namespace laskin
     std::u32string to_source() const override;
   };
 
-  class node::record_literal final : public node
+  class node::record final : public node
   {
   public:
     using container_type = tsl::ordered_map<
@@ -201,7 +201,7 @@ namespace laskin
 
     const container_type properties;
 
-    explicit record_literal(
+    explicit record(
       const container_type& properties_,
       const std::optional<struct position>& position_ = std::nullopt
     )
@@ -210,7 +210,7 @@ namespace laskin
 
     inline enum type type() const override
     {
-      return type::record_literal;
+      return type::record;
     }
 
     void exec(

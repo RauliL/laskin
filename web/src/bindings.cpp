@@ -189,11 +189,11 @@ namespace
         );
         break;
 
-      case laskin::node::type::record_literal:
+      case laskin::node::type::record:
       {
         auto properties = emscripten::val::object();
         const auto& record =
-          std::static_pointer_cast<laskin::node::record_literal>(node)
+          std::static_pointer_cast<laskin::node::record>(node)
             ->properties;
 
         for (const auto& property : record)
@@ -211,11 +211,11 @@ namespace
         );
         break;
 
-      case laskin::node::type::vector_literal:
+      case laskin::node::type::vector:
       {
         auto elements = emscripten::val::array();
         const auto& vector =
-          std::static_pointer_cast<laskin::node::vector_literal>(node)
+          std::static_pointer_cast<laskin::node::vector>(node)
             ->elements;
 
         for (const auto& element : vector)
@@ -266,9 +266,9 @@ namespace
         position
       );
     }
-    else if (type == U"record-literal")
+    else if (type == U"record")
     {
-      laskin::node::record_literal::container_type properties;
+      laskin::node::record::container_type properties;
       const auto js_properties = js_node["properties"];
       const auto keys = emscripten::val::global("Object")
         .call<emscripten::val>("keys", js_properties);
@@ -281,7 +281,7 @@ namespace
         properties.emplace(key, node_from_js(js_properties[key]));
       }
 
-      return std::make_shared<laskin::node::record_literal>(
+      return std::make_shared<laskin::node::record>(
         properties,
         position
       );
@@ -293,9 +293,9 @@ namespace
         position
       );
     }
-    else if (type == U"vector-literal")
+    else if (type == U"vector")
     {
-      return std::make_shared<laskin::node::vector_literal>(
+      return std::make_shared<laskin::node::vector>(
         nodes_from_js(js_node["elements"]),
         position
       );

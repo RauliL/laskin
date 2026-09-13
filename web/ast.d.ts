@@ -4,7 +4,7 @@ import type { Value } from "./value.d.ts";
  * Supported Laskin AST node types.
  */
 export type NodeType =
-  "definition" | "literal" | "record-literal" | "symbol" | "vector-literal";
+  "definition" | "literal" | "record" | "symbol" | "vector";
 
 /**
  * Source code position of an AST node.
@@ -36,8 +36,8 @@ export type LiteralNode = {
 /**
  * Representation of record literal node in Laskin AST.
  */
-export type RecordLiteralNode = {
-  type: "record-literal";
+export type RecordNode = {
+  type: "record";
   properties: Record<string, Node>;
   position?: Position;
 };
@@ -54,8 +54,8 @@ export type SymbolNode = {
 /**
  * Representation of vector literal node in Laskin AST.
  */
-export type VectorLiteralNode = {
-  type: "vector-literal";
+export type VectorNode = {
+  type: "vector";
   elements: Node[];
   position?: Position;
 };
@@ -64,8 +64,4 @@ export type VectorLiteralNode = {
  * Representation of Laskin AST node.
  */
 export type Node =
-  | DefinitionNode
-  | LiteralNode
-  | RecordLiteralNode
-  | SymbolNode
-  | VectorLiteralNode;
+  DefinitionNode | LiteralNode | RecordNode | SymbolNode | VectorNode;

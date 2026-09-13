@@ -40,14 +40,14 @@ namespace laskin
       case type::literal:
         return U"literal";
 
-      case type::record_literal:
-        return U"record-literal";
+      case type::record:
+        return U"record";
 
       case type::symbol:
         return U"symbol";
 
-      case type::vector_literal:
-        return U"vector-literal";
+      case type::vector:
+        return U"vector";
     }
 
     return U"unknown";
@@ -74,7 +74,7 @@ namespace laskin
   }
 
   void
-  node::vector_literal::exec(
+  node::vector::exec(
     class context& context,
     std::ostream* out
   ) const
@@ -83,12 +83,12 @@ namespace laskin
   }
 
   value
-  node::vector_literal::eval(
+  node::vector::eval(
     class context& context,
     std::ostream* out
   ) const
   {
-    vector container;
+    laskin::vector container;
 
     container.reserve(elements.size());
     for (const auto& element : elements)
@@ -100,11 +100,11 @@ namespace laskin
   }
 
   bool
-  node::vector_literal::equals(const std::shared_ptr<node>& that) const
+  node::vector::equals(const std::shared_ptr<node>& that) const
   {
-    if (that && that->type() == type::vector_literal)
+    if (that && that->type() == type::vector)
     {
-      const auto t = std::static_pointer_cast<vector_literal>(that);
+      const auto t = std::static_pointer_cast<vector>(that);
       const auto size = elements.size();
 
       if (t->elements.size() != size)
@@ -126,7 +126,7 @@ namespace laskin
   }
 
   std::u32string
-  node::vector_literal::to_source() const
+  node::vector::to_source() const
   {
     std::u32string result(1, U'[');
     bool first = true;
@@ -149,7 +149,7 @@ namespace laskin
   }
 
   void
-  node::record_literal::exec(
+  node::record::exec(
     class context& context,
     std::ostream* out
   ) const
@@ -158,12 +158,12 @@ namespace laskin
   }
 
   value
-  node::record_literal::eval(
+  node::record::eval(
     class context& context,
     std::ostream* out
   ) const
   {
-    record resolved_properties;
+    laskin::record resolved_properties;
 
     for (const auto& property : properties)
     {
@@ -177,11 +177,11 @@ namespace laskin
   }
 
   bool
-  node::record_literal::equals(const std::shared_ptr<node>& that) const
+  node::record::equals(const std::shared_ptr<node>& that) const
   {
-    if (that && that->type() == type::record_literal)
+    if (that && that->type() == type::record)
     {
-      const auto t = std::static_pointer_cast<record_literal>(that);
+      const auto t = std::static_pointer_cast<record>(that);
 
       if (properties.size() != t->properties.size())
       {
@@ -207,7 +207,7 @@ namespace laskin
   }
 
   std::u32string
-  node::record_literal::to_source() const
+  node::record::to_source() const
   {
     std::u32string result(1, U'{');
     bool first = true;

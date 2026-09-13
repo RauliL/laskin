@@ -41,13 +41,13 @@ namespace laskin2cpp
     type = node->type();
 
     return type == laskin::node::type::literal ||
-      type == laskin::node::type::record_literal ||
+      type == laskin::node::type::record ||
       type == laskin::node::type::symbol ||
-      type == laskin::node::type::vector_literal;
+      type == laskin::node::type::vector;
   }
 
   static void
-  validate(const std::shared_ptr<laskin::node::record_literal>& record)
+  validate(const std::shared_ptr<laskin::node::record>& record)
   {
     for (const auto& property : record->properties)
     {
@@ -63,7 +63,7 @@ namespace laskin2cpp
   }
 
   static void
-  validate(const std::shared_ptr<laskin::node::vector_literal>& vector)
+  validate(const std::shared_ptr<laskin::node::vector>& vector)
   {
     for (const auto& element : vector->elements)
     {
@@ -145,10 +145,10 @@ RETRY:
           ));
           break;
 
-        case laskin::node::type::record_literal:
+        case laskin::node::type::record:
           {
             const auto record
-              = std::static_pointer_cast<laskin::node::record_literal>(node);
+              = std::static_pointer_cast<laskin::node::record>(node);
 
             validate(record);
             instructions.push_back(std::make_shared<instruction::push>(
@@ -165,10 +165,10 @@ RETRY:
           ));
           break;
 
-        case laskin::node::type::vector_literal:
+        case laskin::node::type::vector:
           {
-            const auto vector
-              = std::static_pointer_cast<laskin::node::vector_literal>(node);
+            const auto vector =
+              std::static_pointer_cast<laskin::node::vector>(node);
 
             validate(vector);
             instructions.push_back(std::make_shared<instruction::push>(
