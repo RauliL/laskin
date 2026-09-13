@@ -32,6 +32,30 @@
 namespace laskin::utils
 {
   /**
+   * Tests whether given character is considered to be an separator character
+   * in Laskin syntax.
+   */
+  inline bool
+  is_separator(char32_t c)
+  {
+    return c == U'['
+      || c == U']'
+      || c == U'('
+      || c == U')'
+      || c == U'{'
+      || c == U'}'
+      || c == U','
+      || c == U'"';
+  }
+
+  /**
+   * Tests whether given character is considered to be part of a symbol in
+   * Laskin syntax.
+   */
+  bool
+  is_symbol(char32_t c);
+
+  /**
    * Tests whether given string is blank or not. String is considered to be
    * blank when it's either empty or contains only whitespace characters.
    */

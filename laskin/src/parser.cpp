@@ -31,6 +31,7 @@
 
 #include "laskin/ast.hpp"
 #include "laskin/error.hpp"
+#include "laskin/utils.hpp"
 
 namespace laskin
 {
@@ -42,19 +43,6 @@ namespace laskin
   };
 
   static std::shared_ptr<node> parse(struct state&, bool);
-
-  static inline bool
-  issymbol(char32_t c)
-  {
-    return c != U'['
-      && c != U']'
-      && c != U'('
-      && c != U')'
-      && c != U'{'
-      && c != U'}'
-      && c != U','
-      && peelo::unicode::ctype::isgraph(c);
-  }
 
   /**
    * Returns true if there are no more characters to be read from the source
@@ -513,7 +501,7 @@ namespace laskin
     std::u32string buffer;
 
     skip_whitespace(state);
-    if (!peek(state, issymbol))
+    if (!peek(state, utils::is_symbol))
     {
       throw error(
         error::type::syntax,
@@ -527,7 +515,7 @@ namespace laskin
     {
       buffer.push_back(read(state));
     }
-    while (peek(state, issymbol));
+    while (peek(state, utils::is_symbol));
 
     return buffer;
   }

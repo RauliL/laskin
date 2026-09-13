@@ -22,13 +22,21 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
+#include <peelo/unicode/ctype/isgraph.hpp>
 #include <peelo/unicode/ctype/isprint.hpp>
 
 #include "laskin/utils.hpp"
 
 namespace laskin::utils
 {
+  bool
+  is_symbol(char32_t c)
+  {
+    return !is_separator(c) && peelo::unicode::ctype::isgraph(c);
+  }
+
   std::int64_t
   time_as_seconds(const time& value)
   {
