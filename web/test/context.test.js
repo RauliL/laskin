@@ -3,8 +3,8 @@ import { before, describe, it } from "node:test";
 
 import {
   createContext,
-  laskinValueToSource,
-  laskinValueToString,
+  valueToSource,
+  valueToString,
   LaskinError,
 } from "../index.js";
 
@@ -46,8 +46,8 @@ describe("createContext", () => {
   });
 });
 
-describe("LaskinContext", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+describe("Context", () => {
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -153,8 +153,8 @@ describe("LaskinContext", () => {
   });
 });
 
-describe("LaskinContext.push", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+describe("Context.push", () => {
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -260,7 +260,7 @@ describe("LaskinContext.push", () => {
 });
 
 describe("quote AST", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -303,8 +303,8 @@ describe("quote AST", () => {
   });
 });
 
-describe("LaskinContext.dictionary", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+describe("Context.dictionary", () => {
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -320,8 +320,8 @@ describe("LaskinContext.dictionary", () => {
   });
 });
 
-describe("laskinValueToString", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+describe("valueToString", () => {
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -331,20 +331,20 @@ describe("laskinValueToString", () => {
   it("formats values with >string", async () => {
     ctx.clear();
     ctx.run("1km 500m +");
-    assert.equal(await laskinValueToString(ctx.peek()), "1.5km");
+    assert.equal(await valueToString(ctx.peek()), "1.5km");
 
     ctx.clear();
     ctx.run("[1, 2, 3] [10, 20, 30] +");
-    assert.equal(await laskinValueToString(ctx.peek()), "11, 22, 33");
+    assert.equal(await valueToString(ctx.peek()), "11, 22, 33");
 
     ctx.clear();
     ctx.run("true false and");
-    assert.equal(await laskinValueToString(ctx.peek()), "false");
+    assert.equal(await valueToString(ctx.peek()), "false");
   });
 });
 
-describe("laskinValueToSource", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+describe("valueToSource", () => {
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {
@@ -354,20 +354,20 @@ describe("laskinValueToSource", () => {
   it("formats values as re-evaluable source code", async () => {
     ctx.clear();
     ctx.run("1km 500m +");
-    assert.equal(await laskinValueToSource(ctx.peek()), "1.5km");
+    assert.equal(await valueToSource(ctx.peek()), "1.5km");
 
     ctx.clear();
     ctx.run('"hello"');
-    assert.equal(await laskinValueToSource(ctx.peek()), '"hello"');
+    assert.equal(await valueToSource(ctx.peek()), '"hello"');
 
     ctx.clear();
     ctx.run("[1, 2, 3]");
-    assert.equal(await laskinValueToSource(ctx.peek()), "[1, 2, 3]");
+    assert.equal(await valueToSource(ctx.peek()), "[1, 2, 3]");
 
     ctx.clear();
     ctx.run('{ "name": "Ada", "age": 36 }');
     assert.equal(
-      await laskinValueToSource(ctx.peek()),
+      await valueToSource(ctx.peek()),
       '{"name": "Ada", "age": 36}',
     );
   });
@@ -377,7 +377,7 @@ describe("laskinValueToSource", () => {
     ctx.run('{ "name": "Ada", "age": 36 }');
 
     const value = ctx.peek();
-    const source = await laskinValueToSource(value);
+    const source = await valueToSource(value);
 
     ctx.clear();
     ctx.run(source);
@@ -386,7 +386,7 @@ describe("laskinValueToSource", () => {
 });
 
 describe("LaskinError", () => {
-  /** @type {import('../index.d.ts').LaskinContext} */
+  /** @type {import('../index.d.ts').Context} */
   let ctx;
 
   before(async () => {

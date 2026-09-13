@@ -34,397 +34,240 @@
 #include "laskin/quote.hpp"
 #include "laskin/value.hpp"
 
-namespace
+[[noreturn]] static void
+raise_laskin_error(const laskin::error& error)
 {
-  [[noreturn]] void
-  raise_laskin_error(const laskin::error& error)
-  {
-    const auto message = laskin::to_string(error);
-    const auto type = laskin::to_source(error.type);
-    const bool has_position = !!error.position;
+  const auto message = laskin::to_string(error);
+  const auto type = laskin::to_source(error.type);
+  const bool has_position = !!error.position;
 
-    EM_ASM(
-      {
-        const err = new Error(UTF32ToString($0));
-
-        err.name = 'LaskinError';
-        err.type = UTF32ToString($1);
-        if ($2) {
-          err.line = $3;
-          err.column = $4;
-        }
-
-        throw err;
-      },
-      message.c_str(),
-      type.c_str(),
-      has_position,
-      has_position ? error.position->line : 0,
-      has_position ? error.position->column : 0
-    );
-
-    // EM_ASM always throws; this keeps the compiler happy.
-    std::abort();
-  }
-
-  laskin::value
-  value_from_js(const emscripten::val& js_value);
-
-  emscripten::val
-  value_to_js(const laskin::value& value);
-
-  std::shared_ptr<laskin::node>
-  node_from_js(const emscripten::val& js_node);
-
-  emscripten::val
-  node_to_js(const std::shared_ptr<laskin::node>& node);
-
-  void
-  set_optional_position(
-    emscripten::val& result,
-    const std::optional<laskin::position>& position
-  )
-  {
-    if (!position)
+  EM_ASM(
     {
-      return;
-    }
+      const err = new Error(UTF32ToString($0));
 
-    auto js_position = emscripten::val::object();
-
-    if (position->path)
-    {
-      js_position.set("path", position->path->string());
-    }
-
-    js_position.set("line", position->line);
-    js_position.set("column", position->column);
-    result.set("position", js_position);
-  }
-
-  std::optional<laskin::position>
-  position_from_js(const emscripten::val& js_position)
-  {
-    if (js_position.isUndefined() || js_position.isNull())
-    {
-      return std::nullopt;
-    }
-
-    laskin::position position{
-      .path = std::nullopt,
-      .line = js_position["line"].as<int>(),
-      .column = js_position["column"].as<int>(),
-    };
-    const auto path = js_position["path"];
-
-    if (!path.isUndefined() && !path.isNull())
-    {
-      position.path = std::filesystem::path(path.as<std::string>());
-    }
-
-    return position;
-  }
-
-  emscripten::val
-  quote_nodes_to_js(const laskin::quote& quote)
-  {
-    auto nodes = emscripten::val::array();
-
-    std::visit(
-      [&](const auto& alternative)
-      {
-        using T = std::decay_t<decltype(alternative)>;
-
-        if constexpr (std::is_same_v<T, laskin::native_quote>)
-        {
-          auto dummy = emscripten::val::object();
-
-          dummy.set(
-            "type",
-            laskin::node::type_description(laskin::node::type::symbol)
-          );
-          dummy.set("id", std::u32string(U"native quote"));
-          nodes.call<void>("push", dummy);
-        } else {
-          for (const auto& node : alternative)
-          {
-            nodes.call<void>("push", node_to_js(node));
-          }
-        }
-      },
-      quote
-    );
-
-    return nodes;
-  }
-
-  emscripten::val
-  node_to_js(const std::shared_ptr<laskin::node>& node)
-  {
-    if (!node)
-    {
-      return emscripten::val::null();
-    }
-
-    auto result = emscripten::val::object();
-
-    result.set("type", laskin::node::type_description(node->type()));
-    set_optional_position(result, node->position);
-
-    switch (node->type())
-    {
-      case laskin::node::type::definition:
-        result.set(
-          "id",
-          std::static_pointer_cast<laskin::node::definition>(node)->id
-        );
-        break;
-
-      case laskin::node::type::literal:
-        result.set(
-          "value",
-          value_to_js(
-            std::static_pointer_cast<laskin::node::literal>(node)->value
-          )
-        );
-        break;
-
-      case laskin::node::type::record:
-      {
-        auto properties = emscripten::val::object();
-        const auto& record =
-          std::static_pointer_cast<laskin::node::record>(node)
-            ->properties;
-
-        for (const auto& property : record)
-        {
-          properties.set(property.first, node_to_js(property.second));
-        }
-        result.set("properties", properties);
-        break;
+      err.name = 'LaskinError';
+      err.type = UTF32ToString($1);
+      if ($2) {
+        err.line = $3;
+        err.column = $4;
       }
 
-      case laskin::node::type::symbol:
-        result.set(
-          "id",
-          std::static_pointer_cast<laskin::node::symbol>(node)->id
+      throw err;
+    },
+    message.c_str(),
+    type.c_str(),
+    has_position,
+    has_position ? error.position->line : 0,
+    has_position ? error.position->column : 0
+  );
+
+  // EM_ASM always throws; this keeps the compiler happy.
+  std::abort();
+}
+
+static laskin::value
+value_from_js(const emscripten::val& js_value);
+
+static emscripten::val
+value_to_js(const laskin::value& value);
+
+static std::shared_ptr<laskin::node>
+node_from_js(const emscripten::val& js_node);
+
+static emscripten::val
+node_to_js(const std::shared_ptr<laskin::node>& node);
+
+static void
+set_optional_position(
+  emscripten::val& result,
+  const std::optional<laskin::position>& position
+)
+{
+  if (!position)
+  {
+    return;
+  }
+
+  auto js_position = emscripten::val::object();
+
+  if (position->path)
+  {
+    js_position.set("path", position->path->string());
+  }
+
+  js_position.set("line", position->line);
+  js_position.set("column", position->column);
+  result.set("position", js_position);
+}
+
+static std::optional<laskin::position>
+position_from_js(const emscripten::val& js_position)
+{
+  if (js_position.isUndefined() || js_position.isNull())
+  {
+    return std::nullopt;
+  }
+
+  laskin::position position{
+    .path = std::nullopt,
+    .line = js_position["line"].as<int>(),
+    .column = js_position["column"].as<int>(),
+  };
+  const auto path = js_position["path"];
+
+  if (!path.isUndefined() && !path.isNull())
+  {
+    position.path = std::filesystem::path(path.as<std::string>());
+  }
+
+  return position;
+}
+
+static emscripten::val
+quote_nodes_to_js(const laskin::quote& quote)
+{
+  auto nodes = emscripten::val::array();
+
+  std::visit(
+    [&](const auto& alternative)
+    {
+      using T = std::decay_t<decltype(alternative)>;
+
+      if constexpr (std::is_same_v<T, laskin::native_quote>)
+      {
+        auto dummy = emscripten::val::object();
+
+        dummy.set(
+          "type",
+          laskin::node::type_description(laskin::node::type::symbol)
         );
-        break;
-
-      case laskin::node::type::vector:
-      {
-        auto elements = emscripten::val::array();
-        const auto& vector =
-          std::static_pointer_cast<laskin::node::vector>(node)
-            ->elements;
-
-        for (const auto& element : vector)
+        dummy.set("id", std::u32string(U"native quote"));
+        nodes.call<void>("push", dummy);
+      } else {
+        for (const auto& node : alternative)
         {
-          elements.call<void>("push", node_to_js(element));
+          nodes.call<void>("push", node_to_js(node));
         }
-        result.set("elements", elements);
-        break;
       }
-    }
+    },
+    quote
+  );
 
-    return result;
+  return nodes;
+}
+
+static emscripten::val
+node_to_js(const std::shared_ptr<laskin::node>& node)
+{
+  if (!node)
+  {
+    return emscripten::val::null();
   }
 
-  laskin::scripted_quote
-  nodes_from_js(const emscripten::val& js_nodes)
+  auto result = emscripten::val::object();
+
+  result.set("type", laskin::node::type_description(node->type()));
+  set_optional_position(result, node->position);
+
+  switch (node->type())
   {
-    laskin::scripted_quote nodes;
-    const auto length = js_nodes["length"].as<unsigned>();
-
-    nodes.reserve(length);
-
-    for (unsigned i = 0; i < length; ++i)
-    {
-      nodes.push_back(node_from_js(js_nodes[i]));
-    }
-
-    return nodes;
-  }
-
-  std::shared_ptr<laskin::node>
-  node_from_js(const emscripten::val& js_node)
-  {
-    const auto type = js_node["type"].as<std::u32string>();
-    const auto position = position_from_js(js_node["position"]);
-
-    if (type == U"definition")
-    {
-      return std::make_shared<laskin::node::definition>(
-        js_node["id"].as<std::u32string>(),
-        position
+    case laskin::node::type::definition:
+      result.set(
+        "id",
+        std::static_pointer_cast<laskin::node::definition>(node)->id
       );
-    }
-    else if (type == U"literal")
-    {
-      return std::make_shared<laskin::node::literal>(
-        value_from_js(js_node["value"]),
-        position
-      );
-    }
-    else if (type == U"record")
-    {
-      laskin::node::record::container_type properties;
-      const auto js_properties = js_node["properties"];
-      const auto keys = emscripten::val::global("Object")
-        .call<emscripten::val>("keys", js_properties);
-      const auto key_count = keys["length"].as<unsigned>();
+      break;
 
-      for (unsigned i = 0; i < key_count; ++i)
+    case laskin::node::type::literal:
+      result.set(
+        "value",
+        value_to_js(
+          std::static_pointer_cast<laskin::node::literal>(node)->value
+        )
+      );
+      break;
+
+    case laskin::node::type::record:
+    {
+      auto properties = emscripten::val::object();
+      const auto& record =
+        std::static_pointer_cast<laskin::node::record>(node)
+          ->properties;
+
+      for (const auto& property : record)
       {
-        const auto key = keys[i].as<std::u32string>();
-
-        properties.emplace(key, node_from_js(js_properties[key]));
+        properties.set(property.first, node_to_js(property.second));
       }
-
-      return std::make_shared<laskin::node::record>(
-        properties,
-        position
-      );
-    }
-    else if (type == U"symbol")
-    {
-      return std::make_shared<laskin::node::symbol>(
-        js_node["id"].as<std::u32string>(),
-        position
-      );
-    }
-    else if (type == U"vector")
-    {
-      return std::make_shared<laskin::node::vector>(
-        nodes_from_js(js_node["elements"]),
-        position
-      );
+      result.set("properties", properties);
+      break;
     }
 
-    throw laskin::error(
-      laskin::error::type::type,
-      U"Unknown Laskin AST node type: " + type
+    case laskin::node::type::symbol:
+      result.set(
+        "id",
+        std::static_pointer_cast<laskin::node::symbol>(node)->id
+      );
+      break;
+
+    case laskin::node::type::vector:
+    {
+      auto elements = emscripten::val::array();
+      const auto& vector =
+        std::static_pointer_cast<laskin::node::vector>(node)
+          ->elements;
+
+      for (const auto& element : vector)
+      {
+        elements.call<void>("push", node_to_js(element));
+      }
+      result.set("elements", elements);
+      break;
+    }
+  }
+
+  return result;
+}
+
+static laskin::scripted_quote
+nodes_from_js(const emscripten::val& js_nodes)
+{
+  laskin::scripted_quote nodes;
+  const auto length = js_nodes["length"].as<unsigned>();
+
+  nodes.reserve(length);
+
+  for (unsigned i = 0; i < length; ++i)
+  {
+    nodes.push_back(node_from_js(js_nodes[i]));
+  }
+
+  return nodes;
+}
+
+static std::shared_ptr<laskin::node>
+node_from_js(const emscripten::val& js_node)
+{
+  const auto type = js_node["type"].as<std::u32string>();
+  const auto position = position_from_js(js_node["position"]);
+
+  if (type == U"definition")
+  {
+    return std::make_shared<laskin::node::definition>(
+      js_node["id"].as<std::u32string>(),
+      position
     );
   }
-
-  emscripten::val
-  value_to_js(const laskin::value& value)
+  else if (type == U"literal")
   {
-    auto result = emscripten::val::object();
-
-    result.set("type", laskin::value::type_description(value.type()));
-
-    switch (value.type())
-    {
-      case laskin::value::type::boolean:
-        result.set("value", value.as_boolean());
-        break;
-
-      case laskin::value::type::number:
-      {
-        const auto& number = value.as_number();
-
-        result.set("value", number.without_measurement_unit().to_u32string());
-
-        if (const auto& unit = number.measurement_unit())
-        {
-          result.set("unit", unit->symbol);
-        }
-        break;
-      }
-
-      case laskin::value::type::string:
-        result.set("value", value.as_string());
-        break;
-
-      case laskin::value::type::vector:
-      {
-        auto elements = emscripten::val::array();
-
-        for (const auto& element : value.as_vector())
-        {
-          elements.call<void>("push", value_to_js(element));
-        }
-        result.set("elements", elements);
-        break;
-      }
-
-      case laskin::value::type::record:
-      {
-        auto properties = emscripten::val::object();
-
-        for (const auto& property : value.as_record())
-        {
-          properties.set(property.first, value_to_js(property.second));
-        }
-        result.set("properties", properties);
-        break;
-      }
-
-      case laskin::value::type::quote:
-      {
-        result.set("nodes", quote_nodes_to_js(value.as_quote()));
-        break;
-      }
-
-      case laskin::value::type::date:
-      {
-        const auto& date = value.as_date();
-
-        result.set("year", date.year());
-        result.set("month", laskin::value::month_description(date.month()));
-        result.set("day", date.day());
-        break;
-      }
-
-      case laskin::value::type::time:
-      {
-        const auto& time = value.as_time();
-
-        result.set("hour", time.hour());
-        result.set("minute", time.minute());
-        result.set("second", time.second());
-        break;
-      }
-
-      case laskin::value::type::month:
-        result.set(
-          "value",
-          laskin::value::month_description(value.as_month())
-        );
-        break;
-
-      case laskin::value::type::weekday:
-        result.set(
-          "value",
-          laskin::value::weekday_description(value.as_weekday())
-        );
-        break;
-    }
-
-    return result;
+    return std::make_shared<laskin::node::literal>(
+      value_from_js(js_node["value"]),
+      position
+    );
   }
-
-  laskin::vector
-  vector_from_js(const emscripten::val& js_elements)
+  else if (type == U"record")
   {
-    laskin::vector elements;
-    const auto length = js_elements["length"].as<unsigned>();
-
-    elements.reserve(length);
-
-    for (unsigned i = 0; i < length; ++i)
-    {
-      elements.push_back(value_from_js(js_elements[i]));
-    }
-
-    return elements;
-  }
-
-  laskin::record
-  record_from_js(const emscripten::val& js_properties)
-  {
-    laskin::record properties;
+    laskin::node::record::container_type properties;
+    const auto js_properties = js_node["properties"];
     const auto keys = emscripten::val::global("Object")
       .call<emscripten::val>("keys", js_properties);
     const auto key_count = keys["length"].as<unsigned>();
@@ -433,96 +276,250 @@ namespace
     {
       const auto key = keys[i].as<std::u32string>();
 
-      properties.emplace(key, value_from_js(js_properties[key]));
+      properties.emplace(key, node_from_js(js_properties[key]));
     }
 
-    return properties;
-  }
-
-  laskin::value
-  value_from_js(const emscripten::val& js_value)
-  {
-    const auto type = js_value["type"].as<std::u32string>();
-
-    if (type == U"boolean")
-    {
-      return laskin::value(js_value["value"].as<bool>());
-    }
-    else if (type == U"number")
-    {
-      auto input = js_value["value"].as<std::u32string>();
-      const auto unit = js_value["unit"];
-
-      if (!unit.isUndefined() && !unit.isNull())
-      {
-        input.append(unit.as<std::u32string>());
-      }
-
-      return laskin::value::parse_number(input);
-    }
-    else if (type == U"string")
-    {
-      return laskin::value(js_value["value"].as<std::u32string>());
-    }
-    else if (type == U"vector")
-    {
-      return laskin::value(vector_from_js(js_value["elements"]));
-    }
-    else if (type == U"record")
-    {
-      return laskin::value(record_from_js(js_value["properties"]));
-    }
-    else if (type == U"quote")
-    {
-      const auto js_nodes = js_value["nodes"];
-
-      if (!js_nodes.isUndefined() && !js_nodes.isNull())
-      {
-        return laskin::value(nodes_from_js(js_nodes));
-      }
-
-      return laskin::value(
-        laskin::parse(js_value["source"].as<std::u32string>())
-      );
-    }
-    else if (type == U"date")
-    {
-      return laskin::value(laskin::date(
-        js_value["year"].as<int>(),
-        laskin::parse_month(js_value["month"].as<std::u32string>()),
-        js_value["day"].as<int>()
-      ));
-    }
-    else if (type == U"time")
-    {
-      return laskin::value(laskin::time(
-        js_value["hour"].as<int>(),
-        js_value["minute"].as<int>(),
-        js_value["second"].as<int>()
-      ));
-    }
-    else if (type == U"month")
-    {
-      return laskin::value(
-        laskin::parse_month(js_value["value"].as<std::u32string>())
-      );
-    }
-    else if (type == U"weekday")
-    {
-      return laskin::value(
-        laskin::parse_weekday(js_value["value"].as<std::u32string>())
-      );
-    }
-
-    throw laskin::error(
-      laskin::error::type::type,
-      U"Unknown Laskin value type: " + type
+    return std::make_shared<laskin::node::record>(
+      properties,
+      position
     );
   }
+  else if (type == U"symbol")
+  {
+    return std::make_shared<laskin::node::symbol>(
+      js_node["id"].as<std::u32string>(),
+      position
+    );
+  }
+  else if (type == U"vector")
+  {
+    return std::make_shared<laskin::node::vector>(
+      nodes_from_js(js_node["elements"]),
+      position
+    );
+  }
+
+  throw laskin::error(
+    laskin::error::type::type,
+    U"Unknown Laskin AST node type: " + type
+  );
 }
 
-std::u32string
-laskinValueToString(const emscripten::val& js_value)
+static emscripten::val
+value_to_js(const laskin::value& value)
+{
+  auto result = emscripten::val::object();
+
+  result.set("type", laskin::value::type_description(value.type()));
+
+  switch (value.type())
+  {
+    case laskin::value::type::boolean:
+      result.set("value", value.as_boolean());
+      break;
+
+    case laskin::value::type::number:
+    {
+      const auto& number = value.as_number();
+
+      result.set("value", number.without_measurement_unit().to_u32string());
+
+      if (const auto& unit = number.measurement_unit())
+      {
+        result.set("unit", unit->symbol);
+      }
+      break;
+    }
+
+    case laskin::value::type::string:
+      result.set("value", value.as_string());
+      break;
+
+    case laskin::value::type::vector:
+    {
+      auto elements = emscripten::val::array();
+
+      for (const auto& element : value.as_vector())
+      {
+        elements.call<void>("push", value_to_js(element));
+      }
+      result.set("elements", elements);
+      break;
+    }
+
+    case laskin::value::type::record:
+    {
+      auto properties = emscripten::val::object();
+
+      for (const auto& property : value.as_record())
+      {
+        properties.set(property.first, value_to_js(property.second));
+      }
+      result.set("properties", properties);
+      break;
+    }
+
+    case laskin::value::type::quote:
+    {
+      result.set("nodes", quote_nodes_to_js(value.as_quote()));
+      break;
+    }
+
+    case laskin::value::type::date:
+    {
+      const auto& date = value.as_date();
+
+      result.set("year", date.year());
+      result.set("month", laskin::value::month_description(date.month()));
+      result.set("day", date.day());
+      break;
+    }
+
+    case laskin::value::type::time:
+    {
+      const auto& time = value.as_time();
+
+      result.set("hour", time.hour());
+      result.set("minute", time.minute());
+      result.set("second", time.second());
+      break;
+    }
+
+    case laskin::value::type::month:
+      result.set(
+        "value",
+        laskin::value::month_description(value.as_month())
+      );
+      break;
+
+    case laskin::value::type::weekday:
+      result.set(
+        "value",
+        laskin::value::weekday_description(value.as_weekday())
+      );
+      break;
+  }
+
+  return result;
+}
+
+static laskin::vector
+vector_from_js(const emscripten::val& js_elements)
+{
+  laskin::vector elements;
+  const auto length = js_elements["length"].as<unsigned>();
+
+  elements.reserve(length);
+
+  for (unsigned i = 0; i < length; ++i)
+  {
+    elements.push_back(value_from_js(js_elements[i]));
+  }
+
+  return elements;
+}
+
+static laskin::record
+record_from_js(const emscripten::val& js_properties)
+{
+  laskin::record properties;
+  const auto keys = emscripten::val::global("Object")
+    .call<emscripten::val>("keys", js_properties);
+  const auto key_count = keys["length"].as<unsigned>();
+
+  for (unsigned i = 0; i < key_count; ++i)
+  {
+    const auto key = keys[i].as<std::u32string>();
+
+    properties.emplace(key, value_from_js(js_properties[key]));
+  }
+
+  return properties;
+}
+
+static laskin::value
+value_from_js(const emscripten::val& js_value)
+{
+  const auto type = js_value["type"].as<std::u32string>();
+
+  if (type == U"boolean")
+  {
+    return laskin::value(js_value["value"].as<bool>());
+  }
+  else if (type == U"number")
+  {
+    auto input = js_value["value"].as<std::u32string>();
+    const auto unit = js_value["unit"];
+
+    if (!unit.isUndefined() && !unit.isNull())
+    {
+      input.append(unit.as<std::u32string>());
+    }
+
+    return laskin::value::parse_number(input);
+  }
+  else if (type == U"string")
+  {
+    return laskin::value(js_value["value"].as<std::u32string>());
+  }
+  else if (type == U"vector")
+  {
+    return laskin::value(vector_from_js(js_value["elements"]));
+  }
+  else if (type == U"record")
+  {
+    return laskin::value(record_from_js(js_value["properties"]));
+  }
+  else if (type == U"quote")
+  {
+    const auto js_nodes = js_value["nodes"];
+
+    if (!js_nodes.isUndefined() && !js_nodes.isNull())
+    {
+      return laskin::value(nodes_from_js(js_nodes));
+    }
+
+    return laskin::value(
+      laskin::parse(js_value["source"].as<std::u32string>())
+    );
+  }
+  else if (type == U"date")
+  {
+    return laskin::value(laskin::date(
+      js_value["year"].as<int>(),
+      laskin::parse_month(js_value["month"].as<std::u32string>()),
+      js_value["day"].as<int>()
+    ));
+  }
+  else if (type == U"time")
+  {
+    return laskin::value(laskin::time(
+      js_value["hour"].as<int>(),
+      js_value["minute"].as<int>(),
+      js_value["second"].as<int>()
+    ));
+  }
+  else if (type == U"month")
+  {
+    return laskin::value(
+      laskin::parse_month(js_value["value"].as<std::u32string>())
+    );
+  }
+  else if (type == U"weekday")
+  {
+    return laskin::value(
+      laskin::parse_weekday(js_value["value"].as<std::u32string>())
+    );
+  }
+
+  throw laskin::error(
+    laskin::error::type::type,
+    U"Unknown Laskin value type: " + type
+  );
+}
+
+static std::u32string
+valueToString(const emscripten::val& js_value)
 {
   try
   {
@@ -534,8 +531,8 @@ laskinValueToString(const emscripten::val& js_value)
   }
 }
 
-std::u32string
-laskinValueToSource(const emscripten::val& js_value)
+static std::u32string
+valueToSource(const emscripten::val& js_value)
 {
   try
   {
@@ -664,6 +661,6 @@ EMSCRIPTEN_BINDINGS(laskin)
     .function("stack", &Context::stack)
     .function("dictionary", &Context::dictionary);
 
-  emscripten::function("laskinValueToString", &laskinValueToString);
-  emscripten::function("laskinValueToSource", &laskinValueToSource);
+  emscripten::function("valueToString", &valueToString);
+  emscripten::function("valueToSource", &valueToSource);
 }

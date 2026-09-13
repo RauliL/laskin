@@ -20,7 +20,7 @@ export class LaskinError extends Error {
 /**
  * Options for loading the WebAssembly module.
  */
-export type CreateContextOptions = {
+export type ModuleOptions = {
   /**
    * Resolve the path to `laskin.wasm` (and related assets).
    * Defaults to a URL next to this package's `index.js`.
@@ -63,9 +63,9 @@ import type { Value } from "./value.d.ts";
  *
  * Uses the same formatting as the interpreter's `>string` word.
  */
-export function laskinValueToString(
+export function valueToString(
   value: Value,
-  options?: CreateContextOptions,
+  options?: ModuleOptions,
 ): Promise<string>;
 
 /**
@@ -73,15 +73,15 @@ export function laskinValueToString(
  *
  * Uses the same formatting as the interpreter's `>source` word.
  */
-export function laskinValueToSource(
+export function valueToSource(
   value: Value,
-  options?: CreateContextOptions,
+  options?: ModuleOptions,
 ): Promise<string>;
 
 /**
  * A Laskin interpreter context.
  */
-export type LaskinContext = {
+export type Context = {
   /**
    * Evaluate Laskin source code.
    *
@@ -129,6 +129,4 @@ export type LaskinContext = {
 /**
  * Initialize the WebAssembly module and create a new interpreter context.
  */
-export function createContext(
-  options?: CreateContextOptions,
-): Promise<LaskinContext>;
+export function createContext(options?: ModuleOptions): Promise<Context>;

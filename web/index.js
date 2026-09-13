@@ -105,11 +105,11 @@ export const createContext = async (options = {}) => {
  *
  * Uses the same formatting as the interpreter's `>string` word.
  */
-export const laskinValueToString = async (value, options = {}) => {
+export const valueToString = async (value, options = {}) => {
   const module = await loadModule(options);
 
   try {
-    return module.laskinValueToString(value);
+    return module.valueToString(value);
   } catch (error) {
     rethrow(error);
   }
@@ -120,11 +120,11 @@ export const laskinValueToString = async (value, options = {}) => {
  *
  * Uses the same formatting as the interpreter's `>source` word.
  */
-export const laskinValueToSource = async (value, options = {}) => {
+export const valueToSource = async (value, options = {}) => {
   const module = await loadModule(options);
 
   try {
-    return module.laskinValueToSource(value);
+    return module.valueToSource(value);
   } catch (error) {
     rethrow(error);
   }
