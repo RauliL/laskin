@@ -1,3 +1,5 @@
+/build
+/deps
 /laskin.js
 /laskin.wasm
 /node_modules

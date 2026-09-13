@@ -9,13 +9,10 @@ const GMP_VERSION = process.env.GMP_VERSION ?? "6.3.0";
 const MPFR_VERSION = process.env.MPFR_VERSION ?? "4.2.2";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const projectDir = path.join(scriptDir, "..");
-const depsDir = process.env.WASM_DEPS_DIR ?? path.join(projectDir, "wasm-deps");
+const depsDir = path.join(scriptDir, "deps");
 const sourcesDir = path.join(depsDir, "sources");
-let installPrefix =
-  process.env.WASM_INSTALL_PREFIX ?? path.join(depsDir, "install");
-const buildDir =
-  process.env.WASM_BUILD_DIR ?? path.join(projectDir, "build-wasm");
+let installPrefix = path.join(depsDir, "install");
+const buildDir = path.join(scriptDir, "build");
 const buildType = process.env.BUILD_TYPE ?? "Release";
 const jobs = os.cpus().length;
 
@@ -52,7 +49,7 @@ async function buildGmp() {
   const sourceDir = path.join(sourcesDir, `gmp-${GMP_VERSION}`);
 
   await downloadAndExtract(
-    `https://gmplib.org/download/gmp/${archive}`,
+    `https://ftp.gnu.org/gnu/gmp/${archive}`,
     archive,
     sourceDir,
   );
@@ -72,7 +69,7 @@ async function buildMpfr() {
   const sourceDir = path.join(sourcesDir, `mpfr-${MPFR_VERSION}`);
 
   await downloadAndExtract(
-    `https://www.mpfr.org/mpfr-current/${archive}`,
+    `https://ftp.gnu.org/gnu/mpfr/${archive}`,
     archive,
     sourceDir,
   );
@@ -101,18 +98,6 @@ if (argv["deps-only"]) {
   process.exit(0);
 }
 
-const mpfrLib = path.join(installPrefix, "lib/libmpfr.a");
-if (!fs.existsSync(mpfrLib)) {
-  const peeloPrefix =
-    process.env.PEELO_NUMBER_PREFIX ??
-    path.join(projectDir, "../peelo-number/wasm-deps/install");
-  const peeloMpfr = path.join(peeloPrefix, "lib/libmpfr.a");
-  if (fs.existsSync(peeloMpfr)) {
-    installPrefix = peeloPrefix;
-    echo(`Using MPFR/GMP from ${installPrefix}`);
-  }
-}
-
 ensureEmscripten();
 
 if (!fs.existsSync(path.join(installPrefix, "lib/libmpfr.a"))) {
@@ -121,7 +106,7 @@ if (!fs.existsSync(path.join(installPrefix, "lib/libmpfr.a"))) {
   await buildDeps();
 }
 
-await $`emcmake cmake -B ${buildDir} -S ${projectDir} -DCMAKE_BUILD_TYPE=${buildType} -DMPFR_ROOT=${installPrefix} -DLASKIN_ENABLE_WEB=ON -DLASKIN_ENABLE_CLI=OFF -DLASKIN_ENABLE_GUI=OFF -DLASKIN_ENABLE_2CPP=OFF`;
+await $`emcmake cmake -B ${buildDir} -S ${path.join(scriptDir, "..")} -DCMAKE_BUILD_TYPE=${buildType} -DMPFR_ROOT=${installPrefix} -DLASKIN_ENABLE_WEB=ON -DLASKIN_ENABLE_CLI=OFF -DLASKIN_ENABLE_GUI=OFF -DLASKIN_ENABLE_2CPP=OFF`;
 
 await $`emmake cmake --build ${buildDir} --parallel ${jobs} --target laskin-web`;
 

@@ -1,4 +1,2 @@
 /.vscode
 /build
-/build-wasm
-/wasm-deps

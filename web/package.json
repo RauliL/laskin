@@ -49,6 +49,7 @@
     "build": "zx build.mjs",
     "build:deps": "zx build.mjs --deps-only",
     "clean": "rimraf laskin.js laskin.wasm",
+    "distclean": "$npm_execpath run clean && rimraf build deps",
     "test": "node --test test/**/*.test.js",
     "style:check": "prettier --check .",
     "style:fix": "prettier --write .",
