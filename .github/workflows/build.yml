@@ -96,6 +96,42 @@ jobs:
           sed -i '/using GEmblemClass = struct _GEmblemClass;/d' \
             "$giomm_inc/emblem.h"
 
+          # GTK 4.19+ declares many Gdk types as final or internal, which
+          # conflicts with gtkmm's Class aliases. Fixed upstream in gtkmm
+          # 4.23.1; drop the obsolete aliases until MSYS2 catches up.
+          gdkmm_inc="$(pkg-config --variable=includedir gtkmm-4.0)/gtkmm-4.0/gdkmm"
+          for header in \
+            applaunchcontext.h \
+            cairocontext.h \
+            clipboard.h \
+            cursor.h \
+            device.h \
+            devicepad.h \
+            devicetool.h \
+            display.h \
+            displaymanager.h \
+            dmabuftexture.h \
+            drag.h \
+            drawcontext.h \
+            drop.h \
+            frameclock.h \
+            glcontext.h \
+            gltexture.h \
+            memorytexture.h \
+            monitor.h \
+            seat.h \
+            snapshot.h \
+            surface.h \
+            texture.h
+          do
+            sed -i '/using Gdk.*Class = struct _Gdk.*Class;/d' \
+              "$gdkmm_inc/$header"
+          done
+          sed -i '/using GdkCursor = struct _GdkCursor;/d' \
+            "$gdkmm_inc/cursor.h"
+          sed -i '/using GdkDevicePadInterface = struct _GdkDevicePadInterface;/d' \
+            "$gdkmm_inc/devicepad.h"
+
           cmake -B build -S . -G "MinGW Makefiles" \
             -DLASKIN_ENABLE_2CPP=ON \
             -DLASKIN_ENABLE_GUI=ON
