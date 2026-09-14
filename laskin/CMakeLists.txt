@@ -18,7 +18,7 @@ ADD_DEPENDENCY(
 ADD_DEPENDENCY(
   peelo-number
   https://github.com/peelonet/peelo-number.git
-  v5.1.0
+  v5.1.1
 )
 IF(TARGET PeeloNumber AND NOT MSVC)
   TARGET_COMPILE_OPTIONS(
