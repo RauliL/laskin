@@ -20,6 +20,13 @@ ADD_DEPENDENCY(
   https://github.com/peelonet/peelo-number.git
   v5.1.0
 )
+IF(TARGET PeeloNumber AND NOT MSVC)
+  TARGET_COMPILE_OPTIONS(
+    PeeloNumber
+    PRIVATE
+      -Wno-maybe-uninitialized
+  )
+ENDIF()
 ADD_DEPENDENCY(
   peelo-unicode
   https://github.com/peelonet/peelo-unicode.git
