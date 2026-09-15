@@ -56,7 +56,7 @@ jobs:
             LASKIN_ENABLE_2CPP=ON
             LASKIN_ENABLE_GUI=ON
 
-  build-windows:
+  build-windows-msvc:
     runs-on: windows-latest
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
@@ -68,9 +68,9 @@ jobs:
         id: vcpkg-cache
         with:
           path: vcpkg
-          key: vcpkg-${{ runner.os }}-mpfr-4.2.2
+          key: vcpkg-Windows-msvc-${{ env.VCPKG_DEFAULT_TRIPLET }}-mpfr-4.2.2
           restore-keys: |
-            vcpkg-${{ runner.os }}-mpfr-
+            vcpkg-Windows-msvc-${{ env.VCPKG_DEFAULT_TRIPLET }}-
       - name: Setup vcpkg
         if: steps.vcpkg-cache.outputs.cache-hit != 'true'
         run: |
@@ -84,7 +84,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: build/_deps
-          key: fetchcontent-${{ runner.os }}-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
+          key: fetchcontent-Windows-msvc-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
+          restore-keys: |
+            fetchcontent-Windows-msvc-
       - name: Build
         uses: threeal/cmake-action@v2.1.0
         with:
@@ -94,6 +96,42 @@ jobs:
           options: |
             LASKIN_ENABLE_2CPP=ON
             LASKIN_ENABLE_GUI=OFF
+
+  build-windows-mingw:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Cache CMake dependencies
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: fetchcontent-Windows-mingw-${{ hashFiles('laskin/CMakeLists.txt', 'cmake/add-dependency.cmake') }}
+          restore-keys: |
+            fetchcontent-Windows-mingw-
+      - name: Install dependencies
+        uses: msys2/setup-msys2@v2
+        id: msys2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-mpfr
+      - name: Set MPFR root
+        run: echo "MPFR_ROOT=${{ steps.msys2.outputs.msys2-location }}/mingw64" >> $env:GITHUB_ENV
+      - name: Add MSYS2 MinGW to PATH
+        run: echo "${{ steps.msys2.outputs.msys2-location }}/mingw64/bin" >> $env:GITHUB_PATH
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cmake -B build -S . -G "MinGW Makefiles" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLASKIN_ENABLE_2CPP=ON \
+            -DLASKIN_ENABLE_GUI=OFF
+          cmake --build build
 
   build-wasm:
     runs-on: ubuntu-latest
