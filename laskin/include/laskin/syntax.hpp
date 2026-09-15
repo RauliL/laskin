@@ -25,10 +25,7 @@
  */
 #pragma once
 
-#include <cstddef>
-#include <functional>
 #include <stack>
-#include <utility>
 
 #include <peelo/unicode/ctype/isgraph.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
@@ -70,63 +67,15 @@ namespace laskin::syntax
    * Updates a stack of unmatched opening delimiters for the given line.
    * Characters after an unquoted `#` comment marker are ignored.
    */
-  template<class Char, class String>
-  inline void
-  count_open_braces(std::stack<Char>& braces, const String& line)
-  {
-    const auto length = line.length();
+  void count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::u32string& line
+  );
 
-    for (std::size_t i = 0; i < length; ++i)
-    {
-      const Char c = static_cast<Char>(line[i]);
-
-      switch (c)
-      {
-        case Char{'#'}:
-          return;
-
-        case Char{'('}:
-          braces.push(Char{')'});
-          break;
-
-        case Char{'['}:
-          braces.push(Char{']'});
-          break;
-
-        case Char{')'}:
-        case Char{']'}:
-          if (!braces.empty() && braces.top() == c)
-          {
-            braces.pop();
-          }
-          break;
-
-        case Char{'"'}:
-        case Char{'\''}:
-          ++i;
-          while (i < length)
-          {
-            const Char quoted = static_cast<Char>(line[i]);
-
-            if (quoted == c)
-            {
-              break;
-            }
-            else if (
-              quoted == Char{'\\'}
-              && i + 1 < length
-              && static_cast<Char>(line[i + 1]) == c
-            )
-            {
-              i += 2;
-            } else {
-              ++i;
-            }
-          }
-          break;
-      }
-    }
-  }
+  void count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::string& line
+  );
 
   /**
    * Syntax highlighting kinds for Laskin source.
@@ -150,6 +99,46 @@ namespace laskin::syntax
   using dictionary_predicate = std::function<bool(const std::u32string& word)>;
 
   /**
+   * Scans a comment beginning at \a pos. On success, \a end is set to the
+   * index one past the last character of the comment.
+   */
+  bool scan_comment(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  );
+
+  /**
+   * Scans a string literal beginning at \a pos. On success, \a end is set to
+   * the index one past the closing quote, or the end of \a line when the
+   * literal is unterminated.
+   */
+  bool scan_string_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  );
+
+  /**
+   * Tests whether a number literal begins at \a pos in \a line. On success,
+   * \a end is set to the index one past the last character of the literal.
+   */
+  bool parse_number_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  );
+
+  /**
+   * Returns the length of the symbol beginning at \a pos, or zero when \a pos
+   * does not start a symbol.
+   */
+  std::size_t scan_symbol(
+    const std::u32string& line,
+    std::size_t pos
+  );
+
+  /**
    * Applies syntax highlighting to a single line of Laskin source.
    * Spans are reported as codepoint indices into \a line.
    */
@@ -171,6 +160,8 @@ namespace laskin::syntax
     std::size_t codepoint_count
   )
   {
+    using peelo::unicode::encoding::utf8::decode_advance;
+
     std::size_t byte_start = utf8_length;
     std::size_t byte_end = utf8_length;
     std::size_t cp = 0;
@@ -180,14 +171,7 @@ namespace laskin::syntax
     {
       char32_t c = 0;
 
-      if (
-        !peelo::unicode::encoding::utf8::decode_advance(
-          utf8,
-          i,
-          utf8_length,
-          c
-        )
-      )
+      if (!decode_advance(utf8, i, utf8_length, c))
       {
         ++i;
       }
@@ -201,14 +185,7 @@ namespace laskin::syntax
     {
       char32_t c = 0;
 
-      if (
-        !peelo::unicode::encoding::utf8::decode_advance(
-          utf8,
-          i,
-          utf8_length,
-          c
-        )
-      )
+      if (!decode_advance(utf8, i, utf8_length, c))
       {
         ++i;
       }

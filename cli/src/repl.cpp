@@ -43,7 +43,7 @@
 namespace laskin::cli
 {
   static int line_counter = 0;
-  static std::stack<char> open_braces;
+  static std::stack<char32_t> open_braces;
 
   static const char* get_prompt(context&);
   static bool cursor_outside_string_or_comment(

@@ -37,9 +37,18 @@ namespace laskin
   struct state
   {
     struct position position;
+    const std::u32string* source;
     std::u32string::const_iterator pos;
     std::u32string::const_iterator end;
   };
+
+  static std::size_t
+  offset(const struct state& state)
+  {
+    return static_cast<std::size_t>(state.pos - state.source->begin());
+  }
+
+  static char32_t read(struct state& state);
 
   static std::shared_ptr<node> parse(struct state&, bool);
 
@@ -70,6 +79,15 @@ namespace laskin
     }
 
     return result;
+  }
+
+  static void
+  advance_to(struct state& state, const std::size_t end_offset)
+  {
+    while (offset(state) < end_offset)
+    {
+      read(state);
+    }
   }
 
   /**
@@ -126,17 +144,13 @@ namespace laskin
   {
     while (!eof(state))
     {
-      // Skip line comments.
-      if (peek_read(state, U'#'))
+      if (peek(state, U'#'))
       {
-        while (!eof(state))
+        std::size_t end = 0;
+
+        if (syntax::scan_comment(*state.source, offset(state), end))
         {
-          if (peek_read(state, U'\n') || peek_read(state, U'\r'))
-          {
-            break;
-          } else {
-            read(state);
-          }
+          advance_to(state, end);
         }
       }
       else if (!peek(state, peelo::unicode::ctype::isspace))
@@ -495,10 +509,12 @@ namespace laskin
   static std::u32string
   parse_symbol_string(struct state& state)
   {
-    std::u32string buffer;
-
     skip_whitespace(state);
-    if (!peek(state, syntax::is_symbol))
+
+    const auto start = offset(state);
+    const auto length = syntax::scan_symbol(*state.source, start);
+
+    if (length == 0)
     {
       throw error(
         error::type::syntax,
@@ -508,13 +524,10 @@ namespace laskin
         state.position
       );
     }
-    do
-    {
-      buffer.push_back(read(state));
-    }
-    while (peek(state, syntax::is_symbol));
 
-    return buffer;
+    advance_to(state, start + length);
+
+    return state.source->substr(start, length);
   }
 
   static std::shared_ptr<node>
@@ -525,6 +538,30 @@ namespace laskin
 
     skip_whitespace(state);
     position = state.position;
+
+    {
+      const auto start = offset(state);
+      std::size_t end = start;
+
+      if (
+        syntax::parse_number_literal(*state.source, start, end)
+        && end > start
+      )
+      {
+        id = state.source->substr(start, end - start);
+
+        if (number::is_valid(id))
+        {
+          advance_to(state, end);
+
+          return std::make_shared<node::literal>(
+            value::parse_number(id),
+            position
+          );
+        }
+      }
+    }
+
     if ((id = parse_symbol_string(state)) == U"->")
     {
       const auto symbol = parse_symbol_string(state);
@@ -539,13 +576,6 @@ namespace laskin
       }
 
       return std::make_shared<node::definition>(symbol, position);
-    }
-    else if (number::is_valid(id))
-    {
-      return std::make_shared<node::literal>(
-        value::parse_number(id),
-        position
-      );
     }
     else if (id == U"true")
     {
@@ -604,6 +634,7 @@ namespace laskin
     struct state state =
     {
       { path, line, column },
+      &source,
       std::begin(source),
       std::end(source),
     };

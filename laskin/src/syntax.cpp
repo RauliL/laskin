@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <peelo/number.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/syntax.hpp"
 
@@ -203,8 +204,74 @@ namespace laskin::syntax
     return end > pos;
   }
 
-  static bool
-  parse_number(
+  bool
+  scan_comment(
+    const std::u32string& line,
+    const std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length() || line[pos] != U'#')
+    {
+      return false;
+    }
+
+    end = pos + 1;
+
+    while (
+      end < line.length()
+      && line[end] != U'\n'
+      && line[end] != U'\r'
+    )
+    {
+      ++end;
+    }
+
+    return true;
+  }
+
+  bool
+  scan_string_literal(
+    const std::u32string& line,
+    const std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length())
+    {
+      return false;
+    }
+
+    const auto quote = line[pos];
+
+    if (quote != U'"' && quote != U'\'')
+    {
+      return false;
+    }
+
+    end = pos + 1;
+
+    while (end < line.length())
+    {
+      if (line[end] == quote)
+      {
+        ++end;
+        break;
+      }
+
+      if (line[end] == U'\\' && end + 1 < line.length())
+      {
+        end += 2;
+      } else {
+        ++end;
+      }
+    }
+
+    return true;
+  }
+
+  bool
+  parse_number_literal(
     const std::u32string& line,
     std::size_t pos,
     std::size_t& end
@@ -268,20 +335,89 @@ namespace laskin::syntax
     return false;
   }
 
-  static std::size_t
-  read_symbol(
+  std::size_t
+  scan_symbol(
     const std::u32string& line,
-    std::size_t pos
+    const std::size_t pos
   )
   {
-    const auto start = pos;
-
-    while (pos < line.length() && is_symbol(line[pos]))
+    if (pos >= line.length() || !is_symbol(line[pos]))
     {
-      ++pos;
+      return 0;
     }
 
-    return pos - start;
+    auto end = pos;
+
+    while (end < line.length() && is_symbol(line[end]))
+    {
+      ++end;
+    }
+
+    return end - pos;
+  }
+
+  void
+  count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::u32string& line
+  )
+  {
+    std::size_t pos = 0;
+    const auto length = line.length();
+
+    while (pos < length)
+    {
+      std::size_t end = pos;
+
+      if (scan_comment(line, pos, end))
+      {
+        return;
+      }
+
+      if (scan_string_literal(line, pos, end))
+      {
+        pos = end;
+        continue;
+      }
+
+      switch (line[pos])
+      {
+        case U'(':
+          braces.push(U')');
+          break;
+
+        case U'[':
+          braces.push(U']');
+          break;
+
+        case U')':
+        case U']':
+          if (!braces.empty() && braces.top() == line[pos])
+          {
+            braces.pop();
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      ++pos;
+    }
+  }
+
+  void
+  count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::string& line
+  )
+  {
+    std::u32string decoded;
+
+    if (peelo::unicode::encoding::utf8::decode_validate(line, decoded))
+    {
+      count_open_braces(braces, decoded);
+    }
   }
 
   void
@@ -301,76 +437,51 @@ namespace laskin::syntax
 
     while (pos < length)
     {
-      const auto c = line[pos];
+      std::size_t end = pos;
 
-      if (c == U'#')
+      if (scan_comment(line, pos, end))
       {
-        apply(pos, length - pos, highlight_kind::comment);
+        apply(pos, end - pos, highlight_kind::comment);
         break;
       }
 
-      if (c == U'"' || c == U'\'')
+      if (scan_string_literal(line, pos, end))
       {
-        const auto quote = c;
-        const auto string_start = pos;
-
-        ++pos;
-
-        while (pos < length)
-        {
-          if (line[pos] == quote)
-          {
-            ++pos;
-            break;
-          }
-
-          if (line[pos] == U'\\' && pos + 1 < length)
-          {
-            pos += 2;
-          } else {
-            ++pos;
-          }
-        }
-
-        apply(string_start, pos - string_start, highlight_kind::string);
+        apply(pos, end - pos, highlight_kind::string);
+        pos = end;
         continue;
       }
 
-      std::size_t number_end = pos;
-
-      if (parse_number(line, pos, number_end))
+      if (parse_number_literal(line, pos, end))
       {
-        apply(pos, number_end - pos, highlight_kind::number);
-        pos = number_end;
+        apply(pos, end - pos, highlight_kind::number);
+        pos = end;
         continue;
       }
 
-      if (is_separator(c))
+      if (is_separator(line[pos]))
       {
         apply(pos, 1, highlight_kind::delimiter);
         ++pos;
         continue;
       }
 
-      if (is_symbol(c))
+      const auto symbol_len = scan_symbol(line, pos);
+
+      if (symbol_len > 0)
       {
-        const auto symbol_len = read_symbol(line, pos);
-
-        if (symbol_len > 0)
+        if (is_dictionary_word)
         {
-          if (is_dictionary_word)
+          const std::u32string symbol = line.substr(pos, symbol_len);
+
+          if (is_dictionary_word(symbol))
           {
-            const std::u32string symbol = line.substr(pos, symbol_len);
-
-            if (is_dictionary_word(symbol))
-            {
-              apply(pos, symbol_len, highlight_kind::symbol);
-            }
+            apply(pos, symbol_len, highlight_kind::symbol);
           }
-
-          pos += symbol_len;
-          continue;
         }
+
+        pos += symbol_len;
+        continue;
       }
 
       ++pos;
