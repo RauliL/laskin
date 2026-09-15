@@ -29,6 +29,7 @@
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/ast.hpp"
+#include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
 #include "laskin/syntax.hpp"
 
@@ -542,6 +543,22 @@ namespace laskin
     {
       const auto start = offset(state);
       std::size_t end = start;
+
+      if (
+        syntax::parse_chrono_literal(*state.source, start, end)
+        && end > start
+      )
+      {
+        id = state.source->substr(start, end - start);
+        advance_to(state, end);
+
+        if (is_date(id))
+        {
+          return std::make_shared<node::literal>(parse_date(id), position);
+        }
+
+        return std::make_shared<node::literal>(parse_time(id), position);
+      }
 
       if (
         syntax::parse_number_literal(*state.source, start, end)

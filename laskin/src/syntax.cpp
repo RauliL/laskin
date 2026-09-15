@@ -29,16 +29,11 @@
 #include <peelo/number.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
 
+#include "laskin/chrono.hpp"
 #include "laskin/syntax.hpp"
 
 namespace laskin::syntax
 {
-  static inline bool
-  is_digit(char32_t c)
-  {
-    return c >= U'0' && c <= U'9';
-  }
-
   static inline bool
   starts_with(
     const std::u32string& line,
@@ -356,6 +351,32 @@ namespace laskin::syntax
     return end - pos;
   }
 
+  bool
+  parse_chrono_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  )
+  {
+    const auto length = scan_symbol(line, pos);
+
+    if (length == 0)
+    {
+      return false;
+    }
+
+    const auto literal = line.substr(pos, length);
+
+    if (is_date(literal) || is_time(literal))
+    {
+      end = pos + length;
+
+      return true;
+    }
+
+    return false;
+  }
+
   void
   count_open_braces(
     std::stack<char32_t>& braces,
@@ -448,6 +469,13 @@ namespace laskin::syntax
       if (scan_string_literal(line, pos, end))
       {
         apply(pos, end - pos, highlight_kind::string);
+        pos = end;
+        continue;
+      }
+
+      if (parse_chrono_literal(line, pos, end))
+      {
+        apply(pos, end - pos, highlight_kind::number);
         pos = end;
         continue;
       }

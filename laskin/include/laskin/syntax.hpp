@@ -64,6 +64,16 @@ namespace laskin::syntax
   }
 
   /**
+   * Tests whether given character is a decimal digit.
+   */
+  template<class Char>
+  inline bool
+  is_digit(Char c)
+  {
+    return c >= U'0' && c <= U'9';
+  }
+
+  /**
    * Updates a stack of unmatched opening delimiters for the given line.
    * Characters after an unquoted `#` comment marker are ignored.
    */
@@ -124,6 +134,17 @@ namespace laskin::syntax
    * \a end is set to the index one past the last character of the literal.
    */
   bool parse_number_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  );
+
+  /**
+   * Tests whether an ISO 8601 date or time literal begins at \a pos in \a
+   * line. On success, \a end is set to the index one past the last character
+   * of the literal.
+   */
+  bool parse_chrono_literal(
     const std::u32string& line,
     std::size_t pos,
     std::size_t& end

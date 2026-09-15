@@ -28,6 +28,7 @@
 
 #include "laskin/chrono.hpp"
 #include "laskin/error.hpp"
+#include "laskin/syntax.hpp"
 
 namespace laskin
 {
@@ -224,7 +225,7 @@ namespace laskin
     }
     for (auto i = from; i < to; ++i)
     {
-      if (!std::isdigit(input[i]))
+      if (!syntax::is_digit(input[i]))
       {
         return false;
       }
@@ -249,7 +250,7 @@ namespace laskin
       const auto c = input[i];
       int digit;
 
-      if (!std::isdigit(c))
+      if (!syntax::is_digit(c))
       {
         continue;
       }
