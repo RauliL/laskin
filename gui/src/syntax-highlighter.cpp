@@ -27,292 +27,35 @@
 
 #include "./utils.hpp"
 
-#include "laskin/utils.hpp"
-
-#include <peelo/number.hpp>
-
-#include <algorithm>
-#include <string>
-#include <vector>
+#include "laskin/syntax.hpp"
 
 namespace laskin::gui
 {
-  static inline bool
-  is_digit(gunichar c)
+  namespace
   {
-    return c >= U'0' && c <= U'9';
-  }
-
-  static inline bool
-  starts_with(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos,
-    const char* literal
-  )
-  {
-    const Glib::ustring prefix(literal);
-
-    if (pos + prefix.length() > line.length())
+    SyntaxHighlighter::Tag
+    tag_for_kind(laskin::syntax::highlight_kind kind)
     {
-      return false;
-    }
-
-    return line.compare(pos, prefix.length(), prefix) == 0;
-  }
-
-  static inline bool
-  symbol_boundary_after(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos
-  )
-  {
-    if (pos >= line.length())
-    {
-      return true;
-    }
-
-    return !laskin::utils::is_symbol(line[pos]);
-  }
-
-  static bool
-  match_dictionary_word(
-    const Glib::ustring& word,
-    const laskin::context::dictionary_type* dictionary,
-    SyntaxHighlighter::Tag& tag
-  )
-  {
-    if (!dictionary)
-    {
-      return false;
-    }
-
-    const auto id = utils::string_convert<std::u32string>(word);
-
-    if (dictionary->contains(id))
-    {
-      tag = SyntaxHighlighter::Tag::KEYWORD;
-      return true;
-    }
-
-    return false;
-  }
-
-  static const std::vector<std::string>&
-  unit_symbols()
-  {
-    static const std::vector<std::string> symbols = []() {
-      std::vector<std::string> result;
-
-      for (const auto type : {
-        peelo::number::unit::type::length,
-        peelo::number::unit::type::mass,
-        peelo::number::unit::type::time
-      })
+      switch (kind)
       {
-        for (const auto& u : peelo::number::unit::all_units_of(type))
-        {
-          result.push_back(u.symbol);
-        }
+      case laskin::syntax::highlight_kind::comment:
+        return SyntaxHighlighter::Tag::COMMENT;
+
+      case laskin::syntax::highlight_kind::string:
+        return SyntaxHighlighter::Tag::STRING;
+
+      case laskin::syntax::highlight_kind::number:
+        return SyntaxHighlighter::Tag::NUMBER;
+
+      case laskin::syntax::highlight_kind::delimiter:
+        return SyntaxHighlighter::Tag::DELIMITER;
+
+      case laskin::syntax::highlight_kind::symbol:
+        return SyntaxHighlighter::Tag::SYMBOL;
       }
 
-      std::sort(
-        result.begin(),
-        result.end(),
-        [](const std::string& a, const std::string& b) {
-          return a.size() > b.size();
-        }
-      );
-
-      return result;
-    }();
-
-    return symbols;
-  }
-
-  static bool
-  match_unit(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos,
-    Glib::ustring::size_type& end
-  )
-  {
-    for (const auto& unit_str : unit_symbols())
-    {
-      if (
-        starts_with(line, pos, unit_str.c_str())
-        && symbol_boundary_after(line, pos + unit_str.length())
-      )
-      {
-        end = pos + unit_str.length();
-
-        return true;
-      }
+      return SyntaxHighlighter::Tag::COMMENT;
     }
-
-    return false;
-  }
-
-  static bool
-  parse_number_body(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos,
-    Glib::ustring::size_type& end
-  )
-  {
-    if (pos >= line.length() || !is_digit(line[pos]))
-    {
-      return false;
-    }
-
-    end = pos;
-
-    while (end < line.length() && is_digit(line[end]))
-    {
-      ++end;
-    }
-
-    while (
-      end < line.length()
-      && line[end] == U'_'
-      && end + 1 < line.length()
-      && is_digit(line[end + 1])
-    )
-    {
-      ++end;
-
-      while (end < line.length() && is_digit(line[end]))
-      {
-        ++end;
-      }
-    }
-
-    if (
-      end < line.length()
-      && line[end] == U'.'
-      && end + 1 < line.length()
-      && is_digit(line[end + 1])
-    )
-    {
-      ++end;
-
-      while (end < line.length() && is_digit(line[end]))
-      {
-        ++end;
-      }
-
-      while (
-        end < line.length()
-        && line[end] == U'_'
-        && end + 1 < line.length()
-        && is_digit(line[end + 1])
-      )
-      {
-        ++end;
-
-        while (end < line.length() && is_digit(line[end]))
-        {
-          ++end;
-        }
-      }
-    }
-
-    Glib::ustring::size_type unit_end = end;
-
-    if (match_unit(line, end, unit_end))
-    {
-      end = unit_end;
-    }
-
-    return end > pos;
-  }
-
-  static bool
-  parse_number(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos,
-    Glib::ustring::size_type& end
-  )
-  {
-    if (pos >= line.length())
-    {
-      return false;
-    }
-
-    const auto prev = pos > 0 ? line[pos - 1] : 0;
-    const bool after_dot = prev == U'.';
-
-    if (after_dot)
-    {
-      return false;
-    }
-
-    Glib::ustring::size_type body_start = pos;
-    Glib::ustring::size_type body_end = pos;
-
-    if (line[pos] == U'+' || line[pos] == U'-')
-    {
-      const auto sign = line[pos];
-
-      if (sign == U'-' && starts_with(line, pos, "-inf"))
-      {
-        end = pos + Glib::ustring("-inf").length();
-        return symbol_boundary_after(line, end);
-      }
-
-      if (sign == U'+' && !parse_number_body(line, pos + 1, body_end))
-      {
-        return false;
-      }
-
-      if (sign == U'-')
-      {
-        if (!parse_number_body(line, pos + 1, body_end))
-        {
-          return false;
-        }
-      }
-
-      if (sign == U'+')
-      {
-        body_start = pos + 1;
-      } else {
-        body_start = pos + 1;
-      }
-
-      if (body_end > body_start)
-      {
-        end = body_end;
-
-        return true;
-      }
-
-      return false;
-    }
-
-    if (parse_number_body(line, pos, body_end))
-    {
-      end = body_end;
-
-      return true;
-    }
-
-    return false;
-  }
-
-  static Glib::ustring::size_type
-  read_symbol(
-    const Glib::ustring& line,
-    Glib::ustring::size_type pos
-  )
-  {
-    const auto start = pos;
-
-    while (pos < line.length() && laskin::utils::is_symbol(line[pos]))
-    {
-      ++pos;
-    }
-
-    return pos - start;
   }
 
   SyntaxHighlighter::SyntaxHighlighter(
@@ -339,30 +82,18 @@ namespace laskin::gui
       m_buffer->create_tag("laskin-comment");
     m_tags[static_cast<int>(Tag::STRING)] =
       m_buffer->create_tag("laskin-string");
-    m_tags[static_cast<int>(Tag::BOOLEAN)] =
-      m_buffer->create_tag("laskin-boolean");
-    m_tags[static_cast<int>(Tag::CONSTANT)] =
-      m_buffer->create_tag("laskin-constant");
-    m_tags[static_cast<int>(Tag::KEYWORD)] =
-      m_buffer->create_tag("laskin-keyword");
     m_tags[static_cast<int>(Tag::NUMBER)] =
       m_buffer->create_tag("laskin-number");
-    m_tags[static_cast<int>(Tag::OPERATOR)] =
-      m_buffer->create_tag("laskin-operator");
     m_tags[static_cast<int>(Tag::DELIMITER)] =
       m_buffer->create_tag("laskin-delimiter");
-    m_tags[static_cast<int>(Tag::DEFINITION)] =
-      m_buffer->create_tag("laskin-definition");
+    m_tags[static_cast<int>(Tag::SYMBOL)] =
+      m_buffer->create_tag("laskin-symbol");
 
     m_tags[static_cast<int>(Tag::COMMENT)]->property_foreground().set_value("#6a9955");
     m_tags[static_cast<int>(Tag::STRING)]->property_foreground().set_value("#ce9178");
-    m_tags[static_cast<int>(Tag::BOOLEAN)]->property_foreground().set_value("#569cd6");
-    m_tags[static_cast<int>(Tag::CONSTANT)]->property_foreground().set_value("#4fc1ff");
-    m_tags[static_cast<int>(Tag::KEYWORD)]->property_foreground().set_value("#c586c0");
     m_tags[static_cast<int>(Tag::NUMBER)]->property_foreground().set_value("#b5cea8");
-    m_tags[static_cast<int>(Tag::OPERATOR)]->property_foreground().set_value("#d4d4d4");
     m_tags[static_cast<int>(Tag::DELIMITER)]->property_foreground().set_value("#ffd700");
-    m_tags[static_cast<int>(Tag::DEFINITION)]->property_foreground().set_value("#dcdcaa");
+    m_tags[static_cast<int>(Tag::SYMBOL)]->property_foreground().set_value("#c586c0");
   }
 
   void
@@ -410,357 +141,32 @@ namespace laskin::gui
     const Gtk::TextIter& line_start
   )
   {
-    Glib::ustring::size_type pos = 0;
-    const auto length = line.length();
+    const auto source = utils::string_convert<std::u32string>(line);
+    const auto* dictionary = m_dictionary;
 
-    while (pos < length)
-    {
-      const auto c = line[pos];
-
-      if (c == U'#')
+    laskin::syntax::highlight_source_line(
+      source,
+      [&](
+        const std::size_t start,
+        const std::size_t length,
+        const laskin::syntax::highlight_kind kind
+      )
       {
         auto tag_start = line_start;
 
-        tag_start.forward_chars(static_cast<int>(pos));
+        tag_start.forward_chars(static_cast<int>(start));
         auto tag_end = line_start;
 
-        tag_end.forward_chars(static_cast<int>(length));
-        apply_tag(Tag::COMMENT, tag_start, tag_end);
-        break;
-      }
-
-      if (c == U'"' || c == U'\'')
-      {
-        const auto quote = c;
-        const auto string_start = pos;
-
-        ++pos;
-
-        while (pos < length)
-        {
-          if (line[pos] == quote)
-          {
-            ++pos;
-            break;
+        tag_end.forward_chars(static_cast<int>(start + length));
+        apply_tag(tag_for_kind(kind), tag_start, tag_end);
+      },
+      dictionary
+        ? laskin::syntax::dictionary_predicate(
+          [dictionary](const std::u32string& word) {
+            return dictionary->contains(word);
           }
-
-          if (line[pos] == U'\\' && pos + 1 < length)
-          {
-            pos += 2;
-          } else {
-            ++pos;
-          }
-        }
-
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(string_start));
-        auto tag_end = line_start;
-
-        tag_end.forward_chars(static_cast<int>(pos));
-        apply_tag(Tag::STRING, tag_start, tag_end);
-        continue;
-      }
-
-      if (c == U'-' && starts_with(line, pos, "->"))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(2);
-        apply_tag(Tag::DEFINITION, tag_start, tag_end);
-        pos += 2;
-        continue;
-      }
-
-      if (laskin::utils::is_separator(c))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(1);
-        apply_tag(Tag::DELIMITER, tag_start, tag_end);
-        ++pos;
-        continue;
-      }
-
-      if (starts_with(line, pos, ".."))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(2);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 2;
-        continue;
-      }
-
-      if (starts_with(line, pos, ">string"))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(7);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 7;
-        continue;
-      }
-
-      if (starts_with(line, pos, ">source"))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(7);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 7;
-        continue;
-      }
-
-      if (starts_with(line, pos, "<>"))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(2);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 2;
-        continue;
-      }
-
-      if (starts_with(line, pos, ">="))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(2);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 2;
-        continue;
-      }
-
-      if (starts_with(line, pos, "<="))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(2);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        pos += 2;
-        continue;
-      }
-
-      if (c == U'=' && (pos + 1 >= length || line[pos + 1] != U'='))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(1);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        ++pos;
-        continue;
-      }
-
-      if (
-        c == U'>'
-        && (
-          pos + 1 >= length
-          || (
-            line[pos + 1] != U'='
-            && !laskin::utils::is_symbol(line[pos + 1])
-          )
         )
-      )
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(1);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        ++pos;
-        continue;
-      }
-
-      if (
-        c == U'<'
-        && (pos + 1 >= length || (line[pos + 1] != U'=' && line[pos + 1] != U'>'))
-      )
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(1);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        ++pos;
-        continue;
-      }
-
-      if (c == U'*' || c == U'/' || c == U'%')
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(1);
-        apply_tag(Tag::OPERATOR, tag_start, tag_end);
-        ++pos;
-        continue;
-      }
-
-      if (c == U'-')
-      {
-        const bool after_symbol = (
-          pos > 0 && laskin::utils::is_symbol(line[pos - 1])
-        );
-        const bool before_number = (
-          is_digit(line[pos + 1])
-          || starts_with(line, pos + 1, "inf")
-        );
-        const bool before_gt = pos + 1 < length && line[pos + 1] == U'>';
-
-        if (after_symbol && !before_number && !before_gt)
-        {
-          auto tag_start = line_start;
-
-          tag_start.forward_chars(static_cast<int>(pos));
-          auto tag_end = tag_start;
-
-          tag_end.forward_chars(1);
-          apply_tag(Tag::OPERATOR, tag_start, tag_end);
-          ++pos;
-          continue;
-        }
-      }
-
-      if (c == U'+')
-      {
-        const bool after_symbol = (
-          pos > 0 && laskin::utils::is_symbol(line[pos - 1])
-        );
-        const bool before_number = is_digit(line[pos + 1]);
-
-        if (after_symbol && !before_number)
-        {
-          auto tag_start = line_start;
-
-          tag_start.forward_chars(static_cast<int>(pos));
-          auto tag_end = tag_start;
-
-          tag_end.forward_chars(1);
-          apply_tag(Tag::OPERATOR, tag_start, tag_end);
-          ++pos;
-          continue;
-        }
-      }
-
-      if (c == U'.')
-      {
-        if (starts_with(line, pos, ".s") && symbol_boundary_after(line, pos + 2))
-        {
-          auto tag_start = line_start;
-
-          tag_start.forward_chars(static_cast<int>(pos));
-          auto tag_end = tag_start;
-
-          tag_end.forward_chars(2);
-          apply_tag(Tag::OPERATOR, tag_start, tag_end);
-          pos += 2;
-          continue;
-        }
-
-        const bool after_digit = pos > 0 && is_digit(line[pos - 1]);
-
-        if (!after_digit)
-        {
-          auto tag_start = line_start;
-
-          tag_start.forward_chars(static_cast<int>(pos));
-          auto tag_end = tag_start;
-
-          tag_end.forward_chars(1);
-          apply_tag(Tag::OPERATOR, tag_start, tag_end);
-          ++pos;
-          continue;
-        }
-      }
-
-      if (c == U'-' && starts_with(line, pos, "-inf"))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = tag_start;
-
-        tag_end.forward_chars(4);
-        apply_tag(Tag::CONSTANT, tag_start, tag_end);
-        pos += 4;
-        continue;
-      }
-
-      Glib::ustring::size_type number_end = pos;
-
-      if (parse_number(line, pos, number_end))
-      {
-        auto tag_start = line_start;
-
-        tag_start.forward_chars(static_cast<int>(pos));
-        auto tag_end = line_start;
-
-        tag_end.forward_chars(static_cast<int>(number_end));
-        apply_tag(Tag::NUMBER, tag_start, tag_end);
-        pos = number_end;
-        continue;
-      }
-
-      if (laskin::utils::is_symbol(c))
-      {
-        const auto symbol_len = read_symbol(line, pos);
-
-        if (symbol_len > 0)
-        {
-          const Glib::ustring symbol = line.substr(pos, symbol_len);
-          Tag tag;
-
-          if (match_dictionary_word(symbol, m_dictionary, tag))
-          {
-            auto tag_start = line_start;
-
-            tag_start.forward_chars(static_cast<int>(pos));
-            auto tag_end = line_start;
-
-            tag_end.forward_chars(static_cast<int>(pos + symbol_len));
-            apply_tag(tag, tag_start, tag_end);
-          }
-
-          pos += symbol_len;
-          continue;
-        }
-      }
-
-      ++pos;
-    }
+        : laskin::syntax::dictionary_predicate{}
+    );
   }
 }

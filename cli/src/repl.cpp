@@ -23,7 +23,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstdio>
 #include <cstring>
+#include <stack>
+#include <string>
 
 #include <isocline.h>
 
@@ -31,7 +34,7 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
-#include "laskin/utils.hpp"
+#include "laskin/syntax.hpp"
 
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
@@ -57,6 +60,13 @@ namespace laskin::cli
     ic_completion_env_t* cenv,
     const char* input
   );
+  static void define_highlight_styles();
+  static const char* highlight_style(laskin::syntax::highlight_kind kind);
+  static void highlight_input(
+    ic_highlight_env_t* henv,
+    const char* input,
+    void* arg
+  );
 
   void
   run_repl(class context& context)
@@ -66,7 +76,9 @@ namespace laskin::cli
     ic_set_prompt_marker("", nullptr);
     ic_enable_multiline(false);
     ic_set_history(nullptr, -1);
+    define_highlight_styles();
     ic_set_default_completer(complete_dictionary, &context);
+    ic_set_default_highlighter(highlight_input, &context);
 
     for (;;)
     {
@@ -81,7 +93,7 @@ namespace laskin::cli
 
       ic_free(input);
       source.append(line).append(1, '\n');
-      utils::count_open_braces(open_braces, line);
+      syntax::count_open_braces(open_braces, line);
 
       if (!open_braces.empty())
       {
@@ -192,7 +204,7 @@ namespace laskin::cli
       return false;
     }
 
-    return utils::is_symbol(c);
+    return syntax::is_symbol(c);
   }
 
   static void
@@ -240,6 +252,78 @@ namespace laskin::cli
       input,
       complete_dictionary_words,
       is_laskin_symbol_char
+    );
+  }
+
+  static void
+  define_highlight_styles()
+  {
+    ic_style_def("laskin-comment", "color=#6a9955");
+    ic_style_def("laskin-string", "color=#ce9178");
+    ic_style_def("laskin-number", "color=#b5cea8");
+    ic_style_def("laskin-delimiter", "color=#ffd700");
+    ic_style_def("laskin-symbol", "color=#c586c0");
+  }
+
+  static const char*
+  highlight_style(const laskin::syntax::highlight_kind kind)
+  {
+    switch (kind)
+    {
+    case laskin::syntax::highlight_kind::comment:
+      return "laskin-comment";
+
+    case laskin::syntax::highlight_kind::string:
+      return "laskin-string";
+
+    case laskin::syntax::highlight_kind::number:
+      return "laskin-number";
+
+    case laskin::syntax::highlight_kind::delimiter:
+      return "laskin-delimiter";
+
+    case laskin::syntax::highlight_kind::symbol:
+      return "laskin-symbol";
+    }
+
+    return nullptr;
+  }
+
+  static void
+  highlight_input(
+    ic_highlight_env_t* henv,
+    const char* input,
+    void* arg
+  )
+  {
+    const auto* context = static_cast<const laskin::context*>(arg);
+    const auto length = std::strlen(input);
+    const std::u32string source = peelo::unicode::encoding::utf8::decode(
+      input,
+      length
+    );
+
+    laskin::syntax::highlight_source_line(
+      source,
+      [&](
+        const std::size_t start,
+        const std::size_t span_length,
+        const laskin::syntax::highlight_kind kind
+      )
+      {
+        const auto [byte_start, byte_length] =
+          laskin::syntax::utf8_codepoint_range_to_bytes(
+            input,
+            length,
+            start,
+            span_length
+          );
+
+        ic_highlight(henv, static_cast<long>(byte_start), static_cast<long>(byte_length), highlight_style(kind));
+      },
+      [context](const std::u32string& word) {
+        return context->dictionary.contains(word);
+      }
     );
   }
 }

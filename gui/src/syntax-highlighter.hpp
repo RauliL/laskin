@@ -33,7 +33,6 @@ namespace laskin::gui
 {
   /**
    * Applies Laskin syntax highlighting to a Gtk::TextBuffer using TextTags.
-   * Token rules mirror editor/laskin.vim.
    */
   class SyntaxHighlighter
   {
@@ -42,13 +41,9 @@ namespace laskin::gui
     {
       COMMENT,
       STRING,
-      BOOLEAN,
-      CONSTANT,
-      KEYWORD,
       NUMBER,
-      OPERATOR,
       DELIMITER,
-      DEFINITION,
+      SYMBOL,
       COUNT
     };
 

@@ -23,13 +23,14 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <peelo/unicode/ctype/isspace.hpp>
 #include <peelo/unicode/ctype/isvalid.hpp>
 #include <peelo/unicode/ctype/isxdigit.hpp>
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/ast.hpp"
 #include "laskin/error.hpp"
-#include "laskin/utils.hpp"
+#include "laskin/syntax.hpp"
 
 namespace laskin
 {
@@ -123,8 +124,6 @@ namespace laskin
   static void
   skip_whitespace(struct state& state)
   {
-    using peelo::unicode::ctype::isspace;
-
     while (!eof(state))
     {
       // Skip line comments.
@@ -140,7 +139,7 @@ namespace laskin
           }
         }
       }
-      else if (!peek(state, isspace))
+      else if (!peek(state, peelo::unicode::ctype::isspace))
       {
         return;
       } else {
@@ -499,7 +498,7 @@ namespace laskin
     std::u32string buffer;
 
     skip_whitespace(state);
-    if (!peek(state, utils::is_symbol))
+    if (!peek(state, syntax::is_symbol))
     {
       throw error(
         error::type::syntax,
@@ -513,7 +512,7 @@ namespace laskin
     {
       buffer.push_back(read(state));
     }
-    while (peek(state, utils::is_symbol));
+    while (peek(state, syntax::is_symbol));
 
     return buffer;
   }
