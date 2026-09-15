@@ -25,22 +25,22 @@
  */
 #pragma once
 
-#define LASKIN_SOURCE_EXTENSION ".laskin"
+#define LASKIN_VERSION_MAJOR 10
+#define LASKIN_VERSION_MINOR 0
+#define LASKIN_VERSION_PATCH 0
 
-#define LASKIN_BUILTIN_WORD(x) \
-  static void x( \
-    [[maybe_unused]] class context& context, \
-    [[maybe_unused]] std::ostream* out \
-  )
+// Helper macros for stringification.
+#define LASKIN_STRINGIFY2(s) #s
+#define LASKIN_STRINGIFY(s) LASKIN_STRINGIFY2(s)
 
-#define LASKIN_DEFAULT_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = default; \
-  TypeName(TypeName&&) = default; \
-  TypeName& operator=(const TypeName&) = default; \
-  TypeName& operator=(TypeName&&) = default
+#define LASKIN_VERSION_STRING \
+  LASKIN_STRINGIFY(LASKIN_VERSION_MAJOR) "." \
+  LASKIN_STRINGIFY(LASKIN_VERSION_MINOR) "." \
+  LASKIN_STRINGIFY(LASKIN_VERSION_PATCH)
 
-#define LASKIN_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete; \
-  TypeName(TypeName&&) = delete; \
-  void operator=(const TypeName&) = delete; \
-  void operator=(TypeName&&) = delete
+namespace laskin::version
+{
+  static constexpr int major = LASKIN_VERSION_MAJOR;
+  static constexpr int minor = LASKIN_VERSION_MINOR;
+  static constexpr int patch = LASKIN_VERSION_PATCH;
+}

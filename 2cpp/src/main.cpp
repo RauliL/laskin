@@ -27,6 +27,7 @@
 #include <fstream>
 
 #include <laskin/error.hpp>
+#include <laskin/version.hpp>
 
 #include "./program.hpp"
 
@@ -141,7 +142,7 @@ parse_args(int argc, char** argv)
       }
       else if (!std::strcmp(arg, "--version"))
       {
-        std::cerr << "Laskin " << LASKIN_VERSION << std::endl;
+        std::cerr << "Laskin " << LASKIN_VERSION_STRING << std::endl;
         std::exit(EXIT_SUCCESS);
       } else {
         std::cerr << "Unrecognized switch: " << arg << std::endl;
@@ -172,6 +173,11 @@ parse_args(int argc, char** argv)
 
         case 'h':
           print_usage(std::cout, argv[0]);
+          std::exit(EXIT_SUCCESS);
+          break;
+
+        case 'v':
+          std::cerr << "Laskin " << LASKIN_VERSION_STRING << std::endl;
           std::exit(EXIT_SUCCESS);
           break;
 
@@ -210,7 +216,7 @@ print_usage(std::ostream& output, const char* executable_name)
     << std::endl
     << "  --no-number-optimization"
     << std::endl
-    << "  --version         Print the version."
+    << "  -v, --version     Print the version."
     << std::endl
     << "  --help            Display this message."
     << std::endl

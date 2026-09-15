@@ -34,6 +34,7 @@
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/json.hpp"
+#include "laskin/version.hpp"
 
 static std::string programfile;
 static std::string snapshotfile;
@@ -130,7 +131,7 @@ parse_args(int argc, char** argv)
       }
       else if (!std::strcmp(arg, "--version"))
       {
-        std::cerr << "Laskin " << LASKIN_VERSION << std::endl;
+        std::cerr << "Laskin " << LASKIN_VERSION_STRING << std::endl;
         std::exit(EXIT_SUCCESS);
       }
       else if (!std::strcmp(arg, "--snapshot"))
@@ -181,6 +182,11 @@ parse_args(int argc, char** argv)
             std::exit(EXIT_SUCCESS);
             break;
 
+          case 'v':
+            std::cerr << "Laskin " << LASKIN_VERSION_STRING << std::endl;
+            std::exit(EXIT_SUCCESS);
+            break;
+
           default:
             std::cerr << "Unrecognized switch: `" << arg[i] << "'"
                       << std::endl;
@@ -211,7 +217,7 @@ print_usage(std::ostream& output, const char* executable_name)
          << std::endl
          << "  -s, --snapshot    Load context snapshot from JSON file."
          << std::endl
-         << "  --version         Print the version."
+         << "  -v, --version     Print the version."
          << std::endl
          << "  --help            Display this message."
          << std::endl
