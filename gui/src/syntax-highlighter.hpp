@@ -28,6 +28,7 @@
 #include <gtkmm.h>
 
 #include "laskin/context.hpp"
+#include "laskin/syntax.hpp"
 
 namespace laskin::gui
 {
@@ -37,16 +38,6 @@ namespace laskin::gui
   class SyntaxHighlighter
   {
   public:
-    enum class Tag
-    {
-      COMMENT,
-      STRING,
-      NUMBER,
-      DELIMITER,
-      SYMBOL,
-      COUNT
-    };
-
     explicit SyntaxHighlighter(const Glib::RefPtr<Gtk::TextBuffer>& buffer);
 
     void set_dictionary(const laskin::context::dictionary_type& dictionary);
@@ -58,7 +49,7 @@ namespace laskin::gui
     void create_tags();
 
     void apply_tag(
-      Tag tag,
+      laskin::syntax::highlight_kind kind,
       Gtk::TextIter start,
       Gtk::TextIter end
     );
@@ -69,7 +60,7 @@ namespace laskin::gui
     );
 
     Glib::RefPtr<Gtk::TextBuffer> m_buffer;
-    Glib::RefPtr<Gtk::TextTag> m_tags[static_cast<int>(Tag::COUNT)];
+    Glib::RefPtr<Gtk::TextTag> m_tags[laskin::syntax::highlight_kind_count];
     const laskin::context::dictionary_type* m_dictionary;
   };
 }

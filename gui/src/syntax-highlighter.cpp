@@ -27,37 +27,8 @@
 
 #include "./utils.hpp"
 
-#include "laskin/syntax.hpp"
-
 namespace laskin::gui
 {
-  namespace
-  {
-    SyntaxHighlighter::Tag
-    tag_for_kind(laskin::syntax::highlight_kind kind)
-    {
-      switch (kind)
-      {
-      case laskin::syntax::highlight_kind::comment:
-        return SyntaxHighlighter::Tag::COMMENT;
-
-      case laskin::syntax::highlight_kind::string:
-        return SyntaxHighlighter::Tag::STRING;
-
-      case laskin::syntax::highlight_kind::number:
-        return SyntaxHighlighter::Tag::NUMBER;
-
-      case laskin::syntax::highlight_kind::delimiter:
-        return SyntaxHighlighter::Tag::DELIMITER;
-
-      case laskin::syntax::highlight_kind::symbol:
-        return SyntaxHighlighter::Tag::SYMBOL;
-      }
-
-      return SyntaxHighlighter::Tag::COMMENT;
-    }
-  }
-
   SyntaxHighlighter::SyntaxHighlighter(
     const Glib::RefPtr<Gtk::TextBuffer>& buffer
   )
@@ -78,34 +49,39 @@ namespace laskin::gui
   void
   SyntaxHighlighter::create_tags()
   {
-    m_tags[static_cast<int>(Tag::COMMENT)] =
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::comment)] =
       m_buffer->create_tag("laskin-comment");
-    m_tags[static_cast<int>(Tag::STRING)] =
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::string)] =
       m_buffer->create_tag("laskin-string");
-    m_tags[static_cast<int>(Tag::NUMBER)] =
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::number)] =
       m_buffer->create_tag("laskin-number");
-    m_tags[static_cast<int>(Tag::DELIMITER)] =
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::delimiter)] =
       m_buffer->create_tag("laskin-delimiter");
-    m_tags[static_cast<int>(Tag::SYMBOL)] =
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::symbol)] =
       m_buffer->create_tag("laskin-symbol");
 
-    m_tags[static_cast<int>(Tag::COMMENT)]->property_foreground().set_value("#6a9955");
-    m_tags[static_cast<int>(Tag::STRING)]->property_foreground().set_value("#ce9178");
-    m_tags[static_cast<int>(Tag::NUMBER)]->property_foreground().set_value("#b5cea8");
-    m_tags[static_cast<int>(Tag::DELIMITER)]->property_foreground().set_value("#ffd700");
-    m_tags[static_cast<int>(Tag::SYMBOL)]->property_foreground().set_value("#c586c0");
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::comment)]
+      ->property_foreground().set_value("#6a9955");
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::string)]
+      ->property_foreground().set_value("#ce9178");
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::number)]
+      ->property_foreground().set_value("#b5cea8");
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::delimiter)]
+      ->property_foreground().set_value("#ffd700");
+    m_tags[static_cast<std::size_t>(laskin::syntax::highlight_kind::symbol)]
+      ->property_foreground().set_value("#c586c0");
   }
 
   void
   SyntaxHighlighter::apply_tag(
-    Tag tag,
+    const laskin::syntax::highlight_kind kind,
     Gtk::TextIter start,
     Gtk::TextIter end
   )
   {
     if (start.get_offset() < end.get_offset())
     {
-      m_buffer->apply_tag(m_tags[static_cast<int>(tag)], start, end);
+      m_buffer->apply_tag(m_tags[static_cast<std::size_t>(kind)], start, end);
     }
   }
 
@@ -158,7 +134,7 @@ namespace laskin::gui
         auto tag_end = line_start;
 
         tag_end.forward_chars(static_cast<int>(start + length));
-        apply_tag(tag_for_kind(kind), tag_start, tag_end);
+        apply_tag(kind, tag_start, tag_end);
       },
       dictionary
         ? laskin::syntax::dictionary_predicate(

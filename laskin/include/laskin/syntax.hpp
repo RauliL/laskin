@@ -140,6 +140,9 @@ namespace laskin::syntax
     symbol,
   };
 
+  inline constexpr std::size_t highlight_kind_count =
+    static_cast<std::size_t>(highlight_kind::symbol) + 1;
+
   using highlight_callback = std::function<
     void(std::size_t start, std::size_t length, highlight_kind kind)
   >;
