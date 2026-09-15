@@ -24,7 +24,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <peelo/unicode/ctype/isgraph.hpp>
 #include <peelo/unicode/ctype/isprint.hpp>
 
 #include "laskin/utils.hpp"

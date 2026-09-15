@@ -48,6 +48,7 @@ SET(
   ./src/position.cpp
   ./src/quote.cpp
   ./src/record.cpp
+  ./src/syntax.cpp
   ./src/utils.cpp
   ./src/value.cpp
   ./src/vector.cpp

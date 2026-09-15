@@ -1,0 +1,518 @@
+/*
+ * Copyright (c) 2018-2026, Rauli Laine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+#include <algorithm>
+#include <vector>
+
+#include <peelo/number.hpp>
+#include <peelo/unicode/encoding/utf8.hpp>
+
+#include "laskin/chrono.hpp"
+#include "laskin/syntax.hpp"
+
+namespace laskin::syntax
+{
+  static inline bool
+  starts_with(
+    const std::u32string& line,
+    std::size_t pos,
+    const char32_t* literal
+  )
+  {
+    for (std::size_t i = 0; literal[i]; ++i)
+    {
+      if (pos + i >= line.length() || line[pos + i] != literal[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static inline bool
+  symbol_boundary_after(
+    const std::u32string& line,
+    std::size_t pos
+  )
+  {
+    if (pos >= line.length())
+    {
+      return true;
+    }
+
+    return !is_symbol(line[pos]);
+  }
+
+  static const std::vector<std::u32string>&
+  unit_symbols()
+  {
+    static const std::vector<std::u32string> symbols = []() {
+      std::vector<std::u32string> result;
+
+      for (const auto type : {
+        peelo::number::unit::type::length,
+        peelo::number::unit::type::mass,
+        peelo::number::unit::type::time
+      })
+      {
+        for (const auto& u : peelo::number::unit::all_units_of(type))
+        {
+          result.emplace_back(
+            u.symbol.begin(),
+            u.symbol.end()
+          );
+        }
+      }
+
+      std::sort(
+        result.begin(),
+        result.end(),
+        [](const std::u32string& a, const std::u32string& b) {
+          return a.size() > b.size();
+        }
+      );
+
+      return result;
+    }();
+
+    return symbols;
+  }
+
+  static bool
+  match_unit(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  )
+  {
+    for (const auto& unit_str : unit_symbols())
+    {
+      if (
+        pos + unit_str.length() <= line.length()
+        && line.compare(pos, unit_str.length(), unit_str) == 0
+        && symbol_boundary_after(line, pos + unit_str.length())
+      )
+      {
+        end = pos + unit_str.length();
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static bool
+  parse_number_body(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length() || !is_digit(line[pos]))
+    {
+      return false;
+    }
+
+    end = pos;
+
+    while (end < line.length() && is_digit(line[end]))
+    {
+      ++end;
+    }
+
+    while (
+      end < line.length()
+      && line[end] == U'_'
+      && end + 1 < line.length()
+      && is_digit(line[end + 1])
+    )
+    {
+      ++end;
+
+      while (end < line.length() && is_digit(line[end]))
+      {
+        ++end;
+      }
+    }
+
+    if (
+      end < line.length()
+      && line[end] == U'.'
+      && end + 1 < line.length()
+      && is_digit(line[end + 1])
+    )
+    {
+      ++end;
+
+      while (end < line.length() && is_digit(line[end]))
+      {
+        ++end;
+      }
+
+      while (
+        end < line.length()
+        && line[end] == U'_'
+        && end + 1 < line.length()
+        && is_digit(line[end + 1])
+      )
+      {
+        ++end;
+
+        while (end < line.length() && is_digit(line[end]))
+        {
+          ++end;
+        }
+      }
+    }
+
+    std::size_t unit_end = end;
+
+    if (match_unit(line, end, unit_end))
+    {
+      end = unit_end;
+    }
+
+    return end > pos;
+  }
+
+  bool
+  scan_comment(
+    const std::u32string& line,
+    const std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length() || line[pos] != U'#')
+    {
+      return false;
+    }
+
+    end = pos + 1;
+
+    while (
+      end < line.length()
+      && line[end] != U'\n'
+      && line[end] != U'\r'
+    )
+    {
+      ++end;
+    }
+
+    return true;
+  }
+
+  bool
+  scan_string_literal(
+    const std::u32string& line,
+    const std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length())
+    {
+      return false;
+    }
+
+    const auto quote = line[pos];
+
+    if (quote != U'"' && quote != U'\'')
+    {
+      return false;
+    }
+
+    end = pos + 1;
+
+    while (end < line.length())
+    {
+      if (line[end] == quote)
+      {
+        ++end;
+        break;
+      }
+
+      if (line[end] == U'\\' && end + 1 < line.length())
+      {
+        end += 2;
+      } else {
+        ++end;
+      }
+    }
+
+    return true;
+  }
+
+  bool
+  parse_number_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  )
+  {
+    if (pos >= line.length())
+    {
+      return false;
+    }
+
+    const auto prev = pos > 0 ? line[pos - 1] : 0;
+    const bool after_dot = prev == U'.';
+
+    if (after_dot)
+    {
+      return false;
+    }
+
+    std::size_t body_start = pos;
+    std::size_t body_end = pos;
+
+    if (line[pos] == U'+' || line[pos] == U'-')
+    {
+      const auto sign = line[pos];
+
+      if (sign == U'-' && starts_with(line, pos, U"-inf"))
+      {
+        end = pos + 4;
+        return symbol_boundary_after(line, end);
+      }
+
+      if (sign == U'+' && !parse_number_body(line, pos + 1, body_end))
+      {
+        return false;
+      }
+
+      if (sign == U'-' && !parse_number_body(line, pos + 1, body_end))
+      {
+        return false;
+      }
+
+      body_start = pos + 1;
+
+      if (body_end > body_start)
+      {
+        end = body_end;
+
+        return true;
+      }
+
+      return false;
+    }
+
+    if (parse_number_body(line, pos, body_end))
+    {
+      end = body_end;
+
+      return true;
+    }
+
+    return false;
+  }
+
+  std::size_t
+  scan_symbol(
+    const std::u32string& line,
+    const std::size_t pos
+  )
+  {
+    if (pos >= line.length() || !is_symbol(line[pos]))
+    {
+      return 0;
+    }
+
+    auto end = pos;
+
+    while (end < line.length() && is_symbol(line[end]))
+    {
+      ++end;
+    }
+
+    return end - pos;
+  }
+
+  bool
+  parse_chrono_literal(
+    const std::u32string& line,
+    std::size_t pos,
+    std::size_t& end
+  )
+  {
+    const auto length = scan_symbol(line, pos);
+
+    if (length == 0)
+    {
+      return false;
+    }
+
+    const auto literal = line.substr(pos, length);
+
+    if (is_date(literal) || is_time(literal))
+    {
+      end = pos + length;
+
+      return true;
+    }
+
+    return false;
+  }
+
+  void
+  count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::u32string& line
+  )
+  {
+    std::size_t pos = 0;
+    const auto length = line.length();
+
+    while (pos < length)
+    {
+      std::size_t end = pos;
+
+      if (scan_comment(line, pos, end))
+      {
+        return;
+      }
+
+      if (scan_string_literal(line, pos, end))
+      {
+        pos = end;
+        continue;
+      }
+
+      switch (line[pos])
+      {
+        case U'(':
+          braces.push(U')');
+          break;
+
+        case U'[':
+          braces.push(U']');
+          break;
+
+        case U')':
+        case U']':
+          if (!braces.empty() && braces.top() == line[pos])
+          {
+            braces.pop();
+          }
+          break;
+
+        default:
+          break;
+      }
+
+      ++pos;
+    }
+  }
+
+  void
+  count_open_braces(
+    std::stack<char32_t>& braces,
+    const std::string& line
+  )
+  {
+    std::u32string decoded;
+
+    if (peelo::unicode::encoding::utf8::decode_validate(line, decoded))
+    {
+      count_open_braces(braces, decoded);
+    }
+  }
+
+  void
+  highlight_source_line(
+    const std::u32string& line,
+    const highlight_callback& apply,
+    const dictionary_predicate& is_dictionary_word
+  )
+  {
+    if (!apply)
+    {
+      return;
+    }
+
+    std::size_t pos = 0;
+    const auto length = line.length();
+
+    while (pos < length)
+    {
+      std::size_t end = pos;
+
+      if (scan_comment(line, pos, end))
+      {
+        apply(pos, end - pos, highlight_kind::comment);
+        break;
+      }
+
+      if (scan_string_literal(line, pos, end))
+      {
+        apply(pos, end - pos, highlight_kind::string);
+        pos = end;
+        continue;
+      }
+
+      if (parse_chrono_literal(line, pos, end))
+      {
+        apply(pos, end - pos, highlight_kind::number);
+        pos = end;
+        continue;
+      }
+
+      if (parse_number_literal(line, pos, end))
+      {
+        apply(pos, end - pos, highlight_kind::number);
+        pos = end;
+        continue;
+      }
+
+      if (is_separator(line[pos]))
+      {
+        apply(pos, 1, highlight_kind::delimiter);
+        ++pos;
+        continue;
+      }
+
+      const auto symbol_len = scan_symbol(line, pos);
+
+      if (symbol_len > 0)
+      {
+        if (is_dictionary_word)
+        {
+          const std::u32string symbol = line.substr(pos, symbol_len);
+
+          if (is_dictionary_word(symbol))
+          {
+            apply(pos, symbol_len, highlight_kind::symbol);
+          }
+        }
+
+        pos += symbol_len;
+        continue;
+      }
+
+      ++pos;
+    }
+  }
+}
