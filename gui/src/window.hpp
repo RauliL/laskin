@@ -43,6 +43,7 @@ namespace laskin::gui
 
     void load_script(const std::filesystem::path& path);
     void load_snapshot(const std::filesystem::path& path);
+    void save_snapshot(const std::filesystem::path& path);
 
   protected:
     void on_show();

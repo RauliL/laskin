@@ -50,6 +50,8 @@ namespace laskin
     dictionary_default_callback default_callback;
     /** Whether import word should be allowed or not. */
     bool allow_import;
+    /** Whether loading and saving JSON context snapshots should be allowed. */
+    bool allow_snapshot;
 
 #ifdef LASKIN_ENABLE_DYNAMIC_LIBRARIES
   private:
@@ -61,7 +63,8 @@ namespace laskin
 
     explicit context(
       const dictionary_default_callback& default_callback_ = nullptr,
-      bool allow_import_ = true
+      bool allow_import_ = true,
+      bool allow_snapshot_ = true
     );
 
     LASKIN_DEFAULT_COPY_AND_ASSIGN(context);

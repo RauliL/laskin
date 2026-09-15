@@ -110,4 +110,17 @@ namespace laskin::gui
       m_signal_error_thrown.emit(e);
     }
   }
+
+  void
+  Context::save_snapshot(const std::filesystem::path& path)
+  {
+    try
+    {
+      laskin::save_snapshot(m_context, path);
+    }
+    catch (const error& e)
+    {
+      m_signal_error_thrown.emit(e);
+    }
+  }
 }

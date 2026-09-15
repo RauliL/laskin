@@ -118,10 +118,12 @@ namespace laskin
 
   context::context(
     const dictionary_default_callback& default_callback_,
-    bool allow_import_
+    bool allow_import_,
+    bool allow_snapshot_
   )
     : default_callback(default_callback_)
     , allow_import(allow_import_)
+    , allow_snapshot(allow_snapshot_)
   {
     initialize_dictionary(dictionary, api::utils);
     initialize_dictionary(dictionary, api::boolean);

@@ -562,6 +562,14 @@ namespace laskin
   void
   load_snapshot(context& context, const std::filesystem::path& path)
   {
+    if (!context.allow_snapshot)
+    {
+      throw error(
+        error::type::system,
+        U"Using snapshot has been disabled in this context."
+      );
+    }
+
     std::ifstream input(path);
 
     if (!input.good())
@@ -580,6 +588,14 @@ namespace laskin
   void
   load_snapshot(context& context, std::istream& input)
   {
+    if (!context.allow_snapshot)
+    {
+      throw error(
+        error::type::system,
+        U"Using snapshot has been disabled in this context."
+      );
+    }
+
     try
     {
       const auto json = nlohmann::json::parse(input);
@@ -589,6 +605,57 @@ namespace laskin
     catch (const nlohmann::json::exception& e)
     {
       throw error(error::type::syntax, e.what());
+    }
+  }
+
+  void
+  save_snapshot(const context& context, const std::filesystem::path& path)
+  {
+    if (!context.allow_snapshot)
+    {
+      throw error(
+        error::type::system,
+        U"Using snapshot has been disabled in this context."
+      );
+    }
+
+    std::ofstream output(path);
+
+    if (!output.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to open snapshot file `" +
+          peelo::unicode::encoding::utf8::decode(path.string()) +
+          U"' for writing."
+      );
+    }
+
+    save_snapshot(context, output);
+  }
+
+  void
+  save_snapshot(const context& context, std::ostream& output)
+  {
+    if (!context.allow_snapshot)
+    {
+      throw error(
+        error::type::system,
+        U"Using snapshot has been disabled in this context."
+      );
+    }
+
+    nlohmann::json json;
+
+    to_json(json, context);
+    output << json.dump(2) << '\n';
+
+    if (!output.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to write context snapshot."
+      );
     }
   }
 }

@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <istream>
+#include <ostream>
 #include <memory>
 
 #include <nlohmann/json.hpp>
@@ -82,4 +83,18 @@ namespace laskin
    * with `from_json`.
    */
   void load_snapshot(context& context, std::istream& input);
+
+  /**
+   * Writes a JSON context snapshot produced by `to_json` into the given file.
+   */
+  void save_snapshot(
+    const context& context,
+    const std::filesystem::path& path
+  );
+
+  /**
+   * Writes a JSON context snapshot produced by `to_json` into the given output
+   * stream.
+   */
+  void save_snapshot(const context& context, std::ostream& output);
 }
