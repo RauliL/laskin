@@ -644,6 +644,86 @@ public:
     return result;
   }
 
+  /**
+   * Serializes the data stack and non-native dictionary words into a plain
+   * JavaScript object (JSON-compatible).
+   */
+  emscripten::val toJSON() const
+  {
+    auto result = emscripten::val::object();
+    auto dictionary = emscripten::val::object();
+    const auto& entries = m_context.dictionary;
+
+    result.set("stack", stack());
+
+    for (const auto& entry : entries)
+    {
+      if (
+        entry.second.is(laskin::value::type::quote) &&
+        std::holds_alternative<laskin::native_quote>(entry.second.as_quote())
+      )
+      {
+        continue;
+      }
+
+      dictionary.set(entry.first, value_to_js(entry.second));
+    }
+
+    result.set("dictionary", dictionary);
+
+    return result;
+  }
+
+  /**
+   * Reloads the data stack and non-native dictionary words from a snapshot
+   * produced by `toJSON`. Built-in native words are preserved.
+   */
+  void fromJSON(const emscripten::val& js_context)
+  {
+    try
+    {
+      const auto js_stack = js_context["stack"];
+      const auto js_dictionary = js_context["dictionary"];
+      const auto stack_length = js_stack["length"].as<unsigned>();
+      const auto keys = emscripten::val::global("Object")
+        .call<emscripten::val>("keys", js_dictionary);
+      const auto key_count = keys["length"].as<unsigned>();
+
+      m_context.data.clear();
+
+      // JSON index 0 is top of stack; push bottom-first.
+      for (unsigned i = stack_length; i > 0; --i)
+      {
+        m_context.push(value_from_js(js_stack[i - 1]));
+      }
+
+      for (auto it = m_context.dictionary.begin();
+           it != m_context.dictionary.end();)
+      {
+        if (
+          it->second.is(laskin::value::type::quote) &&
+          std::holds_alternative<laskin::native_quote>(it->second.as_quote())
+        )
+        {
+          ++it;
+        } else {
+          it = m_context.dictionary.erase(it);
+        }
+      }
+
+      for (unsigned i = 0; i < key_count; ++i)
+      {
+        const auto key = keys[i].as<std::u32string>();
+
+        m_context.dictionary[key] = value_from_js(js_dictionary[key]);
+      }
+    }
+    catch (const laskin::error& error)
+    {
+      raise_laskin_error(error);
+    }
+  }
+
 private:
   laskin::context m_context;
 };
@@ -659,7 +739,9 @@ EMSCRIPTEN_BINDINGS(laskin)
     .function("pop", &Context::pop)
     .function("push", &Context::push)
     .function("stack", &Context::stack)
-    .function("dictionary", &Context::dictionary);
+    .function("dictionary", &Context::dictionary)
+    .function("toJSON", &Context::toJSON)
+    .function("fromJSON", &Context::fromJSON);
 
   emscripten::function("valueToString", &valueToString);
   emscripten::function("valueToSource", &valueToSource);

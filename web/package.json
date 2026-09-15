@@ -19,6 +19,7 @@
     "laskin.js",
     "laskin.wasm",
     "ast.d.ts",
+    "snapshot.d.ts",
     "value.d.ts",
     "README.md",
     "LICENSE"

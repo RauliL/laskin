@@ -173,6 +173,7 @@ namespace laskin::gui
         "delete",
         "symbols",
         "import",
+        "snapshot",
         nullptr
       };
       static const char* stack_words[] = {

@@ -104,6 +104,32 @@ namespace laskin::gui
   }
 
   void
+  Window::load_snapshot(const std::filesystem::path& path)
+  {
+    m_line_display.add_line(
+      Glib::ustring("Loading snapshot ") + path.string() + "...\n",
+      LineDisplay::LINE_TYPE_INPUT
+    );
+    m_context->load_snapshot(path);
+
+    const auto& stack = m_context->stack();
+
+    m_line_editor.set_stack_depth_count(static_cast<int>(stack.size()));
+    m_stack_display.update(stack);
+    m_dictionary_display.update(m_context->dictionary());
+  }
+
+  void
+  Window::save_snapshot(const std::filesystem::path& path)
+  {
+    m_line_display.add_line(
+      Glib::ustring("Saving snapshot ") + path.string() + "...\n",
+      LineDisplay::LINE_TYPE_INPUT
+    );
+    m_context->save_snapshot(path);
+  }
+
+  void
   Window::on_show()
   {
     Gtk::Window::on_show();
@@ -181,6 +207,50 @@ namespace laskin::gui
       else if (keyval == GDK_KEY_l)
       {
         m_line_display.clear();
+
+        return true;
+      }
+      // Save a context snapshot when user presses ^S.
+      else if (keyval == GDK_KEY_s)
+      {
+        auto dialog = Gtk::FileDialog::create();
+        auto filters = Gio::ListStore<Gtk::FileFilter>::create();
+        auto filter = Gtk::FileFilter::create();
+
+        filter->set_name("JSON snapshots");
+        filter->add_pattern("*.json");
+        filters->append(filter);
+        dialog->set_filters(filters);
+        dialog->set_default_filter(filter);
+        dialog->set_initial_name("snapshot.json");
+        dialog->save(
+          *this,
+          [this, dialog](const Glib::RefPtr<Gio::AsyncResult>& result)
+          {
+            try
+            {
+              auto file = dialog->save_finish(result);
+
+              if (file)
+              {
+                save_snapshot(file->get_path());
+              }
+            }
+            catch (const Gtk::DialogError&)
+            {
+              // User cancelled the dialog.
+            }
+            catch (const Glib::Error& error)
+            {
+              m_line_display.add_line(
+                Glib::ustring("Unable to save snapshot: ") +
+                  error.what() +
+                  '\n',
+                LineDisplay::LINE_TYPE_ERROR
+              );
+            }
+          }
+        );
 
         return true;
       }

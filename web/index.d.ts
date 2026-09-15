@@ -56,7 +56,10 @@ export type {
   WeekdayValue,
 } from "./value.d.ts";
 
+export type { ContextSnapshot } from "./snapshot.d.ts";
+
 import type { Value } from "./value.d.ts";
+import type { ContextSnapshot } from "./snapshot.d.ts";
 
 /**
  * Format a Laskin value as a human-readable string.
@@ -124,6 +127,17 @@ export type Context = {
    * Returns copy of context dictionary.
    */
   dictionary(): Record<string, Value>;
+
+  /**
+   * Serializes the data stack and non-native dictionary words.
+   */
+  toJSON(): ContextSnapshot;
+
+  /**
+   * Reloads the data stack and non-native dictionary words from a snapshot
+   * produced by `toJSON`. Built-in native words are preserved.
+   */
+  fromJSON(snapshot: ContextSnapshot): void;
 };
 
 /**

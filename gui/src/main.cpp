@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstring>
+#include <iostream>
 #include <optional>
 
 #include "./window.hpp"
@@ -36,9 +38,10 @@ main(int argc, char** argv)
   );
   auto context = Glib::RefPtr<laskin::gui::Context>(new laskin::gui::Context());
   std::optional<std::filesystem::path> script_path;
+  std::optional<std::filesystem::path> snapshot_path;
 
   app->signal_command_line().connect(
-    [&app, &script_path](
+    [&app, &script_path, &snapshot_path](
       const Glib::RefPtr<Gio::ApplicationCommandLine>& command_line
     ) -> int
     {
@@ -46,14 +49,37 @@ main(int argc, char** argv)
       auto args = command_line->get_arguments(argc);
 
       script_path.reset();
+      snapshot_path.reset();
+
       for (int i = 1; i < argc; ++i)
       {
         const auto arg = args[i];
 
-        if (arg && *arg && arg[0] != '-')
+        if (!arg || !*arg)
+        {
+          continue;
+        }
+
+        if (arg[0] != '-')
         {
           script_path = std::filesystem::path(arg);
           break;
+        }
+
+        if (!std::strcmp(arg, "-s") || !std::strcmp(arg, "--snapshot"))
+        {
+          if (i + 1 < argc && args[i + 1] && *args[i + 1])
+          {
+            snapshot_path = std::filesystem::path(args[++i]);
+          } else {
+            std::cerr << "Argument expected for the "
+                      << arg
+                      << " option."
+                      << std::endl;
+            g_strfreev(args);
+
+            return EXIT_FAILURE;
+          }
         }
       }
       g_strfreev(args);
@@ -66,11 +92,15 @@ main(int argc, char** argv)
   );
 
   app->signal_activate().connect(
-    [app, context, &script_path]()
+    [app, context, &script_path, &snapshot_path]()
     {
       auto window = new laskin::gui::Window(context);
 
       app->add_window(*window);
+      if (snapshot_path)
+      {
+        window->load_snapshot(*snapshot_path);
+      }
       if (script_path)
       {
         window->load_script(*script_path);

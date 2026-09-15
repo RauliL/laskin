@@ -28,6 +28,10 @@
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
+#if !defined(__EMSCRIPTEN__)
+# include "laskin/json.hpp"
+#endif
+
 using namespace laskin;
 
 /**
@@ -681,6 +685,25 @@ LASKIN_BUILTIN_WORD(w_import)
   context.import(path, out);
 }
 
+/**
+ * snapshot ( string -- )
+ *
+ * Writes the current data stack and non-native dictionary words into a JSON
+ * snapshot file. Not available in WebAssembly builds.
+ */
+LASKIN_BUILTIN_WORD(w_snapshot)
+{
+  [[maybe_unused]] const auto path = context.pop().as_string();
+
+#if defined(__EMSCRIPTEN__)
+  throw error(
+    error::type::system,
+    U"Using snapshot is not available in WebAssembly builds."
+  );
+#else
+  save_snapshot(context, path);
+#endif
+}
 namespace laskin::api
 {
   extern "C" const context::dictionary_definition utils =
@@ -745,6 +768,9 @@ namespace laskin::api
     { U"symbols", w_symbols },
 
     // Importing stuff from the file system.
-    { U"import", w_import }
+    { U"import", w_import },
+
+    // Context snapshot.
+    { U"snapshot", w_snapshot },
   };
 }
