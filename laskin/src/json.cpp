@@ -558,4 +558,37 @@ namespace laskin
       }
     }
   }
+
+  void
+  load_snapshot(context& context, const std::filesystem::path& path)
+  {
+    std::ifstream input(path);
+
+    if (!input.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to open snapshot file `" +
+          peelo::unicode::encoding::utf8::decode(path.string()) +
+          U"' for reading."
+      );
+    }
+
+    load_snapshot(context, input);
+  }
+
+  void
+  load_snapshot(context& context, std::istream& input)
+  {
+    try
+    {
+      const auto json = nlohmann::json::parse(input);
+
+      from_json(json, context);
+    }
+    catch (const nlohmann::json::exception& e)
+    {
+      throw error(error::type::syntax, e.what());
+    }
+  }
 }

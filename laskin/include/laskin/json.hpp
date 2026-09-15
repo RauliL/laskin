@@ -25,6 +25,8 @@
  */
 #pragma once
 
+#include <fstream>
+#include <istream>
 #include <memory>
 
 #include <nlohmann/json.hpp>
@@ -68,4 +70,16 @@ namespace laskin
    * are preserved.
    */
   void from_json(const nlohmann::json& json, context& context);
+
+  /**
+   * Reads a JSON context snapshot from the given file and applies it with
+   * `from_json`.
+   */
+  void load_snapshot(context& context, const std::filesystem::path& path);
+
+  /**
+   * Reads a JSON context snapshot from the given input stream and applies it
+   * with `from_json`.
+   */
+  void load_snapshot(context& context, std::istream& input);
 }

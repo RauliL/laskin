@@ -33,8 +33,10 @@
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/json.hpp"
 
 static std::string programfile;
+static std::string snapshotfile;
 static std::vector<std::string> inline_scripts;
 
 namespace laskin::cli
@@ -54,6 +56,11 @@ main(int argc, char** argv)
 
   try
   {
+    if (!snapshotfile.empty())
+    {
+      laskin::load_snapshot(context, snapshotfile);
+    }
+
     if (!inline_scripts.empty())
     {
       int line = 1;
@@ -125,36 +132,61 @@ parse_args(int argc, char** argv)
       {
         std::cerr << "Laskin " << LASKIN_VERSION << std::endl;
         std::exit(EXIT_SUCCESS);
+      }
+      else if (!std::strcmp(arg, "--snapshot"))
+      {
+        if (offset < argc)
+        {
+          snapshotfile = argv[offset++];
+        } else {
+          std::cerr << "Argument expected for the --snapshot option."
+                    << std::endl;
+          print_usage(std::cerr, argv[0]);
+          std::exit(EXIT_FAILURE);
+        }
       } else {
         std::cerr << "Unrecognized switch: " << arg << std::endl;
         print_usage(std::cerr, argv[0]);
         std::exit(EXIT_FAILURE);
       }
-    }
-    for (int i = 1; arg[i]; ++i)
-    {
-      switch (arg[i])
+    } else {
+      for (int i = 1; arg[i]; ++i)
       {
-        case 'e':
-          if (offset < argc)
-          {
-            inline_scripts.push_back(argv[offset++]);
-          } else {
-            std::cerr << "Argument expected for the -e option." << std::endl;
-            print_usage(std::cerr, argv[0]);
+        switch (arg[i])
+        {
+          case 'e':
+            if (offset < argc)
+            {
+              inline_scripts.push_back(argv[offset++]);
+            } else {
+              std::cerr << "Argument expected for the -e option." << std::endl;
+              print_usage(std::cerr, argv[0]);
+              std::exit(EXIT_FAILURE);
+            }
+            break;
+
+          case 's':
+            if (offset < argc)
+            {
+              snapshotfile = argv[offset++];
+            } else {
+              std::cerr << "Argument expected for the -s option." << std::endl;
+              print_usage(std::cerr, argv[0]);
+              std::exit(EXIT_FAILURE);
+            }
+            break;
+
+          case 'h':
+            print_usage(std::cout, argv[0]);
+            std::exit(EXIT_SUCCESS);
+            break;
+
+          default:
+            std::cerr << "Unrecognized switch: `" << arg[i] << "'"
+                      << std::endl;
             std::exit(EXIT_FAILURE);
-          }
-          break;
-
-        case 'h':
-          print_usage(std::cout, argv[0]);
-          std::exit(EXIT_SUCCESS);
-          break;
-
-        default:
-          std::cerr << "Unrecognized switch: `" << arg[i] << "'" << std::endl;
-          std::exit(EXIT_FAILURE);
-          break;
+            break;
+        }
       }
     }
   }
@@ -176,6 +208,8 @@ print_usage(std::ostream& output, const char* executable_name)
          << " [switches] [programfile]"
          << std::endl
          << "  -e program        One line of program. (Omit programfile.)"
+         << std::endl
+         << "  -s, --snapshot    Load context snapshot from JSON file."
          << std::endl
          << "  --version         Print the version."
          << std::endl

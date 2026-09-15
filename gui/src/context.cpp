@@ -27,6 +27,8 @@
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
+#include "laskin/json.hpp"
+
 #include "./utils.hpp"
 #include "./window.hpp"
 
@@ -93,6 +95,19 @@ namespace laskin::gui
           peelo::unicode::encoding::utf8::decode(output)
         )
       );
+    }
+  }
+
+  void
+  Context::load_snapshot(const std::filesystem::path& path)
+  {
+    try
+    {
+      laskin::load_snapshot(m_context, path);
+    }
+    catch (const error& e)
+    {
+      m_signal_error_thrown.emit(e);
     }
   }
 }
