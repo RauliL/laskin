@@ -43,21 +43,21 @@ namespace laskin
   };
 
   static std::size_t
-  offset(const struct state& state)
+  offset(const state& state)
   {
     return static_cast<std::size_t>(state.pos - state.source->begin());
   }
 
-  static char32_t read(struct state& state);
+  static char32_t read(state& state);
 
-  static std::shared_ptr<node> parse(struct state&, bool);
+  static std::shared_ptr<node> parse(state&, bool);
 
   /**
    * Returns true if there are no more characters to be read from the source
    * code.
    */
   inline bool
-  eof(const struct state& state)
+  eof(const state& state)
   {
     return state.pos >= state.end;
   }
@@ -66,7 +66,7 @@ namespace laskin
    * Advances to next character in the source code and returns the current one.
    */
   static char32_t
-  read(struct state& state)
+  read(state& state)
   {
     const auto result = *state.pos++;
 
@@ -82,7 +82,7 @@ namespace laskin
   }
 
   static void
-  advance_to(struct state& state, const std::size_t end_offset)
+  advance_to(state& state, const std::size_t end_offset)
   {
     while (offset(state) < end_offset)
     {
@@ -94,7 +94,7 @@ namespace laskin
    * Returns next character from the source code without advancing any further.
    */
   static inline char32_t
-  peek(struct state& state)
+  peek(state& state)
   {
     return *state.pos;
   }
@@ -104,7 +104,7 @@ namespace laskin
    * one given as argument.
    */
   static inline bool
-  peek(struct state& state, char32_t expected)
+  peek(state& state, char32_t expected)
   {
     return !eof(state) && peek(state) == expected;
   }
@@ -114,7 +114,7 @@ namespace laskin
    * given callback function.
    */
   static inline bool
-  peek(struct state& state, bool (*callback)(char32_t))
+  peek(state& state, bool (*callback)(char32_t))
   {
     return !eof(state) && callback(peek(state));
   }
@@ -124,7 +124,7 @@ namespace laskin
    * one equals with one given as argument.
    */
   static inline bool
-  peek_read(struct state& state, char32_t expected)
+  peek_read(state& state, char32_t expected)
   {
     if (peek(state, expected))
     {
@@ -140,7 +140,7 @@ namespace laskin
    * Skips whitespace and comments from the source code.
    */
   static void
-  skip_whitespace(struct state& state)
+  skip_whitespace(state& state)
   {
     while (!eof(state))
     {
@@ -163,7 +163,7 @@ namespace laskin
   }
 
   static void
-  parse_escape_sequence(struct state& state, std::u32string& buffer)
+  parse_escape_sequence(state& state, std::u32string& buffer)
   {
     const auto position = state.position;
 
@@ -263,7 +263,7 @@ namespace laskin
   }
 
   static std::u32string
-  parse_string(struct state& state)
+  parse_string(state& state)
   {
     struct position position;
     std::u32string buffer;
@@ -317,7 +317,7 @@ namespace laskin
   }
 
   static inline std::shared_ptr<node::literal>
-  parse_string_literal(struct state& state)
+  parse_string_literal(state& state)
   {
     const auto position = state.position;
     const auto value = parse_string(state);
@@ -326,7 +326,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node::vector>
-  parse_vector_literal(struct state& state)
+  parse_vector_literal(state& state)
   {
     node::vector::container_type elements;
     struct position position;
@@ -386,7 +386,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node::record>
-  parse_record_literal(struct state& state)
+  parse_record_literal(state& state)
   {
     node::record::container_type properties;
     struct position position;
@@ -461,7 +461,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node::literal>
-  parse_quote_literal(struct state& state)
+  parse_quote_literal(state& state)
   {
     struct position position;
     scripted_quote nodes;
@@ -507,7 +507,7 @@ namespace laskin
   }
 
   static std::u32string
-  parse_symbol_string(struct state& state)
+  parse_symbol_string(state& state)
   {
     skip_whitespace(state);
 
@@ -531,7 +531,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node>
-  parse_symbol(struct state& state, bool allow_definition)
+  parse_symbol(state& state, bool allow_definition)
   {
     std::u32string id;
     struct position position;
@@ -590,7 +590,7 @@ namespace laskin
   }
 
   static std::shared_ptr<node>
-  parse(struct state& state, bool allow_definition)
+  parse(state& state, bool allow_definition)
   {
     skip_whitespace(state);
 
@@ -631,7 +631,7 @@ namespace laskin
     int column
   )
   {
-    struct state state =
+    state state =
     {
       { path, line, column },
       &source,
