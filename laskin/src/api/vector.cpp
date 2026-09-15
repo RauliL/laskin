@@ -313,7 +313,7 @@ LASKIN_BUILTIN_WORD(w_insert)
 
   if (index < 0)
   {
-    index += size;
+    index += static_cast<long>(size);
   }
   if (!size || index < 0 || index >= static_cast<long>(size))
   {
@@ -410,7 +410,7 @@ LASKIN_BUILTIN_WORD(w_at)
 
   if (index < 0)
   {
-    index += size;
+    index += static_cast<long>(size);
   }
   if (!size || index < 0 || index >= static_cast<long>(size))
   {
@@ -436,7 +436,7 @@ LASKIN_BUILTIN_WORD(w_set)
 
   if (index < 0)
   {
-    index += size;
+    index += static_cast<long>(size);
   }
   if (!size || index < 0 || index >= static_cast<long>(size))
   {
