@@ -70,13 +70,13 @@ namespace laskin::gui
   }
 
   void
-  Context::include(const std::filesystem::path& path)
+  Context::import(const std::filesystem::path& path)
   {
     std::stringstream buffer;
 
     try
     {
-      m_context.include(path, &buffer);
+      m_context.import(path, &buffer);
     }
     catch (const error& e)
     {

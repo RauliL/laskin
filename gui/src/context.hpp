@@ -62,7 +62,7 @@ namespace laskin::gui
     }
 
     void execute(const Glib::ustring& source_code, int line = 1);
-    void include(const std::filesystem::path& path);
+    void import(const std::filesystem::path& path);
 
     inline error_thrown_signal& signal_error_thrown()
     {

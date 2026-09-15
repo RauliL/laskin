@@ -172,7 +172,7 @@ namespace laskin::gui
         "define",
         "delete",
         "symbols",
-        "include",
+        "import",
         nullptr
       };
       static const char* stack_words[] = {

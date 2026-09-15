@@ -669,16 +669,16 @@ LASKIN_BUILTIN_WORD(w_symbols)
 }
 
 /**
- * include ( string -- )
+ * import ( string -- )
  *
- * Searches for the file system for a while which path is given as string and
- * executes it as Laskin program.
+ * Loads either a Laskin source file or a dynamically loaded library,
+ * depending on the file extension.
  */
-LASKIN_BUILTIN_WORD(w_include)
+LASKIN_BUILTIN_WORD(w_import)
 {
   const auto path = context.pop().as_string();
 
-  context.include(path, out);
+  context.import(path, out);
 }
 
 namespace laskin::api
@@ -745,6 +745,6 @@ namespace laskin::api
     { U"symbols", w_symbols },
 
     // Importing stuff from the file system.
-    { U"include", w_include }
+    { U"import", w_import }
   };
 }

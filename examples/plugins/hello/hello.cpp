@@ -23,26 +23,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#pragma once
+#include "laskin/context.hpp"
+#include "laskin/plugin.hpp"
 
-#define LASKIN_VERSION "6.1.0"
+using namespace laskin;
 
-#define LASKIN_SOURCE_EXTENSION ".laskin"
+/**
+ * hello:plugin ( -- string )
+ *
+ * Returns a greeting from the example plugin.
+ */
+LASKIN_PLUGIN_WORD(w_hello_plugin)
+{
+  context << U"Hello from plugin!";
+}
 
-#define LASKIN_BUILTIN_WORD(x) \
-  static void x( \
-    [[maybe_unused]] class context& context, \
-    [[maybe_unused]] std::ostream* out \
-  )
-
-#define LASKIN_DEFAULT_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = default; \
-  TypeName(TypeName&&) = default; \
-  TypeName& operator=(const TypeName&) = default; \
-  TypeName& operator=(TypeName&&) = default
-
-#define LASKIN_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete; \
-  TypeName(TypeName&&) = delete; \
-  void operator=(const TypeName&) = delete; \
-  void operator=(TypeName&&) = delete
+LASKIN_PLUGIN
+{
+  context.dictionary[U"hello:plugin"] = w_hello_plugin;
+}

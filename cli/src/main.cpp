@@ -65,7 +65,7 @@ main(int argc, char** argv)
     }
     else if (!programfile.empty())
     {
-      context.include(programfile, &std::cout);
+      context.import(programfile, &std::cout);
     }
 #if defined(_WIN32)
     else if (_isatty(_fileno(stdin)))

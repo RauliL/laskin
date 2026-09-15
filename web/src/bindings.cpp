@@ -545,7 +545,7 @@ valueToSource(const emscripten::val& js_value)
 }
 
 /**
- * JavaScript-facing interpreter context. File includes are disabled.
+ * JavaScript-facing interpreter context. File imports are disabled.
  */
 class Context
 {

@@ -94,7 +94,7 @@ namespace laskin::gui
       Glib::ustring("Loading ") + path.string() + "...\n",
       LineDisplay::LINE_TYPE_INPUT
     );
-    m_context->include(path);
+    m_context->import(path);
 
     const auto& stack = m_context->stack();
 
