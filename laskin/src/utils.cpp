@@ -99,7 +99,12 @@ namespace laskin::utils
           {
             char buffer[7];
 
-            std::snprintf(buffer, 7, "\\u%04x", c);
+            std::snprintf(
+              buffer,
+              7,
+              "\\u%04x",
+              static_cast<unsigned int>(c)
+            );
             for (const char* p = buffer; *p; ++p)
             {
               result.append(1, static_cast<char32_t>(*p));
