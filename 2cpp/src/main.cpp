@@ -156,12 +156,12 @@ parse_args(int argc, char** argv)
         case 'o':
           if (offset < argc)
           {
-            const auto arg = argv[offset++];
+            const auto output_arg = argv[offset++];
 
             output_path_set = true;
-            if (std::strcmp(arg, "-"))
+            if (std::strcmp(output_arg, "-"))
             {
-              output_path = arg;
+              output_path = output_arg;
             }
           } else {
             std::cerr << "Argument expected for the -o option." << std::endl;

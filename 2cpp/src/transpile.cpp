@@ -64,7 +64,7 @@ namespace laskin2cpp
     if (!value.measurement_unit())
     {
       bool fits = true;
-      double result;
+      double result = 0.0;
 
       try
       {

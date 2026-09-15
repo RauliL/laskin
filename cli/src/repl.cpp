@@ -45,10 +45,10 @@ namespace laskin::cli
   static std::stack<char> open_braces;
 
   static const char* get_prompt(context&);
-  static void count_open_braces(std::stack<char>&, const std::string&);
+  static void count_open_braces(std::stack<char>& braces, const std::string& line);
   static bool cursor_outside_string_or_comment(
     const char* line,
-    std::size_t length,
+    [[maybe_unused]] std::size_t length,
     std::size_t pos
   );
   static bool find_symbol_at_cursor(
@@ -138,7 +138,7 @@ namespace laskin::cli
 
   static void
   count_open_braces(
-    std::stack<char>& open_braces,
+    std::stack<char>& braces,
     const std::string& line
   )
   {
@@ -154,18 +154,18 @@ namespace laskin::cli
           return;
 
         case '(':
-          open_braces.push(')');
+          braces.push(')');
           break;
 
         case '[':
-          open_braces.push(']');
+          braces.push(']');
           break;
 
         case ')':
         case ']':
-          if (!open_braces.empty() && open_braces.top() == c)
+          if (!braces.empty() && braces.top() == c)
           {
-            open_braces.pop();
+            braces.pop();
           }
           break;
 
@@ -193,7 +193,7 @@ namespace laskin::cli
   static bool
   cursor_outside_string_or_comment(
     const char* line,
-    const std::size_t length,
+    [[maybe_unused]] const std::size_t length,
     const std::size_t pos
   )
   {

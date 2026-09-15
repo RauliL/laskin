@@ -903,7 +903,20 @@ inline State *active_state = nullptr; /* For Hide()/Show(). */
 
 /* ===================== Low level terminal handling ======================== */
 
-inline bool assume_tty() { return std::getenv("LINENOISE_ASSUME_TTY") != nullptr; }
+inline bool assume_tty() {
+#if defined(_MSC_VER)
+    char* buffer = nullptr;
+    size_t length = 0;
+    const bool result = _dupenv_s(&buffer, &length, "LINENOISE_ASSUME_TTY") == 0
+                     && buffer != nullptr;
+
+    free(buffer);
+
+    return result;
+#else
+    return std::getenv("LINENOISE_ASSUME_TTY") != nullptr;
+#endif
+}
 
 #ifdef _WIN32
 
@@ -1175,7 +1188,11 @@ inline int get_cursor_position(int ifd, int ofd) {
 
     /* Parse it. */
     if (buf[0] != ESC || buf[1] != '[') return -1;
+#if defined(_MSC_VER)
+    if (sscanf_s(buf + 2, "%d;%d", &rows, &cols) != 2) return -1;
+#else
     if (sscanf(buf + 2, "%d;%d", &rows, &cols) != 2) return -1;
+#endif
     return cols;
 }
 
@@ -1183,10 +1200,26 @@ inline int get_cursor_position(int ifd, int ofd) {
  * if it fails. */
 inline size_t get_columns([[maybe_unused]] int ifd, int ofd) {
     /* Test mode: use LINENOISE_COLS env var for fixed width. */
+#if defined(_MSC_VER)
+    char* cols_env = nullptr;
+    size_t cols_env_length = 0;
+
+    if (
+      _dupenv_s(&cols_env, &cols_env_length, "LINENOISE_COLS") == 0
+      && cols_env != nullptr
+    )
+    {
+        const int v = std::atoi(cols_env);
+
+        free(cols_env);
+        if (v > 0) return static_cast<size_t>(v);
+    }
+#else
     if (const char *cols_env = std::getenv("LINENOISE_COLS")) {
         int v = std::atoi(cols_env);
         if (v > 0) return static_cast<size_t>(v);
     }
+#endif
 
 #ifdef _WIN32
     HANDLE hout;
