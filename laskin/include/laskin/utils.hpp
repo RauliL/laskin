@@ -38,8 +38,9 @@ namespace laskin::utils
    * Tests whether given character is considered to be an separator character
    * in Laskin syntax.
    */
+  template<class Char>
   inline bool
-  is_separator(char32_t c)
+  is_separator(Char c)
   {
     return c == U'['
       || c == U']'
@@ -55,8 +56,9 @@ namespace laskin::utils
    * Tests whether given character is considered to be part of a symbol in
    * Laskin syntax.
    */
+  template<class Char>
   inline bool
-  is_symbol(char32_t c)
+  is_symbol(Char c)
   {
     return !is_separator(c) && peelo::unicode::ctype::isgraph(c);
   }
@@ -65,9 +67,9 @@ namespace laskin::utils
    * Tests whether given string is blank or not. String is considered to be
    * blank when it's either empty or contains only whitespace characters.
    */
-  template<class T>
+  template<class String>
   inline bool
-  is_blank(const std::basic_string<T>& str)
+  is_blank(const String& str)
   {
     const auto length = str.length();
 

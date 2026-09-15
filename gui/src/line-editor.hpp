@@ -31,6 +31,8 @@
 #include <gtkmm.h>
 #include <sigc++/signal.h>
 
+#include "laskin/context.hpp"
+
 #include "./syntax-highlighter.hpp"
 
 namespace laskin::gui
@@ -59,6 +61,8 @@ namespace laskin::gui
     void set_stack_depth_count(int stack_depth_count);
 
     void set_text(const Glib::ustring& text);
+
+    void set_dictionary(const laskin::context::dictionary_type& dictionary);
 
     inline line_received_signal& signal_line_received()
     {

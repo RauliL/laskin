@@ -27,6 +27,8 @@
 
 #include <gtkmm.h>
 
+#include "laskin/context.hpp"
+
 namespace laskin::gui
 {
   /**
@@ -52,6 +54,8 @@ namespace laskin::gui
 
     explicit SyntaxHighlighter(const Glib::RefPtr<Gtk::TextBuffer>& buffer);
 
+    void set_dictionary(const laskin::context::dictionary_type& dictionary);
+
     void highlight_line(const Gtk::TextIter& line_start);
     void highlight_range(const Gtk::TextIter& start, const Gtk::TextIter& end);
 
@@ -71,5 +75,6 @@ namespace laskin::gui
 
     Glib::RefPtr<Gtk::TextBuffer> m_buffer;
     Glib::RefPtr<Gtk::TextTag> m_tags[static_cast<int>(Tag::COUNT)];
+    const laskin::context::dictionary_type* m_dictionary;
   };
 }

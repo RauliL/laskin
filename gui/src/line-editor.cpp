@@ -108,6 +108,17 @@ namespace laskin::gui
     place_cursor_at_end();
   }
 
+  void
+  LineEditor::set_dictionary(const laskin::context::dictionary_type& dictionary)
+  {
+    m_highlighter.set_dictionary(dictionary);
+
+    auto line_start = m_text_buffer->get_insert()->get_iter();
+
+    line_start.set_line_offset(0);
+    m_highlighter.highlight_line(line_start);
+  }
+
   Glib::ustring
   LineEditor::get_text() const
   {

@@ -63,6 +63,7 @@ namespace laskin::gui
     set_child(m_box);
 
     m_dictionary_display.update(m_context->dictionary());
+    m_line_editor.set_dictionary(m_context->dictionary());
 
     m_line_editor.signal_line_received().connect(sigc::mem_fun(
       *this,
@@ -101,6 +102,7 @@ namespace laskin::gui
     m_line_editor.set_stack_depth_count(static_cast<int>(stack.size()));
     m_stack_display.update(stack);
     m_dictionary_display.update(m_context->dictionary());
+    m_line_editor.set_dictionary(m_context->dictionary());
   }
 
   void
@@ -117,6 +119,7 @@ namespace laskin::gui
     m_line_editor.set_stack_depth_count(static_cast<int>(stack.size()));
     m_stack_display.update(stack);
     m_dictionary_display.update(m_context->dictionary());
+    m_line_editor.set_dictionary(m_context->dictionary());
   }
 
   void
@@ -159,6 +162,7 @@ namespace laskin::gui
       m_line_editor.set_stack_depth_count(stack.size());
       m_stack_display.update(stack);
       m_dictionary_display.update(m_context->dictionary());
+      m_line_editor.set_dictionary(m_context->dictionary());
     }
   }
 

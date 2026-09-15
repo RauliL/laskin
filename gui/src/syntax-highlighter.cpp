@@ -25,6 +25,10 @@
  */
 #include "./syntax-highlighter.hpp"
 
+#include "./utils.hpp"
+
+#include "laskin/utils.hpp"
+
 #include <peelo/number.hpp>
 
 #include <algorithm>
@@ -33,274 +37,163 @@
 
 namespace laskin::gui
 {
-  namespace
+  static inline bool
+  is_digit(gunichar c)
   {
-    inline bool
-    is_alpha(gunichar c)
+    return c >= U'0' && c <= U'9';
+  }
+
+  static inline bool
+  starts_with(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos,
+    const char* literal
+  )
+  {
+    const Glib::ustring prefix(literal);
+
+    if (pos + prefix.length() > line.length())
     {
-      return (c >= U'a' && c <= U'z') || (c >= U'A' && c <= U'Z');
-    }
-
-    inline bool
-    is_alnum(gunichar c)
-    {
-      return is_alpha(c) || (c >= U'0' && c <= U'9');
-    }
-
-    inline bool
-    is_identifier_char(gunichar c)
-    {
-      return is_alnum(c) || c == U'-';
-    }
-
-    inline bool
-    is_word_char(gunichar c)
-    {
-      return is_alnum(c) || c == U'_' || c == U'.';
-    }
-
-    inline bool
-    is_digit(gunichar c)
-    {
-      return c >= U'0' && c <= U'9';
-    }
-
-    inline bool
-    starts_with(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos,
-      const char* literal
-    )
-    {
-      const Glib::ustring prefix(literal);
-
-      if (pos + prefix.length() > line.length())
-      {
-        return false;
-      }
-
-      return line.compare(pos, prefix.length(), prefix) == 0;
-    }
-
-    inline bool
-    word_boundary_after(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos
-    )
-    {
-      if (pos >= line.length())
-      {
-        return true;
-      }
-
-      const auto c = line[pos];
-
-      return !is_identifier_char(c);
-    }
-
-    inline bool
-    word_boundary_before(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos
-    )
-    {
-      if (pos == 0)
-      {
-        return true;
-      }
-
-      const auto c = line[pos - 1];
-
-      return !is_identifier_char(c);
-    }
-
-    bool
-    matches_any(const Glib::ustring& word, const char* const* keywords)
-    {
-      for (auto keyword = keywords; *keyword; ++keyword)
-      {
-        if (word == *keyword)
-        {
-          return true;
-        }
-      }
-
       return false;
     }
 
-    bool
-    match_keyword(const Glib::ustring& word, SyntaxHighlighter::Tag& tag)
+    return line.compare(pos, prefix.length(), prefix) == 0;
+  }
+
+  static inline bool
+  symbol_boundary_after(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos
+  )
+  {
+    if (pos >= line.length())
     {
-      static const char* booleans[] = { "true", "false", nullptr };
-      static const char* constants[] = {
-        "e",
-        "pi",
-        "inf",
-        "nan",
-        "january",
-        "february",
-        "march",
-        "april",
-        "may",
-        "june",
-        "july",
-        "august",
-        "september",
-        "october",
-        "november",
-        "december",
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        nullptr
-      };
-      static const char* conditionals[] = {
-        "if",
-        "try",
-        "if-else",
-        "try-else",
-        nullptr
-      };
-      static const char* repeats[] = { "while", nullptr };
-      static const char* statements[] = {
-        "quit",
-        "lookup",
-        "define",
-        "delete",
-        "symbols",
-        "import",
-        "snapshot",
-        nullptr
-      };
-      static const char* stack_words[] = {
-        "clear",
-        "dup",
-        "drop",
-        "nip",
-        "over",
-        "rot",
-        "swap",
-        "tuck",
-        "depth",
-        nullptr
-      };
-      static const char* type_tests[] = {
-        "boolean?",
-        "date?",
-        "month?",
-        "number?",
-        "vector?",
-        "record?",
-        "string?",
-        "time?",
-        "quote?",
-        "weekday?",
-        nullptr
-      };
+      return true;
+    }
 
-      if (matches_any(word, booleans))
+    return !laskin::utils::is_symbol(line[pos]);
+  }
+
+  static bool
+  match_dictionary_word(
+    const Glib::ustring& word,
+    const laskin::context::dictionary_type* dictionary,
+    SyntaxHighlighter::Tag& tag
+  )
+  {
+    if (!dictionary)
+    {
+      return false;
+    }
+
+    const auto id = utils::string_convert<std::u32string>(word);
+
+    if (dictionary->contains(id))
+    {
+      tag = SyntaxHighlighter::Tag::KEYWORD;
+      return true;
+    }
+
+    return false;
+  }
+
+  static const std::vector<std::string>&
+  unit_symbols()
+  {
+    static const std::vector<std::string> symbols = []() {
+      std::vector<std::string> result;
+
+      for (const auto type : {
+        peelo::number::unit::type::length,
+        peelo::number::unit::type::mass,
+        peelo::number::unit::type::time
+      })
       {
-        tag = SyntaxHighlighter::Tag::BOOLEAN;
-        return true;
+        for (const auto& u : peelo::number::unit::all_units_of(type))
+        {
+          result.push_back(u.symbol);
+        }
       }
 
-      if (matches_any(word, constants))
-      {
-        tag = SyntaxHighlighter::Tag::CONSTANT;
-        return true;
-      }
+      std::sort(
+        result.begin(),
+        result.end(),
+        [](const std::string& a, const std::string& b) {
+          return a.size() > b.size();
+        }
+      );
 
+      return result;
+    }();
+
+    return symbols;
+  }
+
+  static bool
+  match_unit(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos,
+    Glib::ustring::size_type& end
+  )
+  {
+    for (const auto& unit_str : unit_symbols())
+    {
       if (
-        matches_any(word, conditionals)
-        || matches_any(word, repeats)
-        || matches_any(word, statements)
+        starts_with(line, pos, unit_str.c_str())
+        && symbol_boundary_after(line, pos + unit_str.length())
       )
       {
-        tag = SyntaxHighlighter::Tag::KEYWORD;
+        end = pos + unit_str.length();
+
         return true;
       }
+    }
 
-      if (matches_any(word, stack_words) || matches_any(word, type_tests))
-      {
-        tag = SyntaxHighlighter::Tag::OPERATOR;
-        return true;
-      }
+    return false;
+  }
 
+  static bool
+  parse_number_body(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos,
+    Glib::ustring::size_type& end
+  )
+  {
+    if (pos >= line.length() || !is_digit(line[pos]))
+    {
       return false;
     }
 
-    const std::vector<std::string>&
-    unit_symbols()
+    end = pos;
+
+    while (end < line.length() && is_digit(line[end]))
     {
-      static const std::vector<std::string> symbols = []() {
-        std::vector<std::string> result;
-
-        for (const auto type : {
-          peelo::number::unit::type::length,
-          peelo::number::unit::type::mass,
-          peelo::number::unit::type::time
-        })
-        {
-          for (const auto& u : peelo::number::unit::all_units_of(type))
-          {
-            result.push_back(u.symbol);
-          }
-        }
-
-        std::sort(
-          result.begin(),
-          result.end(),
-          [](const std::string& a, const std::string& b) {
-            return a.size() > b.size();
-          }
-        );
-
-        return result;
-      }();
-
-      return symbols;
+      ++end;
     }
 
-    bool
-    match_unit(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos,
-      Glib::ustring::size_type& end
+    while (
+      end < line.length()
+      && line[end] == U'_'
+      && end + 1 < line.length()
+      && is_digit(line[end + 1])
     )
     {
-      for (const auto& unit_str : unit_symbols())
+      ++end;
+
+      while (end < line.length() && is_digit(line[end]))
       {
-        if (
-          starts_with(line, pos, unit_str.c_str())
-          && word_boundary_after(line, pos + unit_str.length())
-        )
-        {
-          end = pos + unit_str.length();
-
-          return true;
-        }
+        ++end;
       }
-
-      return false;
     }
 
-    bool
-    parse_number_body(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos,
-      Glib::ustring::size_type& end
+    if (
+      end < line.length()
+      && line[end] == U'.'
+      && end + 1 < line.length()
+      && is_digit(line[end + 1])
     )
     {
-      if (pos >= line.length() || !is_digit(line[pos]))
-      {
-        return false;
-      }
-
-      end = pos;
+      ++end;
 
       while (end < line.length() && is_digit(line[end]))
       {
@@ -321,111 +214,72 @@ namespace laskin::gui
           ++end;
         }
       }
-
-      if (
-        end < line.length()
-        && line[end] == U'.'
-        && end + 1 < line.length()
-        && is_digit(line[end + 1])
-      )
-      {
-        ++end;
-
-        while (end < line.length() && is_digit(line[end]))
-        {
-          ++end;
-        }
-
-        while (
-          end < line.length()
-          && line[end] == U'_'
-          && end + 1 < line.length()
-          && is_digit(line[end + 1])
-        )
-        {
-          ++end;
-
-          while (end < line.length() && is_digit(line[end]))
-          {
-            ++end;
-          }
-        }
-      }
-
-      Glib::ustring::size_type unit_end = end;
-
-      if (match_unit(line, end, unit_end))
-      {
-        end = unit_end;
-      }
-
-      return end > pos;
     }
 
-    bool
-    parse_number(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos,
-      Glib::ustring::size_type& end
-    )
+    Glib::ustring::size_type unit_end = end;
+
+    if (match_unit(line, end, unit_end))
     {
-      if (pos >= line.length())
+      end = unit_end;
+    }
+
+    return end > pos;
+  }
+
+  static bool
+  parse_number(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos,
+    Glib::ustring::size_type& end
+  )
+  {
+    if (pos >= line.length())
+    {
+      return false;
+    }
+
+    const auto prev = pos > 0 ? line[pos - 1] : 0;
+    const bool after_dot = prev == U'.';
+
+    if (after_dot)
+    {
+      return false;
+    }
+
+    Glib::ustring::size_type body_start = pos;
+    Glib::ustring::size_type body_end = pos;
+
+    if (line[pos] == U'+' || line[pos] == U'-')
+    {
+      const auto sign = line[pos];
+
+      if (sign == U'-' && starts_with(line, pos, "-inf"))
+      {
+        end = pos + Glib::ustring("-inf").length();
+        return symbol_boundary_after(line, end);
+      }
+
+      if (sign == U'+' && !parse_number_body(line, pos + 1, body_end))
       {
         return false;
       }
 
-      const auto prev = pos > 0 ? line[pos - 1] : 0;
-      const bool after_dot = prev == U'.';
-
-      if (after_dot)
+      if (sign == U'-')
       {
-        return false;
-      }
-
-      Glib::ustring::size_type body_start = pos;
-      Glib::ustring::size_type body_end = pos;
-
-      if (line[pos] == U'+' || line[pos] == U'-')
-      {
-        const auto sign = line[pos];
-
-        if (sign == U'-' && starts_with(line, pos, "-inf"))
-        {
-          end = pos + Glib::ustring("-inf").length();
-          return word_boundary_after(line, end);
-        }
-
-        if (sign == U'+' && !parse_number_body(line, pos + 1, body_end))
+        if (!parse_number_body(line, pos + 1, body_end))
         {
           return false;
         }
-
-        if (sign == U'-')
-        {
-          if (!parse_number_body(line, pos + 1, body_end))
-          {
-            return false;
-          }
-        }
-
-        if (sign == U'+')
-        {
-          body_start = pos + 1;
-        } else {
-          body_start = pos + 1;
-        }
-
-        if (body_end > body_start)
-        {
-          end = body_end;
-
-          return true;
-        }
-
-        return false;
       }
 
-      if (parse_number_body(line, pos, body_end))
+      if (sign == U'+')
+      {
+        body_start = pos + 1;
+      } else {
+        body_start = pos + 1;
+      }
+
+      if (body_end > body_start)
       {
         end = body_end;
 
@@ -435,29 +289,47 @@ namespace laskin::gui
       return false;
     }
 
-    Glib::ustring::size_type
-    read_word(
-      const Glib::ustring& line,
-      Glib::ustring::size_type pos
-    )
+    if (parse_number_body(line, pos, body_end))
     {
-      const auto start = pos;
+      end = body_end;
 
-      while (pos < line.length() && is_identifier_char(line[pos]))
-      {
-        ++pos;
-      }
-
-      return pos - start;
+      return true;
     }
+
+    return false;
+  }
+
+  static Glib::ustring::size_type
+  read_symbol(
+    const Glib::ustring& line,
+    Glib::ustring::size_type pos
+  )
+  {
+    const auto start = pos;
+
+    while (pos < line.length() && laskin::utils::is_symbol(line[pos]))
+    {
+      ++pos;
+    }
+
+    return pos - start;
   }
 
   SyntaxHighlighter::SyntaxHighlighter(
     const Glib::RefPtr<Gtk::TextBuffer>& buffer
   )
     : m_buffer(buffer)
+    , m_dictionary(nullptr)
   {
     create_tags();
+  }
+
+  void
+  SyntaxHighlighter::set_dictionary(
+    const laskin::context::dictionary_type& dictionary
+  )
+  {
+    m_dictionary = &dictionary;
   }
 
   void
@@ -603,7 +475,7 @@ namespace laskin::gui
         continue;
       }
 
-      if (c == U'(' || c == U')' || c == U'[' || c == U']' || c == U'{' || c == U'}')
+      if (laskin::utils::is_separator(c))
       {
         auto tag_start = line_start;
 
@@ -709,7 +581,13 @@ namespace laskin::gui
 
       if (
         c == U'>'
-        && (pos + 1 >= length || (line[pos + 1] != U'=' && !is_alpha(line[pos + 1])))
+        && (
+          pos + 1 >= length
+          || (
+            line[pos + 1] != U'='
+            && !laskin::utils::is_symbol(line[pos + 1])
+          )
+        )
       )
       {
         auto tag_start = line_start;
@@ -754,14 +632,16 @@ namespace laskin::gui
 
       if (c == U'-')
       {
-        const bool after_word = pos > 0 && is_word_char(line[pos - 1]);
+        const bool after_symbol = (
+          pos > 0 && laskin::utils::is_symbol(line[pos - 1])
+        );
         const bool before_number = (
           is_digit(line[pos + 1])
           || starts_with(line, pos + 1, "inf")
         );
         const bool before_gt = pos + 1 < length && line[pos + 1] == U'>';
 
-        if (after_word && !before_number && !before_gt)
+        if (after_symbol && !before_number && !before_gt)
         {
           auto tag_start = line_start;
 
@@ -777,10 +657,12 @@ namespace laskin::gui
 
       if (c == U'+')
       {
-        const bool after_word = pos > 0 && is_word_char(line[pos - 1]);
+        const bool after_symbol = (
+          pos > 0 && laskin::utils::is_symbol(line[pos - 1])
+        );
         const bool before_number = is_digit(line[pos + 1]);
 
-        if (after_word && !before_number)
+        if (after_symbol && !before_number)
         {
           auto tag_start = line_start;
 
@@ -796,7 +678,7 @@ namespace laskin::gui
 
       if (c == U'.')
       {
-        if (starts_with(line, pos, ".s") && word_boundary_after(line, pos + 2))
+        if (starts_with(line, pos, ".s") && symbol_boundary_after(line, pos + 2))
         {
           auto tag_start = line_start;
 
@@ -853,27 +735,27 @@ namespace laskin::gui
         continue;
       }
 
-      if (is_identifier_char(c) && word_boundary_before(line, pos))
+      if (laskin::utils::is_symbol(c))
       {
-        const auto word_len = read_word(line, pos);
+        const auto symbol_len = read_symbol(line, pos);
 
-        if (word_len > 0)
+        if (symbol_len > 0)
         {
-          const Glib::ustring word = line.substr(pos, word_len);
+          const Glib::ustring symbol = line.substr(pos, symbol_len);
           Tag tag;
 
-          if (match_keyword(word, tag))
+          if (match_dictionary_word(symbol, m_dictionary, tag))
           {
             auto tag_start = line_start;
 
             tag_start.forward_chars(static_cast<int>(pos));
             auto tag_end = line_start;
 
-            tag_end.forward_chars(static_cast<int>(pos + word_len));
+            tag_end.forward_chars(static_cast<int>(pos + symbol_len));
             apply_tag(tag, tag_start, tag_end);
           }
 
-          pos += word_len;
+          pos += symbol_len;
           continue;
         }
       }
