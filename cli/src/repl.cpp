@@ -48,7 +48,6 @@ namespace laskin::cli
   static const char* get_prompt(context&);
   static bool cursor_outside_string_or_comment(
     const char* line,
-    std::size_t length,
     std::size_t pos
   );
   static bool is_laskin_symbol_char(const char* s, long len);
@@ -140,11 +139,7 @@ namespace laskin::cli
   }
 
   static bool
-  cursor_outside_string_or_comment(
-    const char* line,
-    const std::size_t length,
-    const std::size_t pos
-  )
+  cursor_outside_string_or_comment(const char* line, const std::size_t pos)
   {
     bool in_string = false;
     char quote = 0;
@@ -242,7 +237,7 @@ namespace laskin::cli
   {
     const auto length = std::strlen(input);
 
-    if (!cursor_outside_string_or_comment(input, length, length))
+    if (!cursor_outside_string_or_comment(input, length))
     {
       return;
     }
