@@ -27,7 +27,7 @@
 
 #define LASKIN_VERSION_MAJOR 10
 #define LASKIN_VERSION_MINOR 0
-#define LASKIN_VERSION_PATCH 0
+#define LASKIN_VERSION_PATCH 1
 
 // Helper macros for stringification.
 #define LASKIN_STRINGIFY2(s) #s
