@@ -97,6 +97,18 @@ export const createContext = async (options = {}) => {
     dictionary() {
       return context.dictionary();
     },
+
+    toJSON() {
+      return context.toJSON();
+    },
+
+    fromJSON(snapshot) {
+      try {
+        context.fromJSON(snapshot);
+      } catch (error) {
+        rethrow(error);
+      }
+    },
   };
 };
 

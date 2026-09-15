@@ -26,6 +26,18 @@ ADD_DEPENDENCY(
   v2.2.0
 )
 
+# JSON serialization uses nlohmann/json on native targets. The WebAssembly
+# module uses Emscripten's JavaScript interop instead.
+IF(NOT EMSCRIPTEN)
+  ADD_HEADER_ONLY_DEPENDENCY(
+    nlohmann_json
+    https://github.com/nlohmann/json.git
+    v3.12.0
+    nlohmann_json::nlohmann_json
+    include
+  )
+ENDIF()
+
 SET(
   LASKIN_SOURCES
   ./src/ast.cpp
@@ -58,6 +70,10 @@ SET(
   ./src/operator/multiply.cpp
   ./src/operator/substract.cpp
 )
+
+IF(NOT EMSCRIPTEN)
+  LIST(APPEND LASKIN_SOURCES ./src/json.cpp)
+ENDIF()
 
 IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
   IF(EMSCRIPTEN)
@@ -92,6 +108,14 @@ TARGET_LINK_LIBRARIES(
   PRIVATE
     ${MPFR_LIBRARIES}
 )
+
+IF(NOT EMSCRIPTEN)
+  TARGET_LINK_LIBRARIES(
+    laskin
+    PUBLIC
+      nlohmann_json::nlohmann_json
+  )
+ENDIF()
 
 IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
   ADD_DEPENDENCY(

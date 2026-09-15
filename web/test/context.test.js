@@ -151,6 +151,29 @@ describe("Context", () => {
       },
     });
   });
+
+  it("round-trips stack and non-native dictionary via toJSON/fromJSON", () => {
+    ctx.clear();
+    ctx.run("( dup * ) -> square");
+    ctx.run("1 2 3");
+
+    const snapshot = ctx.toJSON();
+
+    assert.deepEqual(snapshot.stack, [number("3"), number("2"), number("1")]);
+    assert.ok(snapshot.dictionary.square);
+    assert.equal(snapshot.dictionary.square.type, "quote");
+    assert.equal("+" in snapshot.dictionary, false);
+
+    const restored = JSON.parse(JSON.stringify(snapshot));
+    ctx.clear();
+    ctx.run("( 1 + ) -> square");
+    ctx.fromJSON(restored);
+
+    assert.deepEqual(ctx.stack(), [number("3"), number("2"), number("1")]);
+    ctx.clear();
+    ctx.run("5 square");
+    assert.deepEqual(ctx.peek(), number("25"));
+  });
 });
 
 describe("Context.push", () => {
