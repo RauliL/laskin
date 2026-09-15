@@ -45,7 +45,6 @@ namespace laskin::cli
   static std::stack<char> open_braces;
 
   static const char* get_prompt(context&);
-  static void count_open_braces(std::stack<char>& braces, const std::string& line);
   static bool cursor_outside_string_or_comment(
     const char* line,
     [[maybe_unused]] std::size_t length,
@@ -93,7 +92,7 @@ namespace laskin::cli
       }
       linenoise::AddHistory(line.c_str());
       source.append(line).append(1, '\n');
-      count_open_braces(open_braces, line);
+      utils::count_open_braces(open_braces, line);
       if (!open_braces.empty())
       {
         continue;
@@ -134,60 +133,6 @@ namespace laskin::cli
     );
 
     return buffer;
-  }
-
-  static void
-  count_open_braces(
-    std::stack<char>& braces,
-    const std::string& line
-  )
-  {
-    const auto length = line.length();
-
-    for (std::string::size_type i = 0; i < length; ++i)
-    {
-      const auto c = line[i];
-
-      switch (line[i])
-      {
-        case '#':
-          return;
-
-        case '(':
-          braces.push(')');
-          break;
-
-        case '[':
-          braces.push(']');
-          break;
-
-        case ')':
-        case ']':
-          if (!braces.empty() && braces.top() == c)
-          {
-            braces.pop();
-          }
-          break;
-
-        case '"':
-        case '\'':
-          ++i;
-          while (i < length)
-          {
-            if (line[i] == c)
-            {
-              break;
-            }
-            else if (line[i] == '\\' && i + 1 < length && line[i + 1] == c)
-            {
-              i += 2;
-            } else {
-              ++i;
-            }
-          }
-          break;
-      }
-    }
   }
 
   static bool

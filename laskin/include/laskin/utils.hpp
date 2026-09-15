@@ -25,6 +25,8 @@
  */
 #pragma once
 
+#include <stack>
+
 #include <peelo/unicode/ctype/isgraph.hpp>
 #include <peelo/unicode/ctype/isspace.hpp>
 
@@ -82,6 +84,68 @@ namespace laskin::utils
     }
 
     return true;
+  }
+
+  /**
+   * Updates a stack of unmatched opening delimiters for the given line.
+   * Characters after an unquoted `#` comment marker are ignored.
+   */
+  template<class Char, class String>
+  inline void
+  count_open_braces(std::stack<Char>& braces, const String& line)
+  {
+    const auto length = line.length();
+
+    for (std::size_t i = 0; i < length; ++i)
+    {
+      const Char c = static_cast<Char>(line[i]);
+
+      switch (c)
+      {
+        case Char{'#'}:
+          return;
+
+        case Char{'('}:
+          braces.push(Char{')'});
+          break;
+
+        case Char{'['}:
+          braces.push(Char{']'});
+          break;
+
+        case Char{')'}:
+        case Char{']'}:
+          if (!braces.empty() && braces.top() == c)
+          {
+            braces.pop();
+          }
+          break;
+
+        case Char{'"'}:
+        case Char{'\''}:
+          ++i;
+          while (i < length)
+          {
+            const Char quoted = static_cast<Char>(line[i]);
+
+            if (quoted == c)
+            {
+              break;
+            }
+            else if (
+              quoted == Char{'\\'}
+              && i + 1 < length
+              && static_cast<Char>(line[i + 1]) == c
+            )
+            {
+              i += 2;
+            } else {
+              ++i;
+            }
+          }
+          break;
+      }
+    }
   }
 
   std::int64_t time_as_seconds(const time& time);

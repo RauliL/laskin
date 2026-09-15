@@ -28,60 +28,6 @@
 namespace laskin::gui::utils
 {
   void
-  count_open_braces(
-    std::stack<char32_t>& open_braces,
-    const Glib::ustring& line
-  )
-  {
-    const auto length = line.length();
-
-    for (std::string::size_type i = 0; i < length; ++i)
-    {
-      const auto c = line[i];
-
-      switch (line[i])
-      {
-        case '#':
-          return;
-
-        case '(':
-          open_braces.push(')');
-          break;
-
-        case '[':
-          open_braces.push(']');
-          break;
-
-        case ')':
-        case ']':
-          if (!open_braces.empty() && open_braces.top() == c)
-          {
-            open_braces.pop();
-          }
-          break;
-
-        case '"':
-        case '\'':
-          ++i;
-          while (i < length)
-          {
-            if (line[i] == c)
-            {
-              break;
-            }
-            else if (line[i] == '\\' && i + 1 < length && line[i + 1] == c)
-            {
-              i += 2;
-            } else {
-              ++i;
-            }
-          }
-          break;
-      }
-    }
-  }
-
-  void
   set_monospace_font(Gtk::Widget& widget)
   {
     auto provider = Gtk::CssProvider::create();

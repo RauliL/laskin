@@ -25,6 +25,8 @@
  */
 #include <sstream>
 
+#include "laskin/utils.hpp"
+
 #include "./utils.hpp"
 #include "./window.hpp"
 
@@ -118,7 +120,7 @@ namespace laskin::gui
     m_line_display.add_line(line + '\n', LineDisplay::LINE_TYPE_INPUT);
     m_source.append(line);
     m_source.append(1, '\n');
-    utils::count_open_braces(m_open_braces, line);
+    laskin::utils::count_open_braces(m_open_braces, line);
     if (m_open_braces.empty())
     {
       const auto& stack = m_context->stack();

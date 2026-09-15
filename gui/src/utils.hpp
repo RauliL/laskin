@@ -25,14 +25,11 @@
  */
 #pragma once
 
-#include <stack>
-
 #include <glibmm.h>
 #include <gtkmm.h>
 
 namespace laskin::gui::utils
 {
-  void count_open_braces(std::stack<char32_t>&, const Glib::ustring&);
   void set_monospace_font(Gtk::Widget& widget);
 
   /**
