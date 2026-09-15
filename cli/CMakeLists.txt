@@ -1,6 +1,15 @@
 PROJECT(laskin-cli C CXX)
 
+INCLUDE(../cmake/add-dependency.cmake)
 INCLUDE(../cmake/enable-all-warnings.cmake)
+
+SET(IC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+
+ADD_DEPENDENCY(
+  isocline
+  https://github.com/daanx/isocline.git
+  v1.1.0
+)
 
 ADD_EXECUTABLE(
   laskin-cli
@@ -18,7 +27,9 @@ TARGET_COMPILE_FEATURES(
 
 TARGET_LINK_LIBRARIES(
   laskin-cli
-  laskin
+  PRIVATE
+    laskin
+    isocline
 )
 
 SET_TARGET_PROPERTIES(

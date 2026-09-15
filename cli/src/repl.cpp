@@ -23,17 +23,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <cstdio>
 #include <cstring>
-#include <stack>
+
+#include <isocline.h>
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 #include "laskin/utils.hpp"
-
-#include "./linenoise.hpp"
 
 #if !defined(BUFSIZ)
 # define BUFSIZ 1024
@@ -47,22 +45,17 @@ namespace laskin::cli
   static const char* get_prompt(context&);
   static bool cursor_outside_string_or_comment(
     const char* line,
-    [[maybe_unused]] std::size_t length,
+    std::size_t length,
     std::size_t pos
   );
-  static bool find_symbol_at_cursor(
-    const char* line,
-    std::size_t length,
-    std::size_t pos,
-    std::size_t& word_start,
-    std::size_t& word_end,
-    std::u32string& prefix
+  static bool is_laskin_symbol_char(const char* s, long len);
+  static void complete_dictionary_words(
+    ic_completion_env_t* cenv,
+    const char* prefix
   );
   static void complete_dictionary(
-    const context& context,
-    const char* line,
-    std::size_t pos,
-    std::vector<linenoise::Completion>& out
+    ic_completion_env_t* cenv,
+    const char* input
   );
 
   void
@@ -70,33 +63,31 @@ namespace laskin::cli
   {
     std::string source;
 
-    linenoise::SetCompletionCallback(
-      [&context](
-        const char* line,
-        std::size_t pos,
-        std::vector<linenoise::Completion>& out
-      )
-      {
-        complete_dictionary(context, line, pos, out);
-      }
-    );
+    ic_set_prompt_marker("", nullptr);
+    ic_enable_multiline(false);
+    ic_set_history(nullptr, -1);
+    ic_set_default_completer(complete_dictionary, &context);
 
     for (;;)
     {
-      std::string line;
-      const auto quit = linenoise::Readline(get_prompt(context), line);
+      char* input = ic_readline(get_prompt(context));
 
-      if (quit)
+      if (!input)
       {
         break;
       }
-      linenoise::AddHistory(line.c_str());
+
+      const std::string line(input);
+
+      ic_free(input);
       source.append(line).append(1, '\n');
       utils::count_open_braces(open_braces, line);
+
       if (!open_braces.empty())
       {
         continue;
       }
+
       try
       {
         context.run(source, &std::cout, "<repl>", line_counter);
@@ -110,6 +101,7 @@ namespace laskin::cli
           std::cout << e << std::endl;
         }
       }
+
       source.clear();
     }
   }
@@ -138,7 +130,7 @@ namespace laskin::cli
   static bool
   cursor_outside_string_or_comment(
     const char* line,
-    [[maybe_unused]] const std::size_t length,
+    const std::size_t length,
     const std::size_t pos
   )
   {
@@ -151,12 +143,14 @@ namespace laskin::cli
       {
         return false;
       }
+
       if (!in_string && (line[i] == '"' || line[i] == '\''))
       {
         in_string = true;
         quote = line[i];
         continue;
       }
+
       if (in_string)
       {
         if (line[i] == '\\' && i + 1 < pos)
@@ -164,6 +158,7 @@ namespace laskin::cli
           ++i;
           continue;
         }
+
         if (line[i] == quote)
         {
           in_string = false;
@@ -175,152 +170,76 @@ namespace laskin::cli
   }
 
   static bool
-  find_symbol_at_cursor(
-    const char* line,
-    const std::size_t length,
-    std::size_t pos,
-    std::size_t& word_start,
-    std::size_t& word_end,
-    std::u32string& prefix
-  )
+  is_laskin_symbol_char(const char* s, const long len)
   {
-    using peelo::unicode::encoding::utf8::codepoint_length;
-    using peelo::unicode::encoding::utf8::decode_advance;
-
-    struct codepoint
-    {
-      std::size_t byte_start;
-      char32_t c;
-    };
-
-    std::vector<codepoint> codepoints;
-
-    for (std::size_t i = 0; i < length;)
-    {
-      const auto byte_start = i;
-      char32_t c = 0;
-
-      if (!decode_advance(line, i, length, c))
-      {
-        ++i;
-        continue;
-      }
-
-      codepoints.push_back({ byte_start, c });
-    }
-
-    if (codepoints.empty())
+    if (len <= 0)
     {
       return false;
     }
 
-    if (pos > length)
-    {
-      pos = length;
-    }
+    char32_t c = 0;
+    std::size_t pos = 0;
 
-    int cursor_index = -1;
-
-    for (std::size_t i = 0; i < codepoints.size(); ++i)
-    {
-      if (codepoints[i].byte_start < pos)
-      {
-        cursor_index = static_cast<int>(i);
-      } else {
-        break;
-      }
-    }
-
-    if (cursor_index < 0)
-    {
-      if (pos == 0 && utils::is_symbol(codepoints.front().c))
-      {
-        cursor_index = 0;
-      } else {
-        return false;
-      }
-    }
-
-    if (!utils::is_symbol(codepoints[cursor_index].c))
-    {
-      if (
-        static_cast<std::size_t>(cursor_index + 1) < codepoints.size()
-        && codepoints[cursor_index + 1].byte_start == pos
-        && utils::is_symbol(codepoints[cursor_index + 1].c)
+    if (
+      !peelo::unicode::encoding::utf8::decode_advance(
+        s,
+        pos,
+        static_cast<std::size_t>(len),
+        c
       )
-      {
-        cursor_index += 1;
-      } else {
-        return false;
-      }
-    }
-
-    int start_index = cursor_index;
-
-    while (start_index > 0 && utils::is_symbol(codepoints[start_index - 1].c))
-    {
-      --start_index;
-    }
-
-    int end_index = cursor_index;
-
-    while (
-      static_cast<std::size_t>(end_index + 1) < codepoints.size()
-      && utils::is_symbol(codepoints[end_index + 1].c)
     )
     {
-      ++end_index;
+      return false;
     }
 
-    word_start = codepoints[start_index].byte_start;
-    word_end = codepoints[end_index].byte_start
-      + codepoint_length(codepoints[end_index].c);
-
-    prefix.clear();
-
-    for (int i = start_index; i <= cursor_index; ++i)
-    {
-      prefix.push_back(codepoints[i].c);
-    }
-
-    return true;
+    return utils::is_symbol(c);
   }
 
   static void
-  complete_dictionary(
-    const context& context,
-    const char* line,
-    const std::size_t pos,
-    std::vector<linenoise::Completion>& out
+  complete_dictionary_words(
+    ic_completion_env_t* cenv,
+    const char* prefix
   )
   {
     using peelo::unicode::encoding::utf8::encode;
 
-    const auto length = std::strlen(line);
-    std::size_t word_start = 0;
-    std::size_t word_end = 0;
-    std::u32string prefix;
+    const auto* context = static_cast<const laskin::context*>(
+      ic_completion_arg(cenv)
+    );
+    const std::u32string prefix_u32 = peelo::unicode::encoding::utf8::decode(
+      prefix
+    );
 
-    if (
-      !cursor_outside_string_or_comment(line, length, pos)
-      || !find_symbol_at_cursor(line, length, pos, word_start, word_end, prefix)
-    )
+    for (const auto& entry : context->dictionary)
+    {
+      if (entry.first.compare(0, prefix_u32.size(), prefix_u32) == 0)
+      {
+        if (!ic_add_completion(cenv, encode(entry.first).c_str()))
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  static void
+  complete_dictionary(
+    ic_completion_env_t* cenv,
+    const char* input
+  )
+  {
+    const auto length = std::strlen(input);
+
+    if (!cursor_outside_string_or_comment(input, length, length))
     {
       return;
     }
 
-    for (const auto& entry : context.dictionary)
-    {
-      if (entry.first.compare(0, prefix.size(), prefix) == 0)
-      {
-        out.push_back(
-          {
-            encode(entry.first),
-            word_start,
-            word_end
-          }
-        );
-      }
-    }
+    ic_complete_word(
+      cenv,
+      input,
+      complete_dictionary_words,
+      is_laskin_symbol_char
+    );
   }
 }
