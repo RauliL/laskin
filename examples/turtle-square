@@ -1,0 +1,18 @@
+#!/usr/bin/env laskin
+
+# Draw a square with Logo-style turtle graphics.
+#
+# Build the plugin first:
+#   cmake -S . -B build -DLASKIN_ENABLE_DYNAMIC_LIBRARIES=ON
+#   cmake --build build
+#
+# Then run this script:
+#   ./build/cli/laskin examples/turtle-square
+
+"build/examples/plugins/turtle/laskin-turtle-plugin" import
+
+turtle:cs
+
+( 100 turtle:fd 90 turtle:rt ) 4 number:times
+
+turtle:wait
