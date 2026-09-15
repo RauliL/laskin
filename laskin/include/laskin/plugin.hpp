@@ -25,24 +25,33 @@
  */
 #pragma once
 
-#define LASKIN_VERSION "6.1.0"
+#include "laskin/macros.hpp"
+#include "laskin/types.hpp"
 
-#define LASKIN_SOURCE_EXTENSION ".laskin"
+namespace laskin
+{
+  class context;
 
-#define LASKIN_BUILTIN_WORD(x) \
-  static void x( \
-    [[maybe_unused]] class context& context, \
-    [[maybe_unused]] std::ostream* out \
-  )
+  /**
+   * Entry point invoked when a dynamically loaded library is imported. The
+   * plugin receives the current execution context and may manipulate its
+   * dictionary and data stack directly.
+   */
+  using plugin_function = void(*)(context&);
 
-#define LASKIN_DEFAULT_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = default; \
-  TypeName(TypeName&&) = default; \
-  TypeName& operator=(const TypeName&) = default; \
-  TypeName& operator=(TypeName&&) = default
+  /**
+   * Symbol name that dynamically loaded libraries must export.
+   */
+  inline constexpr const char plugin_symbol[] = "laskin_plugin";
+}
 
-#define LASKIN_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-  TypeName(const TypeName&) = delete; \
-  TypeName(TypeName&&) = delete; \
-  void operator=(const TypeName&) = delete; \
-  void operator=(TypeName&&) = delete
+/**
+ * Convenience alias for defining native words in dynamically loaded libraries.
+ */
+#define LASKIN_PLUGIN_WORD(x) LASKIN_BUILTIN_WORD(x)
+
+/**
+ * Defines the entry point for a dynamically loaded library.
+ */
+#define LASKIN_PLUGIN \
+  extern "C" void laskin_plugin(laskin::context& context)

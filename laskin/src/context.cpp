@@ -24,12 +24,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <fstream>
+#include <optional>
 
 #include <peelo/unicode/encoding/utf8.hpp>
 
 #include "laskin/chrono.hpp"
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
+#include "laskin/macros.hpp"
 
 namespace laskin
 {
@@ -37,6 +39,67 @@ namespace laskin
     context::dictionary_type&,
     const context::dictionary_definition&
   );
+
+  static bool
+  is_dynamic_library_extension(const std::string& extension)
+  {
+    return extension == ".so"
+      || extension == ".dll"
+      || extension == ".dylib";
+  }
+
+  static bool
+  is_dynamic_library_path(const std::filesystem::path& path)
+  {
+    return is_dynamic_library_extension(path.extension().string());
+  }
+
+  static std::optional<std::filesystem::path>
+  find_source_file(const std::filesystem::path& path)
+  {
+    namespace fs = std::filesystem;
+
+    if (fs::is_regular_file(path) && !is_dynamic_library_path(path))
+    {
+      return path;
+    }
+
+    const auto with_extension = path.string() + LASKIN_SOURCE_EXTENSION;
+
+    if (fs::is_regular_file(with_extension))
+    {
+      return with_extension;
+    }
+
+    return std::nullopt;
+  }
+
+  static void
+  import_source(
+    context& context,
+    const std::filesystem::path& path,
+    std::ostream* out
+  )
+  {
+    using peelo::unicode::encoding::utf8::decode;
+
+    std::ifstream in(path);
+    std::string source;
+
+    if (!in.good())
+    {
+      throw error(
+        error::type::system,
+        U"Unable to open file `" + decode(path.string()) + U"' for reading."
+      );
+    }
+    source.assign(
+      std::istreambuf_iterator<char>(in),
+      std::istreambuf_iterator<char>()
+    );
+    in.close();
+    context.run(source, out, path);
+  }
 
   namespace api
   {
@@ -55,10 +118,10 @@ namespace laskin
 
   context::context(
     const dictionary_default_callback& default_callback_,
-    bool allow_include_
+    bool allow_import_
   )
     : default_callback(default_callback_)
-    , allow_include(allow_include_)
+    , allow_import(allow_import_)
   {
     initialize_dictionary(dictionary, api::utils);
     initialize_dictionary(dictionary, api::boolean);
@@ -74,35 +137,53 @@ namespace laskin
   }
 
   void
-  context::include(const std::filesystem::path& path, std::ostream* out)
+  context::import(const std::filesystem::path& path, std::ostream* out)
   {
     using peelo::unicode::encoding::utf8::decode;
-    using peelo::unicode::encoding::utf8::decode_validate;
 
-    if (allow_include)
+    if (!allow_import)
     {
-      std::ifstream in(path);
-      std::string source;
-
-      if (!in.good())
-      {
-        throw error(
-          error::type::system,
-          U"Unable to open file `" + decode(path.string()) + U"' for reading."
-        );
-      }
-      source.assign(
-        std::istreambuf_iterator<char>(in),
-        std::istreambuf_iterator<char>()
-      );
-      in.close();
-      run(source, out, path);
-    } else {
       throw error(
         error::type::system,
-        U"Using include has been disabled in this context."
+        U"Using import has been disabled in this context."
       );
     }
+
+    const auto extension = path.extension().string();
+
+    if (extension == LASKIN_SOURCE_EXTENSION)
+    {
+      import_source(*this, path, out);
+      return;
+    }
+
+    if (is_dynamic_library_extension(extension))
+    {
+#ifdef LASKIN_ENABLE_DYNAMIC_LIBRARIES
+      load_library(path);
+#else
+      throw error(
+        error::type::system,
+        U"Dynamic library support has not been enabled in this build."
+      );
+#endif
+      return;
+    }
+
+    if (const auto source = find_source_file(path))
+    {
+      import_source(*this, *source, out);
+      return;
+    }
+
+#ifdef LASKIN_ENABLE_DYNAMIC_LIBRARIES
+    load_library(path);
+#else
+    throw error(
+      error::type::system,
+      U"Unable to open file `" + decode(path.string()) + U"' for reading."
+    );
+#endif
   }
 
   void

@@ -48,12 +48,20 @@ namespace laskin
     dictionary_type dictionary;
     /** Invoked when dictionary item is missing. */
     dictionary_default_callback default_callback;
-    /** Whether include word should be allowed or not. */
-    bool allow_include;
+    /** Whether import word should be allowed or not. */
+    bool allow_import;
+
+#ifdef LASKIN_ENABLE_DYNAMIC_LIBRARIES
+  private:
+    struct library_storage;
+    std::shared_ptr<library_storage> loaded_libraries;
+
+  public:
+#endif
 
     explicit context(
       const dictionary_default_callback& default_callback_ = nullptr,
-      bool allow_include_ = true
+      bool allow_import_ = true
     );
 
     LASKIN_DEFAULT_COPY_AND_ASSIGN(context);
@@ -103,12 +111,20 @@ namespace laskin
     }
 
     /**
-     * Includes and executes given program file.
+     * Imports either a Laskin source file or a dynamically loaded library,
+     * depending on the file extension.
      */
-    void include(
+    void import(
       const std::filesystem::path& path,
       std::ostream* out = nullptr
     );
+
+#ifdef LASKIN_ENABLE_DYNAMIC_LIBRARIES
+    /**
+     * Loads a dynamically loaded library and invokes its entry point.
+     */
+    void load_library(const std::filesystem::path& path);
+#endif
 
     /**
      * Performs an dictionary lookup on the context or throws `error` instance

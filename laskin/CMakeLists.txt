@@ -26,8 +26,8 @@ ADD_DEPENDENCY(
   v2.2.0
 )
 
-ADD_LIBRARY(
-  laskin
+SET(
+  LASKIN_SOURCES
   ./src/ast.cpp
   ./src/chrono.cpp
   ./src/context.cpp
@@ -59,6 +59,22 @@ ADD_LIBRARY(
   ./src/operator/substract.cpp
 )
 
+IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
+  IF(EMSCRIPTEN)
+    MESSAGE(
+      FATAL_ERROR
+      "Dynamic library support is not available in WebAssembly builds."
+    )
+  ENDIF()
+  LIST(APPEND LASKIN_SOURCES ./src/library.cpp)
+ENDIF()
+
+IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
+  ADD_LIBRARY(laskin SHARED ${LASKIN_SOURCES})
+ELSE()
+  ADD_LIBRARY(laskin ${LASKIN_SOURCES})
+ENDIF()
+
 TARGET_INCLUDE_DIRECTORIES(
   laskin
   PUBLIC
@@ -76,6 +92,24 @@ TARGET_LINK_LIBRARIES(
   PRIVATE
     ${MPFR_LIBRARIES}
 )
+
+IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
+  ADD_DEPENDENCY(
+    dylib
+    https://github.com/martin-olivier/dylib.git
+    v3.0.1
+  )
+  TARGET_COMPILE_DEFINITIONS(
+    laskin
+    PUBLIC
+      LASKIN_ENABLE_DYNAMIC_LIBRARIES
+  )
+  TARGET_LINK_LIBRARIES(
+    laskin
+    PRIVATE
+      dylib
+  )
+ENDIF()
 
 ENABLE_ALL_WARNINGS(laskin)
 

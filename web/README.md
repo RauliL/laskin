@@ -42,7 +42,7 @@ try {
 - `context.clear()` / `depth()` / `peek()` / `pop()` / `stack()`
 - `LaskinError` — thrown on interpreter errors (`type`, optional `line`/`column`)
 
-File includes (`include`) are disabled in this build.
+File imports (`import`) are disabled in this build.
 
 ### Options
 

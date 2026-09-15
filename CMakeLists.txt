@@ -44,6 +44,15 @@ OPTION(
   "Whether WebAssembly/JavaScript bindings should be built or not."
   ${LASKIN_ENABLE_WEB_DEFAULT}
 )
+OPTION(
+  LASKIN_ENABLE_DYNAMIC_LIBRARIES
+  "Whether support for dynamically loaded libraries should be enabled or not."
+  OFF
+)
+
+IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
+  SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
+ENDIF()
 
 ADD_SUBDIRECTORY(laskin)
 IF(LASKIN_ENABLE_CLI)
@@ -57,4 +66,7 @@ IF(LASKIN_ENABLE_2CPP)
 ENDIF()
 IF(LASKIN_ENABLE_WEB)
   ADD_SUBDIRECTORY(web)
+ENDIF()
+IF(LASKIN_ENABLE_DYNAMIC_LIBRARIES)
+  ADD_SUBDIRECTORY(examples/plugins)
 ENDIF()
