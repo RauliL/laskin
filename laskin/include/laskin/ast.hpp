@@ -142,8 +142,8 @@ namespace laskin
     ) const override;
 
     inline class value eval(
-      class context& context,
-      std::ostream* out
+      [[maybe_unused]] class context& context,
+      [[maybe_unused]] std::ostream* out
     ) const override
     {
       return value;

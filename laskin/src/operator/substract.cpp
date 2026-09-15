@@ -146,7 +146,7 @@ namespace laskin
           U"Cannot substract number to time."
         );
       }
-      delta = number_magnitude(b) * multiplier;
+      delta = static_cast<long>(number_magnitude(b) * multiplier);
     } else {
       delta = long(b);
     }

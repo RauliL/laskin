@@ -402,11 +402,11 @@ LASKIN_BUILTIN_WORD(w_substring)
 
   if (begin < 0)
   {
-    begin += length;
+    begin += static_cast<long>(length);
   }
   if (end < 0)
   {
-    end += length;
+    end += static_cast<long>(length);
   }
 
   if (
@@ -531,7 +531,7 @@ LASKIN_BUILTIN_WORD(w_pad_start)
     return;
   }
 
-  target_length -= string_length;
+  target_length -= static_cast<long>(string_length);
   if (target_length > static_cast<long>(pad_string_length))
   {
     const auto original_pad_string = pad_string;
@@ -566,7 +566,7 @@ LASKIN_BUILTIN_WORD(w_pad_end)
     return;
   }
 
-  target_length -= string_length;
+  target_length -= static_cast<long>(string_length);
   if (target_length > static_cast<long>(pad_string_length))
   {
     const auto original_pad_string = pad_string;
@@ -598,7 +598,7 @@ LASKIN_BUILTIN_WORD(w_at)
 
   if (index < 0)
   {
-    index += length;
+    index += static_cast<long>(length);
   }
   if (!length || index < 0 || index >= static_cast<long>(length))
   {

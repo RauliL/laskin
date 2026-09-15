@@ -23,6 +23,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <numbers>
+
 #include "laskin/context.hpp"
 #include "laskin/error.hpp"
 
@@ -35,7 +37,7 @@ using namespace laskin;
  */
 LASKIN_BUILTIN_WORD(w_pi)
 {
-  context << M_PI;
+  context << std::numbers::pi;
 }
 
 /**
@@ -45,7 +47,7 @@ LASKIN_BUILTIN_WORD(w_pi)
  */
 LASKIN_BUILTIN_WORD(w_e)
 {
-  context << M_E;
+  context << std::numbers::e;
 }
 
 /**
@@ -396,14 +398,14 @@ LASKIN_BUILTIN_WORD(w_deg)
 {
   const auto value = context.pop().as_number();
 
-  context << (value * 180 / M_PI);
+  context << (value * 180 / std::numbers::pi);
 }
 
 LASKIN_BUILTIN_WORD(w_rad)
 {
   const auto value = context.pop().as_number();
 
-  context << (value * M_PI / 180L);
+  context << (value * std::numbers::pi / 180L);
 }
 
 /**

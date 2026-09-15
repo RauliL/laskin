@@ -29,8 +29,8 @@
 
 #define LASKIN_BUILTIN_WORD(x) \
   static void x( \
-    class context& context, \
-    std::ostream* out \
+    [[maybe_unused]] class context& context, \
+    [[maybe_unused]] std::ostream* out \
   )
 
 #define LASKIN_DEFAULT_COPY_AND_ASSIGN(TypeName) \
